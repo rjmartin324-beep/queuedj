@@ -1,0 +1,21 @@
+{
+  "name": "@partyglue/realtime",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@partyglue/shared-types": "*",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "redis": "^4.6.0",
+    "socket.io": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

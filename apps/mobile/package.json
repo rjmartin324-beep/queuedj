@@ -1,0 +1,44 @@
+{
+  "name": "@partyglue/mobile",
+  "version": "0.0.1",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "web": "expo start --web",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "build:web": "expo export --platform web"
+  },
+  "dependencies": {
+    "@partyglue/shared-types": "*",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-three/fiber": "^8.17.10",
+    "expo": "~51.0.0",
+    "expo-av": "~14.0.0",
+    "expo-camera": "~15.0.0",
+    "expo-document-picker": "~12.0.0",
+    "expo-image-picker": "~15.1.0",
+    "expo-linear-gradient": "~13.0.2",
+    "expo-media-library": "~16.0.0",
+    "expo-router": "~3.5.0",
+    "expo-status-bar": "~1.12.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.74.0",
+    "react-native-draggable-flatlist": "^4.0.1",
+    "react-native-gesture-handler": "~2.16.0",
+    "react-native-qrcode-svg": "^6.3.0",
+    "react-native-reanimated": "~3.10.0",
+    "react-native-svg": "~15.2.0",
+    "react-native-track-player": "^4.1.1",
+    "react-native-web": "~0.19.10",
+    "socket.io-client": "^4.7.0",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@types/react": "~18.2.0",
+    "typescript": "^5.4.0"
+  }
+}

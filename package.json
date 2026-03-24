@@ -1,0 +1,35 @@
+{
+  "name": "partyglue",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:infra": "docker compose up",
+    "dev:api": "dotenv -e .env -- tsx watch services/api/src/index.ts",
+    "dev:realtime": "dotenv -e .env -- tsx watch services/realtime/src/index.ts",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:migrate": "node services/api/src/db/migrate.js",
+    "db:seed": "node services/api/src/db/seed.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "dotenv-cli": "^7.4.4",
+    "eslint": "^9.0.0",
+    "prettier": "^3.2.0",
+    "tsx": "^4.21.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0"
+  },
+  "packageManager": "npm@10.0.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

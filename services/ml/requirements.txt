@@ -1,0 +1,24 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+pydantic==2.7.0
+structlog==24.2.0
+
+# Audio Analysis
+librosa==0.10.2
+numpy==1.26.4
+scipy==1.13.0
+soundfile==0.12.1
+
+# Database
+asyncpg==0.29.0
+
+# Redis / BullMQ bridge
+redis==5.0.4
+
+# ISRC Lookup
+httpx==0.27.0          # Async HTTP for AcoustID + MusicBrainz API calls
+
+# Phase 5+ (uncomment when stem separation is ready)
+# demucs==4.0.1
+# torch==2.3.0
+# torchaudio==2.3.0
