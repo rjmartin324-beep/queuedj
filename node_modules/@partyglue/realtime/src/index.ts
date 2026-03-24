@@ -23,6 +23,13 @@ import {
   getRoomSnapshot,
 } from "./rooms/stateReconciliation";
 import {
+  registerActiveRoom,
+  unregisterActiveRoom,
+  startPeriodicSnapshots,
+  stopPeriodicSnapshots,
+  snapshotAllActiveRooms,
+} from "./rooms/snapshotService";
+import {
   getMember,
   setMember,
   removeMember,
@@ -117,6 +124,9 @@ async function main() {
   await Promise.all([pubClient.connect(), subClient.connect()]);
   io.adapter(createAdapter(pubClient, subClient));
 
+  // ─── Crash Recovery: periodic snapshots to PostgreSQL ────────────────────
+  startPeriodicSnapshots();
+
   // ─── Connection Handler ────────────────────────────────────────────────────
 
   io.on("connection", (socket) => {
@@ -162,6 +172,7 @@ async function main() {
 
         // Join the Socket.io room (scopes broadcasts)
         await socket.join(roomId);
+        await registerActiveRoom(roomId);
 
         // Associate socket with guestId in Redis for disconnect cleanup
         await redisClient.set(`socket:${socket.id}`, JSON.stringify({ roomId, guestId: resolvedGuestId }));
@@ -425,6 +436,16 @@ async function main() {
     console.log(`[realtime] Socket.io server listening on :${PORT}`);
     console.log(`[realtime] Redis adapter connected — multi-server ready`);
   });
+
+  // ─── Graceful shutdown — snapshot all rooms before exit ──────────────────
+  async function shutdown(signal: string) {
+    console.log(`[realtime] ${signal} received — snapshotting all rooms before exit`);
+    stopPeriodicSnapshots();
+    await snapshotAllActiveRooms();
+    process.exit(0);
+  }
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT",  () => shutdown("SIGINT"));
 }
 
 main().catch((err) => {

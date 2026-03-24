@@ -8,6 +8,7 @@ import rateLimit from "@fastify/rate-limit";
 import { redisReady, redisClient } from "./redis";
 import { db } from "./db/client";
 import { roomRoutes } from "./routes/rooms";
+import { trackRoutes } from "./routes/tracks";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // API Service — Fastify HTTP server
@@ -58,6 +59,7 @@ async function start() {
 
   // ─── Routes ────────────────────────────────────────────────────────────────
   await fastify.register(roomRoutes, { prefix: "/" });
+  await fastify.register(trackRoutes, { prefix: "/" });
 
   // ─── Start ─────────────────────────────────────────────────────────────────
   await fastify.listen({ port: PORT, host: "0.0.0.0" });

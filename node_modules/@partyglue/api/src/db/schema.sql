@@ -75,6 +75,12 @@ CREATE TABLE sessions (
   retained_until        TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '90 days')
 );
 
+-- Crash recovery: full room state snapshot written every 60s and on clean shutdown.
+-- If Redis loses this room, server restores state from here on next join.
+-- Nullable — only populated for active rooms.
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS room_snapshot JSONB;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS snapshot_at   TIMESTAMPTZ;
+
 CREATE INDEX idx_sessions_started_at ON sessions(started_at);
 CREATE INDEX idx_sessions_retained_until ON sessions(retained_until);
 

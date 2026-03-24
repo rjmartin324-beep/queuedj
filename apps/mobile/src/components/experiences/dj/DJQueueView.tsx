@@ -18,31 +18,51 @@ export function DJQueueView() {
   const { state, sendAction } = useRoom();
   const [searchText, setSearchText] = useState("");
   const [requesting, setRequesting] = useState(false);
+  const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
+  const [optimisticQueue, setOptimisticQueue] = useState<QueueItem[] | null>(null);
 
   const nowPlaying = state.djState?.nowPlaying;
   const crowdState = state.room?.crowdState ?? "WARMUP";
+  const displayQueue = optimisticQueue ?? state.queue;
+
+  // Clear optimistic queue when server queue updates
+  React.useEffect(() => { setOptimisticQueue(null); }, [state.queue]);
 
   async function requestTrack() {
     if (!searchText.trim()) return;
     setRequesting(true);
+    const title = searchText.trim();
+
+    // Optimistically add to queue immediately
+    const optimisticItem: QueueItem = {
+      id: `optimistic:${Date.now()}`,
+      roomId: state.room?.id ?? "",
+      track: { isrc: `manual:${Date.now()}`, title, artist: "Unknown", durationMs: 180000, sourcePlatform: "local" } as any,
+      position: (optimisticQueue ?? state.queue).length,
+      requestedBy: state.guestId ?? "",
+      requestedAt: new Date().toISOString(),
+      votes: 0,
+    };
+    setOptimisticQueue([...(optimisticQueue ?? state.queue), optimisticItem]);
+    setSearchText("");
+
     try {
       const socket = socketManager.get();
-      if (!socket || !state.room) return;
+      if (!socket || !state.room) { setOptimisticQueue(null); setRequesting(false); return; }
 
       socket.emit("queue:request", {
         roomId: state.room.id,
         guestId: state.guestId!,
-        isrc: `manual:${Date.now()}`, // Placeholder — real ISRC lookup in Phase 2
-        title: searchText.trim(),
+        isrc: optimisticItem.track.isrc,
+        title,
         artist: "Unknown",
         durationMs: 180000,
         sourcePlatform: "local",
       }, (ack) => {
-        if (ack.accepted) {
-          setSearchText("");
-          Alert.alert("✅ Added to queue!");
-        } else {
-          const msg = ack.guardrailResult?.vibeDistanceScore ?? 0 > 0.7
+        if (!ack.accepted) {
+          // Rollback optimistic item
+          setOptimisticQueue(null);
+          const msg = (ack.guardrailResult?.vibeDistanceScore ?? 0) > 0.7
             ? `That track doesn't fit the vibe right now.\n${ack.guardrailResult?.alternativePositionSuggestion ?? ""}`
             : "Could not add track";
           Alert.alert("Not added", msg);
@@ -50,11 +70,18 @@ export function DJQueueView() {
         setRequesting(false);
       });
     } catch {
+      setOptimisticQueue(null);
       setRequesting(false);
     }
   }
 
   function voteUp(itemId: string) {
+    if (votedIds.has(itemId)) return; // already voted
+    // Optimistically increment vote count
+    setVotedIds(prev => new Set(prev).add(itemId));
+    setOptimisticQueue((optimisticQueue ?? state.queue).map(item =>
+      item.id === itemId ? { ...item, votes: item.votes + 1 } : item
+    ));
     sendAction("vote:cast", { targetItemId: itemId, vote: "up" });
   }
 
@@ -73,12 +100,12 @@ export function DJQueueView() {
       </View>
 
       {/* Queue */}
-      <Text style={styles.sectionLabel}>UP NEXT ({state.queue.length})</Text>
+      <Text style={styles.sectionLabel}>UP NEXT ({displayQueue.length})</Text>
       <FlatList
-        data={state.queue}
+        data={displayQueue}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
-          <QueueItemRow item={item} position={index} onVoteUp={() => voteUp(item.id)} />
+          <QueueItemRow item={item} position={index} voted={votedIds.has(item.id)} onVoteUp={() => voteUp(item.id)} />
         )}
         style={styles.list}
         ListEmptyComponent={
@@ -109,11 +136,13 @@ export function DJQueueView() {
   );
 }
 
-function QueueItemRow({ item, position, onVoteUp }: {
+function QueueItemRow({ item, position, voted, onVoteUp }: {
   item: QueueItem;
   position: number;
+  voted: boolean;
   onVoteUp: () => void;
 }) {
+  const isOptimistic = item.id.startsWith("optimistic:");
   const vibeColor = item.vibeDistanceScore !== undefined
     ? item.vibeDistanceScore > 0.6 ? "#ff4444"
     : item.vibeDistanceScore > 0.3 ? "#ffaa00"
@@ -121,15 +150,15 @@ function QueueItemRow({ item, position, onVoteUp }: {
     : "#333";
 
   return (
-    <View style={styles.queueItem}>
+    <View style={[styles.queueItem, isOptimistic && styles.queueItemOptimistic]}>
       <Text style={styles.queuePosition}>{position + 1}</Text>
       <View style={styles.queueInfo}>
-        <Text style={styles.queueTitle} numberOfLines={1}>{item.track.title}</Text>
-        <Text style={styles.queueArtist} numberOfLines={1}>{item.track.artist}</Text>
+        <Text style={[styles.queueTitle, isOptimistic && { opacity: 0.5 }]} numberOfLines={1}>{item.track.title}</Text>
+        <Text style={styles.queueArtist} numberOfLines={1}>{isOptimistic ? "Adding..." : item.track.artist}</Text>
       </View>
       <View style={[styles.vibeIndicator, { backgroundColor: vibeColor }]} />
-      <TouchableOpacity onPress={onVoteUp} style={styles.voteButton}>
-        <Text style={styles.voteText}>▲</Text>
+      <TouchableOpacity onPress={onVoteUp} style={styles.voteButton} disabled={voted || isOptimistic}>
+        <Text style={[styles.voteText, voted && styles.voteTextVoted]}>▲ {item.votes > 0 ? item.votes : ""}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -151,8 +180,10 @@ const styles = StyleSheet.create({
   queueTitle:      { color: "#fff", fontWeight: "600", fontSize: 15 },
   queueArtist:     { color: "#666", fontSize: 12, marginTop: 2 },
   vibeIndicator:   { width: 6, height: 6, borderRadius: 3, marginHorizontal: 12 },
+  queueItemOptimistic: { opacity: 0.6 },
   voteButton:      { padding: 8 },
   voteText:        { color: "#6c47ff", fontSize: 16, fontWeight: "700" },
+  voteTextVoted:   { color: "#44ff88" },
   requestBar:      { flexDirection: "row", padding: 16, borderTopWidth: 1, borderTopColor: "#1a1a1a", gap: 10 },
   requestInput:    { flex: 1, backgroundColor: "#111", color: "#fff", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14, fontSize: 15, borderWidth: 1, borderColor: "#222" },
   requestButton:   { backgroundColor: "#6c47ff", borderRadius: 12, paddingHorizontal: 20, justifyContent: "center" },

@@ -1,6 +1,7 @@
 import type { RoomStateSnapshot, RoomEvent, RoomJoinAck, Room, QueueItem, RoomMember, Poll } from "@partyglue/shared-types";
 import { MAX_EVENT_REPLAY_COUNT } from "@partyglue/shared-types";
 import { redisClient } from "../redis";
+import { restoreRoomIfNeeded } from "./snapshotService";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // State Reconciliation
@@ -70,8 +71,9 @@ export async function storeRoomSnapshot(roomId: string, snapshot: RoomStateSnaps
 
 export async function getRoomSnapshot(roomId: string): Promise<RoomStateSnapshot | null> {
   const raw = await redisClient.get(STATE_KEY(roomId));
-  if (!raw) return null;
-  return JSON.parse(raw) as RoomStateSnapshot;
+  if (raw) return JSON.parse(raw) as RoomStateSnapshot;
+  // Redis miss — attempt restore from PostgreSQL crash recovery snapshot
+  return restoreRoomIfNeeded(roomId);
 }
 
 // ─── Reconciliation Decision ──────────────────────────────────────────────────

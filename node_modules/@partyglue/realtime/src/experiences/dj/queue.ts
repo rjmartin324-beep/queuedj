@@ -3,6 +3,8 @@ import type { QueueItem, QueueRequestPayload, QueueRequestAck, VibeGuardrailResu
 import { VIBE_GUARDRAIL_THRESHOLDS } from "@partyglue/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId, storeEvent } from "../../rooms/stateReconciliation";
+import { db } from "../../db";
+import { classifyTransition, neutralResult, type TrackAudioFeatures } from "../../lib/transitionClassifier";
 
 const QUEUE_KEY = (roomId: string) => `experience:dj:queue:${roomId}`;
 
@@ -28,15 +30,25 @@ export async function handleQueueRequest(
   const queue = await getQueue(roomId);
 
   // ─── Vibe Guardrail Check ─────────────────────────────────────────────────
+  // Strategy: rule-based classifier runs first (always available, <1ms).
+  // ML service called after — if it responds, its score wins (richer signal).
+  // If ML is down or times out, rule-based result is already in hand.
   const nowPlayingIsrc = await getNowPlayingIsrc(roomId);
   let vibeDistanceScore = 0.3; // Neutral default
 
   if (nowPlayingIsrc) {
+    // Rule-based first — synchronous, zero dependency
+    const ruleResult = await classifyTransitionForTracks(nowPlayingIsrc, isrc, roomId);
+    vibeDistanceScore = ruleResult.vibeDistanceScore;
+
+    // Attempt ML enhancement (fire with timeout — best effort)
     try {
       const mlResult = await callMLCompatibility(nowPlayingIsrc, isrc, roomId);
-      vibeDistanceScore = mlResult.vibe_distance_score ?? 0.3;
+      if (typeof mlResult.vibe_distance_score === "number") {
+        vibeDistanceScore = mlResult.vibe_distance_score;
+      }
     } catch {
-      // ML unavailable — allow track with neutral score
+      // ML unavailable — rule-based score stands
     }
   }
 
@@ -133,6 +145,48 @@ export async function handleQueueRemove(
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+async function getTrackFeatures(isrc: string): Promise<TrackAudioFeatures | null> {
+  try {
+    const result = await db.query<{
+      bpm: number | null;
+      camelot_key: number | null;
+      camelot_type: string | null;
+      energy: number | null;
+    }>(
+      "SELECT bpm, camelot_key, camelot_type, energy FROM tracks WHERE isrc = $1",
+      [isrc],
+    );
+    const row = result.rows[0];
+    if (!row) return null;
+    return {
+      bpm:         row.bpm         ?? 120,
+      camelotKey:  row.camelot_key ?? 1,
+      camelotType: (row.camelot_type as "A" | "B") ?? "B",
+      energy:      row.energy      ?? 0.5,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function classifyTransitionForTracks(
+  isrcA: string,
+  isrcB: string,
+  roomId: string,
+): Promise<{ vibeDistanceScore: number }> {
+  const [trackA, trackB] = await Promise.all([
+    getTrackFeatures(isrcA),
+    getTrackFeatures(isrcB),
+  ]);
+
+  if (!trackA || !trackB) return neutralResult();
+
+  const crowdRaw = await redisClient.get(`experience:dj:${roomId}`);
+  const crowdState = crowdRaw ? JSON.parse(crowdRaw).crowdState : "PEAK";
+
+  return classifyTransition(trackA, trackB, crowdState);
+}
 
 async function getNowPlayingIsrc(roomId: string): Promise<string | null> {
   const raw = await redisClient.get(`experience:dj:${roomId}`);
