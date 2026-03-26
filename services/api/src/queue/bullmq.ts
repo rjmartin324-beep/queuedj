@@ -4,7 +4,7 @@ import type {
   ISRCLookupJobPayload,
   TransitionAnalysisJobPayload,
   RLHFSignalJobPayload,
-} from "@partyglue/shared-types";
+} from "@queuedj/shared-types";
 
 type BullMQQueue = "critical" | "high" | "normal" | "low";
 

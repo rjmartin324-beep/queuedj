@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Audio } from "expo-av";
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
@@ -7,7 +8,8 @@ import DraggableFlatList, {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useRoom } from "../../contexts/RoomContext";
 import { socketManager } from "../../lib/socket";
-import type { QueueItem } from "@partyglue/shared-types";
+import { audioEngine } from "../../lib/engines/audioEngineSingleton";
+import type { QueueItem } from "@queuedj/shared-types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HostQueueView — drag-and-drop queue reordering for the host
@@ -17,7 +19,7 @@ import type { QueueItem } from "@partyglue/shared-types";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function HostQueueView() {
-  const { state } = useRoom();
+  const { state, dispatch } = useRoom();
 
   function onDragEnd({ data, from, to }: { data: QueueItem[]; from: number; to: number }) {
     if (from === to) return;
@@ -34,21 +36,44 @@ export function HostQueueView() {
   }
 
   function removeItem(itemId: string) {
+    // Local remove always works
+    dispatch({ type: "SET_QUEUE", queue: state.queue.filter(q => q.id !== itemId) });
+    // Also tell server if online
     const socket = socketManager.get();
-    if (!socket || !state.room) return;
-    socket.emit("queue:remove" as any, {
-      roomId: state.room.id,
-      itemId,
-    });
+    if (socket && state.room) {
+      socket.emit("queue:remove" as any, { roomId: state.room.id, itemId });
+    }
+  }
+
+  async function loadToDeck(item: QueueItem, deckId: "A" | "B") {
+    const uri = (item.track as any).previewUrl ?? (item.track as any).uri;
+    if (uri) {
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true }).catch(() => {});
+      await audioEngine.loadTrack(deckId, uri).catch(() => {});
+    }
+    // Tell server if online so guests see "now playing"
+    const socket = socketManager.get();
+    if (socket && state.room) {
+      socket.emit("deck:command" as any, {
+        roomId: state.room.id,
+        guestId: "host",
+        deck: deckId,
+        command: "cue",
+      });
+    }
   }
 
   const renderItem = useCallback(({ item, drag, isActive, getIndex }: RenderItemParams<QueueItem>) => {
     const index = getIndex() ?? 0;
-    const vibeColor = item.vibeDistanceScore !== undefined
-      ? item.vibeDistanceScore > 0.6 ? "#ef4444"
-      : item.vibeDistanceScore > 0.3 ? "#f59e0b"
+    const vibeScore = item.vibeDistanceScore;
+    const vibeColor = vibeScore !== undefined
+      ? vibeScore > 0.6 ? "#ef4444"
+      : vibeScore > 0.3 ? "#f59e0b"
       : "#22c55e"
       : "#333";
+    const vibeLabel = vibeScore !== undefined
+      ? vibeScore > 0.6 ? "⚠" : vibeScore > 0.3 ? "~" : "✓"
+      : "";
 
     return (
       <ScaleDecorator>
@@ -70,7 +95,17 @@ export function HostQueueView() {
             <Text style={styles.bpm}>{Math.round(item.track.bpm)}</Text>
           )}
 
-          <View style={[styles.vibeDot, { backgroundColor: vibeColor }]} />
+          <View style={[styles.vibePill, { borderColor: vibeColor + "66", backgroundColor: vibeColor + "22" }]}>
+            <Text style={[styles.vibePillText, { color: vibeColor }]}>{vibeLabel}</Text>
+          </View>
+
+          {/* Load to deck buttons */}
+          <TouchableOpacity onPress={() => loadToDeck(item, "A")} style={styles.deckLoadBtn}>
+            <Text style={styles.deckLoadText}>A</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => loadToDeck(item, "B")} style={[styles.deckLoadBtn, styles.deckLoadBtnB]}>
+            <Text style={styles.deckLoadText}>B</Text>
+          </TouchableOpacity>
 
           {/* Remove */}
           <TouchableOpacity onPress={() => removeItem(item.id)} style={styles.removeBtn}>
@@ -115,9 +150,13 @@ const styles = StyleSheet.create({
   title:      { color: "#fff", fontSize: 14, fontWeight: "600" },
   artist:     { color: "#666", fontSize: 12, marginTop: 2 },
   bpm:        { color: "#6c47ff", fontSize: 12, fontWeight: "700", width: 36, textAlign: "right" },
-  vibeDot:    { width: 8, height: 8, borderRadius: 4 },
-  removeBtn:  { padding: 8 },
-  removeIcon: { color: "#555", fontSize: 13 },
+  vibePill:     { borderRadius: 6, borderWidth: 1, paddingHorizontal: 5, paddingVertical: 2, minWidth: 20, alignItems: "center" },
+  vibePillText: { fontSize: 10, fontWeight: "800" },
+  deckLoadBtn:  { backgroundColor: "#6c47ff22", borderRadius: 6, paddingHorizontal: 7, paddingVertical: 4, borderWidth: 1, borderColor: "#6c47ff55" },
+  deckLoadBtnB: { backgroundColor: "#06b6d422", borderColor: "#06b6d455" },
+  deckLoadText: { color: "#fff", fontSize: 11, fontWeight: "800" },
+  removeBtn:    { padding: 8 },
+  removeIcon:   { color: "#555", fontSize: 13 },
   empty:      { flex: 1, alignItems: "center", justifyContent: "center", gap: 8, padding: 40 },
   emptyText:  { color: "#fff", fontSize: 16, fontWeight: "600" },
   emptyHint:  { color: "#555", fontSize: 13, textAlign: "center" },

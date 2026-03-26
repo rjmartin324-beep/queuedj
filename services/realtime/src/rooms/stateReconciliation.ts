@@ -1,5 +1,5 @@
-import type { RoomStateSnapshot, RoomEvent, RoomJoinAck, Room, QueueItem, RoomMember, Poll } from "@partyglue/shared-types";
-import { MAX_EVENT_REPLAY_COUNT } from "@partyglue/shared-types";
+import type { RoomStateSnapshot, RoomEvent, RoomJoinAck, Room, QueueItem, RoomMember, Poll } from "@queuedj/shared-types";
+import { MAX_EVENT_REPLAY_COUNT } from "@queuedj/shared-types";
 import { redisClient } from "../redis";
 import { restoreRoomIfNeeded } from "./snapshotService";
 

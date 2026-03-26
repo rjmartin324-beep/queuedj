@@ -2,6 +2,15 @@ import path from "path";
 import dotenv from "dotenv";
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
+import * as Sentry from "@sentry/node";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN ?? "",
+  environment: process.env.NODE_ENV ?? "development",
+  enabled: !!process.env.SENTRY_DSN,
+  tracesSampleRate: 0.1,
+});
+
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { createAdapter } from "@socket.io/redis-adapter";
@@ -13,8 +22,8 @@ import type {
   DeckCommand,
   VibePreset,
   RoomRole,
-} from "@partyglue/shared-types";
-import { ROLE_PERMISSIONS } from "@partyglue/shared-types";
+} from "@queuedj/shared-types";
+import { ROLE_PERMISSIONS } from "@queuedj/shared-types";
 import {
   reconcile,
   storeEvent,
@@ -40,8 +49,11 @@ import {
   getAllMembers,
   getMemberCount,
 } from "./handlers/roles";
-import { handleQueueRequest, handleQueueReorder, handleQueueRemove } from "./handlers/queue";
+import { handleQueueRequest, handleQueueReorder, handleQueueRemove, handleVoteCast } from "./handlers/queue";
+import { handleChatMessage, getChatHistory } from "./handlers/chat";
+import { logTrackComplete } from "./lib/rlhf";
 import { handleVibeCast, handleTapBeat, handlePollRespond } from "./handlers/vibe";
+import { setCrowdState } from "./experiences/dj/vibe";
 import { getExperience, isValidExperience } from "./experiences";
 import { redisClient, redisSub, connectRedis } from "./redis";
 
@@ -90,11 +102,31 @@ class SocketRateLimiter {
 
 const rateLimiter = new SocketRateLimiter();
 
+// ─── Profanity Filter ─────────────────────────────────────────────────────────
+// Word-boundary regex list. Extend BLOCKED_WORDS to add more terms.
+// Words are replaced with *** to keep the message length predictable.
+
+const BLOCKED_WORDS = [
+  "fuck", "shit", "cunt", "nigger", "nigga", "faggot", "fag",
+  "bitch", "asshole", "bastard", "cock", "dick", "pussy", "whore",
+  "slut", "kike", "spic", "chink", "retard",
+];
+
+const PROFANITY_RE = new RegExp(
+  `\\b(${BLOCKED_WORDS.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})\\b`,
+  "gi",
+);
+
+function filterProfanity(text: string): string {
+  return text.replace(PROFANITY_RE, (match) => "*".repeat(match.length));
+}
+
 const RATE_LIMITS: Record<string, { max: number; windowMs: number }> = {
   "queue:request":     { max: 10,  windowMs: 60_000 },  // 10/min
   "vote:cast":         { max: 60,  windowMs: 60_000 },  // 1/sec
   "tap:beat":          { max: 120, windowMs: 60_000 },  // 2/sec
   "shoutout:send":     { max: 5,   windowMs: 60_000 },  // 5/min
+  "chat:message":      { max: 20,  windowMs: 60_000 },  // 20/min (~1 per 3s)
   "deck:command":      { max: 300, windowMs: 60_000 },  // 5/sec (host only)
   "experience:action": { max: 300, windowMs: 60_000 },  // 5/sec (game actions)
 };
@@ -127,11 +159,29 @@ async function main() {
   // ─── Crash Recovery: periodic snapshots to PostgreSQL ────────────────────
   startPeriodicSnapshots();
 
+  // ─── Room Closed Pub/Sub (from API service via Redis publish) ────────────
+  redisSub.subscribe("room:closed", (message) => {
+    try {
+      const { roomId } = JSON.parse(message);
+      if (roomId) {
+        io.to(roomId).emit("room:closed" as any, { roomId });
+      }
+    } catch { /* malformed message */ }
+  });
+
   // ─── Connection Handler ────────────────────────────────────────────────────
 
+  /** Strip HTML tags and limit length — used for any user-supplied strings */
+  function sanitizeString(value: unknown, maxLen = 64): string {
+    if (typeof value !== "string") return "";
+    return value.replace(/<[^>]*>/g, "").replace(/[^\w\s\-'.!?,]/g, "").trim().slice(0, maxLen);
+  }
+
   io.on("connection", (socket) => {
-    const socketGuestId   = socket.handshake.auth?.guestId     as string | undefined;
-    const socketDisplayName = socket.handshake.auth?.displayName as string | undefined;
+    const rawGuestId      = socket.handshake.auth?.guestId     as string | undefined;
+    const rawDisplayName  = socket.handshake.auth?.displayName as string | undefined;
+    const socketGuestId   = rawGuestId   ? sanitizeString(rawGuestId, 64) : undefined;
+    const socketDisplayName = rawDisplayName ? sanitizeString(rawDisplayName, 24) : undefined;
 
     // ─── room:join ───────────────────────────────────────────────────────────
     socket.on("room:join", async ({ roomId, guestId, lastSequenceId }, ack) => {
@@ -172,7 +222,15 @@ async function main() {
 
         // Join the Socket.io room (scopes broadcasts)
         await socket.join(roomId);
+        // Also join a personal room so credits:awarded reaches this guest directly
+        await socket.join(`guest:${resolvedGuestId}`);
         await registerActiveRoom(roomId);
+
+        // Record daily activity for streak-at-risk push reminders (49h TTL covers today + tomorrow job run)
+        const activityKey = `guest:active:${new Date().toISOString().slice(0, 10)}`;
+        redisClient.sAdd(activityKey, resolvedGuestId).then(() =>
+          redisClient.expire(activityKey, 49 * 60 * 60),
+        ).catch(() => {/* non-critical */});
 
         // Associate socket with guestId in Redis for disconnect cleanup
         await redisClient.set(`socket:${socket.id}`, JSON.stringify({ roomId, guestId: resolvedGuestId }));
@@ -204,6 +262,16 @@ async function main() {
           ...publicMember,
           roomId,
         });
+
+        // Walk-in anthem — emit to host if guest has one set
+        const memberRecord = await getMember(roomId, resolvedGuestId);
+        if (memberRecord?.walkInAnthemIsrc && role === "GUEST") {
+          io.to(`host:${roomId}`).emit("room:walk_in_anthem" as any, {
+            guestId: resolvedGuestId,
+            displayName: memberRecord.displayName ?? "Guest",
+            isrc: memberRecord.walkInAnthemIsrc,
+          });
+        }
 
       } catch (err) {
         console.error("[room:join] error", err);
@@ -254,7 +322,7 @@ async function main() {
       if (!checkRate(socket, "vote:cast")) return;
       const { allowed } = await requirePermission(payload.roomId, payload.guestId, "canVote");
       if (!allowed) return;
-      // Vibe credit economy + vote logic handled in vibe handler (Phase 5)
+      await handleVoteCast(payload.roomId, payload.targetItemId, payload.vote, io, payload.guestId);
     });
 
     // ─── poll:respond ────────────────────────────────────────────────────────
@@ -271,9 +339,84 @@ async function main() {
     // ─── shoutout:send ───────────────────────────────────────────────────────
     socket.on("shoutout:send", async ({ roomId, guestId, message }) => {
       if (!checkRate(socket, "shoutout:send")) return;
-      // Sanitize message — no HTML, max 100 chars
-      const sanitized = message.replace(/<[^>]*>/g, "").slice(0, 100);
-      io.to(roomId).emit("shoutout:received", { message: sanitized });
+
+      // Check mute status — muted guests' messages are silently dropped
+      const senderId = guestId ?? socketGuestId;
+      if (senderId) {
+        const muted = await redisClient.sIsMember(`room:${roomId}:muted`, senderId);
+        if (muted) return;
+      }
+
+      // Sanitize message — strip HTML, enforce max length
+      let sanitized = message.replace(/<[^>]*>/g, "").slice(0, 100).trim();
+
+      // Profanity filter — replace blocked words with ***
+      sanitized = filterProfanity(sanitized);
+      if (!sanitized) return;
+
+      io.to(roomId).emit("shoutout:received", { message: sanitized, guestId: senderId });
+    });
+
+    // ─── chat:message ────────────────────────────────────────────────────────
+    socket.on("chat:message" as any, async ({ roomId, guestId, displayName, text }: any) => {
+      if (!checkRate(socket, "chat:message")) return;
+
+      // Check mute status
+      const senderId = guestId ?? socketGuestId;
+      if (senderId) {
+        const muted = await redisClient.sIsMember(`room:${roomId}:muted`, senderId);
+        if (muted) return;
+      }
+
+      // Sanitize
+      const cleanText = filterProfanity(
+        String(text ?? "").replace(/<[^>]*>/g, "").trim().slice(0, 200)
+      );
+      if (!cleanText) return;
+
+      const cleanName = sanitizeString(displayName ?? socketDisplayName ?? "Guest", 24);
+
+      await handleChatMessage({
+        roomId,
+        guestId: senderId ?? "unknown",
+        displayName: cleanName,
+        text: cleanText,
+      }, io);
+    });
+
+    // ─── chat:history ─────────────────────────────────────────────────────────
+    socket.on("chat:history" as any, async ({ roomId }: { roomId: string }, ack: any) => {
+      const history = await getChatHistory(roomId);
+      if (typeof ack === "function") ack(history);
+    });
+
+    // ─── guest:mute (HOST/CO_HOST) ────────────────────────────────────────────
+    socket.on("guest:mute" as any, async ({ roomId, targetGuestId, muted }: { roomId: string; targetGuestId: string; muted: boolean }) => {
+      const guestId = socketGuestId!;
+      const { allowed } = await requirePermission(roomId, guestId, "canKickGuest");
+      if (!allowed) {
+        socket.emit("error", { code: "UNAUTHORIZED", message: "Only host or co-host can mute guests" });
+        return;
+      }
+      if (muted) {
+        await redisClient.sAdd(`room:${roomId}:muted`, targetGuestId);
+      } else {
+        await redisClient.sRem(`room:${roomId}:muted`, targetGuestId);
+      }
+      // Notify host/co-hosts only
+      socket.emit("guest:mute_ack" as any, { targetGuestId, muted });
+    });
+
+    // ─── guest:report (any member) ───────────────────────────────────────────
+    socket.on("guest:report" as any, async ({ roomId, targetGuestId, reason }: { roomId: string; targetGuestId: string; reason?: string }) => {
+      const reporterId = socketGuestId;
+      if (!reporterId) return;
+      // Persist report for host review
+      const report = { reporterId, targetGuestId, reason: reason ?? "", ts: Date.now() };
+      await redisClient.lPush(`room:${roomId}:reports`, JSON.stringify(report));
+      await redisClient.lTrim(`room:${roomId}:reports`, 0, 99); // keep last 100
+      // Notify host sockets in the room
+      socket.to(`host:${roomId}`).emit("guest:reported" as any, report);
     });
 
     // ─── deck:command (HOST only) ────────────────────────────────────────────
@@ -295,6 +438,14 @@ async function main() {
       const { allowed } = await requirePermission(roomId, guestId, "canSetVibe");
       if (!allowed) return;
       await handleVibeCast(roomId, preset, io);
+    });
+
+    // ─── crowd_state:set (HOST/CO_HOST) ──────────────────────────────────────
+    socket.on("crowd_state:set" as any, async ({ roomId, crowdState }: { roomId: string; crowdState: string }) => {
+      const guestId = socketGuestId!;
+      const { allowed } = await requirePermission(roomId, guestId, "canSetVibe");
+      if (!allowed) return;
+      await setCrowdState(roomId, crowdState as any, io);
     });
 
     // ─── bathroom:toggle (HOST only) ─────────────────────────────────────────
@@ -382,6 +533,60 @@ async function main() {
           }
         }
       }
+    });
+
+    // ─── guest:set_anthem ────────────────────────────────────────────────────
+    socket.on("guest:set_anthem" as any, async ({ roomId, isrc }: { roomId: string; isrc: string | null }) => {
+      const guestId = socketGuestId;
+      if (!guestId) return;
+      const member = await getMember(roomId, guestId);
+      if (!member) return;
+      await setMember(roomId, { ...member, walkInAnthemIsrc: isrc ?? undefined });
+    });
+
+    // ─── room:setting ────────────────────────────────────────────────────────
+    // HOST or CO_HOST can change room settings at runtime.
+    // Settings are stored in Redis and broadcast to all room members.
+    socket.on("room:setting" as any, async ({ roomId, key, value }: { roomId: string; key: string; value: unknown }) => {
+      const guestId = socketGuestId;
+      if (!guestId) return;
+      const { allowed } = await requirePermission(roomId, guestId, "canSetVibe");
+      if (!allowed) return;
+
+      const ALLOWED_KEYS = new Set([
+        "requestsLocked", "votingEnabled", "showQueueToGuests",
+        "allowLateJoin", "maxGuests", "bpm_override",
+      ]);
+      if (!ALLOWED_KEYS.has(key)) return;
+
+      // Persist setting in Redis
+      await redisClient.hSet(`room:${roomId}:settings`, String(key), JSON.stringify(value));
+
+      // Broadcast to all room members
+      io.to(roomId).emit("room:setting_changed" as any, { key, value });
+    });
+
+    // ─── deck:track_played ───────────────────────────────────────────────────
+    // Host emits when a track starts playing — records to session_tracks
+    socket.on("deck:track_played" as any, async ({ roomId, isrc, title, artist, requestCount, voteCount }: {
+      roomId: string; isrc: string; title: string; artist: string;
+      requestCount?: number; voteCount?: number;
+    }) => {
+      const guestId = socketGuestId;
+      if (!guestId) return;
+      const { allowed } = await requirePermission(roomId, guestId, "canPlay");
+      if (!allowed) return;
+      // Fire-and-forget to API service to persist session track
+      fetch(`${process.env.API_URL ?? "http://localhost:3001"}/sessions/${roomId}/tracks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isrc, title, artist, requestCount: requestCount ?? 0, voteCount: voteCount ?? 0 }),
+      }).catch(() => {});
+
+      // Log RLHF track_complete signal — track played = strong positive feedback
+      const djRaw = await redisClient.get(`experience:dj:${roomId}`);
+      const crowdState = djRaw ? JSON.parse(djRaw).crowdState : undefined;
+      logTrackComplete(roomId, isrc, crowdState);
     });
 
     // ─── disconnect ──────────────────────────────────────────────────────────

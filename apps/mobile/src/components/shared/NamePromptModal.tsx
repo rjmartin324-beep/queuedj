@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal, View, Text, TextInput,
   TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const GUEST_NAME_KEY = "guest_display_name";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // NamePromptModal — shown once before a guest enters a room
@@ -26,9 +29,17 @@ function randomName() {
 export function NamePromptModal({ visible, onConfirm }: Props) {
   const [name, setName] = useState(() => randomName());
 
-  function confirm() {
+  // Pre-fill with saved name if exists
+  useEffect(() => {
+    AsyncStorage.getItem(GUEST_NAME_KEY).then((saved) => {
+      if (saved) setName(saved);
+    });
+  }, []);
+
+  async function confirm() {
     const trimmed = name.trim();
     if (!trimmed) return;
+    await AsyncStorage.setItem(GUEST_NAME_KEY, trimmed);
     onConfirm(trimmed);
   }
 

@@ -36,15 +36,26 @@ def camelot_score(key_a: int, type_a: str, key_b: int, type_b: str) -> float:
         return 0.1                          # Cross-mode clash
 
 # ─── BPM Compatibility ────────────────────────────────────────────────────────
+# Handles double-time / half-time: 128 BPM ↔ 64 BPM is the same groove
+
+def normalize_bpm(bpm: float) -> float:
+    """Collapse to 60–120 canonical tempo range."""
+    b = bpm
+    while b > 120: b /= 2
+    while b < 60:  b *= 2
+    return b
 
 def bpm_score(bpm_a: float, bpm_b: float) -> float:
-    delta = abs(bpm_a - bpm_b)
-    if delta <= 2:   return 1.0            # Near-identical
+    direct_delta     = abs(bpm_a - bpm_b)
+    normalized_delta = abs(normalize_bpm(bpm_a) - normalize_bpm(bpm_b))
+    delta = min(direct_delta, normalized_delta)
+
+    if delta <= 2:   return 1.0
     if delta <= 8:   return 0.85
     if delta <= 15:  return 0.6
     if delta <= 25:  return 0.35
-    if delta <= 40:  return 0.15           # Hard but survivable with time-stretch
-    return 0.0                             # Too far — hard reject
+    if delta <= 40:  return 0.15
+    return 0.0
 
 # ─── Energy Compatibility ─────────────────────────────────────────────────────
 
@@ -134,14 +145,23 @@ class TransitionAnalysisWorker:
         type_b = track_b.get("camelot_type") or "B"
         energy_a = track_a.get("energy") or 0.5
         energy_b = track_b.get("energy") or 0.5
+        dance_a = track_a.get("danceability")
+        dance_b = track_b.get("danceability")
 
         bpm_delta = abs(bpm_a - bpm_b)
         energy_delta = abs(energy_a - energy_b)
 
-        bpm_compat = bpm_score(bpm_a, bpm_b)
+        bpm_compat    = bpm_score(bpm_a, bpm_b)
         camelot_compat = camelot_score(key_a, type_a, key_b, type_b)
         energy_compat = energy_score(energy_a, energy_b)
-        crowd_compat = crowd_state_penalty(energy_b, crowd_state)
+        crowd_compat  = crowd_state_penalty(energy_b, crowd_state)
+
+        # Danceability bonus: reward pairings that keep the dance floor engaged
+        # Small bonus (max +0.08) when both tracks have similar danceability
+        dance_bonus = 0.0
+        if dance_a is not None and dance_b is not None:
+            dance_delta = abs(dance_a - dance_b)
+            dance_bonus = max(0.0, 0.08 * (1.0 - dance_delta * 2))
 
         # Weighted composite score
         # BPM and Camelot are most critical for perceived mix quality
@@ -149,8 +169,10 @@ class TransitionAnalysisWorker:
             bpm_compat     * 0.35 +
             camelot_compat * 0.30 +
             energy_compat  * 0.20 +
-            crowd_compat   * 0.15
+            crowd_compat   * 0.15 +
+            dance_bonus
         )
+        composite = min(1.0, composite)
 
         # Vibe distance: inverse of compatibility (0 = same vibe, 1 = total mismatch)
         vibe_distance = round(1.0 - composite, 3)
@@ -168,7 +190,7 @@ class TransitionAnalysisWorker:
         try:
             pool = await self._get_db()
             row = await pool.fetchrow(
-                "SELECT bpm, camelot_key, camelot_type, energy FROM tracks WHERE isrc = $1",
+                "SELECT bpm, camelot_key, camelot_type, energy, danceability FROM tracks WHERE isrc = $1",
                 isrc,
             )
             return dict(row) if row else None

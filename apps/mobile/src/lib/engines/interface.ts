@@ -18,6 +18,7 @@ export interface AudioEngineInterface {
   setCrossfader(value: number): void;          // 0.0 = full A, 1.0 = full B
   setEQ(deckId: "A" | "B", low: number, mid: number, high: number): void;
   setVolume(deckId: "A" | "B", volume: number): void;
+  setRate(deckId: "A" | "B", rate: number): Promise<void>; // 1.0 = normal, 1.1 = 10% faster
   getPosition(deckId: "A" | "B"): Promise<number>;
   isPlaying(deckId: "A" | "B"): boolean;
   crossfadeToB(durationMs: number): Promise<void>;

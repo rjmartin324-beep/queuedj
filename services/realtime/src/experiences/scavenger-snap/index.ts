@@ -1,5 +1,5 @@
 import type { Server } from "socket.io";
-import type { ExperienceModule, GuestViewDescriptor } from "@partyglue/shared-types";
+import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 
@@ -35,6 +35,36 @@ const SNAP_CHALLENGES = [
   "Show your best 'album cover' pose",
   "Find something that belongs in a museum",
   "Show us something that sparks joy (Marie Kondo rules)",
+  "Find something that is perfectly circular",
+  "Show the tallest object you can reach right now",
+  "Find something with a face on it that isn't a phone or screen",
+  "Show us something that is exactly two colours",
+  "Find the softest thing within arm's reach",
+  "Show something that is older than this party",
+  "Find something that makes a satisfying sound when tapped",
+  "Show us your best shadow puppet on any surface",
+  "Find something that is unopened and probably forgotten",
+  "Show the most photogenic corner of the room",
+  "Find something that should be recycled but probably won't be",
+  "Show us something that comes in a pair but you can only find one of",
+  "Find something that could pass as abstract art",
+  "Show the most precarious stack of objects near you",
+  "Find something that belongs to someone else in the room",
+  "Show your best impression of a product advertisement",
+  "Find something that is held together by luck alone",
+  "Show us the most expired thing you can find",
+  "Find something that is trying too hard to look cool",
+  "Show us something that doesn't belong here",
+  "Find the item with the most words printed on it",
+  "Show us a surface that hasn't been cleaned recently",
+  "Find something that smells interesting (describe it in a caption)",
+  "Show us an object that looks like a face if you tilt your head",
+  "Find the most impractical object near you",
+  "Show us something that could double as a hat",
+  "Find something that is held closed by friction alone",
+  "Show us the thing nearest to you that has a battery",
+  "Find something that was clearly a gift but never used",
+  "Show us the most symmetrical thing you can find",
 ];
 
 interface SnapState {

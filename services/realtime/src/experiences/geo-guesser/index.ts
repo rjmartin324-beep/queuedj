@@ -1,5 +1,5 @@
 import type { Server } from "socket.io";
-import type { ExperienceModule, GuestViewDescriptor } from "@partyglue/shared-types";
+import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { GEO_LOCATIONS, type GeoLocation } from "./locations";

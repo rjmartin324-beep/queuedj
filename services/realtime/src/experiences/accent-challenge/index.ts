@@ -1,0 +1,222 @@
+import type { Server } from "socket.io";
+import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
+import { redisClient } from "../../redis";
+import { getNextSequenceId } from "../../rooms/stateReconciliation";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Accent Challenge Experience
+//
+// Each round a performer gets a random accent + phrase to read aloud.
+// Guests rate the performance (0 / 100 / 200 / 350 pts).
+// Average rating is awarded to the performer. Rotates performers.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const KEY = (roomId: string) => `experience:accent_challenge:${roomId}`;
+
+const ACCENTS = [
+  "Southern American",
+  "British Cockney",
+  "Australian",
+  "Pirate",
+  "Italian-American",
+  "Scottish",
+];
+
+const PHRASES = [
+  "I can't believe you forgot to feed the cat again!",
+  "The treasure is buried beneath the old oak tree.",
+  "Would you like fries with that, my dear?",
+  "We're going to need a bigger boat.",
+  "Please hold all your questions until the end of the presentation.",
+  "That's not how any of this works.",
+  "I've been training for this moment my entire life.",
+  "The forecast calls for scattered cheese with a chance of bread.",
+  "Excuse me, is this seat taken by a time traveller?",
+  "I demand to speak to your manager's manager's manager.",
+];
+
+interface AccentChallengeState {
+  phase: "waiting" | "performing" | "rating" | "finished";
+  round: number;
+  totalRounds: number;
+  scores: Record<string, number>;
+  currentPerformer: string | null;
+  accent: string | null;
+  phrase: string | null;
+  ratings: Record<string, number>;  // guestId → 0 | 100 | 200 | 350
+  performerQueue: string[];
+}
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+export class AccentChallengeExperience implements ExperienceModule {
+  readonly type = "accent_challenge" as const;
+
+  async onActivate(roomId: string): Promise<void> {
+    const state: AccentChallengeState = {
+      phase: "waiting",
+      round: 0,
+      totalRounds: 6,
+      scores: {},
+      currentPerformer: null,
+      accent: null,
+      phrase: null,
+      ratings: {},
+      performerQueue: [],
+    };
+    await this._save(roomId, state);
+  }
+
+  async onDeactivate(roomId: string): Promise<void> {}
+
+  async handleAction({ action, payload, roomId, guestId, role, io }: {
+    action: string; payload: unknown; roomId: string;
+    guestId: string; role: "HOST" | "CO_HOST" | "GUEST"; io: Server;
+  }): Promise<void> {
+    const p = payload as any;
+
+    switch (action) {
+      // HOST: begin the game
+      case "start":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._start(roomId, p.guestIds as string[], io);
+        break;
+
+      // GUEST: submit rating for current performer
+      case "rate":
+        await this._rate(roomId, guestId, p.rating as 0 | 100 | 200 | 350, io);
+        break;
+
+      // HOST: tally, award, advance to next performer
+      case "next":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._next(roomId, io);
+        break;
+
+      // HOST: end early and return to DJ
+      case "end":
+        if (role !== "HOST") return;
+        await this._end(roomId, io);
+        break;
+    }
+  }
+
+  async getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor> {
+    const state = await this._load(roomId);
+    return {
+      type: `accent_challenge_${state.phase}` as any,
+      data: {
+        phase: state.phase,
+        round: state.round,
+        totalRounds: state.totalRounds,
+        currentPerformer: state.currentPerformer,
+        accent: state.phase !== "waiting" ? state.accent : null,
+        phrase: state.phase !== "waiting" ? state.phrase : null,
+        ratingCount: Object.keys(state.ratings).length,
+        scores: state.scores,
+      },
+    };
+  }
+
+  // ─── Private ──────────────────────────────────────────────────────────────
+
+  private async _start(roomId: string, guestIds: string[], io: Server): Promise<void> {
+    const state = await this._load(roomId);
+    const queue = [...guestIds].sort(() => Math.random() - 0.5);
+    state.performerQueue = queue.slice(1);
+    state.currentPerformer = queue[0] ?? null;
+    state.accent = pickRandom(ACCENTS);
+    state.phrase = pickRandom(PHRASES);
+    state.phase = "performing";
+    state.round = 1;
+    state.ratings = {};
+    await this._save(roomId, state);
+
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "accent_challenge",
+      state,
+      view: { type: "accent_challenge_performing" as any, data: state },
+      sequenceId: seq,
+    });
+  }
+
+  private async _rate(roomId: string, guestId: string, rating: 0 | 100 | 200 | 350, io: Server): Promise<void> {
+    const state = await this._load(roomId);
+    if (state.phase !== "performing") return;
+    if (state.ratings[guestId] !== undefined) return;
+    const valid = ([0, 100, 200, 350] as number[]).includes(rating) ? rating : 0;
+    state.ratings[guestId] = valid;
+    await this._save(roomId, state);
+    io.to(roomId).emit("accent_challenge:rating_count", { count: Object.keys(state.ratings).length });
+  }
+
+  private async _next(roomId: string, io: Server): Promise<void> {
+    const state = await this._load(roomId);
+    if (state.phase !== "performing") return;
+
+    // Award average rating to current performer
+    const ratingValues = Object.values(state.ratings);
+    if (ratingValues.length > 0 && state.currentPerformer) {
+      const avg = Math.round(ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length);
+      state.scores[state.currentPerformer] = (state.scores[state.currentPerformer] ?? 0) + avg;
+    }
+
+    // End game when rounds exhausted or no more performers
+    if (state.round >= state.totalRounds || state.performerQueue.length === 0) {
+      state.phase = "finished";
+      state.currentPerformer = null;
+      await this._save(roomId, state);
+      const seq = await getNextSequenceId(roomId);
+      io.to(roomId).emit("experience:state" as any, {
+        experienceType: "accent_challenge",
+        state,
+        view: { type: "accent_challenge_finished" as any, data: state },
+        sequenceId: seq,
+      });
+      return;
+    }
+
+    // Rotate to next performer with a new accent + phrase
+    state.currentPerformer = state.performerQueue.shift() ?? null;
+    state.accent = pickRandom(ACCENTS);
+    state.phrase = pickRandom(PHRASES);
+    state.round += 1;
+    state.ratings = {};
+    state.phase = "performing";
+    await this._save(roomId, state);
+
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "accent_challenge",
+      state,
+      view: { type: "accent_challenge_performing" as any, data: state },
+      sequenceId: seq,
+    });
+  }
+
+  private async _end(roomId: string, io: Server): Promise<void> {
+    await redisClient.del(KEY(roomId));
+    await redisClient.set(`room:${roomId}:experience`, "dj");
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:changed" as any, {
+      experienceType: "dj",
+      view: { type: "dj_queue" },
+      sequenceId: seq,
+    });
+  }
+
+  private async _load(roomId: string): Promise<AccentChallengeState> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : {
+      phase: "waiting", round: 0, totalRounds: 6, scores: {},
+      currentPerformer: null, accent: null, phrase: null, ratings: {}, performerQueue: [],
+    };
+  }
+
+  private async _save(roomId: string, state: AccentChallengeState): Promise<void> {
+    await redisClient.set(KEY(roomId), JSON.stringify(state), { EX: 14400 });
+  }
+}

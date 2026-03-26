@@ -1,6 +1,9 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform, Clipboard } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../contexts/RoomContext";
+import { SessionRecapScreen, type SessionRecapData } from "./SessionRecapScreen";
+import { useRouter } from "expo-router";
 
 // Shared
 import { DJQueueView }       from "../components/experiences/dj/DJQueueView";
@@ -10,6 +13,13 @@ import { LeaderboardView }    from "../components/experiences/trivia/Leaderboard
 import { PollView }           from "../components/experiences/shared/PollView";
 import { IntermissionView }   from "../components/experiences/shared/IntermissionView";
 import { ConnectionBar }      from "../components/shared/ConnectionBar";
+import { VibeCreditsBar }     from "../components/shared/VibeCreditsBar";
+import { GuestAvatarRow, type GuestPresence } from "../components/shared/GuestAvatarRow";
+import { OfflineBanner } from "../components/shared/OfflineBanner";
+import { registerForPushNotifications, registerTokenWithServer } from "../lib/notifications";
+import { tapLight } from "../lib/haptics";
+import { PartyChatPanel, ChatFloatingButton } from "../components/shared/PartyChatPanel";
+import { socketManager } from "../lib/socket";
 
 // Unpopular Opinions
 import { JudgeView }    from "../components/experiences/unpopular-opinions/JudgeView";
@@ -49,6 +59,15 @@ import { ChallengeView }          from "../components/experiences/scavenger-snap
 import { GalleryView as SnapGalleryView } from "../components/experiences/scavenger-snap/GalleryView";
 import { ResultsView as SnapResultsView } from "../components/experiences/scavenger-snap/ResultsView";
 
+// Phase 2 games (phase-based, single-component views)
+import { ArtifactHuntView }  from "../components/experiences/artifact-hunt/ArtifactHuntView";
+import { NightShiftView }    from "../components/experiences/night-shift/NightShiftView";
+import { MindMoleView }      from "../components/experiences/mind-mole/MindMoleView";
+import { GuessSongView }     from "../components/experiences/guess-the-song/GuessSongView";
+import { FinishLyricView }   from "../components/experiences/finish-the-lyric/FinishLyricView";
+import { NameGenreView }     from "../components/experiences/name-that-genre/NameGenreView";
+import { VibeCheckView }     from "../components/experiences/vibe-check/VibeCheckView";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Guest Screen — The View Router
 //
@@ -58,8 +77,102 @@ import { ResultsView as SnapResultsView } from "../components/experiences/scaven
 // To add a new experience: create a component, add one case here.
 // ─────────────────────────────────────────────────────────────────────────────
 
+const API_GUEST_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
+
 export default function GuestScreen() {
-  const { state } = useRoom();
+  const { state, dispatch } = useRoom();
+  const router = useRouter();
+  const [recap,       setRecap]       = useState<SessionRecapData | null>(null);
+  const [chatOpen,    setChatOpen]    = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const buildRecap = useCallback(async () => {
+    if (!state.room || !state.guestId) return;
+    const roomId = state.room.id;
+    const guestId = state.guestId;
+
+    // Try to fetch leaderboard stats for this guest
+    let myVotes = 0, myRequests = 0, myGameWins = 0;
+    try {
+      const res = await fetch(`${API_GUEST_URL}/rooms/${encodeURIComponent(roomId)}/leaderboard`);
+      if (res.ok) {
+        const d = await res.json();
+        const me = (d.leaderboard ?? []).find((e: any) => e.guestId === guestId);
+        if (me) {
+          myVotes    = me.votes    ?? 0;
+          myRequests = me.requests ?? 0;
+          myGameWins = me.game_wins ?? 0;
+        }
+      }
+    } catch { /* offline */ }
+
+    setRecap({
+      roomId,
+      roomName:        state.room.name,
+      roomCode:        state.room.code,
+      tracksPlayed:    0,
+      guestCount:      state.members.length,
+      topTrack:        null,
+      myVotes,
+      myRequests,
+      myGameWins,
+      myCreditsEarned: myVotes + myRequests * 2 + myGameWins * 10,
+    });
+  }, [state.room, state.guestId, state.members.length]);
+
+  useEffect(() => {
+    if (state.roomClosed && !recap) {
+      buildRecap();
+    }
+  }, [state.roomClosed]);
+
+  // Increment unread count when chat messages arrive and panel is closed
+  useEffect(() => {
+    const socket = socketManager.get();
+    if (!socket) return;
+    const handler = () => {
+      if (!chatOpen) setUnreadCount(c => c + 1);
+    };
+    socket.on("chat:received" as any, handler);
+    return () => { socket.off("chat:received" as any, handler); };
+  }, [chatOpen]);
+
+  // Register push token when joining a room
+  useEffect(() => {
+    const roomId = state.room?.id;
+    if (!roomId) return;
+    (async () => {
+      const token = await registerForPushNotifications();
+      if (token) {
+        await registerTokenWithServer(API_GUEST_URL, roomId, token, "guest");
+      } else {
+        // Only show once per session — check flag
+        const shown = await import("@react-native-async-storage/async-storage")
+          .then(m => m.default.getItem("push_denied_shown"));
+        if (!shown) {
+          Alert.alert(
+            "Notifications Off",
+            "Enable notifications in Settings so you don't miss when a party starts.",
+            [{ text: "OK" }],
+          );
+          import("@react-native-async-storage/async-storage")
+            .then(m => m.default.setItem("push_denied_shown", "1"));
+        }
+      }
+    })();
+  }, [state.room?.id]);
+
+  if (recap) {
+    return (
+      <SessionRecapScreen
+        recap={recap}
+        onClose={() => {
+          dispatch({ type: "LEAVE_ROOM" });
+          router.replace("/");
+        }}
+      />
+    );
+  }
 
   function renderView() {
     switch (state.guestView) {
@@ -114,20 +227,166 @@ export default function GuestScreen() {
       case "snap_gallery":      return <SnapGalleryView />;
       case "snap_results":      return <SnapResultsView />;
 
+      // ── ArtifactHunt ─────────────────────────────────────────────────────
+      case "artifact_hunt":     return <ArtifactHuntView />;
+
+      // ── NightShift ───────────────────────────────────────────────────────
+      case "night_shift":       return <NightShiftView />;
+
+      // ── MindMole ─────────────────────────────────────────────────────────
+      case "mind_mole":         return <MindMoleView />;
+
+      // ── Music Games ──────────────────────────────────────────────────────
+      case "guess_the_song":    return <GuessSongView />;
+      case "finish_the_lyric":  return <FinishLyricView />;
+      case "name_that_genre":   return <NameGenreView />;
+      case "vibe_check":        return <VibeCheckView />;
+
       // ── Fallback ─────────────────────────────────────────────────────────
       case "intermission":
       default:                  return <IntermissionView />;
     }
   }
 
+  const guestPresences: GuestPresence[] = state.members
+    .filter(m => !m.isWorkerNode)
+    .map(m => ({
+      guestId:     m.guestId,
+      displayName: m.displayName ?? m.guestId.slice(0, 8),
+      isMe:        m.guestId === state.guestId,
+    }));
+
+  function handleLeave() {
+    const doLeave = () => {
+      dispatch({ type: "LEAVE_ROOM" });
+      router.replace("/");
+    };
+    if (Platform.OS === "web") {
+      if (window.confirm("Leave this party?")) doLeave();
+    } else {
+      Alert.alert("Leave Party?", "You'll need the room code to rejoin.", [
+        { text: "Stay",  style: "cancel" },
+        { text: "Leave", style: "destructive", onPress: doLeave },
+      ]);
+    }
+  }
+
+  const roomCode    = state.room?.code ?? "";
+  const gameLabel   = state.guestView && state.guestView !== "intermission"
+    ? state.guestView.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+    : null;
+
   return (
     <View style={styles.container}>
+      {/* Background */}
+      <LinearGradient colors={["#03001c", "#07001a", "#0a0018"]} style={StyleSheet.absoluteFill} />
+
+      <OfflineBanner isOffline={state.isOffline} />
+
+      {/* Top bar */}
+      <View style={styles.topBar}>
+        {/* Left: Leave button */}
+        <TouchableOpacity onPress={handleLeave} style={styles.leaveBtn}>
+          <Text style={styles.leaveText}>✕</Text>
+        </TouchableOpacity>
+
+        {/* Center: room code + active game */}
+        <View style={styles.topCenter}>
+          {roomCode ? (
+            <TouchableOpacity
+              onPress={() => { Clipboard.setString(roomCode); tapLight(); Alert.alert("Copied!", `Room code ${roomCode} copied to clipboard.`); }}
+              activeOpacity={0.7}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.roomCode}>{roomCode} 📋</Text>
+            </TouchableOpacity>
+          ) : null}
+          {gameLabel ? (
+            <View style={styles.gameChip}>
+              <View style={styles.liveDot} />
+              <Text style={styles.gameChipText}>{gameLabel}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        {/* Right: co-host badge + credits */}
+        <View style={styles.topRight}>
+          {state.role === "CO_HOST" && (
+            <View style={styles.coHostBadge}>
+              <Text style={styles.coHostText}>⭐</Text>
+            </View>
+          )}
+          {state.guestId && <VibeCreditsBar guestId={state.guestId} compact />}
+        </View>
+      </View>
+
       <ConnectionBar isOffline={state.isOffline} memberCount={state.members.length} />
+
+      {state.guestView === "dj_queue" && (
+        <GuestAvatarRow guests={guestPresences} maxVisible={12} />
+      )}
+
       {renderView()}
+
+      {/* Floating chat button — always visible regardless of active game */}
+      <View style={styles.chatFab}>
+        <ChatFloatingButton
+          onPress={() => { setChatOpen(true); setUnreadCount(0); }}
+          unreadCount={unreadCount}
+        />
+      </View>
+
+      <PartyChatPanel
+        visible={chatOpen}
+        onClose={() => setChatOpen(false)}
+        unreadCount={unreadCount}
+        onRead={() => setUnreadCount(0)}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#0a0a0a" },
+  container: { flex: 1, backgroundColor: "#03001c" },
+
+  topBar: {
+    flexDirection: "row", alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14, paddingTop: Platform.OS === "ios" ? 54 : 14, paddingBottom: 10,
+  },
+
+  leaveBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.07)",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.1)",
+    alignItems: "center", justifyContent: "center",
+  },
+  leaveText: { color: "#6b7fa0", fontSize: 14, fontWeight: "700" },
+
+  topCenter: { alignItems: "center", gap: 4 },
+  roomCode:  { color: "rgba(167,139,250,0.7)", fontSize: 16, fontWeight: "900", letterSpacing: 3 },
+  gameChip:  {
+    flexDirection: "row", alignItems: "center", gap: 5,
+    backgroundColor: "rgba(181,23,158,0.18)", borderRadius: 20,
+    paddingHorizontal: 10, paddingVertical: 4,
+    borderWidth: 1, borderColor: "rgba(240,171,252,0.25)",
+  },
+  liveDot:      { width: 5, height: 5, borderRadius: 3, backgroundColor: "#f0abfc" },
+  gameChipText: { color: "#f0abfc", fontSize: 11, fontWeight: "700", letterSpacing: 0.3 },
+
+  topRight:    { flexDirection: "row", alignItems: "center", gap: 6 },
+  coHostBadge: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: "rgba(245,158,11,0.15)",
+    borderWidth: 1, borderColor: "rgba(245,158,11,0.35)",
+    alignItems: "center", justifyContent: "center",
+  },
+  coHostText: { fontSize: 14 },
+
+  chatFab: {
+    position: "absolute",
+    bottom: 28,
+    right: 16,
+    zIndex: 20,
+  },
 });

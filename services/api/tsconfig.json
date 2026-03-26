@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "paths": {
-      "@partyglue/shared-types": ["../../packages/shared-types/src/index.ts"]
+      "@queuedj/shared-types": ["../../packages/shared-types/src/index.ts"]
     }
   },
   "include": ["src", "../../packages/shared-types/src"]

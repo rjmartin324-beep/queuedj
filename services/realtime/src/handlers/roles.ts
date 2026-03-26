@@ -1,5 +1,5 @@
-import type { RoomRole, RolePermissions } from "@partyglue/shared-types";
-import { ROLE_PERMISSIONS } from "@partyglue/shared-types";
+import type { RoomRole, RolePermissions } from "@queuedj/shared-types";
+import { ROLE_PERMISSIONS } from "@queuedj/shared-types";
 import { redisClient } from "../redis";
 
 // ─────────────────────────────────────────────────────────────────────────────

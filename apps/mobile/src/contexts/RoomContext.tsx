@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useEffect, useReducer, useRef } from "react";
+import { audioEngine } from "../lib/engines/audioEngineSingleton";
 import type {
   Room, QueueItem, RoomMember, CrowdState,
   ExperienceType, GuestViewType, DJExperienceState,
-} from "@partyglue/shared-types";
+} from "@queuedj/shared-types";
 import { socketManager } from "../lib/socket";
+import { getIdentity } from "../lib/identity";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Room Context — single source of truth for all room state on the client
@@ -26,6 +28,7 @@ interface RoomState {
   experienceState: unknown;     // Full server-side experience state (for host controls)
   djState: DJExperienceState | null;
   activePollId: string | null;
+  roomClosed: boolean;
 }
 
 type Action =
@@ -40,8 +43,11 @@ type Action =
   | { type: "SET_CONNECTED"; isConnected: boolean }
   | { type: "SET_OFFLINE"; isOffline: boolean }
   | { type: "SET_EXPERIENCE"; experience: ExperienceType; view: GuestViewType; viewData?: unknown; expState?: unknown }
+  | { type: "UPDATE_EXPERIENCE_STATE"; viewData: unknown; expState?: unknown }
   | { type: "SET_DJ_STATE"; djState: DJExperienceState }
   | { type: "SET_POLL"; pollId: string | null }
+  | { type: "SET_ROLE"; role: "HOST" | "CO_HOST" | "GUEST" }
+  | { type: "ROOM_CLOSED" }
   | { type: "LEAVE_ROOM" };
 
 const initialState: RoomState = {
@@ -58,6 +64,7 @@ const initialState: RoomState = {
   experienceState: null,
   djState: null,
   activePollId: null,
+  roomClosed: false,
 };
 
 function reducer(state: RoomState, action: Action): RoomState {
@@ -78,6 +85,8 @@ function reducer(state: RoomState, action: Action): RoomState {
       return { ...state, members: state.members.filter(m => m.guestId !== action.guestId) };
     case "SET_CROWD_STATE":
       return state.room ? { ...state, room: { ...state.room, crowdState: action.crowdState } } : state;
+    case "SET_ROLE":
+      return { ...state, role: action.role };
     case "SET_CONNECTED":
       return { ...state, isConnected: action.isConnected };
     case "SET_OFFLINE":
@@ -91,10 +100,19 @@ function reducer(state: RoomState, action: Action): RoomState {
         guestViewData: action.viewData !== undefined ? action.viewData : state.guestViewData,
         experienceState: action.expState ?? state.experienceState,
       };
+    case "UPDATE_EXPERIENCE_STATE":
+      // Used by experience:state_updated — updates data without changing the view type
+      return {
+        ...state,
+        guestViewData: action.viewData,
+        experienceState: action.expState ?? action.viewData,
+      };
     case "SET_DJ_STATE":
       return { ...state, djState: action.djState };
     case "SET_POLL":
       return { ...state, activePollId: action.pollId };
+    case "ROOM_CLOSED":
+      return { ...state, roomClosed: true };
     case "LEAVE_ROOM":
       return { ...initialState };
     default:
@@ -116,55 +134,146 @@ const RoomContext = createContext<RoomContextValue | null>(null);
 export function RoomProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // ─── Load persistent guestId from identity store on mount ─────────────────
+  useEffect(() => {
+    getIdentity().then((identity) => {
+      if (!state.guestId) {
+        dispatch({ type: "SET_GUEST_ID", guestId: identity.guestId, role: "GUEST" });
+      }
+    }).catch(() => {
+      // AsyncStorage unavailable — leave guestId as null until room join
+    });
+  }, []);
+
   useEffect(() => {
     const socket = socketManager.get();
     if (!socket) return;
 
-    // ─── State Snapshot (full resync on reconnect) ──────────────────────────
-    socket.on("room:state_snapshot", (snapshot) => {
+    // Use named handler references so cleanup only removes RoomContext listeners,
+    // leaving socket.ts bindCoreEvents handlers (connect/disconnect/queue:updated)
+    // intact across re-runs. This also fixes the host bootstrap bug: the effect
+    // re-fires when state.room?.id changes (i.e. after doCreateRoom dispatches
+    // SET_ROOM), ensuring listeners are registered even when guestId didn't change.
+
+    // ─── State Snapshot ──────────────────────────────────────────────────────
+    const onStateSnapshot = (snapshot: any) => {
       dispatch({ type: "SET_ROOM", room: snapshot.room });
       dispatch({ type: "SET_QUEUE", queue: snapshot.queue });
       dispatch({ type: "SET_MEMBERS", members: snapshot.members });
-    });
+    };
 
-    // ─── Queue Updates ──────────────────────────────────────────────────────
-    socket.on("queue:updated", (queue) => dispatch({ type: "SET_QUEUE", queue }));
-    socket.on("queue:item_added" as any, (item: QueueItem) => dispatch({ type: "ADD_QUEUE_ITEM", item }));
+    // ─── Queue Updates ───────────────────────────────────────────────────────
+    const onQueueUpdated   = (queue: QueueItem[]) => dispatch({ type: "SET_QUEUE", queue });
+    const onItemAdded      = (item: QueueItem) => dispatch({ type: "ADD_QUEUE_ITEM", item });
 
-    // ─── Members ────────────────────────────────────────────────────────────
-    socket.on("room:member_joined", (member) => dispatch({ type: "MEMBER_JOINED", member }));
-    socket.on("room:member_left", ({ guestId }) => dispatch({ type: "MEMBER_LEFT", guestId }));
+    // ─── Members ─────────────────────────────────────────────────────────────
+    const onMemberJoined   = (member: Omit<RoomMember, "pushToken">) => dispatch({ type: "MEMBER_JOINED", member });
+    const onMemberLeft     = ({ guestId }: { guestId: string }) => dispatch({ type: "MEMBER_LEFT", guestId });
 
-    // ─── Crowd State ────────────────────────────────────────────────────────
-    socket.on("room:crowd_state_changed", ({ crowdState }) => dispatch({ type: "SET_CROWD_STATE", crowdState }));
+    // ─── Crowd State ──────────────────────────────────────────────────────────
+    const onCrowdState     = ({ crowdState }: { crowdState: CrowdState }) => dispatch({ type: "SET_CROWD_STATE", crowdState });
 
-    // ─── Connection ─────────────────────────────────────────────────────────
-    socket.on("connect",    () => dispatch({ type: "SET_CONNECTED", isConnected: true }));
-    socket.on("disconnect", () => {
+    // ─── Connection ──────────────────────────────────────────────────────────
+    const onConnect = () => {
+      dispatch({ type: "SET_CONNECTED", isConnected: true });
+      dispatch({ type: "SET_OFFLINE",   isOffline: false });
+    };
+    const onDisconnect = () => {
       dispatch({ type: "SET_CONNECTED", isConnected: false });
-      dispatch({ type: "SET_OFFLINE", isOffline: true });
-    });
+      dispatch({ type: "SET_OFFLINE",   isOffline: true });
+    };
 
-    // ─── Experience System ───────────────────────────────────────────────────
-    socket.on("experience:changed" as any, ({ experienceType, view }: any) => {
+    // ─── Experience System ────────────────────────────────────────────────────
+    const onExperienceChanged = ({ experienceType, view }: any) => {
       dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data });
-    });
-
-    socket.on("experience:state" as any, ({ experienceType, state: expState, view }: any) => {
+    };
+    const onExperienceState = ({ experienceType, state: expState, view }: any) => {
       if (experienceType === "dj") {
         dispatch({ type: "SET_DJ_STATE", djState: expState });
       }
       if (view?.type) {
         dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data, expState });
       }
-    });
+    };
+    const onExperienceStateUpdated = (payload: any) => {
+      dispatch({ type: "UPDATE_EXPERIENCE_STATE", viewData: payload, expState: payload });
+    };
 
-    // ─── Polls ───────────────────────────────────────────────────────────────
-    socket.on("poll:started" as any, (poll: any) => dispatch({ type: "SET_POLL", pollId: poll.id }));
-    socket.on("poll:result"  as any, ()           => dispatch({ type: "SET_POLL", pollId: null }));
+    // ─── Deck Commands ────────────────────────────────────────────────────────
+    const onDeckStateUpdated = (payload: any) => {
+      const { deck, command, value } = payload;
+      if (!deck) return;
+      switch (command) {
+        case "play":           audioEngine.play(deck).catch(() => {}); break;
+        case "pause":          audioEngine.pause(deck).catch(() => {}); break;
+        case "set_crossfader": if (typeof value === "number") audioEngine.setCrossfader(value); break;
+        case "set_volume":     if (typeof value === "number") audioEngine.setVolume(deck, value); break;
+        case "set_eq":
+          if (value && typeof value === "object") {
+            audioEngine.setEQ(deck, value.low ?? 1, value.mid ?? 1, value.high ?? 1);
+          }
+          break;
+      }
+    };
 
-    return () => { socket.removeAllListeners(); };
-  }, [state.guestId]);
+    // ─── Polls ────────────────────────────────────────────────────────────────
+    const onPollStarted = (poll: any) => dispatch({ type: "SET_POLL", pollId: poll.id });
+    const onPollResult  = ()           => dispatch({ type: "SET_POLL", pollId: null });
+
+    // ─── Room Closed / Settings / Roles ──────────────────────────────────────
+    const onRoomClosed = () => dispatch({ type: "ROOM_CLOSED" });
+    const onSettingChanged = ({ key, value }: { key: string; value: unknown }) => {
+      if (key === "bpm_override" && typeof value === "number") {
+        dispatch({ type: "UPDATE_EXPERIENCE_STATE", viewData: { bpm_override: value }, expState: { bpm_override: value } });
+      }
+    };
+    const onRolePromoted = ({ newRole }: { newRole: "CO_HOST" | "HOST" }) => dispatch({ type: "SET_ROLE", role: newRole });
+    const onRoleDemoted  = () => dispatch({ type: "SET_ROLE", role: "GUEST" });
+
+    socket.on("room:state_snapshot",      onStateSnapshot);
+    socket.on("queue:updated",            onQueueUpdated as any);
+    socket.on("queue:item_added" as any,  onItemAdded as any);
+    socket.on("room:member_joined",       onMemberJoined as any);
+    socket.on("room:member_left",         onMemberLeft as any);
+    socket.on("room:crowd_state_changed", onCrowdState as any);
+    socket.on("connect",                  onConnect);
+    socket.on("disconnect",               onDisconnect);
+    socket.on("experience:changed" as any,      onExperienceChanged);
+    socket.on("experience:state" as any,        onExperienceState);
+    socket.on("experience:state_updated" as any, onExperienceStateUpdated);
+    socket.on("deck:state_updated" as any,      onDeckStateUpdated);
+    socket.on("poll:started" as any,            onPollStarted);
+    socket.on("poll:result"  as any,            onPollResult);
+    socket.on("room:closed" as any,             onRoomClosed);
+    socket.on("room:setting_changed" as any,    onSettingChanged);
+    socket.on("role:promoted" as any,           onRolePromoted);
+    socket.on("role:demoted" as any,            onRoleDemoted);
+
+    return () => {
+      // Remove only RoomContext handlers — bindCoreEvents handlers stay intact
+      socket.off("room:state_snapshot",      onStateSnapshot);
+      socket.off("queue:updated",            onQueueUpdated as any);
+      socket.off("queue:item_added" as any,  onItemAdded as any);
+      socket.off("room:member_joined",       onMemberJoined as any);
+      socket.off("room:member_left",         onMemberLeft as any);
+      socket.off("room:crowd_state_changed", onCrowdState as any);
+      socket.off("connect",                  onConnect);
+      socket.off("disconnect",               onDisconnect);
+      socket.off("experience:changed" as any,      onExperienceChanged);
+      socket.off("experience:state" as any,        onExperienceState);
+      socket.off("experience:state_updated" as any, onExperienceStateUpdated);
+      socket.off("deck:state_updated" as any,      onDeckStateUpdated);
+      socket.off("poll:started" as any,            onPollStarted);
+      socket.off("poll:result"  as any,            onPollResult);
+      socket.off("room:closed" as any,             onRoomClosed);
+      socket.off("room:setting_changed" as any,    onSettingChanged);
+      socket.off("role:promoted" as any,           onRolePromoted);
+      socket.off("role:demoted" as any,            onRoleDemoted);
+    };
+  // Re-run when guestId changes (guest joins with session ID) OR when a room
+  // is first created (state.room?.id goes null → roomId), which handles the
+  // host bootstrap case where guestId doesn't change.
+  }, [state.guestId, state.room?.id]);
 
   function sendAction(action: string, payload?: unknown) {
     const socket = socketManager.get();
@@ -178,6 +287,9 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
   }
 
   function switchExperience(toExperience: ExperienceType) {
+    // Optimistic local update — controls switch immediately without waiting for server ack.
+    // Server will confirm (or correct) via experience:changed.
+    dispatch({ type: "SET_EXPERIENCE", experience: toExperience, view: state.guestView });
     const socket = socketManager.get();
     if (!socket || !state.room) return;
     socket.emit("experience:switch" as any, {

@@ -5,7 +5,7 @@ import Svg, {
 } from "react-native-svg";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PartyGlue Avatar — Fall Guys-style chubby 3D character with headphones
+// QueueDJ Avatar — Fall Guys-style chubby 3D character with headphones
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type OutfitType =

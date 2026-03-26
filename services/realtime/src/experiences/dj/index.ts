@@ -3,7 +3,7 @@ import type {
   ExperienceModule,
   GuestViewDescriptor,
   DJExperienceState,
-} from "@partyglue/shared-types";
+} from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { handleQueueRequest, handleQueueReorder, handleQueueRemove, getQueue } from "./queue";
 import { handleVibeCast, getCrowdState } from "./vibe";
@@ -75,6 +75,20 @@ export class DJExperience implements ExperienceModule {
           await this._updateNowPlaying(roomId, (payload as any).isrc, (payload as any).bpm, io);
         }
         break;
+      case "queue:skip_current":
+        // Remove the first item in the queue (the next-up track) and advance now playing
+        if (role === "HOST" || role === "CO_HOST") {
+          const queue = await (await import("./queue")).getQueue(roomId);
+          if (queue.length > 0) {
+            await handleQueueRemove(roomId, queue[0].id, io);
+            // Advance now playing to the next track
+            const nextQueue = await (await import("./queue")).getQueue(roomId);
+            if (nextQueue.length > 0) {
+              await this._updateNowPlaying(roomId, nextQueue[0].track.isrc, nextQueue[0].track.bpm ?? null, io);
+            }
+          }
+        }
+        break;
     }
   }
 
@@ -109,5 +123,46 @@ export class DJExperience implements ExperienceModule {
       state,
       view: { type: "dj_queue" },
     });
+
+    // Re-score all queue items against new now-playing track (fire and forget)
+    if (isrc && queue.length > 0) {
+      this._rescoreQueue(roomId, isrc, state.crowdState ?? "PEAK", queue, io).catch(() => {});
+    }
+  }
+
+  private async _rescoreQueue(
+    roomId: string,
+    nowPlayingIsrc: string,
+    crowdState: string,
+    queue: any[],
+    io: Server,
+  ): Promise<void> {
+    const ML_URL = process.env.ML_URL ?? "http://localhost:8000";
+    try {
+      const res = await fetch(`${ML_URL}/compatibility/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          current_isrc: nowPlayingIsrc,
+          queue_isrcs: queue.map((i: any) => i.track.isrc),
+          crowd_state: crowdState,
+        }),
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!res.ok) return;
+      const { results } = await res.json();
+
+      // Update vibe scores on queue items
+      for (const item of queue) {
+        const scored = results.find((r: any) => r.isrc === item.track.isrc);
+        if (scored) item.vibeDistanceScore = scored.vibe_distance_score;
+      }
+
+      const { saveQueue } = await import("./queue");
+      await saveQueue(roomId, queue);
+      io.to(roomId).emit("queue:updated", queue, 0);
+    } catch {
+      // ML unavailable — existing scores stand
+    }
   }
 }

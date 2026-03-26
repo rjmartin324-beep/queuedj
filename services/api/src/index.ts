@@ -2,13 +2,31 @@ import path from "path";
 import dotenv from "dotenv";
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
+import * as Sentry from "@sentry/node";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN ?? "",
+  environment: process.env.NODE_ENV ?? "development",
+  enabled: !!process.env.SENTRY_DSN,
+  tracesSampleRate: 0.1,
+});
+
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
+import multipart from "@fastify/multipart";
 import { redisReady, redisClient } from "./redis";
 import { db } from "./db/client";
 import { roomRoutes } from "./routes/rooms";
 import { trackRoutes } from "./routes/tracks";
+import { spotifyRoutes } from "./routes/spotify";
+import { acoustidRoutes } from "./routes/acoustid";
+import { notificationRoutes } from "./routes/notifications";
+import { historyRoutes } from "./routes/history";
+import { creditRoutes } from "./routes/credits";
+import { sotdRoutes } from "./routes/sotd";
+import { tasteReportRoutes } from "./routes/tasteReport";
+import { startScheduledJobs } from "./lib/scheduledJobs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // API Service — Fastify HTTP server
@@ -45,6 +63,14 @@ async function start() {
     keyGenerator: (req) => req.ip,
   });
 
+  // Multipart file uploads (used by /tracks/fingerprint)
+  await fastify.register(multipart, {
+    limits: {
+      fileSize: 50 * 1024 * 1024,  // 50 MB max
+      files: 1,
+    },
+  });
+
   // ─── Health check ───────────────────────────────────────────────────────────
   fastify.get("/health", async () => {
     const [pgResult] = await db.query("SELECT 1").then((r) => r.rows).catch(() => [null]);
@@ -60,10 +86,20 @@ async function start() {
   // ─── Routes ────────────────────────────────────────────────────────────────
   await fastify.register(roomRoutes, { prefix: "/" });
   await fastify.register(trackRoutes, { prefix: "/" });
+  await fastify.register(spotifyRoutes, { prefix: "/" });
+  await fastify.register(acoustidRoutes, { prefix: "/" });
+  await fastify.register(notificationRoutes, { prefix: "/" });
+  await fastify.register(historyRoutes, { prefix: "/" });
+  await fastify.register(creditRoutes, { prefix: "/" });
+  await fastify.register(sotdRoutes, { prefix: "/" });
+  await fastify.register(tasteReportRoutes, { prefix: "/" });
 
   // ─── Start ─────────────────────────────────────────────────────────────────
   await fastify.listen({ port: PORT, host: "0.0.0.0" });
   console.log(`[api] Fastify listening on :${PORT}`);
+
+  // ─── Daily scheduled jobs (SOTD push + streak reminders) ───────────────────
+  startScheduledJobs();
 }
 
 start().catch((err) => {

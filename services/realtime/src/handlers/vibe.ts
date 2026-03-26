@@ -5,7 +5,7 @@ export { handleVibeCast, checkForStagnation, recordInteraction } from "../experi
 import type { Server } from "socket.io";
 import { redisClient } from "../redis";
 import { getNextSequenceId } from "../rooms/stateReconciliation";
-import type { CrowdState } from "@partyglue/shared-types";
+import type { CrowdState } from "@queuedj/shared-types";
 import { setCrowdState } from "../experiences/dj/vibe";
 
 export async function handlePollRespond(

@@ -1,10 +1,12 @@
 import type { Server } from "socket.io";
-import type { QueueItem, QueueRequestPayload, QueueRequestAck, VibeGuardrailResult } from "@partyglue/shared-types";
-import { VIBE_GUARDRAIL_THRESHOLDS } from "@partyglue/shared-types";
+import type { QueueItem, QueueRequestPayload, QueueRequestAck, VibeGuardrailResult } from "@queuedj/shared-types";
+import { VIBE_GUARDRAIL_THRESHOLDS } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId, storeEvent } from "../../rooms/stateReconciliation";
 import { db } from "../../db";
 import { classifyTransition, neutralResult, type TrackAudioFeatures } from "../../lib/transitionClassifier";
+import { logTrackRequest, logVote, logTrackSkip, logTrackComplete } from "../../lib/rlhf";
+import { awardCredits, fingerprintGuest, incrementSessionStat } from "../../lib/credits";
 
 const QUEUE_KEY = (roomId: string) => `experience:dj:queue:${roomId}`;
 
@@ -15,7 +17,7 @@ export async function getQueue(roomId: string): Promise<QueueItem[]> {
   return raw ? JSON.parse(raw) : [];
 }
 
-async function saveQueue(roomId: string, queue: QueueItem[]): Promise<void> {
+export async function saveQueue(roomId: string, queue: QueueItem[]): Promise<void> {
   await redisClient.set(QUEUE_KEY(roomId), JSON.stringify(queue));
 }
 
@@ -99,6 +101,14 @@ export async function handleQueueRequest(
   // Trigger ML audio analysis in background (fire and forget)
   triggerAudioAnalysis(isrc);
 
+  // Log RLHF signal
+  const crowdState = await getRoomCrowdState(roomId);
+  logTrackRequest(roomId, isrc, crowdState);
+
+  // Award vibe credits and track session stat for requesting a track (+2)
+  awardCredits(fingerprintGuest(guestId), "track_request");
+  incrementSessionStat(roomId, guestId, "requests");
+
   return {
     accepted: true,
     queuePosition: position,
@@ -129,19 +139,60 @@ export async function handleQueueReorder(
   io.to(roomId).emit("queue:updated", queue, seq);
 }
 
-export async function handleQueueRemove(
+export async function handleVoteCast(
   roomId: string,
-  itemId: string,
+  targetItemId: string,
+  vote: "up" | "down",
   io: Server,
+  guestId?: string,
 ): Promise<void> {
-  let queue = await getQueue(roomId);
-  queue = queue.filter((i) => i.id !== itemId);
+  const queue = await getQueue(roomId);
+  const item = queue.find(i => i.id === targetItemId);
+  if (!item) return;
+
+  item.votes += vote === "up" ? 1 : -1;
+
+  // Re-sort by votes descending, preserving relative order for ties
+  queue.sort((a, b) => b.votes - a.votes);
   queue.forEach((i, pos) => { i.position = pos; });
 
   await saveQueue(roomId, queue);
 
   const seq = await getNextSequenceId(roomId);
   io.to(roomId).emit("queue:updated", queue, seq);
+
+  // Log RLHF signal
+  const crowdState = await getRoomCrowdState(roomId);
+  logVote(roomId, item.track.isrc, vote, crowdState);
+
+  // Award vibe credits and track session stat for casting a vote (+1)
+  if (guestId) {
+    awardCredits(fingerprintGuest(guestId), "vote_cast");
+    incrementSessionStat(roomId, guestId, "votes");
+  }
+}
+
+export async function handleQueueRemove(
+  roomId: string,
+  itemId: string,
+  io: Server,
+): Promise<void> {
+  const queue = await getQueue(roomId);
+  const removed = queue.find((i) => i.id === itemId);
+
+  const updated = queue.filter((i) => i.id !== itemId);
+  updated.forEach((i, pos) => { i.position = pos; });
+
+  await saveQueue(roomId, updated);
+
+  const seq = await getNextSequenceId(roomId);
+  io.to(roomId).emit("queue:updated", updated, seq);
+
+  // Log skip signal — host removing a track from the queue is a negative signal
+  if (removed?.track?.isrc) {
+    const crowdState = await getRoomCrowdState(roomId);
+    logTrackSkip(roomId, removed.track.isrc, crowdState);
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -192,6 +243,12 @@ async function getNowPlayingIsrc(roomId: string): Promise<string | null> {
   const raw = await redisClient.get(`experience:dj:${roomId}`);
   if (!raw) return null;
   return JSON.parse(raw).nowPlaying ?? null;
+}
+
+async function getRoomCrowdState(roomId: string): Promise<string | undefined> {
+  const raw = await redisClient.get(`experience:dj:${roomId}`);
+  if (!raw) return undefined;
+  return JSON.parse(raw).crowdState ?? undefined;
 }
 
 async function callMLCompatibility(isrcA: string, isrcB: string, roomId: string): Promise<any> {

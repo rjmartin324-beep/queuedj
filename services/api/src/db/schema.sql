@@ -26,8 +26,15 @@ CREATE TABLE tracks (
   camelot_key           INTEGER CHECK (camelot_key BETWEEN 1 AND 12),
   camelot_type          CHAR(1) CHECK (camelot_type IN ('A', 'B')),
   energy                DECIMAL(4, 3) CHECK (energy BETWEEN 0 AND 1),
+  danceability          DECIMAL(4, 3) CHECK (danceability BETWEEN 0 AND 1),
   valence               DECIMAL(4, 3) CHECK (valence BETWEEN 0 AND 1),
+  mood                  TEXT,
+  artist_bio            TEXT,
+  artist_image_url      TEXT,
+  release_date          DATE,
   genre                 TEXT,
+  -- similar_tracks: JSONB array of {artist, title, match} from Last.fm
+  similar_tracks        JSONB,
   -- No-derivative flag: if true, stem separation is blocked for this track
   -- Populated from Audible Magic / Pex integration (Phase 6)
   -- Default false until we have a reliable source — flag conservatively
@@ -199,6 +206,72 @@ CREATE TABLE model_versions (
 );
 
 CREATE UNIQUE INDEX idx_model_active ON model_versions(model_name) WHERE is_active = TRUE;
+
+-- ─── Vibe Credits ────────────────────────────────────────────────────────────
+-- Earn/spend ledger for vibe credits (in-app currency for wardrobe + emotes).
+-- guest_fingerprint is hashed device ID — no PII stored.
+
+CREATE TABLE vibe_credits (
+  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  guest_fingerprint     VARCHAR(64) NOT NULL,
+  -- Ledger entry
+  delta                 INTEGER NOT NULL,   -- positive = earn, negative = spend
+  balance_after         INTEGER NOT NULL,   -- balance after this transaction (denormalised for fast reads)
+  reason                VARCHAR(50) NOT NULL
+                          CHECK (reason IN (
+                            'vote_cast',        -- +1
+                            'track_request',    -- +2
+                            'game_win',         -- +10
+                            'full_session',     -- +5
+                            'wardrobe_unlock',  -- -varies
+                            'emote_purchase',   -- -varies
+                            'admin_grant',      -- admin tooling
+                            'refund'            -- refund on failed purchase
+                          )),
+  -- Optional reference to what was purchased
+  item_id               UUID,
+  item_type             VARCHAR(30),  -- 'wardrobe_item' | 'emote'
+  session_id            UUID REFERENCES sessions(id) ON DELETE SET NULL,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_vibe_credits_guest ON vibe_credits(guest_fingerprint);
+CREATE INDEX idx_vibe_credits_created_at ON vibe_credits(created_at);
+
+-- Fast balance lookup — latest entry per guest
+CREATE INDEX idx_vibe_credits_balance ON vibe_credits(guest_fingerprint, created_at DESC);
+
+-- ─── Vibe Credit Helpers ──────────────────────────────────────────────────────
+
+-- Get current balance for a guest
+CREATE OR REPLACE FUNCTION get_vibe_balance(p_fingerprint VARCHAR(64))
+RETURNS INTEGER AS $$
+  SELECT COALESCE(
+    (SELECT balance_after FROM vibe_credits
+     WHERE guest_fingerprint = p_fingerprint
+     ORDER BY created_at DESC LIMIT 1),
+    0
+  );
+$$ LANGUAGE SQL STABLE;
+
+-- Award credits — returns new balance
+CREATE OR REPLACE FUNCTION award_vibe_credits(
+  p_fingerprint VARCHAR(64),
+  p_delta INTEGER,
+  p_reason VARCHAR(50),
+  p_session_id UUID DEFAULT NULL
+) RETURNS INTEGER AS $$
+DECLARE
+  v_current INTEGER;
+  v_new     INTEGER;
+BEGIN
+  v_current := get_vibe_balance(p_fingerprint);
+  v_new     := v_current + p_delta;
+  INSERT INTO vibe_credits (guest_fingerprint, delta, balance_after, reason, session_id)
+  VALUES (p_fingerprint, p_delta, v_new, p_reason, p_session_id);
+  RETURN v_new;
+END;
+$$ LANGUAGE plpgsql;
 
 -- ─── GDPR Cleanup Function ───────────────────────────────────────────────────
 -- Run nightly via cron. Deletes expired session data.

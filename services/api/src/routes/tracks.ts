@@ -1,5 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import { db } from "../db/client";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import { writeFile, unlink } from "fs/promises";
+import { tmpdir } from "os";
+import { join } from "path";
+import { randomUUID } from "crypto";
+
+const execFileAsync = promisify(execFile);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Track Routes
@@ -96,7 +104,8 @@ export async function trackRoutes(fastify: FastifyInstance) {
     const result = await db.query(
       `SELECT
          isrc, title, artist, album, album_art_url, duration_ms,
-         bpm, camelot_key, camelot_type, energy, valence, genre,
+         bpm, camelot_key, camelot_type, energy, danceability, valence, genre,
+         mood, artist_bio, artist_image_url, release_date, similar_tracks,
          no_derivative, analysis_confidence, analysis_source,
          intro_end_ms, first_drop_ms, outro_start_ms
        FROM tracks WHERE isrc = $1`,
@@ -107,7 +116,7 @@ export async function trackRoutes(fastify: FastifyInstance) {
       return reply.code(404).send({ error: "TRACK_NOT_FOUND" });
     }
 
-    return reply.send({ track: result.rows[0] });
+    return reply.send(result.rows[0]);
   });
 
   // ─── POST /internal/analyze ───────────────────────────────────────────────
@@ -237,5 +246,194 @@ export async function trackRoutes(fastify: FastifyInstance) {
     );
 
     return reply.code(201).send({ isrc });
+  });
+
+  // ─── GET /tracks/:isrc/similar — BPM/key/energy-compatible recommendations ─
+  // Returns up to `limit` tracks with compatible Camelot key, similar BPM,
+  // and matching energy. Excludes ISRCs in the optional `exclude` list.
+  // Falls back to genre/mood match when camelot data is unavailable.
+  fastify.get<{
+    Params: { isrc: string };
+    Querystring: { limit?: string; exclude?: string };
+  }>("/tracks/:isrc/similar", async (request, reply) => {
+    const { isrc } = request.params;
+    const limit    = Math.min(parseInt(request.query.limit ?? "10"), 30);
+    const exclude  = request.query.exclude ? request.query.exclude.split(",") : [];
+    exclude.push(isrc); // never return the seed track
+
+    // Get source track features
+    const src = await db.query<{
+      bpm: number | null; camelot_key: number | null; camelot_type: string | null;
+      energy: number | null; genre: string | null; mood: string | null;
+    }>(
+      "SELECT bpm, camelot_key, camelot_type, energy, genre, mood FROM tracks WHERE isrc = $1",
+      [isrc],
+    );
+
+    if (src.rows.length === 0) {
+      return reply.code(404).send({ error: "TRACK_NOT_FOUND" });
+    }
+
+    const { bpm, camelot_key, camelot_type, energy, genre, mood } = src.rows[0];
+
+    let tracks: unknown[];
+
+    if (camelot_key != null && bpm != null) {
+      // Compatible Camelot keys: same key, +1/-1 key in same type, parallel type
+      const compatKeys: number[] = [
+        camelot_key,
+        ((camelot_key) % 12) + 1,
+        camelot_key === 1 ? 12 : camelot_key - 1,
+      ];
+      const compatTypes = camelot_type === "A" ? ["A", "B"] : ["B", "A"];
+
+      const result = await db.query<{
+        isrc: string; title: string; artist: string;
+        bpm: number | null; camelot_key: number | null; camelot_type: string | null;
+        energy: number | null; album_art_url: string | null;
+      }>(
+        `SELECT isrc, title, artist, bpm, camelot_key, camelot_type, energy, album_art_url
+         FROM tracks
+         WHERE
+           camelot_key = ANY($1::int[])
+           AND camelot_type = ANY($2::text[])
+           AND bpm BETWEEN $3 AND $4
+           AND isrc <> ALL($5::text[])
+           AND analysis_confidence > 0.5
+         ORDER BY ABS(COALESCE(bpm, $6) - $6), ABS(COALESCE(energy, 0.5) - $7)
+         LIMIT $8`,
+        [
+          compatKeys,
+          compatTypes,
+          bpm * 0.92,
+          bpm * 1.08,
+          exclude,
+          bpm,
+          energy ?? 0.5,
+          limit,
+        ],
+      );
+      tracks = result.rows;
+    } else {
+      // Fallback: genre/mood match
+      const result = await db.query(
+        `SELECT isrc, title, artist, bpm, camelot_key, camelot_type, energy, album_art_url
+         FROM tracks
+         WHERE
+           (genre = $1 OR mood = $2)
+           AND isrc <> ALL($3::text[])
+           AND analysis_confidence > 0.3
+         ORDER BY RANDOM()
+         LIMIT $4`,
+        [genre ?? "", mood ?? "", exclude, limit],
+      );
+      tracks = result.rows;
+    }
+
+    return reply.send({ tracks, seed: isrc });
+  });
+
+  // ─── POST /tracks/fingerprint — file upload → AcoustID → resolved track ──
+  // Accepts a multipart audio file, runs fpcalc to generate a chromaprint
+  // fingerprint, then resolves the ISRC via AcoustID. Returns track metadata
+  // or an error if fingerprinting fails.
+  fastify.post("/tracks/fingerprint", async (request, reply) => {
+    const data = await (request as any).file() as {
+      filename: string;
+      mimetype: string;
+      toBuffer: () => Promise<Buffer>;
+    } | undefined;
+
+    if (!data) {
+      return reply.code(400).send({ error: "No file uploaded" });
+    }
+
+    const tmpPath = join(tmpdir(), `queuedj_${randomUUID()}_${data.filename ?? "track.mp3"}`);
+
+    try {
+      const buffer = await data.toBuffer();
+      await writeFile(tmpPath, buffer);
+
+      // Run fpcalc (chromaprint) to generate fingerprint
+      const { stdout } = await execFileAsync("fpcalc", ["-json", tmpPath], { timeout: 30_000 });
+      const fpResult = JSON.parse(stdout) as { duration: number; fingerprint: string };
+
+      const duration    = fpResult.duration;
+      const fingerprint = fpResult.fingerprint;
+
+      // Resolve via AcoustID
+      const ACOUSTID_API_KEY = process.env.ACOUSTID_API_KEY ?? "";
+      const params = new URLSearchParams({
+        client:      ACOUSTID_API_KEY,
+        fingerprint,
+        duration:    String(Math.round(duration)),
+        meta:        "recordings releasegroups",
+        format:      "json",
+      });
+
+      const acoustRes = await fetch(`https://api.acoustid.org/v2/lookup?${params.toString()}`);
+      if (!acoustRes.ok) throw new Error(`AcoustID HTTP ${acoustRes.status}`);
+
+      const acoustData = await acoustRes.json() as {
+        status: string;
+        results?: Array<{
+          score: number;
+          recordings?: Array<{
+            title?: string;
+            duration?: number;
+            artists?: Array<{ name: string }>;
+            releasegroups?: Array<{ title: string }>;
+            isrcs?: string[];
+          }>;
+        }>;
+      };
+
+      if (acoustData.status !== "ok" || !acoustData.results?.length) {
+        return reply.code(404).send({ error: "TRACK_NOT_FOUND" });
+      }
+
+      const best       = acoustData.results[0];
+      const confidence = best.score ?? 0;
+      const recording  = best.recordings?.[0];
+
+      if (!recording || !recording.isrcs?.length || confidence < 0.5) {
+        return reply.code(404).send({ error: "TRACK_NOT_FOUND", confidence });
+      }
+
+      const isrc   = recording.isrcs[0];
+      const title  = recording.title  ?? "Unknown";
+      const artist = recording.artists?.[0]?.name ?? "Unknown Artist";
+      const bpm    = null as number | null; // ML fills this async
+
+      // Upsert into tracks table
+      await db.query(
+        `INSERT INTO tracks (isrc, title, artist, analysis_source, analysis_confidence, updated_at)
+         VALUES ($1, $2, $3, 'acoustid', $4, NOW())
+         ON CONFLICT (isrc) DO UPDATE SET
+           title               = COALESCE(EXCLUDED.title, tracks.title),
+           artist              = COALESCE(EXCLUDED.artist, tracks.artist),
+           analysis_confidence = GREATEST(EXCLUDED.analysis_confidence, tracks.analysis_confidence),
+           updated_at          = NOW()`,
+        [isrc, title, artist, confidence],
+      );
+
+      // Trigger async BPM analysis (fire and forget)
+      const ML_URL = process.env.ML_URL ?? "http://localhost:8000";
+      fetch(`${ML_URL}/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isrc, priority: "bpm_key_only" }),
+      }).catch(() => {});
+
+      return reply.send({ isrc, title, artist, bpm, confidence });
+    } catch (err: any) {
+      fastify.log.warn({ err }, "[tracks/fingerprint] error");
+      if (err.code === "ENOENT" || err.message?.includes("fpcalc")) {
+        return reply.code(503).send({ error: "FPCALC_UNAVAILABLE", message: "fpcalc not installed on server" });
+      }
+      return reply.code(500).send({ error: "FINGERPRINT_FAILED" });
+    } finally {
+      unlink(tmpPath).catch(() => {});
+    }
   });
 }

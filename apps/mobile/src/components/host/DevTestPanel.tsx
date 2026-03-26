@@ -4,7 +4,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../../contexts/RoomContext";
-import type { ExperienceType } from "@partyglue/shared-types";
+import type { ExperienceType } from "@queuedj/shared-types";
 
 // Guest view components for preview modal
 import { TriviaWaitingView }  from "../experiences/trivia/TriviaWaitingView";

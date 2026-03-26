@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { redisClient } from "../redis";
 import { getRoomSnapshot, storeRoomSnapshot } from "./stateReconciliation";
-import type { RoomStateSnapshot } from "@partyglue/shared-types";
+import type { RoomStateSnapshot } from "@queuedj/shared-types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Snapshot Service — Crash Recovery

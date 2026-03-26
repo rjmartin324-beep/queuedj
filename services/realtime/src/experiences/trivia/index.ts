@@ -4,7 +4,7 @@ import type {
   GuestViewDescriptor,
   TriviaRoundState,
   TriviaQuestion,
-} from "@partyglue/shared-types";
+} from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { SAMPLE_QUESTIONS } from "./questions";

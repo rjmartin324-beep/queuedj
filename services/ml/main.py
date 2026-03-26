@@ -27,6 +27,10 @@ from workers.audio_analysis import AudioAnalysisWorker
 from workers.isrc_lookup import ISRCLookupWorker
 from workers.transition_analysis import TransitionAnalysisWorker
 from workers.rlhf_signal import RLHFSignalWorker
+from workers.taste_graph import TasteGraphWorker
+from workers.reccobeats import ReccoBeatsWorker
+from workers.lastfm import LastFmWorker
+from workers.theaudiodb import TheAudioDBWorker
 from workers.bullmq_consumer import BullMQConsumer
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
@@ -60,9 +64,13 @@ async def lifespan(app: FastAPI):
     redis_client = await aioredis.from_url(REDIS_URL, decode_responses=True)
 
     workers = {
-        "audio_analysis":   AudioAnalysisWorker(redis_client, DATABASE_URL),
-        "isrc_lookup":       ISRCLookupWorker(redis_client, DATABASE_URL),
+        "audio_analysis":      AudioAnalysisWorker(redis_client, DATABASE_URL),
+        "isrc_lookup":         ISRCLookupWorker(redis_client, DATABASE_URL),
         "transition_analysis": TransitionAnalysisWorker(redis_client, DATABASE_URL),
+        "taste_graph":         TasteGraphWorker(redis_client, DATABASE_URL),
+        "reccobeats":          ReccoBeatsWorker(redis_client, DATABASE_URL),
+        "lastfm":              LastFmWorker(redis_client, DATABASE_URL),
+        "theaudiodb":          TheAudioDBWorker(redis_client, DATABASE_URL),
     }
 
     # GDPR gate: only start RLHF worker if feature flag is enabled
@@ -90,9 +98,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+_cors_origins_raw = os.getenv("ALLOWED_ORIGINS", "http://localhost:3001,http://localhost:3002")
+_cors_origins = [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001", "http://localhost:3002"],
+    allow_origins=_cors_origins,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -127,6 +138,20 @@ class CompatibilityResponse(BaseModel):
     recommended_transition: str
     vibe_distance_score: float     # 0–1 (0 = same vibe, 1 = total mismatch)
 
+class BatchCompatibilityRequest(BaseModel):
+    current_isrc: str              # Now-playing track
+    queue_isrcs: list[str]         # All tracks in queue
+    crowd_state: str = "PEAK"
+
+class BatchCompatibilityItem(BaseModel):
+    isrc: str
+    score: float
+    vibe_distance_score: float
+    recommended_transition: str
+
+class BatchCompatibilityResponse(BaseModel):
+    results: list[BatchCompatibilityItem]
+
 # ─── Endpoints ────────────────────────────────────────────────────────────────
 
 @app.get("/health")
@@ -160,6 +185,41 @@ async def analyze_track(req: AnalyzeTrackRequest):
         log.error("analyze_track_failed", isrc=req.isrc, error=str(e))
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
+@app.post("/compatibility/batch", response_model=BatchCompatibilityResponse)
+async def check_compatibility_batch(req: BatchCompatibilityRequest):
+    """
+    Score all queue tracks against the now-playing track in one call.
+    Called when now-playing changes so all badges refresh at once.
+    """
+    import asyncio
+    worker = TransitionAnalysisWorker.__new__(TransitionAnalysisWorker)
+    worker._db_pool = None
+    worker.db_url = DATABASE_URL
+    worker.redis = None
+
+    async def score_one(isrc_b: str) -> BatchCompatibilityItem:
+        try:
+            result = await worker.check_compatibility(
+                isrc_a=req.current_isrc,
+                isrc_b=isrc_b,
+                crowd_state=req.crowd_state,
+            )
+            return BatchCompatibilityItem(
+                isrc=isrc_b,
+                score=result["score"],
+                vibe_distance_score=result["vibe_distance_score"],
+                recommended_transition=result["recommended_transition"],
+            )
+        except Exception:
+            return BatchCompatibilityItem(
+                isrc=isrc_b, score=0.5, vibe_distance_score=0.5,
+                recommended_transition="crossfade",
+            )
+
+    results = await asyncio.gather(*[score_one(isrc) for isrc in req.queue_isrcs])
+    return BatchCompatibilityResponse(results=list(results))
+
+
 @app.post("/compatibility", response_model=CompatibilityResponse)
 async def check_compatibility(req: CompatibilityRequest):
     """
@@ -186,3 +246,88 @@ async def check_compatibility(req: CompatibilityRequest):
             recommended_transition="crossfade",
             vibe_distance_score=0.5,
         )
+
+
+# ─── Taste Graph Models ───────────────────────────────────────────────────────
+
+class RebuildProfileRequest(BaseModel):
+    host_fingerprint: str
+
+class RecommendRequest(BaseModel):
+    host_fingerprint: str
+    crowd_state: str = "PEAK"
+    hour_of_day: int = 22
+    limit: int = 10
+
+class TrackRecommendation(BaseModel):
+    isrc: str
+    title: str | None
+    artist: str | None
+    bpm: float | None
+    energy: float | None
+    genre: str | None
+    score: float
+
+class RecommendResponse(BaseModel):
+    recommendations: list[TrackRecommendation]
+    profile_updated_at: str | None
+
+
+# ─── Taste Graph Endpoints ────────────────────────────────────────────────────
+
+@app.post("/taste-graph/rebuild")
+async def rebuild_taste_graph(req: RebuildProfileRequest):
+    """
+    Rebuild the style profile for a host from their RLHF signal history.
+    Called when a session ends or manually triggered.
+    """
+    worker = TasteGraphWorker.__new__(TasteGraphWorker)
+    worker._db_pool = None
+    worker.db_url = DATABASE_URL
+    worker.redis = None
+    try:
+        profile = await worker.rebuild_profile(req.host_fingerprint)
+        return { "success": True, "profile": profile }
+    except Exception as e:
+        log.error("taste_graph_rebuild_failed", error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/taste-graph/{host_fingerprint}")
+async def get_taste_graph(host_fingerprint: str):
+    """Fetch the cached style profile for a host."""
+    worker = TasteGraphWorker.__new__(TasteGraphWorker)
+    worker._db_pool = None
+    worker.db_url = DATABASE_URL
+    worker.redis = None
+    profile = await worker.get_profile(host_fingerprint)
+    if not profile:
+        raise HTTPException(status_code=404, detail="No profile found")
+    return profile
+
+
+@app.post("/recommendations", response_model=RecommendResponse)
+async def get_recommendations(req: RecommendRequest):
+    """
+    Return ranked track recommendations matching the host's taste profile.
+    Used to suggest next tracks to the DJ.
+    """
+    worker = TasteGraphWorker.__new__(TasteGraphWorker)
+    worker._db_pool = None
+    worker.db_url = DATABASE_URL
+    worker.redis = None
+    try:
+        tracks = await worker.recommend_tracks(
+            host_fingerprint=req.host_fingerprint,
+            crowd_state=req.crowd_state,
+            hour_of_day=req.hour_of_day,
+            limit=req.limit,
+        )
+        profile = await worker.get_profile(req.host_fingerprint)
+        return RecommendResponse(
+            recommendations=[TrackRecommendation(**t) for t in tracks],
+            profile_updated_at=profile.get("updatedAt") if profile else None,
+        )
+    except Exception as e:
+        log.error("recommendations_failed", error=str(e))
+        return RecommendResponse(recommendations=[], profile_updated_at=None)

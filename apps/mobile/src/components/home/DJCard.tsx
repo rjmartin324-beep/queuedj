@@ -1,22 +1,33 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DJ Card — DJ MODE section with song queue
+// DJ Card — DJ MODE hero card on the home screen
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface Props {
-  onPress: () => void;
+  onPress:     () => void;
+  nowPlaying?: string | null;
+  queueCount?: number;
+  guestCount?: number;
 }
 
-const SONGS = [
-  { emoji: "🤖", title: "Channel 5 – SynthWave Mix",  genre: "Synthwave",   bpm: 124, players: "2-9"  },
-  { emoji: "🎵", title: "Chillin' – 80s Synthwave",    genre: "Neon Nights", bpm: 114, players: "2-3"  },
-  { emoji: "🌐", title: "Electric Feel – Nu Disco",     genre: "Funky Town",  bpm: 124, players: "2-6"  },
-];
+export function DJCard({ onPress, nowPlaying, queueCount = 0, guestCount = 0 }: Props) {
+  const pulseAnim = useRef(new Animated.Value(0.5)).current;
 
-export function DJCard({ onPress }: Props) {
-  const [autoDJ] = useState(true);
+  // Subtle pulse on the play button
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1200, useNativeDriver: false }),
+        Animated.timing(pulseAnim, { toValue: 0.5, duration: 1200, useNativeDriver: false }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  const glowOpacity = pulseAnim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0.8] });
 
   return (
     <View style={styles.section}>
@@ -29,16 +40,23 @@ export function DJCard({ onPress }: Props) {
         <Text style={styles.headerArrow}>›</Text>
       </View>
 
-      <View style={styles.card}>
+      <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
         {/* Play row */}
         <View style={styles.playRow}>
-          <TouchableOpacity onPress={onPress} style={styles.playBtn}>
-            <Text style={styles.playIcon}>▶</Text>
-          </TouchableOpacity>
+          <View style={styles.playBtnWrap}>
+            <Animated.View style={[styles.playGlow, { opacity: glowOpacity }]} />
+            <TouchableOpacity onPress={onPress} style={styles.playBtn}>
+              <Text style={styles.playIcon}>▶</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.playInfo}>
-            <Text style={styles.playTitle}>Start the Music</Text>
-            <Text style={styles.playSub}>Auto DJ with smooth transitions</Text>
+            <Text style={styles.playTitle}>
+              {nowPlaying ? "Now Playing" : "Start the Party"}
+            </Text>
+            <Text style={styles.playSub} numberOfLines={1}>
+              {nowPlaying ?? "Launch DJ queue · invite guests"}
+            </Text>
             <View style={styles.waveRow}>
               {[4,10,7,14,9,6,12,8,5,11,7,9,6,13,8,10,5,12].map((h, i) => (
                 <View key={i} style={[styles.wavBar, { height: h }]} />
@@ -46,43 +64,29 @@ export function DJCard({ onPress }: Props) {
             </View>
           </View>
 
-          <View style={styles.autoDJWrap}>
-            <Text style={styles.autoDJLabel}>Auto DJ</Text>
-            <View style={[styles.autoDJPill, autoDJ && styles.autoDJPillOn]}>
-              <Text style={styles.autoDJText}>GN</Text>
-            </View>
+          <View style={styles.statCol}>
+            {guestCount > 0 && (
+              <View style={styles.statPill}>
+                <Text style={styles.statValue}>{guestCount}</Text>
+                <Text style={styles.statLabel}>guests</Text>
+              </View>
+            )}
+            {queueCount > 0 && (
+              <View style={[styles.statPill, { marginTop: 4 }]}>
+                <Text style={styles.statValue}>{queueCount}</Text>
+                <Text style={styles.statLabel}>queued</Text>
+              </View>
+            )}
           </View>
         </View>
 
-        {/* Progress bar */}
-        <View style={styles.progressRow}>
-          <Text style={styles.progressTime}>8:23</Text>
-          <View style={styles.progressTrack}>
-            <View style={styles.progressFill} />
-            <View style={styles.progressThumb} />
-          </View>
-          <Text style={styles.progressTimeRight}>30:00</Text>
+        {/* CTA banner */}
+        <View style={styles.ctaBanner}>
+          <Text style={styles.ctaText}>
+            {nowPlaying ? "Open DJ Queue →" : "Host or Join a Room →"}
+          </Text>
         </View>
-
-        <View style={styles.divider} />
-
-        {/* Song list */}
-        {SONGS.map((s, i) => (
-          <View key={i} style={[styles.songRow, i === SONGS.length - 1 && styles.songRowLast]}>
-            <View style={styles.songThumb}>
-              <Text style={styles.songThumbEmoji}>{s.emoji}</Text>
-            </View>
-            <View style={styles.songInfo}>
-              <Text style={styles.songTitle} numberOfLines={1}>{s.title}</Text>
-              <Text style={styles.songMeta}>{s.genre} · {s.bpm} BPM</Text>
-            </View>
-            <View style={styles.songRight}>
-              <Text style={styles.songPlay}>▶ {s.players} 👤</Text>
-              <Text style={styles.songMenu}>⋮</Text>
-            </View>
-          </View>
-        ))}
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -123,46 +127,35 @@ const styles = StyleSheet.create({
   waveRow:   { flexDirection: "row", alignItems: "flex-end", gap: 2, height: 16 },
   wavBar:    { width: 3, borderRadius: 2, backgroundColor: "#a855f7", opacity: 0.55 },
 
-  autoDJWrap:    { alignItems: "center", gap: 4, paddingTop: 2 },
-  autoDJLabel:   { color: "#6b7280", fontSize: 9, fontWeight: "700", letterSpacing: 0.5 },
-  autoDJPill:    { backgroundColor: "#374151", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
-  autoDJPillOn:  { backgroundColor: "#7c3aed" },
-  autoDJText:    { color: "#fff", fontSize: 10, fontWeight: "800" },
+  statCol: { alignItems: "center", gap: 4 },
+  statPill: {
+    backgroundColor: "rgba(124,58,237,0.2)",
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(124,58,237,0.3)",
+  },
+  statValue: { color: "#a78bfa", fontWeight: "900", fontSize: 16 },
+  statLabel: { color: "#7c3aed", fontSize: 9, fontWeight: "700" },
 
-  // Progress
-  progressRow:      { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 16 },
-  progressTime:     { color: "#6b7280", fontSize: 11, fontWeight: "600", width: 34 },
-  progressTimeRight:{ color: "#6b7280", fontSize: 11, fontWeight: "600", width: 34, textAlign: "right" },
-  progressTrack:    {
-    flex: 1, height: 4, borderRadius: 2, backgroundColor: "#1f2937",
-    flexDirection: "row", alignItems: "center",
+  ctaBanner: {
+    marginTop: 12,
+    backgroundColor: "rgba(124,58,237,0.15)",
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(124,58,237,0.25)",
   },
-  progressFill:  { width: "28%", height: 4, borderRadius: 2, backgroundColor: "#ec4899" },
-  progressThumb: {
-    width: 12, height: 12, borderRadius: 6, backgroundColor: "#f9a8d4",
-    marginLeft: -6,
-    shadowColor: "#ec4899", shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8, shadowRadius: 4,
-  },
+  ctaText: { color: "#a78bfa", fontWeight: "800", fontSize: 13, letterSpacing: 0.5 },
 
-  divider: { height: 1, backgroundColor: "#1f2937", marginBottom: 8 },
-
-  // Song rows
-  songRow: {
-    flexDirection: "row", alignItems: "center", gap: 12,
-    paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#1f2937",
+  playBtnWrap: { position: "relative" },
+  playGlow: {
+    position: "absolute",
+    top: -8, left: -8, right: -8, bottom: -8,
+    borderRadius: 36,
+    backgroundColor: "#7c3aed",
   },
-  songRowLast: { borderBottomWidth: 0, paddingBottom: 0 },
-  songThumb: {
-    width: 44, height: 44, borderRadius: 10,
-    backgroundColor: "#1f2937",
-    alignItems: "center", justifyContent: "center",
-  },
-  songThumbEmoji: { fontSize: 22 },
-  songInfo:  { flex: 1 },
-  songTitle: { color: "#fff", fontSize: 13, fontWeight: "600", marginBottom: 2 },
-  songMeta:  { color: "#6b7280", fontSize: 11 },
-  songRight: { flexDirection: "row", alignItems: "center", gap: 12 },
-  songPlay:  { color: "#6b7280", fontSize: 11 },
-  songMenu:  { color: "#6b7280", fontSize: 20 },
 });

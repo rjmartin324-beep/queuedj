@@ -24,7 +24,7 @@ interface DeckState {
 class WebAudioEngineImpl implements AudioEngineInterface {
   private decks: Record<"A" | "B", DeckState> = {
     A: { sound: null, isPlaying: false, bpm: 120, positionMs: 0, volume: 1 },
-    B: { sound: null, isPlaying: false, bpm: 120, positionMs: 0, volume: 0 },
+    B: { sound: null, isPlaying: false, bpm: 120, positionMs: 0, volume: 1 },
   };
   private crossfader = 0.5; // 0 = full A, 1 = full B
   private onPositionUpdate?: (deckId: "A" | "B", posMs: number) => void;
@@ -98,6 +98,14 @@ class WebAudioEngineImpl implements AudioEngineInterface {
   setVolume(deckId: "A" | "B", volume: number): void {
     this.decks[deckId].volume = Math.max(0, Math.min(1, volume));
     this._applyVolumes();
+  }
+
+  async setRate(deckId: "A" | "B", rate: number): Promise<void> {
+    const deck = this.decks[deckId];
+    if (!deck.sound) return;
+    // Clamp to safe range; shouldCorrectPitch=true keeps pitch stable while changing tempo
+    const clamped = Math.max(0.5, Math.min(2.0, rate));
+    await deck.sound.setRateAsync(clamped, true);
   }
 
   async getPosition(deckId: "A" | "B"): Promise<number> {

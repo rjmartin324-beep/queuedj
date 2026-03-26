@@ -1,0 +1,142 @@
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRoom } from "../../../contexts/RoomContext";
+
+const ACCENT = "#06b6d4";
+
+interface Props {
+  viewMode: "player" | "host";
+  onViewModeChange: (m: "player" | "host") => void;
+}
+
+export function AccentChallengeControls({ viewMode, onViewModeChange }: Props) {
+  const { state, sendAction } = useRoom();
+  const expState = state.experienceState as any;
+  const phase = expState?.phase ?? "waiting";
+  const scores = expState?.scores ?? {};
+  const members = state.members;
+
+  const currentPerformerId: string = expState?.currentPerformer ?? "";
+  const currentPerformerName =
+    members.find((m) => m.guestId === currentPerformerId)?.displayName ??
+    currentPerformerId.slice(0, 6);
+  const currentAccent: string = expState?.currentAccent ?? "—";
+  const currentPhrase: string = expState?.currentPhrase ?? "—";
+
+  function memberName(guestId: string) {
+    return members.find((m) => m.guestId === guestId)?.displayName ?? guestId.slice(0, 6);
+  }
+
+  const sortedScores = Object.entries(scores).sort(
+    ([, a], [, b]) => (b as number) - (a as number)
+  );
+
+  return (
+    <ScrollView style={s.container} contentContainerStyle={s.content}>
+      <Text style={s.phaseLabel}>ACCENT CHALLENGE — {phase.toUpperCase()}</Text>
+
+      {/* Waiting */}
+      {phase === "waiting" && (
+        <TouchableOpacity
+          style={s.btn}
+          onPress={() => sendAction("start", { guestIds: members.map((m) => m.guestId) })}
+        >
+          <LinearGradient colors={["#06b6d4", "#0891b2"]} style={s.btnInner}>
+            <Text style={s.btnText}>▶ START GAME</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
+
+      {/* Performing phase */}
+      {phase === "performing" && (
+        <View style={s.card}>
+          <Text style={s.roundLabel}>CURRENT PERFORMER</Text>
+          <Text style={s.questionText}>{currentPerformerName}</Text>
+          <View style={s.accentBox}>
+            <Text style={s.accentLabel}>ACCENT</Text>
+            <Text style={s.accentText}>{currentAccent}</Text>
+          </View>
+          <View style={s.phraseBox}>
+            <Text style={s.phraseLabel}>PHRASE</Text>
+            <Text style={s.phraseText}>"{currentPhrase}"</Text>
+          </View>
+          <TouchableOpacity style={s.btn} onPress={() => sendAction("start_rating")}>
+            <LinearGradient colors={["#06b6d4", "#0891b2"]} style={s.btnInner}>
+              <Text style={s.btnText}>START RATING</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Rating phase */}
+      {phase === "rating" && (
+        <View style={s.card}>
+          <Text style={s.roundLabel}>RATING IN PROGRESS</Text>
+          <TouchableOpacity style={s.btn} onPress={() => sendAction("next")}>
+            <LinearGradient colors={["#06b6d4", "#0891b2"]} style={s.btnInner}>
+              <Text style={s.btnText}>NEXT PERFORMER ▶</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Finished */}
+      {phase === "finished" && (
+        <View style={s.card}>
+          <Text style={s.finishedTitle}>GAME OVER</Text>
+          <Text style={s.subText} style={{ color: "#6b7280", fontSize: 13, textAlign: "center" }}>
+            Final standings below
+          </Text>
+        </View>
+      )}
+
+      {/* Scores */}
+      {sortedScores.length > 0 && (
+        <View style={s.scores}>
+          <Text style={s.scoresTitle}>SCORES</Text>
+          {sortedScores.map(([gId, pts], i) => (
+            <View key={gId} style={s.scoreRow}>
+              <Text style={s.scoreRank}>#{i + 1}</Text>
+              <Text style={s.scoreName}>{memberName(gId)}</Text>
+              <Text style={s.scorePts}>{pts as number} pts</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* End game */}
+      <TouchableOpacity style={s.endBtn} onPress={() => sendAction("end")}>
+        <Text style={s.endBtnText}>End Game</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
+const s = StyleSheet.create({
+  container: { flex: 1 },
+  content: { padding: 16, gap: 10 },
+  phaseLabel: { color: "#666", fontSize: 11, fontWeight: "700", letterSpacing: 1 },
+  card: { backgroundColor: "#111", borderRadius: 12, padding: 14, gap: 10 },
+  roundLabel: { color: ACCENT, fontSize: 12, fontWeight: "700" },
+  questionText: { color: "#e5e7eb", fontSize: 15, fontWeight: "600", lineHeight: 22 },
+  subText: { color: "#6b7280", fontSize: 13 },
+  finishedTitle: { color: "#f9fafb", fontSize: 22, fontWeight: "900", textAlign: "center" },
+  accentBox: { backgroundColor: "#001a1f", borderRadius: 8, padding: 10, alignItems: "center", gap: 4 },
+  accentLabel: { color: "#06b6d4", fontSize: 9, fontWeight: "900", letterSpacing: 1.2 },
+  accentText: { color: "#67e8f9", fontSize: 20, fontWeight: "900" },
+  phraseBox: { backgroundColor: "#0a1a1a", borderRadius: 8, padding: 10, alignItems: "center", gap: 4 },
+  phraseLabel: { color: "#0891b2", fontSize: 9, fontWeight: "900", letterSpacing: 1.2 },
+  phraseText: { color: "#a5f3fc", fontSize: 14, fontStyle: "italic", textAlign: "center" },
+  btn: { borderRadius: 12, overflow: "hidden" },
+  btnInner: { padding: 14, alignItems: "center" },
+  btnText: { color: "#fff", fontSize: 15, fontWeight: "900" },
+  scores: { backgroundColor: "#111", borderRadius: 12, padding: 12 },
+  scoresTitle: { color: "#555", fontSize: 10, fontWeight: "900", letterSpacing: 1, marginBottom: 8 },
+  scoreRow: { flexDirection: "row", alignItems: "center", paddingVertical: 4, gap: 8 },
+  scoreRank: { color: "#4b5563", fontSize: 12, fontWeight: "700", width: 24 },
+  scoreName: { flex: 1, color: "#ccc", fontSize: 14 },
+  scorePts: { color: "#a78bfa", fontSize: 14, fontWeight: "700" },
+  endBtn: { padding: 12, alignItems: "center" },
+  endBtnText: { color: "#555", fontSize: 13 },
+});

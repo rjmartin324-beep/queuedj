@@ -1,145 +1,128 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,
+  View, Text, StyleSheet, Image,
 } from "react-native";
+import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../../../contexts/RoomContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Geo Guesser — GuessingView
-// Shows a text clue about the location, then a grid of world region buttons
-// to pick from. 30s countdown. After submission shows a locked-in state.
+// Shows a real-photo header, then a Leaflet.js OpenStreetMap for pin dropping.
+// 30s countdown lives in React Native above the WebView.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ACCENT = "#22c55e";
 const TIMER_TOTAL = 30;
 
-interface Region {
-  id: string;
-  label: string;
-  emoji: string;
-  color: string;
-}
+// ─── Leaflet HTML ─────────────────────────────────────────────────────────────
 
-const REGIONS: Region[] = [
-  { id: "North America",  label: "North America",  emoji: "🌎", color: "#3b82f6" },
-  { id: "South America",  label: "South America",  emoji: "🌎", color: "#f59e0b" },
-  { id: "Europe",         label: "Europe",          emoji: "🌍", color: "#a855f7" },
-  { id: "Asia",           label: "Asia",            emoji: "🌏", color: "#ef4444" },
-  { id: "Africa",         label: "Africa",          emoji: "🌍", color: "#10b981" },
-  { id: "Oceania",        label: "Oceania",         emoji: "🌏", color: "#06b6d4" },
-  { id: "Middle East",    label: "Middle East",     emoji: "🌍", color: "#f97316" },
-];
+const LEAFLET_HTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #0a0a1a; }
+    #map { width: 100%; height: calc(100% - 60px); }
+    #lock-btn {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: #22c55e;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      border: none;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+    #lock-btn.visible { display: flex; }
+    #lock-btn:active { background: #16a34a; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <button id="lock-btn" onclick="lockIn()">PIN DROP — LOCK IN</button>
+  <script>
+    var map = L.map('map', {
+      center: [20, 0],
+      zoom: 2,
+      zoomControl: true,
+      attributionControl: true,
+    });
 
-// ─── Location Photo Card ──────────────────────────────────────────────────────
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+      {
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }
+    ).addTo(map);
 
-function LocationPhotoCard({ locationName, locationEmoji, clue }: {
-  locationName?: string;
-  locationEmoji?: string;
-  clue: string;
-}) {
-  const emoji = locationEmoji ?? "🌍";
+    var marker = null;
+    var pendingLat = null;
+    var pendingLng = null;
 
-  return (
-    <View style={photoStyles.card}>
-      {/* Polaroid-style photo area */}
-      <View style={photoStyles.photoFrame}>
-        <LinearGradient
-          colors={["#0f2027", "#203a43", "#2c5364"]}
-          start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-          style={photoStyles.photoGradient}
-        >
-          {/* Decorative horizon line */}
-          <View style={photoStyles.horizon} />
-          {/* Main emoji landmark */}
-          <Text style={photoStyles.landmarkEmoji}>{emoji}</Text>
-          {/* Decorative stars */}
-          <Text style={photoStyles.starRow}>✦  ·  ✦  ·  ✦</Text>
-          {/* Scan lines effect */}
-          {[0,1,2,3,4,5,6,7].map(i => (
-            <View key={i} style={[photoStyles.scanLine, { top: 14 + i * 20 }]} />
-          ))}
-        </LinearGradient>
-        {/* Photo overlay gradient at bottom */}
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.75)"]}
-          style={photoStyles.photoBottomFade}
-        />
-        {/* MYSTERY badge */}
-        <View style={photoStyles.mysteryBadge}>
-          <Text style={photoStyles.mysteryText}>📍 MYSTERY LOCATION</Text>
-        </View>
-      </View>
+    var redIcon = L.divIcon({
+      className: '',
+      html: '<div style="width:20px;height:20px;background:#ef4444;border:3px solid #fff;border-radius:50%;box-shadow:0 0 8px rgba(239,68,68,0.8);"></div>',
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+    });
 
-      {/* Clue section below photo */}
-      <View style={photoStyles.clueSection}>
-        <Text style={photoStyles.clueLabel}>🔍  LOCATION CLUE</Text>
-        <Text style={photoStyles.clueText}>{clue}</Text>
-      </View>
-    </View>
-  );
-}
+    map.on('click', function(e) {
+      pendingLat = e.latlng.lat;
+      pendingLng = e.latlng.lng;
 
-const photoStyles = StyleSheet.create({
-  card: {
-    borderRadius: 20,
-    overflow: "hidden",
-    borderWidth: 1.5,
-    borderColor: "#1e3a3a",
-    marginBottom: 20,
-    backgroundColor: "#0a1a1a",
-  },
-  photoFrame:       { height: 180, position: "relative" },
-  photoGradient:    { ...StyleSheet.absoluteFillObject, alignItems: "center", justifyContent: "center" },
-  horizon: {
-    position: "absolute",
-    bottom: "35%",
-    left: 0, right: 0,
-    height: 1,
-    backgroundColor: "rgba(34,197,94,0.15)",
-  },
-  landmarkEmoji:    { fontSize: 72, textAlign: "center" },
-  starRow:          { color: "rgba(34,197,94,0.4)", fontSize: 12, letterSpacing: 4, marginTop: 8 },
-  scanLine: {
-    position: "absolute",
-    left: 0, right: 0,
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.02)",
-  },
-  photoBottomFade:  { position: "absolute", bottom: 0, left: 0, right: 0, height: 60 },
-  mysteryBadge: {
-    position: "absolute",
-    bottom: 12, left: 14,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderWidth: 1,
-    borderColor: "rgba(34,197,94,0.3)",
-  },
-  mysteryText:      { color: "#22c55e", fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
-  clueSection:      { padding: 16, gap: 6, backgroundColor: "#0d1f1f" },
-  clueLabel:        { color: "#22c55e", fontSize: 10, fontWeight: "800", letterSpacing: 2 },
-  clueText:         { color: "#fff", fontSize: 15, fontWeight: "600", lineHeight: 22 },
-});
+      if (marker) {
+        marker.setLatLng(e.latlng);
+      } else {
+        marker = L.marker(e.latlng, { icon: redIcon }).addTo(map);
+      }
+
+      document.getElementById('lock-btn').classList.add('visible');
+    });
+
+    function lockIn() {
+      if (pendingLat === null || pendingLng === null) return;
+      var msg = JSON.stringify({ lat: pendingLat, lng: pendingLng });
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(msg);
+      }
+    }
+  </script>
+</body>
+</html>
+`;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function GuessingView() {
   const { state, sendAction } = useRoom();
   const data = state.guestViewData as any;
-  const clue: string = data?.clue ?? "Where in the world is this place?";
-  const locationName: string | undefined = data?.locationName;
-  const locationEmoji: string | undefined = data?.locationEmoji;
 
-  const [selected, setSelected] = useState<string | null>(null);
+  const clue: string       = data?.hint ?? data?.clue ?? "Where in the world is this place?";
+  const imageUrl: string | undefined = data?.imageUrl;
+
   const [submitted, setSubmitted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(TIMER_TOTAL);
+  const [timeLeft, setTimeLeft]   = useState(TIMER_TOTAL);
   const startedAt = useRef(Date.now());
 
   useEffect(() => {
     const iv = setInterval(() => {
-      const elapsed = (Date.now() - startedAt.current) / 1000;
+      const elapsed  = (Date.now() - startedAt.current) / 1000;
       const remaining = Math.max(0, TIMER_TOTAL - Math.floor(elapsed));
       setTimeLeft(remaining);
       if (remaining <= 0) clearInterval(iv);
@@ -147,29 +130,27 @@ export function GuessingView() {
     return () => clearInterval(iv);
   }, []);
 
-  const timerPct = timeLeft / TIMER_TOTAL;
+  const timerPct   = timeLeft / TIMER_TOTAL;
   const timerColor =
     timerPct > 0.5 ? ACCENT : timerPct > 0.2 ? "#f59e0b" : "#ef4444";
-  const isUrgent = timeLeft <= 8;
+  const isUrgent   = timeLeft <= 8;
 
-  function pickRegion(regionId: string) {
+  function handleMessage(event: WebViewMessageEvent) {
     if (submitted) return;
-    setSelected(regionId);
-  }
-
-  function submit() {
-    if (!selected || submitted) return;
-    setSubmitted(true);
-    sendAction("submit_guess", { region: selected });
+    try {
+      const { lat, lng } = JSON.parse(event.nativeEvent.data);
+      setSubmitted(true);
+      sendAction("submit_guess", { lat, lng });
+    } catch (_) {
+      // ignore malformed messages
+    }
   }
 
   if (submitted) {
-    const region = REGIONS.find(r => r.id === selected);
     return (
       <View style={styles.root}>
         <View style={styles.submittedScreen}>
-          <Text style={styles.submittedEmoji}>{region?.emoji ?? "📍"}</Text>
-          <Text style={styles.submittedRegion}>{selected}</Text>
+          <Text style={styles.submittedEmoji}>📍</Text>
           <Text style={styles.submittedTitle}>Guess Locked!</Text>
           <Text style={styles.submittedSub}>Waiting for the reveal...</Text>
         </View>
@@ -184,116 +165,104 @@ export function GuessingView() {
         <View style={[styles.timerFill, { width: `${timerPct * 100}%`, backgroundColor: timerColor }]} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.headerRow}>
-          <Text style={styles.eyebrow}>GEO GUESSER</Text>
-          <Text style={[styles.timerText, isUrgent && styles.timerTextUrgent]}>
-            {timeLeft}s
-          </Text>
-        </View>
-        <Text style={styles.title}>Where in the world?</Text>
+      {/* Header row */}
+      <View style={styles.headerRow}>
+        <Text style={styles.eyebrow}>GEO GUESSER</Text>
+        <Text style={[styles.timerText, isUrgent && styles.timerTextUrgent]}>
+          {timeLeft}s
+        </Text>
+      </View>
 
-        {/* Location photo + clue card */}
-        <LocationPhotoCard
-          locationName={locationName}
-          locationEmoji={locationEmoji}
-          clue={clue}
+      {/* Location image + clue overlay */}
+      <View style={styles.imageContainer}>
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.locationImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={[styles.locationImage, styles.imagePlaceholder]} />
+        )}
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.82)"]}
+          style={styles.imageGradient}
         />
-
-        {/* Region buttons */}
-        <Text style={styles.regionInstructions}>Pick a region:</Text>
-        <View style={styles.regionGrid}>
-          {REGIONS.map((region) => {
-            const isSelected = selected === region.id;
-            return (
-              <TouchableOpacity
-                key={region.id}
-                style={[
-                  styles.regionBtn,
-                  { borderColor: isSelected ? region.color : "#1e1e3a" },
-                  isSelected && { backgroundColor: region.color + "33" },
-                ]}
-                onPress={() => pickRegion(region.id)}
-                activeOpacity={0.75}
-              >
-                <Text style={styles.regionEmoji}>{region.emoji}</Text>
-                <Text style={[styles.regionLabel, isSelected && { color: region.color }]}>
-                  {region.label}
-                </Text>
-                {isSelected && (
-                  <View style={[styles.selectedDot, { backgroundColor: region.color }]} />
-                )}
-              </TouchableOpacity>
-            );
-          })}
+        {/* Mystery badge */}
+        <View style={styles.mysteryBadge}>
+          <Text style={styles.mysteryText}>MYSTERY LOCATION</Text>
         </View>
+        {/* Clue */}
+        <View style={styles.clueOverlay}>
+          <Text style={styles.clueLabel}>LOCATION CLUE</Text>
+          <Text style={styles.clueText}>{clue}</Text>
+        </View>
+      </View>
 
-        {/* Submit */}
-        <TouchableOpacity
-          style={[styles.submitBtn, !selected && styles.submitBtnDisabled]}
-          onPress={submit}
-          disabled={!selected}
-        >
-          <Text style={styles.submitBtnText}>
-            {selected ? `Lock in: ${selected}` : "Select a region first"}
-          </Text>
-        </TouchableOpacity>
+      {/* Instruction label */}
+      <View style={styles.instructionRow}>
+        <Text style={styles.instruction}>Tap the map to drop your pin, then lock in.</Text>
+      </View>
 
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
+      {/* Leaflet map WebView */}
+      <WebView
+        style={styles.map}
+        originWhitelist={["*"]}
+        source={{ html: LEAFLET_HTML }}
+        onMessage={handleMessage}
+        javaScriptEnabled
+        domStorageEnabled
+        scrollEnabled={false}
+        bounces={false}
+        overScrollMode="never"
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root:              { flex: 1, backgroundColor: "#08081a" },
+  root: { flex: 1, backgroundColor: "#08081a" },
 
   // Timer
-  timerTrack:        { height: 5, backgroundColor: "#1e1e3a", overflow: "hidden" },
-  timerFill:         { height: "100%", borderRadius: 2 },
-
-  content:           { padding: 20 },
+  timerTrack: { height: 5, backgroundColor: "#1e1e3a" },
+  timerFill:  { height: "100%", borderRadius: 2 },
 
   // Header
-  headerRow:         { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
-  eyebrow:           { color: ACCENT, fontSize: 11, fontWeight: "800", letterSpacing: 2 },
-  timerText:         { color: "#fff", fontSize: 28, fontWeight: "900" },
-  timerTextUrgent:   { color: "#ef4444" },
-  title:             { color: "#fff", fontSize: 24, fontWeight: "900", marginBottom: 20 },
+  headerRow:        { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 8 },
+  eyebrow:          { color: ACCENT, fontSize: 11, fontWeight: "800", letterSpacing: 2 },
+  timerText:        { color: "#fff", fontSize: 26, fontWeight: "900" },
+  timerTextUrgent:  { color: "#ef4444" },
 
-  // Regions
-  regionInstructions: { color: "#888", fontSize: 12, fontWeight: "700", letterSpacing: 1, marginBottom: 12 },
-  regionGrid:        { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 24 },
-
-  regionBtn: {
-    width: "47%",
-    backgroundColor: "#12122a",
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: "#1e1e3a",
-    paddingVertical: 16,
-    paddingHorizontal: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    position: "relative",
+  // Image
+  imageContainer:   { height: 160, position: "relative" },
+  locationImage:    { width: "100%", height: 160 },
+  imagePlaceholder: { backgroundColor: "#0f2027" },
+  imageGradient:    { position: "absolute", bottom: 0, left: 0, right: 0, height: 100 },
+  mysteryBadge: {
+    position: "absolute",
+    top: 10, left: 12,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "rgba(34,197,94,0.4)",
   },
-  regionEmoji:       { fontSize: 22 },
-  regionLabel:       { color: "#ccc", fontWeight: "700", fontSize: 14, flex: 1 },
-  selectedDot:       { position: "absolute", top: 8, right: 8, width: 8, height: 8, borderRadius: 4 },
+  mysteryText:      { color: ACCENT, fontSize: 9, fontWeight: "800", letterSpacing: 1.5 },
+  clueOverlay:      { position: "absolute", bottom: 10, left: 12, right: 12, gap: 2 },
+  clueLabel:        { color: "rgba(34,197,94,0.9)", fontSize: 9, fontWeight: "800", letterSpacing: 2 },
+  clueText:         { color: "#fff", fontSize: 14, fontWeight: "700", lineHeight: 19 },
 
-  // Submit
-  submitBtn:         { paddingVertical: 18, backgroundColor: ACCENT, borderRadius: 16, alignItems: "center" },
-  submitBtnDisabled: { backgroundColor: "#1e1e3a", opacity: 0.7 },
-  submitBtnText:     { color: "#fff", fontWeight: "900", fontSize: 16, letterSpacing: 0.5 },
+  // Instruction
+  instructionRow:   { paddingHorizontal: 16, paddingVertical: 6, backgroundColor: "#0d0d20" },
+  instruction:      { color: "#888", fontSize: 12, textAlign: "center" },
+
+  // Map
+  map: { flex: 1 },
 
   // Submitted
-  submittedScreen:   { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 32 },
-  submittedEmoji:    { fontSize: 64 },
-  submittedRegion:   { color: ACCENT, fontSize: 22, fontWeight: "900" },
-  submittedTitle:    { color: "#fff", fontSize: 28, fontWeight: "900" },
-  submittedSub:      { color: "#888", fontSize: 15, textAlign: "center" },
-
-  bottomSpacer:      { height: 32 },
+  submittedScreen:  { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 32 },
+  submittedEmoji:   { fontSize: 64 },
+  submittedTitle:   { color: "#fff", fontSize: 28, fontWeight: "900" },
+  submittedSub:     { color: "#888", fontSize: 15, textAlign: "center" },
 });

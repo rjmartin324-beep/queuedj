@@ -12,12 +12,16 @@ import { audioEngine } from "../../lib/engines/audioEngineSingleton";
 const THUMB_SIZE = 36;
 
 export function Crossfader() {
-  const [value, setValue]       = useState(0.5); // 0 = full A, 1 = full B
+  const [value, setValue]           = useState(0.5);
   const [trackWidth, setTrackWidth] = useState(0);
-  const valueRef = useRef(0.5);
+  // Refs keep PanResponder handlers always reading current values (no stale closures)
+  const valueRef      = useRef(0.5);
+  const trackWidthRef = useRef(0);
 
   function onTrackLayout(e: LayoutChangeEvent) {
-    setTrackWidth(e.nativeEvent.layout.width);
+    const w = e.nativeEvent.layout.width;
+    setTrackWidth(w);
+    trackWidthRef.current = w;
   }
 
   const panResponder = useRef(
@@ -26,28 +30,28 @@ export function Crossfader() {
       onMoveShouldSetPanResponder:  () => true,
 
       onPanResponderGrant: (e) => {
-        // Allow tapping anywhere on the track to jump
-        const { locationX } = e.nativeEvent;
-        const width = trackWidth - THUMB_SIZE;
+        // Tap anywhere on the track to jump to that position
+        const width = trackWidthRef.current - THUMB_SIZE;
         if (width <= 0) return;
-        const next = Math.max(0, Math.min(1, locationX / width));
+        const next = Math.max(0, Math.min(1, e.nativeEvent.locationX / width));
         valueRef.current = next;
         setValue(next);
         audioEngine.setCrossfader(next);
       },
 
       onPanResponderMove: (_, gesture) => {
-        const width = trackWidth - THUMB_SIZE;
+        const width = trackWidthRef.current - THUMB_SIZE;
         if (width <= 0) return;
         const startX = valueRef.current * width;
         const next   = Math.max(0, Math.min(1, (startX + gesture.dx) / width));
+        valueRef.current = next; // keep ref in sync so next drag starts from correct position
         setValue(next);
         audioEngine.setCrossfader(next);
       },
 
-      onPanResponderRelease: () => {
-        valueRef.current = value;
-      },
+      onPanResponderRelease: () => {},
+
+      onPanResponderTerminate: () => {},
     })
   ).current;
 

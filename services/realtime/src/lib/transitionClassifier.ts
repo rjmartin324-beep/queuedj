@@ -20,9 +20,10 @@ export type CrowdState = "WARMUP" | "RISING" | "PEAK" | "FATIGUE" | "RECOVERY" |
 
 export interface TrackAudioFeatures {
   bpm: number;
-  camelotKey: number;   // 1–12
+  camelotKey: number;      // 1–12
   camelotType: "A" | "B"; // A = minor, B = major
-  energy: number;       // 0.0–1.0
+  energy: number;          // 0.0–1.0
+  danceability?: number;   // 0.0–1.0 (from ReccoBeats)
 }
 
 export interface TransitionResult {
@@ -58,9 +59,22 @@ export function camelotScore(
 }
 
 // ─── BPM Compatibility ────────────────────────────────────────────────────────
+// Handles double-time / half-time: 128 BPM ↔ 64 BPM is the same groove
+
+export function normalizeBpm(bpm: number): number {
+  // Collapse to 60–120 range (canonical tempo)
+  let b = bpm;
+  while (b > 120) b /= 2;
+  while (b < 60)  b *= 2;
+  return b;
+}
 
 export function bpmScore(bpmA: number, bpmB: number): number {
-  const delta = Math.abs(bpmA - bpmB);
+  // Try direct delta first, then halftime/doubletime normalized delta — take best
+  const directDelta     = Math.abs(bpmA - bpmB);
+  const normalizedDelta = Math.abs(normalizeBpm(bpmA) - normalizeBpm(bpmB));
+  const delta = Math.min(directDelta, normalizedDelta);
+
   if (delta <= 2)  return 1.0;
   if (delta <= 8)  return 0.85;
   if (delta <= 15) return 0.6;
@@ -140,12 +154,21 @@ export function classifyTransition(
   const energyCompat = energyScore(trackA.energy, trackB.energy);
   const crowdCompat  = crowdStatePenalty(trackB.energy, crowdState);
 
+  // Danceability bonus (from ReccoBeats) — keeps dance floor engaged
+  let danceBonus = 0;
+  if (trackA.danceability != null && trackB.danceability != null) {
+    const dDelta = Math.abs(trackA.danceability - trackB.danceability);
+    danceBonus = Math.max(0, 0.08 * (1 - dDelta * 2));
+  }
+
   // Weighted composite — BPM + Camelot most critical for perceived mix quality
-  const composite =
+  const composite = Math.min(1.0,
     bpmCompat    * 0.35 +
     camelotCompat * 0.30 +
     energyCompat * 0.20 +
-    crowdCompat  * 0.15;
+    crowdCompat  * 0.15 +
+    danceBonus,
+  );
 
   const score          = Math.round(composite * 1000) / 1000;
   const vibeDistanceScore = Math.round((1.0 - composite) * 1000) / 1000;

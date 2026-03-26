@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useRoom } from "../../../contexts/RoomContext";
-import type { DrawingData, DrawingPath } from "@partyglue/shared-types";
+import type { DrawingData, DrawingPath } from "@queuedj/shared-types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DrawingCanvas — 60-second freehand drawing

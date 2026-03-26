@@ -1,6 +1,6 @@
 import type { Server } from "socket.io";
-import type { CrowdState, VibePreset } from "@partyglue/shared-types";
-import { CROWD_STATE_BPM_RANGES, DEFAULT_CROWD_STATE, COLD_START_ENERGY_TARGET } from "@partyglue/shared-types";
+import type { CrowdState, VibePreset } from "@queuedj/shared-types";
+import { CROWD_STATE_BPM_RANGES, DEFAULT_CROWD_STATE, COLD_START_ENERGY_TARGET } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 

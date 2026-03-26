@@ -1,11 +1,11 @@
 import type { Server } from "socket.io";
-import type { ExperienceModule, GuestViewDescriptor } from "@partyglue/shared-types";
+import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import {
   type ScrapbookSabotageState,
   extractWordBank,
   SCRAPBOOK_WORD_BANK_PROMPTS,
   SCRAPBOOK_WRITING_PROMPTS,
-} from "@partyglue/shared-types";
+} from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 

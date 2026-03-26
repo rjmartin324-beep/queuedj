@@ -7,7 +7,7 @@ import type {
   ServerToClientEvents,
   OfflineModeState,
   RoomJoinAck,
-} from "@partyglue/shared-types";
+} from "@queuedj/shared-types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Socket.io Client — Mobile
@@ -37,15 +37,36 @@ class SocketManager {
   };
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // In-memory cache — avoids repeated AsyncStorage hits on every button press
+  private _guestId:      string | null = null;
+  private _displayName:  string | null | undefined = undefined; // undefined = not loaded yet
+
+  constructor() {
+    // Prewarm: load IDs from storage immediately so the first button tap is instant
+    this._prewarm();
+  }
+
+  private async _prewarm() {
+    try {
+      const [guestId, displayName] = await Promise.all([
+        AsyncStorage.getItem(GUEST_ID_KEY),
+        AsyncStorage.getItem(DISPLAY_NAME_KEY),
+      ]);
+      if (guestId)     this._guestId     = guestId;
+      if (displayName) this._displayName = displayName;
+    } catch { /* non-fatal */ }
+  }
+
   // ─── Guest ID ──────────────────────────────────────────────────────────────
-  // Anonymous, persists across sessions. Never linked to identity.
 
   async getOrCreateGuestId(): Promise<string> {
+    if (this._guestId) return this._guestId;
     let guestId = await AsyncStorage.getItem(GUEST_ID_KEY);
     if (!guestId) {
       guestId = generateUUID();
       await AsyncStorage.setItem(GUEST_ID_KEY, guestId);
     }
+    this._guestId = guestId;
     return guestId;
   }
 
@@ -56,29 +77,45 @@ class SocketManager {
   }
 
   async getDisplayName(): Promise<string | null> {
-    return AsyncStorage.getItem(DISPLAY_NAME_KEY);
+    if (this._displayName !== undefined) return this._displayName;
+    const name = await AsyncStorage.getItem(DISPLAY_NAME_KEY);
+    this._displayName = name;
+    return name;
   }
 
   async saveDisplayName(name: string): Promise<void> {
+    this._displayName = name;
     await AsyncStorage.setItem(DISPLAY_NAME_KEY, name);
   }
 
   // ─── Connect ───────────────────────────────────────────────────────────────
 
   async connect(guestId?: string, displayName?: string): Promise<QueueDJSocket> {
-    const resolvedGuestId   = guestId ?? await this.getOrCreateGuestId();
-    const resolvedName      = displayName ?? await this.getDisplayName() ?? "Guest";
+    const resolvedGuestId = guestId ?? await this.getOrCreateGuestId();
+    const resolvedName    = displayName ?? this._displayName ?? await this.getDisplayName() ?? "Guest";
 
-    if (this.socket?.connected) return this.socket;
+    // Reuse existing connected socket only if it's already authed as the same guest.
+    // If a different guestId is passed (e.g., a one-time session ID for joining someone
+    // else's room), we must create a new socket so the server sees the correct identity.
+    if (this.socket?.connected && (!guestId || guestId === this._guestId)) {
+      return this.socket;
+    }
+
+    // Disconnect any existing socket before creating a new one
+    if (this.socket && guestId && guestId !== this._guestId) {
+      this.socket.removeAllListeners();
+      this.socket.disconnect();
+      this.socket = null;
+    }
 
     this.socket = io(REALTIME_URL, {
       auth: { guestId: resolvedGuestId, displayName: resolvedName },
-      transports: ["websocket"],
+      transports: ["polling", "websocket"],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10000,
       reconnectionAttempts: Infinity,
-      timeout: 10000,
+      timeout: 5000,
     }) as QueueDJSocket;
 
     this.bindCoreEvents(resolvedGuestId);
@@ -89,10 +126,12 @@ class SocketManager {
 
   // ─── Join Room ─────────────────────────────────────────────────────────────
 
-  async joinRoom(roomId: string): Promise<RoomJoinAck> {
+  async joinRoom(roomId: string, sessionGuestId?: string): Promise<RoomJoinAck> {
     if (!this.socket) throw new Error("Socket not connected");
 
-    const guestId = await this.getOrCreateGuestId();
+    // Prefer the explicit sessionGuestId (used when joining as guest with a one-time ID),
+    // otherwise fall back to the stored persistent host ID.
+    const guestId = sessionGuestId ?? this._guestId ?? await this.getOrCreateGuestId();
     const lastSeq = await this.getLastSequenceId(roomId);
 
     this.currentRoomId = roomId;
@@ -103,7 +142,7 @@ class SocketManager {
         { roomId, guestId, lastSequenceId: lastSeq },
         (ack) => resolve(ack),
       );
-      setTimeout(() => reject(new Error("Join timeout")), 10000);
+      setTimeout(() => reject(new Error("Join timeout")), 5000);
     });
   }
 

@@ -2,18 +2,34 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   SafeAreaView, Alert, ScrollView, Modal, KeyboardAvoidingView,
-  Platform, Animated, Dimensions, ImageBackground, Image,
+  Platform, Animated, Dimensions, ImageBackground, Image, Easing, AppState,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import type { Room } from "@queuedj/shared-types";
 import { socketManager } from "../lib/socket";
 import { useRoom } from "../contexts/RoomContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { NamePromptModal } from "../components/shared/NamePromptModal";
-import { OutfitType } from "../components/avatar/AvatarSVG";
+import { AvatarSVG, OutfitType } from "../components/avatar/AvatarSVG";
 import { Avatar3D } from "../components/avatar/Avatar3D";
 import { BottomTabBar, Tab } from "../components/home/BottomTabBar";
 import { GamesCarousel } from "../components/home/GamesCarousel";
 import { DJCard } from "../components/home/DJCard";
+import { VibeCreditsBar }   from "../components/shared/VibeCreditsBar";
+import { ThemeToggle }      from "../components/shared/ThemeToggle";
+import { SettingsScreen }   from "./SettingsScreen";
+import { HostLeaderboard }  from "../components/shared/HostLeaderboard";
+import { WardrobeShop }     from "../components/avatar/WardrobeShop";
+import { RoomHistory }         from "../components/host/RoomHistory";
+import { AchievementsSection } from "../components/home/AchievementsSection";
+import { FriendsSection }      from "../components/home/FriendsSection";
+import { SongOfTheDayCard }    from "../components/home/SongOfTheDayCard";
+import { StreakBadge }         from "../components/home/StreakBadge";
+import { WeeklyTasteReport }   from "../components/home/WeeklyTasteReport";
+import { recordActivity }      from "../lib/streak";
+import { LavaLampBg }          from "../components/shared/LavaLampBg";
+import { SpotifyConnectButton } from "../components/shared/SpotifyConnectButton";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -38,38 +54,13 @@ const NEBULAS = [
   { top: 600,  left: -40,  size: 260, color: "rgba(80,10,160,0.10)" },
 ];
 
-// ─── Animated PartyGlue logo text ────────────────────────────────────────────
-const PARTY_COLORS = ["#f0abfc","#e879f9","#c026d3","#a855f7","#818cf8","#f472b6","#fbbf24","#e879f9"];
-
-function PartyGlueName() {
-  const glow   = useRef(new Animated.Value(0)).current;
-  const colorIdx = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(glow, { toValue: 1,   duration: 700,  useNativeDriver: false }),
-        Animated.timing(glow, { toValue: 0.3, duration: 700,  useNativeDriver: false }),
-      ])
-    ).start();
-  }, []);
-
-  const glowColor = glow.interpolate({
-    inputRange: [0, 0.25, 0.5, 0.75, 1],
-    outputRange: ["#e879f9","#f0abfc","#fbbf24","#818cf8","#e879f9"],
-  });
-  const shadowRadius = glow.interpolate({ inputRange: [0,1], outputRange: [4, 18] });
-
+// ─── Brand wordmark ───────────────────────────────────────────────────────────
+function QueueDJName() {
   return (
-    <Animated.Text style={{
-      fontSize: 22, fontWeight: "900", letterSpacing: -0.3,
-      color: glowColor,
-      textShadowColor: "#e879f9",
-      textShadowOffset: { width: 0, height: 0 },
-      textShadowRadius: 12,
-    }}>
-      PartyGlue
-    </Animated.Text>
+    <Text style={{ fontSize: 21, fontWeight: "900", letterSpacing: -0.5, lineHeight: 24 }}>
+      <Text style={{ color: "#ffffff" }}>Party</Text>
+      <Text style={{ color: "#a78bfa" }}>Glue</Text>
+    </Text>
   );
 }
 
@@ -145,17 +136,25 @@ const CONFETTI_DATA: CPiece[] = Array.from({ length: 72 }, (_, i) => {
 });
 
 function AnimatedConfetti({ piece }: { piece: CPiece }) {
-  const prog = useRef(new Animated.Value(0)).current;
+  const prog    = useRef(new Animated.Value(0)).current;
+  const animRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
     function fall() {
       prog.setValue(0);
-      Animated.sequence([
+      animRef.current = Animated.sequence([
         Animated.delay(piece.delay),
         Animated.timing(prog, { toValue: 1, duration: piece.speed, useNativeDriver: true }),
-      ]).start(fall);
+      ]);
+      animRef.current.start(fall);
     }
     fall();
+
+    const sub = AppState.addEventListener("change", s => {
+      if (s !== "active") animRef.current?.stop();
+      else fall();
+    });
+    return () => { animRef.current?.stop(); sub.remove(); };
   }, []);
 
   const translateY = prog.interpolate({ inputRange: [0, 1], outputRange: [piece.startY, SCR_H + 60] });
@@ -173,32 +172,234 @@ function AnimatedConfetti({ piece }: { piece: CPiece }) {
   );
 }
 
+// ─── Lava Lamp ────────────────────────────────────────────────────────────────
+const LAMP_H = Dimensions.get("window").height;
+const LAMP_W = SW;
+
+const WAX_COLOR    = "#b5179e";
+const FLUID_COLOR  = "#03001c";
+const POOL_SURFACE = LAMP_H * 0.90;
+
+// ── Wave segment — wide flat ellipse that independently bobs ──────────────────
+const WAVE_SEGS = 13;
+const SEG_W = (LAMP_W / WAVE_SEGS) * 1.7;
+
+function WaveSeg({ index }: { index: number }) {
+  const ty      = useRef(new Animated.Value(0)).current;
+  const loopRef = useRef<Animated.CompositeAnimation | null>(null);
+  useEffect(() => {
+    const amp = 3 + (index * 7) % 8;
+    const dur = 1500 + (index * 313) % 900;
+    const del = (index * 197) % 1600;
+    function startLoop() {
+      loopRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.delay(del),
+          Animated.timing(ty, { toValue: -amp,        duration: dur, useNativeDriver: true, easing: Easing.inOut(Easing.sin) }),
+          Animated.timing(ty, { toValue:  amp * 0.35,  duration: dur, useNativeDriver: true, easing: Easing.inOut(Easing.sin) }),
+        ])
+      );
+      loopRef.current.start();
+    }
+    startLoop();
+    const sub = AppState.addEventListener("change", s => {
+      if (s !== "active") loopRef.current?.stop();
+      else startLoop();
+    });
+    return () => { loopRef.current?.stop(); sub.remove(); };
+  }, []);
+
+  const segH = SEG_W * 0.30;  // very flat — width >> height
+  const x    = (index / (WAVE_SEGS - 1)) * LAMP_W - SEG_W * 0.28;
+  return (
+    <Animated.View pointerEvents="none" style={{
+      position: "absolute",
+      left: x,
+      top: -segH * 0.55,        // sit half-above the pool surface
+      width: SEG_W, height: segH,
+      borderRadius: segH / 2,
+      backgroundColor: WAX_COLOR,
+      transform: [{ translateY: ty }],
+    }} />
+  );
+}
+
+// ── Pool surface — flat base with gently undulating top edge ─────────────────
+function BottomPool() {
+  return (
+    <View pointerEvents="none" style={{ position: "absolute", top: POOL_SURFACE, left: 0, right: 0, bottom: 0, backgroundColor: WAX_COLOR }}>
+      {Array.from({ length: WAVE_SEGS }, (_, i) => <WaveSeg key={i} index={i} />)}
+    </View>
+  );
+}
+
+// ── Lava tendril — rises from pool, floats, sinks back seamlessly ─────────────
+function LavaTendril({
+  centerX, size, initialDelay, riseDur, sinkDur, floatDur,
+}: {
+  centerX: number; size: number; initialDelay: number;
+  riseDur: number; sinkDur: number; floatDur: number;
+}) {
+  const submergedY  = POOL_SURFACE - size * 0.2;
+  const emergeY     = POOL_SURFACE - size * 1.05;
+  const floatTopY   = LAMP_H * 0.07;
+  const left        = centerX - size / 2;
+
+  const ty = useRef(new Animated.Value(submergedY)).current;
+  const tx = useRef(new Animated.Value(0)).current;
+  const sy = useRef(new Animated.Value(1)).current;
+  const sx = useRef(new Animated.Value(1)).current;
+  const op = useRef(new Animated.Value(0)).current;
+
+  // Inner highlight for realism
+  const hlOp = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const easeUp   = Easing.out(Easing.cubic);
+    const easeDown = Easing.in(Easing.cubic);
+    const easeSin  = Easing.inOut(Easing.sin);
+
+    function cycle() {
+      const rv    = riseDur  + (Math.random() - 0.5) * 2000;
+      const fv    = floatDur + (Math.random() - 0.5) * 1500;
+      const sv    = sinkDur  + (Math.random() - 0.5) * 2000;
+      const drift = LAMP_W * 0.055 * (Math.random() > 0.5 ? 1 : -1);
+
+      ty.setValue(submergedY);
+      tx.setValue(0);
+      sy.setValue(0.75);
+      sx.setValue(1.3);
+      op.setValue(0);
+      hlOp.setValue(0);
+
+      // Phase 1 — pierce surface (invisible, stretch up through pool top)
+      Animated.parallel([
+        Animated.timing(ty, { toValue: emergeY,  duration: rv * 0.16, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
+        Animated.timing(sy, { toValue: 1.6,      duration: rv * 0.16, useNativeDriver: true }),
+        Animated.timing(sx, { toValue: 0.68,     duration: rv * 0.16, useNativeDriver: true }),
+      ]).start(() => {
+
+        // Phase 2 — emerge + rise  (fade in section-by-section over short window)
+        Animated.parallel([
+          // Opacity: 0→full in first 12% of rise — tight window = "drip from pond" effect
+          Animated.timing(op,   { toValue: 0.75, duration: rv * 0.12, useNativeDriver: true }),
+          Animated.timing(hlOp, { toValue: 0.13, duration: rv * 0.20, useNativeDriver: true }),
+          Animated.timing(ty,   { toValue: floatTopY, duration: rv * 0.72, useNativeDriver: true, easing: easeUp }),
+          Animated.timing(tx,   { toValue: drift * 0.4, duration: rv * 0.72, useNativeDriver: true, easing: easeUp }),
+          Animated.sequence([
+            Animated.timing(sy, { toValue: 1.25, duration: rv * 0.22, useNativeDriver: true }),
+            Animated.timing(sy, { toValue: 1.0,  duration: rv * 0.50, useNativeDriver: true }),
+          ]),
+          Animated.sequence([
+            Animated.timing(sx, { toValue: 0.82, duration: rv * 0.22, useNativeDriver: true }),
+            Animated.timing(sx, { toValue: 1.0,  duration: rv * 0.50, useNativeDriver: true }),
+          ]),
+        ]).start(() => {
+
+          // Phase 3 — float + gentle swirl
+          Animated.parallel([
+            Animated.sequence([
+              Animated.timing(ty, { toValue: floatTopY + 20, duration: fv * 0.5, useNativeDriver: true, easing: easeSin }),
+              Animated.timing(ty, { toValue: floatTopY,      duration: fv * 0.5, useNativeDriver: true, easing: easeSin }),
+            ]),
+            Animated.sequence([
+              Animated.timing(tx, { toValue:  drift,         duration: fv * 0.5, useNativeDriver: true, easing: easeSin }),
+              Animated.timing(tx, { toValue: -drift * 0.35,  duration: fv * 0.5, useNativeDriver: true, easing: easeSin }),
+            ]),
+            Animated.sequence([
+              Animated.timing(sy, { toValue: 0.91, duration: fv * 0.5, useNativeDriver: true, easing: easeSin }),
+              Animated.timing(sy, { toValue: 1.0,  duration: fv * 0.5, useNativeDriver: true, easing: easeSin }),
+            ]),
+          ]).start(() => {
+
+            // Phase 4 — sink back with gravity + fade out before hitting surface
+            Animated.parallel([
+              Animated.timing(ty, { toValue: submergedY, duration: sv, useNativeDriver: true, easing: easeDown }),
+              Animated.timing(tx, { toValue: 0, duration: sv * 0.75, useNativeDriver: true, easing: easeSin }),
+              Animated.sequence([
+                Animated.timing(sy, { toValue: 1.4,  duration: sv * 0.42, useNativeDriver: true }),
+                Animated.timing(sy, { toValue: 0.82, duration: sv * 0.58, useNativeDriver: true }),
+              ]),
+              Animated.sequence([
+                Animated.timing(sx, { toValue: 0.80, duration: sv * 0.42, useNativeDriver: true }),
+                Animated.timing(sx, { toValue: 1.22, duration: sv * 0.58, useNativeDriver: true }),
+              ]),
+              // Fade out only in final 15% — blob stays fully visible all the way down
+              Animated.sequence([
+                Animated.delay(sv * 0.85),
+                Animated.timing(op,   { toValue: 0, duration: sv * 0.15, useNativeDriver: true }),
+                Animated.timing(hlOp, { toValue: 0, duration: sv * 0.12, useNativeDriver: true }),
+              ]),
+            ]).start(() => {
+              setTimeout(cycle, 1800 + Math.random() * 2800);
+            });
+          });
+        });
+      });
+    }
+
+    setTimeout(cycle, initialDelay);
+  }, []);
+
+  return (
+    <Animated.View pointerEvents="none" style={{
+      position: "absolute", left, top: 0,
+      width: size, height: size,
+      opacity: op,
+      transform: [{ translateY: ty }, { translateX: tx }, { scaleY: sy }, { scaleX: sx }],
+    }}>
+      {/* Main wax — same color as pool, no border */}
+      <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: WAX_COLOR }} />
+      {/* Soft glow halo — same color, slightly larger */}
+      <View style={{
+        position: "absolute", top: -size * 0.1, left: -size * 0.1,
+        width: size * 1.2, height: size * 1.2, borderRadius: size * 0.6,
+        backgroundColor: WAX_COLOR, opacity: 0.22,
+      }} />
+      {/* Inner highlight */}
+      <Animated.View style={{
+        position: "absolute", top: size * 0.15, left: size * 0.18,
+        width: size * 0.40, height: size * 0.30, borderRadius: size * 0.18,
+        backgroundColor: "#fff", opacity: hlOp,
+      }} />
+    </Animated.View>
+  );
+}
+
 function FestivalBg() {
-  const screenH = Dimensions.get("window").height;
   return (
     <>
-      {/* Background image */}
-      <Image
-        source={require("../../assets/festival-bg.jpg")}
-        style={{
-          position: "absolute", width: SW,
-          height: screenH * 1.06, top: -screenH * 0.10, left: 0,
-        }}
-        resizeMode="cover"
-      />
-
-      {/* Vignette — subtle top+bottom darkening only */}
+      {/* Deep fluid */}
       <LinearGradient
-        colors={["rgba(0,0,0,0.22)","rgba(0,0,0,0.0)","rgba(0,0,0,0.0)","rgba(4,0,14,0.60)"]}
-        locations={[0, 0.12, 0.50, 1]}
+        colors={[FLUID_COLOR, "#070018", "#040010"]}
+        locations={[0, 0.55, 1]}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
 
-      {/* Premium confetti */}
-      <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {CONFETTI_DATA.map((c, i) => <AnimatedConfetti key={i} piece={c} />)}
-      </View>
+      {/* Tendrils — staggered so only 1-2 visible at a time */}
+      <LavaTendril centerX={LAMP_W * 0.28} size={LAMP_W * 0.46} initialDelay={500}   riseDur={9200}  sinkDur={10200} floatDur={5200} />
+      <LavaTendril centerX={LAMP_W * 0.66} size={LAMP_W * 0.36} initialDelay={8500}  riseDur={8800}  sinkDur={9800}  floatDur={4600} />
+      <LavaTendril centerX={LAMP_W * 0.46} size={LAMP_W * 0.28} initialDelay={15500} riseDur={7800}  sinkDur={9000}  floatDur={3800} />
+
+      {/* Bottom pool with wavy surface */}
+      <BottomPool />
+
+      {/* Heat glow — lamp bulb warmth */}
+      <LinearGradient
+        colors={["transparent", "transparent", "rgba(181,23,158,0.10)", "rgba(114,9,183,0.30)"]}
+        locations={[0, 0.60, 0.82, 1]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+
+      {/* Top readability */}
+      <LinearGradient
+        colors={["rgba(3,0,20,0.60)", "transparent"]}
+        locations={[0, 0.20]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
     </>
   );
 }
@@ -328,31 +529,14 @@ function SpaceBg() {
         pointerEvents="none"
       />
 
-      {/* VIVID nebula clouds — layered for depth */}
+      {/* Subtle deep-space nebula glow — very faint, just adds color to the void */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {/* Electric violet — top left, large */}
-        <View style={{ position:"absolute", top:-140, left:-100, width:420, height:420,
-          borderRadius:210, backgroundColor:"rgba(109,40,217,0.52)" }} />
-        {/* Hot magenta — top right */}
-        <View style={{ position:"absolute", top:-60, right:-90, width:340, height:340,
-          borderRadius:170, backgroundColor:"rgba(236,72,153,0.40)" }} />
-        {/* Cosmic cyan — center-left band */}
-        <View style={{ position:"absolute", top:SH*0.28, left:-60, width:360, height:260,
-          borderRadius:180, backgroundColor:"rgba(6,182,212,0.38)" }} />
-        {/* Royal blue — center */}
-        <View style={{ position:"absolute", top:SH*0.18, left:SW*0.25, width:300, height:220,
-          borderRadius:150, backgroundColor:"rgba(37,99,235,0.42)" }} />
-        {/* Deep rose — bottom right */}
-        <View style={{ position:"absolute", bottom:SH*0.05, right:-80, width:320, height:320,
-          borderRadius:160, backgroundColor:"rgba(190,24,93,0.34)" }} />
-        {/* Teal accent — bottom left */}
-        <View style={{ position:"absolute", bottom:SH*0.15, left:-50, width:260, height:200,
-          borderRadius:130, backgroundColor:"rgba(20,184,166,0.28)" }} />
-        {/* Inner galactic core glow — upper center */}
-        <View style={{ position:"absolute", top:SH*0.04, left:SW*0.22, width:240, height:160,
-          borderRadius:120, backgroundColor:"rgba(253,230,138,0.10)" }} />
-        <View style={{ position:"absolute", top:SH*0.08, left:SW*0.35, width:90, height:90,
-          borderRadius:45, backgroundColor:"rgba(255,255,200,0.13)" }} />
+        <View style={{ position:"absolute", top:-120, left:-80, width:340, height:340,
+          borderRadius:170, backgroundColor:"rgba(109,40,217,0.10)" }} />
+        <View style={{ position:"absolute", top:-40, right:-70, width:280, height:280,
+          borderRadius:140, backgroundColor:"rgba(236,72,153,0.08)" }} />
+        <View style={{ position:"absolute", bottom:SH*0.10, right:-50, width:260, height:260,
+          borderRadius:130, backgroundColor:"rgba(190,24,93,0.07)" }} />
       </View>
 
       {/* Dense distant star field */}
@@ -431,12 +615,67 @@ function SpaceBg() {
   );
 }
 
+// ── Studio (Spotify-dark) background ────────────────────────────────────────
+
+function StudioBg() {
+  const barAnims = useRef(
+    Array.from({ length: 18 }, (_, i) => new Animated.Value(0.15 + (i % 5) * 0.12))
+  ).current;
+
+  useEffect(() => {
+    function animateBar(anim: Animated.Value, delay: number) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(anim, { toValue: 0.3 + Math.random() * 0.65, duration: 280 + Math.random() * 320, useNativeDriver: false }),
+          Animated.timing(anim, { toValue: 0.05 + Math.random() * 0.20, duration: 220 + Math.random() * 280, useNativeDriver: false }),
+        ])
+      ).start();
+    }
+    barAnims.forEach((a, i) => animateBar(a, i * 55));
+  }, []);
+
+  return (
+    <>
+      {/* Base: very dark charcoal */}
+      <LinearGradient
+        colors={["#0a0a0a", "#111111", "#0d0d0d", "#080808"]}
+        locations={[0, 0.3, 0.7, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      {/* Subtle green glow at top */}
+      <View style={{ position: "absolute", top: -60, left: SW * 0.2, right: SW * 0.2, height: 160, borderRadius: 80, backgroundColor: "rgba(29,185,84,0.10)" }} pointerEvents="none" />
+      {/* EQ bars at bottom */}
+      <View style={{ position: "absolute", bottom: 60, left: 0, right: 0, flexDirection: "row", alignItems: "flex-end", justifyContent: "center", gap: 4, height: 80, paddingHorizontal: 40 }} pointerEvents="none">
+        {barAnims.map((anim, i) => (
+          <Animated.View
+            key={i}
+            style={{
+              flex: 1,
+              height: anim.interpolate({ inputRange: [0, 1], outputRange: [4, 72] }),
+              backgroundColor: i % 3 === 0 ? "rgba(29,185,84,0.60)" : i % 3 === 1 ? "rgba(29,185,84,0.35)" : "rgba(29,185,84,0.22)",
+              borderRadius: 3,
+            }}
+          />
+        ))}
+      </View>
+      {/* Bottom tint */}
+      <LinearGradient
+        colors={["transparent", "rgba(29,185,84,0.06)", "rgba(0,0,0,0.4)"]}
+        locations={[0, 0.7, 1]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+    </>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Home Screen — PartyGlue
+// Home Screen — QueueDJ
 //
 // Layout (Home tab):
 //   ┌──────────────────────────────┐
-//   │ PartyGlue logo / greeting    │
+//   │ QueueDJ logo / greeting    │
 //   │ Avatar (large, Fall Guys)    │
 //   │ Welcome card (dismissable)   │
 //   │ DJ Card                      │
@@ -468,6 +707,7 @@ type PendingAction = { type: "create" } | { type: "join"; code: string } | null;
 export default function HomeScreen() {
   const router = useRouter();
   const { dispatch } = useRoom();
+  const { bgTheme: theme, setBgTheme: saveTheme } = useTheme();
   const params = useLocalSearchParams<{ code?: string }>();
 
   const [activeTab, setActiveTab]     = useState<Tab>("home");
@@ -483,7 +723,12 @@ export default function HomeScreen() {
   const [outfitId, setOutfitId]             = useState<OutfitType>("default");
   const [exprIdx, setExprIdx]               = useState(0);
   const [welcomeDismissed, setWelcomeDismissed] = useState(true);
-  const [theme, setTheme] = useState<"festival" | "space">("festival");
+  const [myGuestId, setMyGuestId] = useState<string | null>(null);
+
+  // Load persistent guestId for credits display
+  useEffect(() => {
+    socketManager.getOrCreateGuestId().then(setMyGuestId).catch(() => {});
+  }, []);
 
   // ─── Name confirmed → execute the pending action ─────────────────────────
   async function onNameConfirmed(name: string) {
@@ -495,30 +740,78 @@ export default function HomeScreen() {
 
   // ─── Create Room (Host) ───────────────────────────────────────────────────
   async function handleStartRoom() {
-    const saved = await socketManager.getDisplayName();
-    if (!saved) { setPending({ type: "create" }); return; }
-    await doCreateRoom(saved);
+    try {
+      // Fetch both in parallel — with prewarm cache both resolve instantly
+      const [saved, guestId] = await Promise.all([
+        socketManager.getDisplayName(),
+        socketManager.getOrCreateGuestId(),
+      ]);
+      if (!saved) { setPending({ type: "create" }); return; }
+      await doCreateRoom(saved, guestId);
+    } catch (e: any) {
+      Alert.alert("Error", e?.message ?? "Could not start room");
+    }
   }
 
-  async function doCreateRoom(displayName: string) {
+  async function doCreateRoom(displayName: string, prefetchedGuestId?: string) {
     setLoading(true);
     try {
-      const guestId = await socketManager.getOrCreateGuestId();
-      const res = await fetch(`${API_URL}/rooms`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hostGuestId: guestId, name: "My Party", vibePreset: "open" }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const guestId = prefetchedGuestId ?? await socketManager.getOrCreateGuestId();
 
-      dispatch({ type: "SET_ROOM", room: data.room });
+      // ── Try live API; fall back to offline demo room ──────────────────────
+      let roomId: string;
+      let roomData: Room;
+
+      // Kick off socket connect immediately — runs in parallel with API call
+      const socketPromise = Promise.race([
+        socketManager.connect(guestId, displayName),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000)),
+      ]).catch(() => null); // silently absorb — offline is fine
+
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), 4000);
+      try {
+        const res = await fetch(`${API_URL}/rooms`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hostGuestId: guestId, name: "My Party", vibePreset: "open" }),
+          signal: controller.signal,
+        });
+        clearTimeout(fetchTimeout);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "API error");
+        roomData = data.room;
+        roomId   = data.room.id;
+
+        // Socket should already be connected (or connecting) — join room
+        await socketPromise;
+        await socketManager.joinRoom(roomId).catch(() => {});
+      } catch {
+        clearTimeout(fetchTimeout);
+        // Offline / demo mode — no server needed
+        const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
+        roomId   = `demo_${rand}`;
+        roomData = {
+          id:                    roomId,
+          code:                  rand.slice(0, 4),
+          hostGuestId:           guestId,
+          name:                  "My Party",
+          vibePreset:            "open",
+          crowdState:            "WARMUP",
+          isLive:                true,
+          isBathroomBreakActive: false,
+          createdAt:             Date.now(),
+          memberCount:           1,
+          sequenceId:            0,
+        };
+        dispatch({ type: "SET_OFFLINE", isOffline: true });
+      }
+
+      dispatch({ type: "SET_ROOM",     room: roomData });
       dispatch({ type: "SET_GUEST_ID", guestId, role: "HOST" });
 
-      await socketManager.connect(guestId, displayName);
-      await socketManager.joinRoom(data.room.id);
-
-      router.push(`/host/${data.room.id}`);
+      router.push(`/host/${roomId}` as any);
+      recordActivity().catch(() => {});
     } catch (e: any) {
       Alert.alert("Error", e.message ?? "Could not create room");
     } finally {
@@ -529,10 +822,10 @@ export default function HomeScreen() {
   // ─── Join Room (Guest) ────────────────────────────────────────────────────
   async function handleJoinRoom() {
     const code = roomCode.trim();
-    if (code.length < 4) { Alert.alert("Enter the 4-digit room code"); return; }
+    if (code.length < 4) { Alert.alert("Enter the 4-letter room code"); return; }
     const saved = await socketManager.getDisplayName();
-    if (!saved) { setPending({ type: "join", code }); return; }
     setJoinModal(false);
+    if (!saved) { setPending({ type: "join", code }); return; }
     await doJoinRoom(code, saved);
   }
 
@@ -545,7 +838,7 @@ export default function HomeScreen() {
 
       const guestId = socketManager.generateSessionGuestId();
       await socketManager.connect(guestId, displayName);
-      const ack = await socketManager.joinRoom(data.id);
+      const ack = await socketManager.joinRoom(data.id, guestId);
 
       if (!ack.success) throw new Error(ack.error ?? "Could not join room");
 
@@ -553,6 +846,7 @@ export default function HomeScreen() {
       dispatch({ type: "SET_GUEST_ID", guestId, role: ack.role });
 
       router.push(`/guest/${data.id}`);
+      recordActivity().catch(() => {});
     } catch (e: any) {
       Alert.alert("Error", e.message ?? "Could not join room");
     } finally {
@@ -577,7 +871,8 @@ export default function HomeScreen() {
             welcomeDismissed={welcomeDismissed}
             onDismissWelcome={() => setWelcomeDismissed(true)}
             theme={theme}
-            onToggleTheme={() => setTheme(t => t === "festival" ? "space" : "festival")}
+            onToggleTheme={saveTheme}
+            guestId={myGuestId}
           />
         );
       case "avatar":
@@ -593,63 +888,79 @@ export default function HomeScreen() {
             setOutfitId={setOutfitId}
             exprIdx={exprIdx}
             setExprIdx={setExprIdx}
+            guestId={myGuestId}
+            theme={theme}
           />
         );
       case "social":
-        return <PlaceholderTab icon="🏆" label="Social" sub="Leaderboards & friends coming soon" />;
+        return (
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 16, paddingBottom: 60 }}>
+            <Text style={{ color: "#6b7280", fontSize: 10, fontWeight: "800", letterSpacing: 2, paddingHorizontal: 16, marginBottom: 8 }}>
+              GLOBAL LEADERBOARD
+            </Text>
+            <HostLeaderboard limit={20} />
+            <Text style={{ color: "#6b7280", fontSize: 10, fontWeight: "800", letterSpacing: 2, paddingHorizontal: 16, marginTop: 24, marginBottom: 8 }}>
+              YOUR SESSIONS
+            </Text>
+            <RoomHistory />
+            <FriendsSection />
+            <AchievementsSection />
+            {myGuestId && <WeeklyTasteReport guestId={myGuestId} />}
+          </ScrollView>
+        );
       case "account":
-        return <PlaceholderTab icon="⚙️" label="Account" sub="Profile settings coming soon" />;
+        return <SettingsScreen guestId={myGuestId} />;
     }
   }
 
   return (
     <SafeAreaView style={styles.safe}>
-      {theme === "festival" ? <FestivalBg /> : <SpaceBg />}
+      {theme === "festival" ? <LavaLampBg /> : theme === "studio" ? <StudioBg /> : <SpaceBg />}
       <NamePromptModal visible={pendingAction !== null} onConfirm={onNameConfirmed} />
 
       {/* Join Room Modal */}
-      <Modal visible={joinModalVisible} transparent animationType="slide">
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalOuter}
-        >
+      <Modal visible={joinModalVisible} transparent animationType="slide" onRequestClose={() => { setJoinModal(false); setRoomCode(""); }}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOuter}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => { setJoinModal(false); setRoomCode(""); }} />
           <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>Join a Room</Text>
-            <Text style={styles.modalSub}>Ask the host for the 4-letter code</Text>
-            <TextInput
-              style={styles.codeInput}
-              placeholder="Room code (e.g. TRAP)"
-              placeholderTextColor="#555"
-              value={roomCode}
-              onChangeText={(t) => setRoomCode(t.toUpperCase())}
-              maxLength={4}
-              autoCapitalize="characters"
-              autoCorrect={false}
-              autoFocus
-            />
-            <View style={styles.modalRow}>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalBtnSecondary]}
-                onPress={() => { setJoinModal(false); setRoomCode(""); }}
-              >
-                <Text style={styles.modalBtnTextSecondary}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalBtn, styles.modalBtnPrimary, !roomCode && styles.btnDisabled]}
-                onPress={handleJoinRoom}
-                disabled={!roomCode || loading}
-              >
-                <Text style={styles.modalBtnTextPrimary}>
-                  {loading ? "Joining..." : "Join"}
-                </Text>
-              </TouchableOpacity>
+            {/* Handle */}
+            <View style={styles.modalHandle} />
+
+            {/* Icon + heading */}
+            <View style={styles.modalHead}>
+              <View style={styles.modalIconWrap}>
+                <Text style={{ fontSize: 28 }}>🎉</Text>
+              </View>
+              <Text style={styles.modalTitle}>Join a Room</Text>
+              <Text style={styles.modalSub}>Enter the 4-letter code from the host</Text>
             </View>
-            {/* QR scan shortcut */}
+
+            {/* 4-box letter input */}
+            <JoinCodeInput value={roomCode} onChange={setRoomCode} />
+
+            {/* Join button */}
             <TouchableOpacity
-              style={styles.qrRow}
-              onPress={() => { setJoinModal(false); router.push("/scan"); }}
+              onPress={handleJoinRoom}
+              disabled={roomCode.length < 4 || loading}
+              activeOpacity={0.85}
             >
-              <Text style={styles.qrText}>📷  Scan QR Code instead</Text>
+              <LinearGradient
+                colors={roomCode.length < 4 ? ["#2a2a2a", "#2a2a2a"] : ["#7c3aed", "#6d28d9"]}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={[styles.joinBtn, roomCode.length < 4 && styles.btnDisabled]}
+              >
+                <Text style={styles.joinBtnText}>{loading ? "Joining..." : "Join Party"}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            {/* QR scan */}
+            <TouchableOpacity style={styles.qrRow} onPress={() => { setJoinModal(false); router.push("/scan"); }}>
+              <Text style={styles.qrText}>📷  Scan QR code instead</Text>
+            </TouchableOpacity>
+
+            {/* Cancel */}
+            <TouchableOpacity style={styles.cancelRow} onPress={() => { setJoinModal(false); setRoomCode(""); }}>
+              <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -665,6 +976,7 @@ export default function HomeScreen() {
         active={activeTab}
         onChange={setActiveTab}
         onStartRoom={handleStartRoom}
+        theme={theme}
       />
     </SafeAreaView>
   );
@@ -687,6 +999,7 @@ function HomeTab({
   onDismissWelcome,
   theme,
   onToggleTheme,
+  guestId,
 }: {
   onStartRoom: () => void;
   onJoinRoom: () => void;
@@ -697,12 +1010,14 @@ function HomeTab({
   outfitId: OutfitType;
   expression: "happy" | "cool" | "party";
   welcomeDismissed: boolean;
+  guestId?: string | null;
   onDismissWelcome: () => void;
-  theme: "festival" | "space";
-  onToggleTheme: () => void;
+  theme: "festival" | "space" | "studio";
+  onToggleTheme: (t: "festival" | "space" | "studio") => void;
 }) {
   const [howItWorksVisible, setHowItWorksVisible] = useState(false);
   const avatarSize = Math.min(Dimensions.get("window").width * 0.62, 300);
+  const isStudio = theme === "studio";
 
   return (
     <ScrollView
@@ -714,39 +1029,52 @@ function HomeTab({
       <View style={styles.topBar}>
         {/* Logo + brand left */}
         <View style={styles.brandRow}>
-          <View style={styles.logoWrap}>
+          <LinearGradient
+            colors={["#3b1f7a", "#6c47ff"]}
+            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+            style={styles.logoWrap}
+          >
             <Image
               source={require("../../assets/logo.png")}
               style={styles.logoImg}
-              resizeMode="cover"
+              resizeMode="contain"
             />
-          </View>
+          </LinearGradient>
           <View>
-            <PartyGlueName />
-            <Text style={styles.brandTagline}>Party games + Auto DJ</Text>
+            <QueueDJName />
+            <Text style={styles.brandTagline}>The glue that holds the party together</Text>
           </View>
         </View>
 
-        {/* Join Room + theme toggle stacked right */}
+        {/* Top right — credits + theme toggle */}
         <View style={styles.topRight}>
-          <TouchableOpacity onPress={onJoinRoom} style={styles.joinChip}>
-            <Text style={styles.joinChipText}>Join Room</Text>
-          </TouchableOpacity>
+          {guestId && <VibeCreditsBar guestId={guestId} compact />}
           <View style={styles.themePicker}>
             <TouchableOpacity
               style={[styles.themeChip, theme === "festival" && styles.themeChipOn]}
-              onPress={onToggleTheme}
+              onPress={() => onToggleTheme("festival")}
+              disabled={theme === "festival"}
             >
-              <Text style={styles.themeChipIcon}>🎪</Text>
-              <Text style={[styles.themeChipLabel, theme === "festival" && styles.themeChipLabelOn]}>Festival</Text>
+              <Text style={styles.themeChipIcon}>🫧</Text>
+              <Text style={[styles.themeChipLabel, theme === "festival" && styles.themeChipLabelOn]}>Lava</Text>
             </TouchableOpacity>
             <View style={styles.themeChipDivider} />
             <TouchableOpacity
               style={[styles.themeChip, theme === "space" && styles.themeChipOn]}
-              onPress={onToggleTheme}
+              onPress={() => onToggleTheme("space")}
+              disabled={theme === "space"}
             >
               <Text style={styles.themeChipIcon}>🌌</Text>
               <Text style={[styles.themeChipLabel, theme === "space" && styles.themeChipLabelOn]}>Space</Text>
+            </TouchableOpacity>
+            <View style={styles.themeChipDivider} />
+            <TouchableOpacity
+              style={[styles.themeChip, theme === "studio" && styles.themeChipOn, theme === "studio" && { borderColor: "#1DB954" }]}
+              onPress={() => onToggleTheme("studio")}
+              disabled={theme === "studio"}
+            >
+              <Text style={styles.themeChipIcon}>🎵</Text>
+              <Text style={[styles.themeChipLabel, theme === "studio" && styles.themeChipLabelOn, theme === "studio" && { color: "#1DB954" }]}>Studio</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -756,14 +1084,28 @@ function HomeTab({
       <View style={styles.avatarHero}>
         {/* Stage platform rings — reinforce the background rings at foot level */}
         <View style={styles.stageWrap} pointerEvents="none">
-          {[
+          {(isStudio ? [
+            { w: SW * 1.1,  h: 70, color: "#0a4d22", opacity: 0.30 },
+            { w: SW * 0.85, h: 54, color: "#147a35", opacity: 0.38 },
+            { w: SW * 0.65, h: 40, color: "#1DB954", opacity: 0.45 },
+            { w: SW * 0.46, h: 28, color: "#34d399", opacity: 0.55 },
+            { w: SW * 0.28, h: 18, color: "#6ee7b7", opacity: 0.70 },
+            { w: SW * 0.14, h: 10, color: "#fff",    opacity: 0.55 },
+          ] : theme === "space" ? [
+            { w: SW * 1.1,  h: 70, color: "#3b0764", opacity: 0.06 },
+            { w: SW * 0.85, h: 54, color: "#6d28d9", opacity: 0.08 },
+            { w: SW * 0.65, h: 40, color: "#7c3aed", opacity: 0.10 },
+            { w: SW * 0.46, h: 28, color: "#a78bfa", opacity: 0.14 },
+            { w: SW * 0.28, h: 18, color: "#c4b5fd", opacity: 0.22 },
+            { w: SW * 0.14, h: 10, color: "#fff",    opacity: 0.30 },
+          ] : [
             { w: SW * 1.1, h: 70,  color: "#7c1fa2", opacity: 0.22 },
             { w: SW * 0.85, h: 54, color: "#a021c9", opacity: 0.30 },
             { w: SW * 0.65, h: 40, color: "#c026d3", opacity: 0.38 },
             { w: SW * 0.46, h: 28, color: "#d946ef", opacity: 0.50 },
             { w: SW * 0.28, h: 18, color: "#f0abfc", opacity: 0.70 },
             { w: SW * 0.14, h: 10, color: "#fff",    opacity: 0.55 },
-          ].map((r, i) => (
+          ]).map((r, i) => (
             <View key={i} style={{
               position: "absolute",
               width: r.w, height: r.h,
@@ -781,8 +1123,9 @@ function HomeTab({
           expression={expression}
           outfit={outfitId}
         />
-        <View style={styles.heroPill}>
-          <Text style={styles.heroPillText}>Player  ·  Lv 1</Text>
+        {/* Level pill — floats at bottom-right of avatar, out of the flow */}
+        <View style={[styles.heroPill, isStudio && { backgroundColor: "rgba(29,185,84,0.18)", borderColor: "rgba(52,211,153,0.45)" }]}>
+          <Text style={[styles.heroPillText, isStudio && { color: "#34d399" }]}>⭐ Lv 1  ·  DJ Rookie</Text>
         </View>
       </View>
 
@@ -833,14 +1176,26 @@ function HomeTab({
         </View>
       </Modal>
 
+      {/* ── Mode Cards ───────────────────────────────────────────────── */}
+      <ModeCards onStartRoom={onStartRoom} onJoinRoom={onJoinRoom} loading={loading} />
+
       {/* ── Live Now ─────────────────────────────────────────────────── */}
       <LiveNowSection onJoinRoom={onJoinRoom} />
 
       {/* ── DJ Card ──────────────────────────────────────────────────── */}
       <DJCard onPress={onStartRoom} />
 
+      {/* ── Spotify Connect ──────────────────────────────────────────── */}
+      <SpotifyConnectButton />
+
+      {/* ── Song of the Day ──────────────────────────────────────────── */}
+      <SongOfTheDayCard />
+
+      {/* ── Streak Badge ─────────────────────────────────────────────── */}
+      <StreakBadge />
+
       {/* ── Games Carousel ───────────────────────────────────────────── */}
-      <GamesCarousel onSelectGame={(_gameId) => handleStartRoom()} />
+      <GamesCarousel onSelectGame={(_gameId) => onStartRoom()} />
 
       {/* ── Recently Played ──────────────────────────────────────────── */}
       <RecentlyPlayedSection />
@@ -850,6 +1205,226 @@ function HomeTab({
     </ScrollView>
   );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mode Cards — the two big primary CTAs
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── 4-box room code input ────────────────────────────────────────────────────
+function JoinCodeInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const inputs = useRef<(TextInput | null)[]>([null, null, null, null]);
+
+  function handleChange(idx: number, raw: string) {
+    // Support paste / autocomplete: if more than 1 char arrives, distribute across boxes
+    const cleaned = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (cleaned.length > 1) {
+      const full = cleaned.slice(0, 4);
+      onChange(full);
+      const nextIdx = Math.min(full.length, 3);
+      inputs.current[nextIdx]?.focus();
+      return;
+    }
+    const arr = (value + "    ").slice(0, 4).split("");
+    if (cleaned) {
+      arr[idx] = cleaned;
+      onChange(arr.join("").trimEnd());
+      if (idx < 3) inputs.current[idx + 1]?.focus();
+    } else {
+      arr[idx] = " ";
+      onChange(arr.join("").trimEnd());
+      if (idx > 0) inputs.current[idx - 1]?.focus();
+    }
+  }
+
+  return (
+    <View style={joinBoxStyles.row}>
+      {[0, 1, 2, 3].map((i) => {
+        const filled = i < value.length;
+        return (
+          <View key={i} style={[joinBoxStyles.box, filled && joinBoxStyles.boxFilled]}>
+            <TextInput
+              ref={(r) => { inputs.current[i] = r; }}
+              style={joinBoxStyles.letter}
+              value={value[i] ?? ""}
+              onChangeText={(t) => handleChange(i, t)}
+              maxLength={4}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              keyboardType="default"
+              onFocus={() => {}}
+              caretHidden
+              selectTextOnFocus
+            />
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+const joinBoxStyles = StyleSheet.create({
+  row:      { flexDirection: "row", gap: 12, justifyContent: "center", marginVertical: 28 },
+  box:      { width: 62, height: 72, borderRadius: 16, backgroundColor: "#1a1a2e", borderWidth: 2, borderColor: "#2a2a4a", alignItems: "center", justifyContent: "center" },
+  boxFilled:{ borderColor: "#7c3aed", backgroundColor: "#1e1040", shadowColor: "#7c3aed", shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 0 } },
+  letter:   { color: "#fff", fontSize: 28, fontWeight: "900", textAlign: "center", width: "100%", textTransform: "uppercase" },
+});
+
+// ─── Mascot for mode cards ─────────────────────────────────────────────────────
+function ModeMascot({ variant }: { variant: "dj" | "guest" }) {
+  const s = 72;
+  const bodyColor  = "#7ec8e3";
+  const blushColor = variant === "dj" ? "#f9a8d4" : "#fda4af";
+  return (
+    <View style={{ width: s, height: s * 1.15, alignItems: "center" }}>
+      {/* Tuft */}
+      <View style={{ position:"absolute", top:0, width:s*0.13, height:s*0.16, borderRadius:s*0.08, backgroundColor:bodyColor, zIndex:2 }} />
+      <View style={{ position:"absolute", top:s*0.04, left:s*0.29, width:s*0.10, height:s*0.12, borderRadius:s*0.06, backgroundColor:bodyColor, zIndex:2 }} />
+      <View style={{ position:"absolute", top:s*0.04, right:s*0.29, width:s*0.10, height:s*0.12, borderRadius:s*0.06, backgroundColor:bodyColor, zIndex:2 }} />
+      {/* Arms */}
+      {variant === "dj" ? (
+        <>
+          <View style={{ position:"absolute", bottom:s*0.22, left:-s*0.06, width:s*0.17, height:s*0.28, borderRadius:s*0.085, backgroundColor:bodyColor, transform:[{rotate:"-30deg"}] }} />
+          <View style={{ position:"absolute", bottom:s*0.22, right:-s*0.06, width:s*0.17, height:s*0.28, borderRadius:s*0.085, backgroundColor:bodyColor, transform:[{rotate:"30deg"}] }} />
+        </>
+      ) : (
+        <>
+          <View style={{ position:"absolute", bottom:s*0.18, left:-s*0.04, width:s*0.17, height:s*0.26, borderRadius:s*0.085, backgroundColor:bodyColor, transform:[{rotate:"20deg"}] }} />
+          <View style={{ position:"absolute", bottom:s*0.18, right:-s*0.04, width:s*0.17, height:s*0.26, borderRadius:s*0.085, backgroundColor:bodyColor, transform:[{rotate:"-20deg"}] }} />
+        </>
+      )}
+      {/* Body */}
+      <View style={{ position:"absolute", bottom:s*0.12, width:s*0.94, height:s*0.88, borderRadius:s*0.47, backgroundColor:bodyColor, alignItems:"center", shadowColor:bodyColor, shadowRadius:12, shadowOpacity:0.5, shadowOffset:{width:0,height:5} }}>
+        <View style={{ flexDirection:"row", gap:s*0.16, marginTop:s*0.16 }}>
+          <View style={{ width:s*0.15, height:s*0.15, borderRadius:s*0.075, backgroundColor:"#1a1030", alignItems:"center", justifyContent:"flex-start", paddingTop:s*0.025 }}>
+            <View style={{ width:s*0.055, height:s*0.055, borderRadius:s*0.028, backgroundColor:"rgba(255,255,255,0.75)" }} />
+          </View>
+          <View style={{ width:s*0.15, height:s*0.15, borderRadius:s*0.075, backgroundColor:"#1a1030", alignItems:"center", justifyContent:"flex-start", paddingTop:s*0.025 }}>
+            <View style={{ width:s*0.055, height:s*0.055, borderRadius:s*0.028, backgroundColor:"rgba(255,255,255,0.75)" }} />
+          </View>
+        </View>
+        <View style={{ flexDirection:"row", gap:s*0.25, marginTop:s*0.04 }}>
+          <View style={{ width:s*0.14, height:s*0.07, borderRadius:s*0.035, backgroundColor:blushColor, opacity:0.65 }} />
+          <View style={{ width:s*0.14, height:s*0.07, borderRadius:s*0.035, backgroundColor:blushColor, opacity:0.65 }} />
+        </View>
+        <View style={{ width:s*0.30, height:s*0.17, borderRadius:s*0.085, backgroundColor:"#7f1d1d", marginTop:s*0.04, overflow:"hidden", alignItems:"center" }}>
+          <View style={{ width:"88%", height:s*0.07, backgroundColor:"#fef2f2", borderBottomLeftRadius:s*0.06, borderBottomRightRadius:s*0.06 }} />
+        </View>
+      </View>
+      {/* Feet */}
+      <View style={{ flexDirection:"row", gap:s*0.07, position:"absolute", bottom:0 }}>
+        <View style={{ width:s*0.28, height:s*0.14, borderRadius:s*0.07, backgroundColor:bodyColor }} />
+        <View style={{ width:s*0.28, height:s*0.14, borderRadius:s*0.07, backgroundColor:bodyColor }} />
+      </View>
+      {/* DJ headphones */}
+      {variant === "dj" && (
+        <View style={{ position:"absolute", top:-4, width:s*0.88, height:s*0.22, borderTopLeftRadius:s*0.44, borderTopRightRadius:s*0.44, borderWidth:s*0.07, borderColor:"#1a1030", borderBottomWidth:0 }}>
+          <View style={{ position:"absolute", left:-s*0.09, top:s*0.01, width:s*0.14, height:s*0.18, borderRadius:s*0.04, backgroundColor:"#1a1030" }} />
+          <View style={{ position:"absolute", right:-s*0.09, top:s*0.01, width:s*0.14, height:s*0.18, borderRadius:s*0.04, backgroundColor:"#1a1030" }} />
+        </View>
+      )}
+      {/* Guest confetti */}
+      {variant === "guest" && (
+        <>
+          <Text style={{ position:"absolute", top:2, right:-4, fontSize:14 }}>🎉</Text>
+          <Text style={{ position:"absolute", top:16, left:-6, fontSize:11 }}>✨</Text>
+        </>
+      )}
+    </View>
+  );
+}
+
+function ModeCards({
+  onStartRoom, onJoinRoom, loading,
+}: { onStartRoom: () => void; onJoinRoom: () => void; loading: boolean }) {
+  const hostScale  = useRef(new Animated.Value(1)).current;
+  const guestScale = useRef(new Animated.Value(1)).current;
+
+  function press(scale: Animated.Value, cb: () => void) {
+    Animated.sequence([
+      Animated.spring(scale, { toValue: 0.96, useNativeDriver: true, speed: 50 }),
+      Animated.spring(scale, { toValue: 1,    useNativeDriver: true, speed: 20 }),
+    ]).start();
+    cb();
+  }
+
+  return (
+    <View style={modeStyles.row}>
+      {/* ── Start a Party ── */}
+      <Animated.View style={[modeStyles.cardWrap, modeStyles.hostShadow, { transform: [{ scale: hostScale }] }]}>
+        <TouchableOpacity style={modeStyles.card} onPress={() => press(hostScale, onStartRoom)} disabled={loading} activeOpacity={1}>
+          <LinearGradient colors={["rgba(45,16,96,0.30)", "rgba(108,71,255,0.22)", "rgba(139,92,246,0.18)"]} start={{ x: 0.2, y: 0 }} end={{ x: 1, y: 1 }} style={modeStyles.cardGradient}>
+            {/* Glow orb */}
+            <View style={[modeStyles.glowOrb, { backgroundColor: "#a78bfa" }]} />
+            <View style={modeStyles.cardTopRow}>
+              <View style={[modeStyles.cardBadge, modeStyles.hostBadge]}>
+                <Text style={modeStyles.cardBadgeText}>HOST</Text>
+              </View>
+            </View>
+            {/* Avatar */}
+            <View style={modeStyles.mascotWrap}>
+              <AvatarSVG size={110} bodyColor="#38bdf8" headphoneColor="#f97316" outfitColor="#7c3aed" expression="happy" outfit="default" />
+            </View>
+            <View style={modeStyles.cardBottom}>
+              <Text style={modeStyles.cardTitle}>Start a Party</Text>
+              <Text style={modeStyles.cardSub}>DJ mode + crowd games</Text>
+              <View style={modeStyles.cardCta}>
+                <Text style={modeStyles.cardCtaText}>Let's go →</Text>
+              </View>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* ── Join a Party ── */}
+      <Animated.View style={[modeStyles.cardWrap, modeStyles.guestShadow, { transform: [{ scale: guestScale }] }]}>
+        <TouchableOpacity style={modeStyles.card} onPress={() => press(guestScale, onJoinRoom)} disabled={loading} activeOpacity={1}>
+          <LinearGradient colors={["rgba(15,10,46,0.28)", "rgba(30,27,75,0.22)", "rgba(49,46,129,0.18)"]} start={{ x: 0.2, y: 0 }} end={{ x: 1, y: 1 }} style={modeStyles.cardGradient}>
+            {/* Glow orb */}
+            <View style={[modeStyles.glowOrb, { backgroundColor: "#818cf8" }]} />
+            <View style={modeStyles.cardTopRow}>
+              <View style={[modeStyles.cardBadge, modeStyles.guestBadge]}>
+                <Text style={[modeStyles.cardBadgeText, { color: "#a5b4fc" }]}>GUEST</Text>
+              </View>
+            </View>
+            {/* Avatar */}
+            <View style={modeStyles.mascotWrap}>
+              <AvatarSVG size={110} bodyColor="#f472b6" headphoneColor="#fbbf24" outfitColor="#4f46e5" expression="happy" outfit="default" />
+            </View>
+            <View style={modeStyles.cardBottom}>
+              <Text style={modeStyles.cardTitle}>Join a Party</Text>
+              <Text style={modeStyles.cardSub}>Enter a room code</Text>
+              <View style={[modeStyles.cardCta, modeStyles.cardCtaGuest]}>
+                <Text style={[modeStyles.cardCtaText, { color: "#c7d2fe" }]}>Enter code →</Text>
+              </View>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
+  );
+}
+
+const modeStyles = StyleSheet.create({
+  row:      { flexDirection: "row", gap: 14, marginHorizontal: 16, marginBottom: 24 },
+  cardWrap: { flex: 1, borderRadius: 22 },
+  card:     { borderRadius: 22, overflow: "hidden", aspectRatio: 0.78, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)" },
+  cardGradient: { flex: 1, padding: 16, justifyContent: "space-between", position: "relative" },
+  glowOrb:  { position: "absolute", width: 120, height: 120, borderRadius: 60, opacity: 0.18, top: -20, right: -20 },
+  hostShadow:  { shadowColor: "#7c3aed", shadowOpacity: 0.65, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 12 },
+  guestShadow: { shadowColor: "#4f46e5", shadowOpacity: 0.5,  shadowRadius: 16, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
+  cardTopRow:  { flexDirection: "row", justifyContent: "flex-start", zIndex: 2 },
+  mascotWrap:  { alignItems: "center", justifyContent: "center", flex: 1, zIndex: 2 },
+  cardBottom:  { gap: 3, zIndex: 2 },
+  cardBadge:   { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1 },
+  hostBadge:   { backgroundColor: "rgba(124,58,237,0.55)", borderColor: "#a78bfa66" },
+  guestBadge:  { backgroundColor: "rgba(79,70,229,0.4)",  borderColor: "#818cf866" },
+  cardBadgeText: { color: "#fff", fontSize: 9, fontWeight: "900", letterSpacing: 1.4 },
+  cardTitle: { color: "#fff", fontSize: 18, fontWeight: "900" },
+  cardSub:   { color: "rgba(255,255,255,0.6)", fontSize: 12, marginBottom: 8 },
+  cardCta:      { alignSelf: "flex-start", backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: "rgba(255,255,255,0.2)" },
+  cardCtaGuest: { backgroundColor: "rgba(255,255,255,0.1)" },
+  cardCtaText:  { color: "#fff", fontSize: 12, fontWeight: "800" },
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Live Now Section
@@ -904,8 +1479,23 @@ function RecentlyPlayedSection() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Avatar Tab
+// Avatar Tab — Premium redesign
 // ─────────────────────────────────────────────────────────────────────────────
+
+const EMOTES = [
+  { id: "wave",    emoji: "👋", label: "Wave"    },
+  { id: "dance",   emoji: "💃", label: "Dance"   },
+  { id: "fire",    emoji: "🔥", label: "Fire"    },
+  { id: "clap",    emoji: "👏", label: "Clap"    },
+  { id: "hype",    emoji: "🙌", label: "Hype"    },
+  { id: "cool",    emoji: "😎", label: "Cool"    },
+  { id: "love",    emoji: "❤️", label: "Love"   },
+  { id: "laugh",   emoji: "😂", label: "Laugh"   },
+  { id: "shocked", emoji: "😱", label: "Shock"   },
+  { id: "flex",    emoji: "💪", label: "Flex"    },
+  { id: "peace",   emoji: "✌️", label: "Peace"  },
+  { id: "money",   emoji: "💸", label: "Money"   },
+];
 
 function AvatarTab({
   bodyIdx, setBodyIdx,
@@ -913,6 +1503,8 @@ function AvatarTab({
   outfitColorIdx, setOutfitColorIdx,
   outfitId, setOutfitId,
   exprIdx, setExprIdx,
+  guestId,
+  theme,
 }: {
   bodyIdx: number;
   setBodyIdx: (i: number) => void;
@@ -924,15 +1516,70 @@ function AvatarTab({
   setOutfitId: (o: OutfitType) => void;
   exprIdx: number;
   setExprIdx: (i: number) => void;
+  guestId?: string | null;
+  theme?: "festival" | "space" | "studio";
 }) {
-  const avatarSize = Math.min(Dimensions.get("window").width * 0.7, 340);
+  const avatarSize = Math.min(Dimensions.get("window").width * 0.68, 320);
+  const [activeEmote, setActiveEmote] = React.useState<string | null>(null);
+  const emoteScale = React.useRef(new Animated.Value(1)).current;
+
+  const isStudio = theme === "studio";
+  const accentColor   = isStudio ? "#1DB954" : "#a78bfa";
+  const accentColor2  = isStudio ? "#34d399" : "#7c3aed";
+  const xpGradient: [string, string] = isStudio ? ["#1DB954", "#34d399"] : ["#7c3aed", "#a78bfa"];
+  const platformRings = isStudio
+    ? [
+        { w: SW * 0.90, h: 58, color: "#064e3b", opacity: 0.22 },
+        { w: SW * 0.70, h: 44, color: "#065f46", opacity: 0.30 },
+        { w: SW * 0.50, h: 32, color: "#059669", opacity: 0.38 },
+        { w: SW * 0.32, h: 22, color: "#10b981", opacity: 0.50 },
+        { w: SW * 0.16, h: 12, color: "#6ee7b7", opacity: 0.68 },
+      ]
+    : [
+        { w: SW * 0.90, h: 58, color: "#6d28d9", opacity: 0.20 },
+        { w: SW * 0.70, h: 44, color: "#7c3aed", opacity: 0.28 },
+        { w: SW * 0.50, h: 32, color: "#a021c9", opacity: 0.36 },
+        { w: SW * 0.32, h: 22, color: "#d946ef", opacity: 0.48 },
+        { w: SW * 0.16, h: 12, color: "#f0abfc", opacity: 0.65 },
+      ];
+  const stageGlowColor1 = isStudio ? "rgba(29,185,84,0.18)" : "rgba(124,58,237,0.18)";
+  const stageGlowColor2 = isStudio ? "rgba(52,211,153,0.10)" : "rgba(167,139,250,0.10)";
+
+  function pressEmote(id: string) {
+    setActiveEmote(id);
+    Animated.sequence([
+      Animated.spring(emoteScale, { toValue: 1.18, useNativeDriver: true, speed: 60 }),
+      Animated.spring(emoteScale, { toValue: 1,    useNativeDriver: true, speed: 30 }),
+    ]).start();
+    setTimeout(() => setActiveEmote(null), 1400);
+  }
 
   return (
-    <ScrollView contentContainerStyle={styles.avatarTabScroll}>
-      <Text style={styles.tabPageTitle}>My Avatar</Text>
+    <ScrollView contentContainerStyle={avStyles.scroll} showsVerticalScrollIndicator={false}>
 
-      <View style={styles.avatarTabStage}>
-        <View style={styles.avatarTabGlow} />
+      {/* ── Hero stage ── */}
+      <View style={avStyles.stage}>
+        {/* Background glow rings */}
+        <View style={[avStyles.stageGlow1, { backgroundColor: stageGlowColor1 }]} pointerEvents="none" />
+        <View style={[avStyles.stageGlow2, { backgroundColor: stageGlowColor2 }]} pointerEvents="none" />
+        {/* Stage platform rings */}
+        {platformRings.map((r, i) => (
+          <View key={i} style={{
+            position: "absolute", bottom: 0,
+            width: r.w, height: r.h, borderRadius: r.h / 2,
+            backgroundColor: r.color, opacity: r.opacity,
+          }} />
+        ))}
+
+        {/* Active emote float */}
+        {activeEmote && (
+          <Animated.View style={[avStyles.emoteFloat, { transform: [{ scale: emoteScale }] }]}>
+            <Text style={avStyles.emoteFloatText}>
+              {EMOTES.find(e => e.id === activeEmote)?.emoji}
+            </Text>
+          </Animated.View>
+        )}
+
         <Avatar3D
           size={avatarSize}
           bodyColor={BODY_COLORS[bodyIdx]}
@@ -941,68 +1588,197 @@ function AvatarTab({
           expression={EXPRESSIONS[exprIdx]}
           outfit={outfitId}
         />
+
+        {/* Level pill */}
+        <View style={[avStyles.levelPill, {
+          backgroundColor: isStudio ? "rgba(29,185,84,0.28)" : "rgba(124,58,237,0.30)",
+          borderColor: isStudio ? "rgba(52,211,153,0.45)" : "rgba(167,139,250,0.4)",
+        }]}>
+          <Text style={[avStyles.levelPillText, { color: accentColor }]}>⭐ Lv 1  ·  DJ Rookie</Text>
+        </View>
       </View>
 
-      <View style={styles.customizerCard}>
+      {/* ── XP bar ── */}
+      <View style={avStyles.xpBar}>
+        <View style={avStyles.xpRow}>
+          <Text style={avStyles.xpLabel}>XP Progress</Text>
+          <Text style={[avStyles.xpValue, { color: accentColor }]}>240 / 500</Text>
+        </View>
+        <View style={avStyles.xpTrack}>
+          <LinearGradient colors={xpGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[avStyles.xpFill, { width: "48%" }]} />
+        </View>
+      </View>
 
-        {/* ── Outfits row ── */}
-        <Text style={styles.custLabel}>Outfit</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.outfitsScroll}
-          contentContainerStyle={styles.outfitsScrollContent}
-        >
+      {/* ── Customizer card ── */}
+      <View style={avStyles.card}>
+        <Text style={avStyles.cardTitle}>Customize</Text>
+
+        {/* Outfit row */}
+        <Text style={avStyles.sectionLabel}>Outfit</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={avStyles.outfitRow}>
           {OUTFITS.map((o) => (
             <TouchableOpacity
               key={o.id}
-              style={[styles.outfitCard, outfitId === o.id && styles.outfitCardActive]}
+              style={[avStyles.outfitChip, outfitId === o.id && avStyles.outfitChipActive]}
               onPress={() => setOutfitId(o.id)}
             >
-              <Text style={styles.outfitCardEmoji}>{o.emoji}</Text>
-              <Text style={styles.outfitCardLabel}>{o.label}</Text>
+              <Text style={avStyles.outfitEmoji}>{o.emoji}</Text>
+              <Text style={[avStyles.outfitLabel, outfitId === o.id && avStyles.outfitLabelActive]}>{o.label}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
-        {/* ── Color pickers ── */}
-        <CustomizerRow
-          label="Body Color"
-          colors={BODY_COLORS}
-          selectedIdx={bodyIdx}
-          onSelect={(i) => setBodyIdx(i)}
-        />
-        <CustomizerRow
-          label="Headphones"
-          colors={HP_COLORS}
-          selectedIdx={hpIdx}
-          onSelect={(i) => setHpIdx(i)}
-        />
-        <CustomizerRow
-          label="Outfit Color"
-          colors={OUTFIT_COLORS}
-          selectedIdx={outfitColorIdx}
-          onSelect={(i) => setOutfitColorIdx(i)}
-        />
+        {/* Color rows */}
+        <CustomizerRow label="Body" colors={BODY_COLORS}   selectedIdx={bodyIdx}       onSelect={setBodyIdx} />
+        <CustomizerRow label="Headphones" colors={HP_COLORS} selectedIdx={hpIdx}        onSelect={setHpIdx} />
+        <CustomizerRow label="Outfit" colors={OUTFIT_COLORS} selectedIdx={outfitColorIdx} onSelect={setOutfitColorIdx} />
 
-        {/* Expression picker */}
-        <Text style={styles.custLabel}>Expression</Text>
-        <View style={styles.exprRow}>
+        {/* Expression */}
+        <Text style={avStyles.sectionLabel}>Expression</Text>
+        <View style={avStyles.exprRow}>
           {EXPRESSIONS.map((e, i) => (
             <TouchableOpacity
               key={e}
-              style={[styles.exprBtn, exprIdx === i && styles.exprBtnActive]}
+              style={[avStyles.exprBtn, exprIdx === i && avStyles.exprBtnOn]}
               onPress={() => setExprIdx(i)}
             >
-              <Text style={styles.exprBtnText}>{e === "happy" ? "😄" : e === "cool" ? "😎" : "🥳"}</Text>
-              <Text style={styles.exprBtnLabel}>{e}</Text>
+              <Text style={avStyles.exprEmoji}>
+                {e === "happy" ? "😄" : e === "cool" ? "😎" : "🥳"}
+              </Text>
+              <Text style={[avStyles.exprLabel, exprIdx === i && avStyles.exprLabelOn]}>{e}</Text>
             </TouchableOpacity>
           ))}
         </View>
       </View>
+
+      {/* ── Emotes section ── */}
+      <View style={avStyles.card}>
+        <View style={avStyles.emotesHeader}>
+          <Text style={avStyles.cardTitle}>Emotes</Text>
+          <Text style={avStyles.emotesHint}>Tap to preview · Use in rooms</Text>
+        </View>
+        <View style={avStyles.emoteGrid}>
+          {EMOTES.map((em) => (
+            <TouchableOpacity
+              key={em.id}
+              style={[avStyles.emoteBtn, activeEmote === em.id && avStyles.emoteBtnActive]}
+              onPress={() => pressEmote(em.id)}
+              activeOpacity={0.75}
+            >
+              <Text style={avStyles.emoteEmoji}>{em.emoji}</Text>
+              <Text style={avStyles.emoteLabel}>{em.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      {/* ── Wardrobe shop ── */}
+      <View style={avStyles.shopHeader}>
+        <Text style={avStyles.shopTitle}>Wardrobe Shop</Text>
+        <Text style={avStyles.shopSub}>Unlock with Vibe Credits</Text>
+      </View>
+      <WardrobeShop
+        guestId={guestId ?? null}
+        bodyColor={BODY_COLORS[bodyIdx]}
+        onEquip={(outfit) => setOutfitId(outfit)}
+      />
+      <View style={{ height: 40 }} />
     </ScrollView>
   );
 }
+
+const avStyles = StyleSheet.create({
+  scroll: { paddingBottom: 40 },
+
+  // Stage
+  stage: {
+    height: 380, alignItems: "center", justifyContent: "flex-end",
+    position: "relative", overflow: "hidden",
+  },
+  stageGlow1: {
+    position: "absolute", top: 20, width: SW * 0.8, height: SW * 0.8,
+    borderRadius: SW * 0.4, backgroundColor: "rgba(124,58,237,0.18)",
+  },
+  stageGlow2: {
+    position: "absolute", top: 60, width: SW * 0.5, height: SW * 0.5,
+    borderRadius: SW * 0.25, backgroundColor: "rgba(167,139,250,0.10)",
+  },
+  emoteFloat: {
+    position: "absolute", top: 40, zIndex: 10,
+  },
+  emoteFloatText: { fontSize: 56 },
+  levelPill: {
+    position: "absolute", bottom: 16,
+    backgroundColor: "rgba(124,58,237,0.30)",
+    borderRadius: 20, paddingHorizontal: 16, paddingVertical: 6,
+    borderWidth: 1, borderColor: "rgba(167,139,250,0.4)",
+  },
+  levelPillText: { color: "#a78bfa", fontSize: 13, fontWeight: "700" },
+
+  // XP bar
+  xpBar: { marginHorizontal: 16, marginTop: 12, marginBottom: 4 },
+  xpRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  xpLabel: { color: "#9ca3af", fontSize: 12, fontWeight: "600" },
+  xpValue: { color: "#a78bfa", fontSize: 12, fontWeight: "700" },
+  xpTrack: { height: 6, backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 3, overflow: "hidden" },
+  xpFill:  { height: 6, borderRadius: 3 },
+
+  // Cards
+  card: {
+    marginHorizontal: 16, marginTop: 16,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 20, padding: 18,
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.07)",
+    gap: 12,
+  },
+  cardTitle:    { color: "#fff", fontSize: 17, fontWeight: "800" },
+  sectionLabel: { color: "#9ca3af", fontSize: 12, fontWeight: "700", letterSpacing: 0.5, textTransform: "uppercase" },
+
+  // Outfit
+  outfitRow: { gap: 10, paddingBottom: 4 },
+  outfitChip: {
+    alignItems: "center", paddingHorizontal: 14, paddingVertical: 10,
+    borderRadius: 14, backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.08)", minWidth: 72,
+  },
+  outfitChipActive: { borderColor: "#a78bfa", backgroundColor: "rgba(124,58,237,0.20)" },
+  outfitEmoji:      { fontSize: 26, marginBottom: 4 },
+  outfitLabel:      { color: "#6b7280", fontSize: 11, fontWeight: "600" },
+  outfitLabelActive:{ color: "#a78bfa" },
+
+  // Expression
+  exprRow: { flexDirection: "row", gap: 10 },
+  exprBtn: {
+    flex: 1, alignItems: "center", paddingVertical: 12, borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.08)",
+  },
+  exprBtnOn:   { borderColor: "#a78bfa", backgroundColor: "rgba(124,58,237,0.20)" },
+  exprEmoji:   { fontSize: 26, marginBottom: 4 },
+  exprLabel:   { color: "#6b7280", fontSize: 11, fontWeight: "600", textTransform: "capitalize" },
+  exprLabelOn: { color: "#a78bfa" },
+
+  // Emotes
+  emotesHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  emotesHint:   { color: "#6b7280", fontSize: 11 },
+  emoteGrid: {
+    flexDirection: "row", flexWrap: "wrap", gap: 10,
+  },
+  emoteBtn: {
+    width: (SW - 32 - 36 - 36) / 4,
+    alignItems: "center", paddingVertical: 12, borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.07)",
+  },
+  emoteBtnActive: { borderColor: "#a78bfa", backgroundColor: "rgba(124,58,237,0.22)" },
+  emoteEmoji:  { fontSize: 26, marginBottom: 4 },
+  emoteLabel:  { color: "#6b7280", fontSize: 10, fontWeight: "600" },
+
+  // Shop header
+  shopHeader: { marginHorizontal: 16, marginTop: 24, marginBottom: 4, flexDirection: "row", alignItems: "baseline", gap: 8 },
+  shopTitle:  { color: "#fff", fontSize: 17, fontWeight: "800" },
+  shopSub:    { color: "#6b7280", fontSize: 12 },
+});
 
 function CustomizerRow({
   label, colors, selectedIdx, onSelect,
@@ -1068,21 +1844,21 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   logoWrap: {
-    width: 46, height: 46,
-    borderRadius: 23,
+    width: 44, height: 44,
+    borderRadius: 12,
     overflow: "hidden",
-    borderWidth: 1.5,
-    borderColor: "rgba(192,132,252,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   logoImg: {
-    width: 60, height: 60,
-    marginTop: -4, marginLeft: -4,
+    width: 34, height: 34,
   },
   brandName:    { color: "#fff", fontSize: 22, fontWeight: "900", letterSpacing: -0.3 },
   brandTagline: { color: "rgba(255,255,255,0.55)", fontSize: 11, marginTop: 1, fontWeight: "600", letterSpacing: 0.3 },
   topRight: {
     alignItems: "flex-end",
     gap: 6,
+    flexShrink: 1,
   },
   joinChip: {
     backgroundColor: "rgba(124,58,237,0.55)",
@@ -1115,15 +1891,17 @@ const styles = StyleSheet.create({
     height: 80,
   },
   heroPill: {
-    marginTop: 8,
-    backgroundColor: "#1a1a2e",
+    position: "absolute",
+    bottom: 10,
+    right: 16,
+    backgroundColor: "rgba(26,26,46,0.85)",
     borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
     borderWidth: 1,
     borderColor: "#2d2d4e",
   },
-  heroPillText: { color: "#a5b4fc", fontSize: 13, fontWeight: "600" },
+  heroPillText: { color: "#a5b4fc", fontSize: 12, fontWeight: "700" },
 
   // Welcome card
   welcomeCard: {
@@ -1184,39 +1962,37 @@ const styles = StyleSheet.create({
   howStepBold:  { color: "#fff", fontWeight: "700" },
 
   // Join modal
-  modalOuter: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.7)" },
+  modalOuter: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.75)" },
   modalSheet: {
-    backgroundColor: "#111",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 28,
+    backgroundColor: "#0d0d1a",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingHorizontal: 28,
+    paddingTop: 12,
+    paddingBottom: 36,
     borderTopWidth: 1,
-    borderColor: "#2a2a2a",
+    borderColor: "#2a2a4a",
   },
-  modalTitle: { color: "#fff", fontSize: 22, fontWeight: "800", marginBottom: 4 },
-  modalSub:   { color: "#555", fontSize: 13, marginBottom: 24 },
-  codeInput: {
-    backgroundColor: "#1a1a1a",
-    color: "#fff",
-    borderRadius: 14,
-    padding: 18,
-    fontSize: 28,
-    fontWeight: "800",
-    textAlign: "center",
-    letterSpacing: 10,
-    borderWidth: 1,
-    borderColor: "#333",
-    marginBottom: 16,
-  },
-  modalRow: { flexDirection: "row", gap: 12 },
-  modalBtn: { flex: 1, borderRadius: 14, padding: 16, alignItems: "center" },
+  modalHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: "#333", alignSelf: "center", marginBottom: 24 },
+  modalHead:  { alignItems: "center", marginBottom: 4, gap: 8 },
+  modalIconWrap: { width: 64, height: 64, borderRadius: 20, backgroundColor: "#1a1040", borderWidth: 1, borderColor: "#7c3aed44", alignItems: "center", justifyContent: "center", marginBottom: 4 },
+  modalTitle: { color: "#fff", fontSize: 24, fontWeight: "900" },
+  modalSub:   { color: "#666", fontSize: 14, textAlign: "center" },
+  joinBtn:    { borderRadius: 16, padding: 18, alignItems: "center", marginTop: 4 },
+  joinBtnText:{ color: "#fff", fontWeight: "800", fontSize: 17, letterSpacing: 0.3 },
+  btnDisabled: { opacity: 0.45 },
+  qrRow:      { alignItems: "center", marginTop: 20 },
+  qrText:     { color: "#555", fontSize: 14 },
+  cancelRow:  { alignItems: "center", marginTop: 14 },
+  cancelText: { color: "#444", fontSize: 15, fontWeight: "600" },
+  // legacy — kept so other refs don't break
+  codeInput:  { height: 0, overflow: "hidden" },
+  modalRow:   { flexDirection: "row", gap: 12 },
+  modalBtn:   { flex: 1, borderRadius: 14, padding: 16, alignItems: "center" },
   modalBtnPrimary:   { backgroundColor: "#7c3aed" },
-  modalBtnSecondary: { backgroundColor: "#1a1a1a", borderWidth: 1, borderColor: "#333" },
+  modalBtnSecondary: { backgroundColor: "#1a1a1a" },
   modalBtnTextPrimary:   { color: "#fff", fontWeight: "700", fontSize: 16 },
   modalBtnTextSecondary: { color: "#888", fontWeight: "700", fontSize: 16 },
-  btnDisabled: { opacity: 0.4 },
-  qrRow: { alignItems: "center", marginTop: 20 },
-  qrText: { color: "#555", fontSize: 14 },
 
   // Avatar tab
   avatarTabScroll: { padding: 20, alignItems: "center" },
@@ -1345,9 +2121,9 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(168,85,247,0.55)",
     borderRadius: 13,
   },
-  themeChipIcon:  { fontSize: 12 },
-  themeChipLabel: { color: "rgba(255,255,255,0.60)", fontSize: 10, fontWeight: "700" },
-  themeChipLabelOn: { color: "#fff", fontWeight: "800" },
+  themeChipIcon:  { fontSize: 11 },
+  themeChipLabel: { color: "rgba(255,255,255,0.55)", fontSize: 11, fontWeight: "600", letterSpacing: 0.4 },
+  themeChipLabelOn: { color: "#fff", fontWeight: "700", letterSpacing: 0.4 },
   themeChipDivider: { width: 1, height: 18, backgroundColor: "rgba(255,255,255,0.12)" },
 
   // Recently Played

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useRoom } from "../../../contexts/RoomContext";
-import type { CopyrightState, DrawingData, DrawingPath } from "@partyglue/shared-types";
+import type { CopyrightState, DrawingData, DrawingPath } from "@queuedj/shared-types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ResultsView — shows vote tallies, winner's drawing, updated scores

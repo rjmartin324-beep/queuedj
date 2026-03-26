@@ -1,14 +1,16 @@
 {
-  "name": "@partyglue/realtime",
+  "name": "@queuedj/realtime",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@partyglue/shared-types": "*",
+    "@queuedj/shared-types": "*",
+    "@sentry/node": "^8.0.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "pg": "^8.11.0",
     "redis": "^4.6.0",
