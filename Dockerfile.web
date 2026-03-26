@@ -6,7 +6,8 @@ WORKDIR /app
 COPY . .
 
 # Install all workspace dependencies from root
-RUN npm install --legacy-peer-deps --ignore-scripts
+# Remove lockfile first — it may have stale registry refs for workspace packages
+RUN rm -f package-lock.json && npm install --legacy-peer-deps --ignore-scripts
 
 # Build the Expo web app
 RUN cd apps/mobile && npx expo export -p web
