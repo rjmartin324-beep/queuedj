@@ -2,30 +2,18 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# ── Install (layer-cached) ────────────────────────────────────────────────────
-# Copy shared-types source and only the mobile package.json first
+# Copy everything needed for the Expo web build
 COPY packages/shared-types ./packages/shared-types
-COPY apps/mobile/package.json ./apps/mobile/package.json
+COPY apps/mobile ./apps/mobile
 
-# Pre-link @queuedj/shared-types directly into mobile's node_modules.
-# npm checks node_modules before the registry — version "0.0.1" satisfies "*",
-# so it treats the package as already installed and skips the registry fetch.
+# Pre-link @queuedj/shared-types so npm finds it locally instead of fetching from registry
 RUN mkdir -p apps/mobile/node_modules/@queuedj && \
     ln -sf /app/packages/shared-types apps/mobile/node_modules/@queuedj/shared-types
 
 WORKDIR /app/apps/mobile
 RUN npm install --legacy-peer-deps --ignore-scripts
-
-# ── Build ─────────────────────────────────────────────────────────────────────
-WORKDIR /app
-# Copy remaining source (node_modules is NOT in git so it won't be overwritten)
-COPY apps/mobile/. ./apps/mobile/
-COPY tsconfig.base.json ./
-
-WORKDIR /app/apps/mobile
 RUN npx expo export -p web
 
-# ── Runtime ───────────────────────────────────────────────────────────────────
 FROM node:20-alpine
 RUN npm install -g serve
 COPY --from=builder /app/apps/mobile/dist /dist
