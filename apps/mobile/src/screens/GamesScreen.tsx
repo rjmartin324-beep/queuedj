@@ -375,7 +375,7 @@ export default function GamesScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Party Games</Text>
-          <Text style={styles.headerSub}>31 games · 8 categories</Text>
+          <Text style={styles.headerSub}>39 games · 8 categories</Text>
         </View>
         <TouchableOpacity onPress={openRandomGame} style={styles.randomBtn}>
           <Text style={styles.randomBtnText}>🎲</Text>

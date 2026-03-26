@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import {
-  View, Text, StyleSheet, SafeAreaView, Animated,
+  View, Text, StyleSheet, Animated,
   ScrollView, TouchableOpacity, FlatList, Alert, Platform, Modal,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../contexts/RoomContext";

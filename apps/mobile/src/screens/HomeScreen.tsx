@@ -707,7 +707,7 @@ type PendingAction = { type: "create" } | { type: "join"; code: string } | null;
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { dispatch } = useRoom();
+  const { state: roomState, dispatch } = useRoom();
   const { bgTheme: theme, setBgTheme: saveTheme } = useTheme();
   const params = useLocalSearchParams<{ code?: string; openJoin?: string }>();
 
@@ -1251,7 +1251,7 @@ function HomeTab({
       <ModeCards onStartRoom={onStartRoom} onJoinRoom={onJoinRoom} loading={loading} />
 
       {/* ── Live Now ─────────────────────────────────────────────────── */}
-      <LiveNowSection onJoinRoom={onJoinRoom} />
+      <LiveNowSection onJoinRoom={onJoinRoom} activeRoom={roomState.room} isConnected={roomState.isConnected} />
 
       {/* ── DJ Card ──────────────────────────────────────────────────── */}
       <DJCard onPress={onStartRoom} />
@@ -1431,10 +1431,6 @@ function ModeCards({
                 <Text style={modeStyles.cardBadgeText}>HOST</Text>
               </View>
             </View>
-            {/* Avatar */}
-            <View style={modeStyles.mascotWrap}>
-              <AvatarSVG size={110} bodyColor="#38bdf8" headphoneColor="#f97316" outfitColor="#7c3aed" expression="happy" outfit="default" />
-            </View>
             <View style={modeStyles.cardBottom}>
               <Text style={modeStyles.cardTitle}>Start a Party</Text>
               <Text style={modeStyles.cardSub}>DJ mode + crowd games</Text>
@@ -1456,10 +1452,6 @@ function ModeCards({
               <View style={[modeStyles.cardBadge, modeStyles.guestBadge]}>
                 <Text style={[modeStyles.cardBadgeText, { color: "#a5b4fc" }]}>GUEST</Text>
               </View>
-            </View>
-            {/* Avatar */}
-            <View style={modeStyles.mascotWrap}>
-              <AvatarSVG size={110} bodyColor="#f472b6" headphoneColor="#fbbf24" outfitColor="#4f46e5" expression="happy" outfit="default" />
             </View>
             <View style={modeStyles.cardBottom}>
               <Text style={modeStyles.cardTitle}>Join a Party</Text>
@@ -1501,21 +1493,34 @@ const modeStyles = StyleSheet.create({
 // Live Now Section
 // ─────────────────────────────────────────────────────────────────────────────
 
-function LiveNowSection({ onJoinRoom }: { onJoinRoom: () => void }) {
+function LiveNowSection({ onJoinRoom, activeRoom, isConnected }: {
+  onJoinRoom: () => void;
+  activeRoom: { code?: string; name?: string } | null;
+  isConnected: boolean;
+}) {
+  const inRoom = !!activeRoom && isConnected;
   return (
     <View style={styles.liveSection}>
       <View style={styles.liveSectionHeader}>
         <View style={styles.liveHeaderLeft}>
-          <View style={styles.liveDot} />
-          <Text style={styles.liveSectionTitle}>LIVE NOW</Text>
+          <View style={[styles.liveDot, inRoom && { backgroundColor: "#22c55e" }]} />
+          <Text style={styles.liveSectionTitle}>{inRoom ? "ACTIVE PARTY" : "LIVE NOW"}</Text>
         </View>
       </View>
 
-      <View style={styles.liveCard}>
-        <Text style={styles.liveEmptyIcon}>🎉</Text>
-        <Text style={styles.liveCardTitle}>No Active Party</Text>
-        <Text style={styles.liveCardSub}>Start a room to kick off the party, or join one with a room code.</Text>
-      </View>
+      {inRoom ? (
+        <TouchableOpacity style={[styles.liveCard, { borderColor: "rgba(34,197,94,0.3)", borderWidth: 1 }]} onPress={onJoinRoom} activeOpacity={0.85}>
+          <Text style={styles.liveEmptyIcon}>🎉</Text>
+          <Text style={styles.liveCardTitle}>Room {activeRoom.code}</Text>
+          <Text style={styles.liveCardSub}>You're still in this party — tap to rejoin.</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.liveCard}>
+          <Text style={styles.liveEmptyIcon}>🎉</Text>
+          <Text style={styles.liveCardTitle}>No Active Party</Text>
+          <Text style={styles.liveCardSub}>Start a room to kick off the party, or join one with a room code.</Text>
+        </View>
+      )}
     </View>
   );
 }
