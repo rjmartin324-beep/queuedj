@@ -61,11 +61,9 @@ import { GalleryView as SnapGalleryView } from "../components/experiences/scaven
 import { ResultsView as SnapResultsView } from "../components/experiences/scavenger-snap/ResultsView";
 
 // Phase 2 games (phase-based, single-component views)
-import { ArtifactHuntView }  from "../components/experiences/artifact-hunt/ArtifactHuntView";
 import { NightShiftView }    from "../components/experiences/night-shift/NightShiftView";
 import { MindMoleView }      from "../components/experiences/mind-mole/MindMoleView";
 import { GuessSongView }     from "../components/experiences/guess-the-song/GuessSongView";
-import { FinishLyricView }   from "../components/experiences/finish-the-lyric/FinishLyricView";
 import { NameGenreView }     from "../components/experiences/name-that-genre/NameGenreView";
 import { VibeCheckView }     from "../components/experiences/vibe-check/VibeCheckView";
 
@@ -273,9 +271,6 @@ export default function GuestScreen() {
         />
       );
 
-      // ── ArtifactHunt ─────────────────────────────────────────────────────
-      case "artifact_hunt":     return <ArtifactHuntView />;
-
       // ── NightShift ───────────────────────────────────────────────────────
       case "night_shift":       return <NightShiftView />;
 
@@ -284,7 +279,7 @@ export default function GuestScreen() {
 
       // ── Music Games ──────────────────────────────────────────────────────
       case "guess_the_song":    return <GuessSongView />;
-      case "finish_the_lyric":  return <FinishLyricView />;
+
       case "name_that_genre":   return <NameGenreView />;
       case "vibe_check":        return <VibeCheckView />;
 
