@@ -11,7 +11,7 @@ RUN mkdir -p apps/mobile/node_modules/@queuedj && \
     ln -sf /app/packages/shared-types apps/mobile/node_modules/@queuedj/shared-types
 
 WORKDIR /app/apps/mobile
-RUN npm install --legacy-peer-deps --ignore-scripts
+RUN npm install --legacy-peer-deps
 RUN npx expo export -p web
 
 FROM node:20-alpine
