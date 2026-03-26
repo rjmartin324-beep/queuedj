@@ -115,15 +115,15 @@ const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
 
 type Tab = "controls" | "queue" | "guests" | "history" | "recs" | "settings" | "demo";
 
+const GAME_CHIPS = EXPERIENCES.filter(e => e.type !== "dj");
+
 export default function HostScreen() {
   const { state, switchExperience, dispatch } = useRoom();
   const [tab, setTab] = useState<Tab>("controls");
   const [gameViewMode, setGameViewMode] = useState<"player" | "host">("host");
   const [chatOpen,      setChatOpen]      = useState(false);
   const [unreadCount,   setUnreadCount]   = useState(0);
-  const [primaryMode,   setPrimaryMode]   = useState<"dj" | "games">(
-    state.activeExperience === "dj" ? "dj" : "games"
-  );
+  const [djExpanded,    setDjExpanded]    = useState(false);
   const [showAllOptions, setShowAllOptions] = useState(false);
   const router = useRouter();
   const controlsFade = useRef(new Animated.Value(1)).current;
@@ -194,11 +194,15 @@ export default function HostScreen() {
   function renderControls() {
     const vmProps = { viewMode: gameViewMode, onViewModeChange: setGameViewMode };
     switch (state.activeExperience) {
-      case "dj":                     return (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
-          <DJControls />
-        </ScrollView>
-      );
+      case "dj":
+      case undefined:
+        return (
+          <View style={styles.pickGamePrompt}>
+            <Text style={styles.pickGameEmoji}>🎮</Text>
+            <Text style={styles.pickGameTitle}>Pick a Game</Text>
+            <Text style={styles.pickGameSub}>Select a game from the list above to get started. Use the DJ Deck below for music controls.</Text>
+          </View>
+        );
       case "trivia":                 return <TriviaControls {...vmProps} />;
       case "unpopular_opinions":     return <UnpopularOpinionsControls {...vmProps} />;
       case "scrapbook_sabotage":     return <ScrapbookControls {...vmProps} />;
@@ -237,211 +241,165 @@ export default function HostScreen() {
     }
   }
 
-  const djColor    = "#7c3aed";
-  const gamesColor = "#f59e0b";
-  const activeColor = primaryMode === "dj" ? djColor : gamesColor;
-  const activeGame = EXPERIENCES.find(e => e.type === state.activeExperience);
+  const activeGame = GAME_CHIPS.find(e => e.type === state.activeExperience);
+
+  const SECONDARY_TABS: { id: Tab; label: string; icon: string; badge?: number }[] = [
+    { id: "controls", label: "Controls", icon: "🎛️" },
+    { id: "guests",   label: "Guests",   icon: "👥", badge: state.members.length || undefined },
+    { id: "queue",    label: "Queue",    icon: "🎵", badge: state.queue.length   || undefined },
+    { id: "recs",     label: "AI Picks", icon: "✨" },
+    { id: "settings", label: "Settings", icon: "⚙️" },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Background */}
-      <LinearGradient
-        colors={["#050512", "#08051a", "#0a0520"]}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
-      <View style={styles.headerGlow} pointerEvents="none" />
+      <LinearGradient colors={["#050512", "#08051a", "#0a0520"]} style={StyleSheet.absoluteFill} pointerEvents="none" />
 
       <OfflineBanner isOffline={state.isOffline} />
       <ConnectionBar isOffline={state.isOffline} memberCount={state.members.length} />
 
-      {/* ─── HEADER ───────────────────────────────────────────────────── */}
+      {/* ─── HEADER ─── */}
       <View style={styles.header}>
-        {/* Left */}
-        <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={handleExit} style={styles.exitBtn}>
-            <Text style={styles.exitArrow}>←</Text>
-            <Text style={styles.exitLabel}>Exit</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Center — room code */}
+        <TouchableOpacity onPress={handleExit} style={styles.exitBtn}>
+          <Text style={styles.exitArrow}>←</Text>
+          <Text style={styles.exitLabel}>Exit</Text>
+        </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerCodeLabel}>ROOM CODE</Text>
           <InviteLinkButton roomCode={roomCode} />
         </View>
-
-        {/* Right — ⋯ menu + QR + guests */}
         <View style={styles.headerRight}>
+          <View style={styles.guestPill}>
+            <Text style={styles.guestCount}>{state.members.length}</Text>
+            <Text style={styles.guestLabel}>in</Text>
+          </View>
+          <RoomQRCode roomCode={roomCode} />
           <TouchableOpacity onPress={() => setShowAllOptions(true)} style={styles.menuBtn}>
             <Text style={styles.menuBtnText}>⋯</Text>
           </TouchableOpacity>
-          <RoomQRCode roomCode={roomCode} />
-          <View style={styles.guestPill}>
-            <Text style={styles.guestCount}>{state.members.length}</Text>
-            <Text style={styles.guestLabel}>guests</Text>
-          </View>
         </View>
       </View>
 
-      {/* ─── PRIMARY TABS: DJ MODE | GAMES ────────────────────────────── */}
-      <View style={styles.primaryTabRow}>
-        {([
-          { mode: "dj",    label: "DJ MODE", emoji: "🎛️", color: djColor },
-          { mode: "games", label: "GAMES",   emoji: "🎮", color: gamesColor },
-        ] as { mode: "dj" | "games"; label: string; emoji: string; color: string }[]).map(
-          ({ mode, label, emoji, color }) => {
-            const active = primaryMode === mode;
-            return (
-              <TouchableOpacity
-                key={mode}
-                style={[
-                  styles.primaryTab,
-                  active && { backgroundColor: color + "18", borderColor: color + "80" },
-                ]}
-                onPress={() => {
-                  setPrimaryMode(mode);
-                  setTab("controls");
-                  setGameViewMode("host");
-                  if (mode === "dj") switchExperienceAnimated("dj");
-                }}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.primaryTabEmoji}>{emoji}</Text>
-                <Text style={[styles.primaryTabLabel, active && { color }]}>{label}</Text>
-                {active && (
-                  <View style={[styles.primaryTabLine, { backgroundColor: color }]} />
-                )}
-              </TouchableOpacity>
-            );
-          }
+      {/* ─── GAMES SECTION ─── */}
+      <View style={styles.gamesSectionHead}>
+        <Text style={styles.gamesSectionLabel}>🎮  GAMES</Text>
+        {activeGame ? (
+          <View style={styles.activeGamePill}>
+            <View style={styles.activeGameDot} />
+            <Text style={styles.activeGameText}>{activeGame.label} active</Text>
+          </View>
+        ) : (
+          <Text style={styles.pickHint}>pick a game below</Text>
         )}
       </View>
-
-      {/* ─── GAME CHIPS (GAMES mode only) ─────────────────────────────── */}
-      {primaryMode === "games" && (
-        <View style={styles.gamePickerWrap}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.gamePickerContent}
-          >
-            {EXPERIENCES.filter(e => e.type !== "dj").map(({ type, label, emoji }) => {
-              const active = state.activeExperience === type;
-              return (
-                <TouchableOpacity
-                  key={type}
-                  style={[styles.gameChip, active && styles.gameChipActive]}
-                  onPress={() => {
-                    setTab("controls");
-                    setGameViewMode("host");
-                    switchExperienceAnimated(type);
-                  }}
-                  activeOpacity={0.75}
-                >
-                  <Text style={styles.gameChipEmoji}>{emoji}</Text>
-                  <Text style={[styles.gameChipLabel, active && styles.gameChipLabelActive]}>
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-          {/* Active game label strip */}
-          {activeGame && state.activeExperience !== "dj" && (
-            <View style={styles.activeGameBar}>
-              <Text style={styles.activeGameBarText}>
-                {activeGame.emoji} {activeGame.label} — active
-              </Text>
-              {tab === "controls" && gameViewMode === "player" && (
-                <TouchableOpacity onPress={() => setGameViewMode("host")} style={styles.hostViewBtn}>
-                  <Text style={styles.hostViewBtnText}>🎛️ Host View</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-        </View>
-      )}
-
-      {/* DJ active game bar */}
-      {primaryMode === "dj" && tab === "controls" && gameViewMode === "player" && (
-        <TouchableOpacity onPress={() => setGameViewMode("host")} style={styles.djHostCtrlBar}>
-          <Text style={styles.djHostCtrlText}>🎛️ Switch to Host Controls</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* ─── SECONDARY TAB BAR ────────────────────────────────────────── */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.tabBarScroll}
-        contentContainerStyle={styles.tabBar}
+        contentContainerStyle={styles.chipRow}
+        style={styles.chipScroll}
       >
-        {([
-          { id: "controls", label: "Controls", icon: "🎛️" },
-          { id: "queue",    label: "Queue",    icon: "🎵", badge: state.queue.length   || undefined },
-          { id: "guests",   label: "Guests",   icon: "👥", badge: state.members.length || undefined },
-          { id: "recs",     label: "AI Picks", icon: "✨" },
-          { id: "history",  label: "History",  icon: "📋" },
-          { id: "settings", label: "Settings", icon: "⚙️" },
-          { id: "demo",     label: "Dev",      icon: "🧪" },
-        ] as { id: Tab; label: string; icon: string; badge?: number }[]).map(
-          ({ id, label, icon, badge }) => {
-            const on = tab === id;
-            return (
-              <TouchableOpacity
-                key={id}
-                style={[styles.tabBtn, on && [styles.tabBtnActive, { borderColor: activeColor + "60", backgroundColor: activeColor + "14" }]]}
-                onPress={() => setTab(id)}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.tabIcon}>{icon}</Text>
-                <Text style={[styles.tabLabel, on && [styles.tabLabelActive, { color: activeColor === djColor ? "#c4b5fd" : "#fcd34d" }]]}>
-                  {label}
-                </Text>
-                {badge !== undefined && badge > 0 && (
-                  <View style={styles.tabBadge}>
-                    <Text style={styles.tabBadgeText}>{badge}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          }
-        )}
+        {GAME_CHIPS.map(({ type, label, emoji }) => {
+          const active = state.activeExperience === type;
+          return (
+            <TouchableOpacity
+              key={type}
+              style={[styles.chip, active && styles.chipActive]}
+              onPress={() => {
+                setTab("controls");
+                setGameViewMode("host");
+                switchExperienceAnimated(type);
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.chipEmoji}>{emoji}</Text>
+              <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>{label}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
-      {/* ─── CONTENT ──────────────────────────────────────────────────── */}
-      {tab === "queue" ? (
-        <HostQueueView />
-      ) : tab === "demo" ? (
-        <DevTestPanel />
-      ) : tab === "history" ? (
-        <RoomHistory />
-      ) : tab === "recs" ? (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
-          <AIRecommendations />
-        </ScrollView>
-      ) : tab === "settings" ? (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
-          <RoomSettingsPanel />
-        </ScrollView>
-      ) : tab === "guests" ? (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
-          <GuestList />
-        </ScrollView>
-      ) : (
-        <View style={{ flex: 1 }}>
-          <Animated.View style={{ flex: 1, opacity: controlsFade }}>
-            {renderControls()}
-          </Animated.View>
-        </View>
+      {/* ─── HOST VIEW RETURN BAR ─── */}
+      {tab === "controls" && gameViewMode === "player" && (
+        <TouchableOpacity style={styles.hostViewBar} onPress={() => setGameViewMode("host")} activeOpacity={0.85}>
+          <Text style={styles.hostViewBarText}>🎛️  Back to Host Controls</Text>
+        </TouchableOpacity>
       )}
 
-      {/* ─── CHAT TICKER ──────────────────────────────────────────────── */}
+      {/* ─── SECONDARY TABS ─── */}
+      <View style={styles.tabRow}>
+        {SECONDARY_TABS.map(({ id, label, icon, badge }) => {
+          const on = tab === id;
+          return (
+            <TouchableOpacity
+              key={id}
+              style={[styles.tabBtn, on && styles.tabBtnOn]}
+              onPress={() => setTab(id)}
+              activeOpacity={0.75}
+            >
+              <Text style={[styles.tabIcon, on && styles.tabIconOn]}>{icon}</Text>
+              <Text style={[styles.tabLabel, on && styles.tabLabelOn]}>{label}</Text>
+              {badge !== undefined && badge > 0 && (
+                <View style={styles.tabBadge}><Text style={styles.tabBadgeText}>{badge}</Text></View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* ─── CONTENT ─── */}
+      <View style={{ flex: 1 }}>
+        <Animated.View style={{ flex: 1, opacity: controlsFade }}>
+          {tab === "controls" ? (
+            renderControls()
+          ) : tab === "guests" ? (
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
+              <GuestList />
+            </ScrollView>
+          ) : tab === "queue" ? (
+            <HostQueueView />
+          ) : tab === "recs" ? (
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
+              <AIRecommendations />
+            </ScrollView>
+          ) : tab === "settings" ? (
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
+              <RoomSettingsPanel />
+            </ScrollView>
+          ) : tab === "history" ? (
+            <RoomHistory />
+          ) : tab === "demo" ? (
+            <DevTestPanel />
+          ) : null}
+        </Animated.View>
+      </View>
+
+      {/* ─── DJ DECK ─── */}
+      <View style={styles.djDeck}>
+        <TouchableOpacity style={styles.djDeckHeader} onPress={() => setDjExpanded(v => !v)} activeOpacity={0.85}>
+          <View style={styles.djDeckLeft}>
+            <Text style={styles.djDeckIcon}>🎛️</Text>
+            <View>
+              <Text style={styles.djDeckTitle}>DJ DECK</Text>
+              <Text style={styles.djDeckSub}>Music controls & queue</Text>
+            </View>
+          </View>
+          <Text style={styles.djDeckChevron}>{djExpanded ? "▼" : "▲"}</Text>
+        </TouchableOpacity>
+        {djExpanded && (
+          <ScrollView
+            style={styles.djDeckContent}
+            contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <DJControls />
+          </ScrollView>
+        )}
+      </View>
+
       <ChatTicker roomId={state.room?.id ?? ""} />
 
-      {/* ─── FLOATING CHAT BUTTON ─────────────────────────────────────── */}
-      <View style={{ position: "absolute", bottom: 28, right: 16, zIndex: 20 }}>
+      <View style={styles.chatFab}>
         <ChatFloatingButton
           onPress={() => { setChatOpen(true); setUnreadCount(0); }}
           unreadCount={unreadCount}
@@ -455,7 +413,7 @@ export default function HostScreen() {
         onRead={() => setUnreadCount(0)}
       />
 
-      {/* ─── ALL OPTIONS BOTTOM SHEET ─────────────────────────────────── */}
+      {/* ─── ALL OPTIONS SHEET ─── */}
       <Modal
         visible={showAllOptions}
         transparent
@@ -463,13 +421,8 @@ export default function HostScreen() {
         onRequestClose={() => setShowAllOptions(false)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity
-            style={StyleSheet.absoluteFill}
-            activeOpacity={1}
-            onPress={() => setShowAllOptions(false)}
-          />
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setShowAllOptions(false)} />
           <View style={styles.allOptionsSheet}>
-            {/* Handle */}
             <View style={styles.sheetHandle} />
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>All Options</Text>
@@ -477,11 +430,9 @@ export default function HostScreen() {
                 <Text style={styles.sheetCloseBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
-
             <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-              {/* ── Switch Experience ── */}
-              <Text style={styles.sheetSection}>SWITCH EXPERIENCE</Text>
-              {EXPERIENCES.map(({ type, label, emoji }) => {
+              <Text style={styles.sheetSection}>SWITCH GAME</Text>
+              {GAME_CHIPS.map(({ type, label, emoji }) => {
                 const active = state.activeExperience === type;
                 return (
                   <TouchableOpacity
@@ -489,7 +440,6 @@ export default function HostScreen() {
                     style={[styles.sheetOption, active && styles.sheetOptionActive]}
                     onPress={() => {
                       setShowAllOptions(false);
-                      setPrimaryMode(type === "dj" ? "dj" : "games");
                       setTab("controls");
                       setGameViewMode("host");
                       setTimeout(() => switchExperienceAnimated(type), 160);
@@ -497,28 +447,22 @@ export default function HostScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.sheetOptionEmoji}>{emoji}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.sheetOptionLabel, active && styles.sheetOptionLabelActive]}>
-                        {label}
-                      </Text>
-                    </View>
+                    <Text style={[styles.sheetOptionLabel, active && styles.sheetOptionLabelActive]}>{label}</Text>
                     {active && <Text style={styles.sheetOptionCheck}>✓</Text>}
                   </TouchableOpacity>
                 );
               })}
-
-              {/* ── Room Tools ── */}
               <View style={styles.sheetDivider} />
               <Text style={styles.sheetSection}>ROOM TOOLS</Text>
               {([
-                { id: "controls", label: "Controls",     icon: "🎛️", sub: "Game host panel" },
-                { id: "queue",    label: "Queue",         icon: "🎵", sub: `${state.queue.length} tracks` },
-                { id: "guests",   label: "Guests",        icon: "👥", sub: `${state.members.length} in room` },
-                { id: "recs",     label: "AI Picks",      icon: "✨", sub: "Smart recommendations" },
-                { id: "history",  label: "History",       icon: "📋", sub: "Played tracks" },
-                { id: "settings", label: "Room Settings", icon: "⚙️", sub: "Vibe, rules & access" },
-                { id: "demo",     label: "Dev Panel",     icon: "🧪", sub: "Test events" },
-              ] as { id: Tab; label: string; icon: string; sub: string }[]).map(({ id, label, icon, sub }) => {
+                { id: "controls" as Tab, label: "Controls",     icon: "🎛️", sub: "Game host panel" },
+                { id: "queue"    as Tab, label: "Queue",         icon: "🎵", sub: `${state.queue.length} tracks` },
+                { id: "guests"   as Tab, label: "Guests",        icon: "👥", sub: `${state.members.length} in room` },
+                { id: "recs"     as Tab, label: "AI Picks",      icon: "✨", sub: "Smart recommendations" },
+                { id: "history"  as Tab, label: "History",       icon: "📋", sub: "Played tracks" },
+                { id: "settings" as Tab, label: "Room Settings", icon: "⚙️", sub: "Vibe, rules & access" },
+                { id: "demo"     as Tab, label: "Dev Panel",     icon: "🧪", sub: "Test events" },
+              ]).map(({ id, label, icon, sub }) => {
                 const active = tab === id;
                 return (
                   <TouchableOpacity
@@ -529,9 +473,7 @@ export default function HostScreen() {
                   >
                     <Text style={styles.sheetOptionEmoji}>{icon}</Text>
                     <View style={{ flex: 1 }}>
-                      <Text style={[styles.sheetOptionLabel, active && styles.sheetOptionLabelActive]}>
-                        {label}
-                      </Text>
+                      <Text style={[styles.sheetOptionLabel, active && styles.sheetOptionLabelActive]}>{label}</Text>
                       <Text style={styles.sheetOptionSub}>{sub}</Text>
                     </View>
                     {active && <Text style={styles.sheetOptionCheck}>✓</Text>}
@@ -717,141 +659,140 @@ function GuestList() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#050512" },
 
-  headerGlow: {
-    position: "absolute", top: -60, left: "15%", right: "15%",
-    height: 160, borderRadius: 80,
-    backgroundColor: "rgba(124,58,237,0.10)",
-  },
-
   // ── Header ─────────────────────────────────────────────────────────────────
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 14, paddingVertical: 10,
+    paddingHorizontal: 12, paddingVertical: 8,
     backgroundColor: "rgba(5,5,18,0.98)",
-    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)",
+    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.07)",
   },
-  headerLeft:   { flexDirection: "row", alignItems: "center" },
   headerCenter: { alignItems: "center", flex: 1 },
   headerRight:  { flexDirection: "row", alignItems: "center", gap: 8 },
+  headerCodeLabel: { color: "#4b5563", fontSize: 9, fontWeight: "800", letterSpacing: 2, textTransform: "uppercase", marginBottom: 1 },
 
   exitBtn: {
     flexDirection: "row", alignItems: "center", gap: 5,
-    backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 22,
-    paddingHorizontal: 14, paddingVertical: 8,
-    borderWidth: 1, borderColor: "rgba(255,255,255,0.10)",
+    backgroundColor: "rgba(255,255,255,0.05)", borderRadius: 20,
+    paddingHorizontal: 12, paddingVertical: 7,
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.09)",
   },
-  exitArrow:      { color: "#e2e8f0", fontSize: 15, fontWeight: "700" },
-  exitLabel:      { color: "#e2e8f0", fontSize: 13, fontWeight: "700", letterSpacing: 0.3 },
-  headerCodeLabel:{ color: "#4b5563", fontSize: 9, fontWeight: "800", letterSpacing: 2, textTransform: "uppercase", marginBottom: 1 },
+  exitArrow: { color: "#d1d5db", fontSize: 14, fontWeight: "700" },
+  exitLabel: { color: "#d1d5db", fontSize: 12, fontWeight: "700" },
 
   menuBtn: {
-    width: 36, height: 36, borderRadius: 18,
+    width: 34, height: 34, borderRadius: 17,
     backgroundColor: "rgba(255,255,255,0.06)",
     borderWidth: 1, borderColor: "rgba(255,255,255,0.10)",
     alignItems: "center", justifyContent: "center",
   },
   menuBtnText: { color: "#e2e8f0", fontSize: 20, fontWeight: "700", lineHeight: 24 },
 
-  guestPill:  { alignItems: "center", minWidth: 34 },
-  guestCount: { color: "#a78bfa", fontSize: 22, fontWeight: "900", lineHeight: 26 },
-  guestLabel: { color: "#4b5563", fontSize: 9, fontWeight: "700", letterSpacing: 0.5 },
+  guestPill:  { alignItems: "center", minWidth: 28 },
+  guestCount: { color: "#a78bfa", fontSize: 18, fontWeight: "900", lineHeight: 22 },
+  guestLabel: { color: "#4b5563", fontSize: 9, fontWeight: "700" },
 
-  // ── Primary Tabs ───────────────────────────────────────────────────────────
-  primaryTabRow: {
-    flexDirection: "row",
-    paddingHorizontal: 12, paddingTop: 12, paddingBottom: 10, gap: 10,
-    backgroundColor: "rgba(5,5,18,0.98)",
-    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.05)",
-  },
-  primaryTab: {
-    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1, borderColor: "rgba(255,255,255,0.07)",
-    backgroundColor: "rgba(255,255,255,0.03)",
-    position: "relative", overflow: "hidden",
-  },
-  primaryTabEmoji: { fontSize: 20 },
-  primaryTabLabel: {
-    fontSize: 13, fontWeight: "800", letterSpacing: 1,
-    color: "#4b5563", textTransform: "uppercase",
-  },
-  primaryTabLine: {
-    position: "absolute", bottom: 0, left: "20%", right: "20%",
-    height: 3, borderRadius: 2,
-  },
-
-  // ── Game chips (GAMES mode) ────────────────────────────────────────────────
-  gamePickerWrap: {
-    backgroundColor: "rgba(0,0,0,0.4)",
-    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.05)",
-  },
-  gamePickerContent: {
-    paddingHorizontal: 12, paddingVertical: 10, gap: 7, flexDirection: "row",
-  },
-  gameChip: {
-    flexDirection: "row", alignItems: "center", gap: 5,
-    paddingHorizontal: 13, paddingVertical: 7,
-    borderRadius: 22, borderWidth: 1,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    borderColor: "rgba(255,255,255,0.08)",
-  },
-  gameChipActive: {
-    backgroundColor: "rgba(245,158,11,0.15)",
-    borderColor: "rgba(245,158,11,0.55)",
-  },
-  gameChipEmoji: { fontSize: 14 },
-  gameChipLabel: { color: "#6b7280", fontSize: 11, fontWeight: "700" },
-  gameChipLabelActive: { color: "#fcd34d" },
-
-  activeGameBar: {
+  // ── Games section ──────────────────────────────────────────────────────────
+  gamesSectionHead: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 14, paddingVertical: 7,
-    backgroundColor: "rgba(245,158,11,0.07)",
-    borderTopWidth: 1, borderTopColor: "rgba(245,158,11,0.15)",
+    paddingHorizontal: 14, paddingTop: 10, paddingBottom: 4,
+    backgroundColor: "rgba(5,5,18,0.98)",
   },
-  activeGameBarText: { color: "#fcd34d", fontSize: 12, fontWeight: "700" },
+  gamesSectionLabel: { color: "#fbbf24", fontSize: 12, fontWeight: "900", letterSpacing: 1 },
+  pickHint:          { color: "#374151", fontSize: 11, fontWeight: "600" },
 
-  hostViewBtn: {
-    backgroundColor: "rgba(124,58,237,0.2)", borderRadius: 10,
-    paddingHorizontal: 10, paddingVertical: 5,
-    borderWidth: 1, borderColor: "rgba(124,58,237,0.4)",
+  activeGamePill: {
+    flexDirection: "row", alignItems: "center", gap: 5,
+    backgroundColor: "rgba(251,191,36,0.1)", borderRadius: 12,
+    paddingHorizontal: 9, paddingVertical: 3,
+    borderWidth: 1, borderColor: "rgba(251,191,36,0.25)",
   },
-  hostViewBtnText: { color: "#c4b5fd", fontSize: 11, fontWeight: "700" },
+  activeGameDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#fbbf24" },
+  activeGameText: { color: "#fbbf24", fontSize: 10, fontWeight: "700" },
 
-  djHostCtrlBar: {
-    alignItems: "center", paddingVertical: 8,
-    backgroundColor: "rgba(124,58,237,0.08)",
-    borderBottomWidth: 1, borderBottomColor: "rgba(124,58,237,0.15)",
-  },
-  djHostCtrlText: { color: "#a78bfa", fontSize: 12, fontWeight: "700" },
-
-  // ── Secondary Tab Bar ──────────────────────────────────────────────────────
-  tabBarScroll: {
+  chipScroll: {
     flexShrink: 0, flexGrow: 0,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.05)",
+    backgroundColor: "rgba(5,5,18,0.98)",
+    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)",
   },
-  tabBar: { flexDirection: "row", paddingHorizontal: 10, gap: 6, paddingVertical: 8 },
-  tabBtn: {
+  chipRow: { paddingHorizontal: 12, paddingBottom: 10, paddingTop: 4, gap: 7, flexDirection: "row" },
+  chip: {
     flexDirection: "row", alignItems: "center", gap: 6,
-    paddingVertical: 9, paddingHorizontal: 14,
-    borderRadius: 22,
-    borderWidth: 1, borderColor: "transparent",
+    paddingHorizontal: 13, paddingVertical: 8,
+    borderRadius: 20, borderWidth: 1,
     backgroundColor: "rgba(255,255,255,0.04)",
+    borderColor: "rgba(255,255,255,0.09)",
   },
-  tabBtnActive:   {},  // color applied inline
-  tabIcon:        { fontSize: 15 },
-  tabLabel:       { color: "#6b7280", fontSize: 12, fontWeight: "700", letterSpacing: 0.2 },
-  tabLabelActive: {},  // color applied inline
+  chipActive: {
+    backgroundColor: "rgba(251,191,36,0.14)",
+    borderColor: "rgba(251,191,36,0.55)",
+  },
+  chipEmoji: { fontSize: 15 },
+  chipLabel: { color: "#6b7280", fontSize: 12, fontWeight: "700" },
+  chipLabelActive: { color: "#fcd34d" },
+
+  // ── Host view return bar ───────────────────────────────────────────────────
+  hostViewBar: {
+    alignItems: "center", paddingVertical: 8,
+    backgroundColor: "rgba(108,71,255,0.10)",
+    borderBottomWidth: 1, borderBottomColor: "rgba(108,71,255,0.20)",
+  },
+  hostViewBarText: { color: "#a78bfa", fontSize: 12, fontWeight: "700" },
+
+  // ── Secondary tabs ─────────────────────────────────────────────────────────
+  tabRow: {
+    flexDirection: "row",
+    backgroundColor: "rgba(0,0,0,0.4)",
+    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)",
+    paddingHorizontal: 8, paddingVertical: 6, gap: 4,
+  },
+  tabBtn: {
+    flex: 1, alignItems: "center", justifyContent: "center", gap: 2,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1, borderColor: "transparent",
+  },
+  tabBtnOn: {
+    backgroundColor: "rgba(108,71,255,0.14)",
+    borderColor: "rgba(108,71,255,0.30)",
+  },
+  tabIcon:     { fontSize: 16 },
+  tabIconOn:   {},
+  tabLabel:    { color: "#555", fontSize: 9, fontWeight: "800", letterSpacing: 0.3 },
+  tabLabelOn:  { color: "#c4b5fd" },
   tabBadge: {
-    backgroundColor: "#7c3aed", borderRadius: 10,
-    minWidth: 18, height: 18, paddingHorizontal: 4,
+    position: "absolute", top: 2, right: 2,
+    backgroundColor: "#7c3aed", borderRadius: 8,
+    minWidth: 15, height: 15, paddingHorizontal: 3,
     alignItems: "center", justifyContent: "center",
   },
-  tabBadgeText: { color: "#fff", fontSize: 9, fontWeight: "900" },
+  tabBadgeText: { color: "#fff", fontSize: 8, fontWeight: "900" },
 
-  content: { padding: 20, gap: 12 },
+  content: { padding: 16, gap: 12 },
+
+  // ── Pick game prompt ───────────────────────────────────────────────────────
+  pickGamePrompt: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, padding: 40 },
+  pickGameEmoji:  { fontSize: 52 },
+  pickGameTitle:  { color: "#fff", fontSize: 22, fontWeight: "900", textAlign: "center" },
+  pickGameSub:    { color: "#555", fontSize: 14, textAlign: "center", lineHeight: 21 },
+
+  // ── DJ Deck ────────────────────────────────────────────────────────────────
+  djDeck: {
+    backgroundColor: "#0a0520",
+    borderTopWidth: 1, borderTopColor: "rgba(124,58,237,0.35)",
+  },
+  djDeckHeader: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: 16, paddingVertical: 12,
+  },
+  djDeckLeft:  { flexDirection: "row", alignItems: "center", gap: 10 },
+  djDeckIcon:  { fontSize: 22 },
+  djDeckTitle: { color: "#c4b5fd", fontSize: 13, fontWeight: "900", letterSpacing: 0.5 },
+  djDeckSub:   { color: "#5b3fa6", fontSize: 10, fontWeight: "600", marginTop: 1 },
+  djDeckChevron: { color: "#7c3aed", fontSize: 13, fontWeight: "900" },
+  djDeckContent: { maxHeight: 360 },
+
+  // ── Chat FAB ───────────────────────────────────────────────────────────────
+  chatFab: { position: "absolute", bottom: 72, right: 16, zIndex: 20 },
 
   // ── All Options Modal ──────────────────────────────────────────────────────
   modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.65)" },
@@ -864,23 +805,22 @@ const styles = StyleSheet.create({
   },
   sheetHandle: {
     alignSelf: "center", width: 40, height: 4,
-    backgroundColor: "rgba(255,255,255,0.18)", borderRadius: 2, marginBottom: 12,
+    backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 2, marginBottom: 12,
   },
   sheetHeader: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 20, paddingBottom: 12,
     borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)",
   },
-  sheetTitle:    { color: "#fff", fontSize: 17, fontWeight: "800", letterSpacing: 0.5 },
+  sheetTitle:    { color: "#fff", fontSize: 17, fontWeight: "800" },
   sheetCloseBtn: {
     width: 30, height: 30, borderRadius: 15,
     backgroundColor: "rgba(255,255,255,0.07)",
     alignItems: "center", justifyContent: "center",
   },
   sheetCloseBtnText: { color: "#9ca3af", fontSize: 13, fontWeight: "700" },
-
   sheetSection: {
-    color: "#4b5563", fontSize: 10, fontWeight: "800", letterSpacing: 1.5,
+    color: "#374151", fontSize: 10, fontWeight: "800", letterSpacing: 1.5,
     textTransform: "uppercase", paddingHorizontal: 20, paddingTop: 16, paddingBottom: 6,
   },
   sheetOption: {
@@ -888,12 +828,12 @@ const styles = StyleSheet.create({
     paddingVertical: 13, paddingHorizontal: 20,
     borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.04)",
   },
-  sheetOptionActive: { backgroundColor: "rgba(124,58,237,0.10)" },
-  sheetOptionEmoji:  { fontSize: 20, width: 26, textAlign: "center" },
-  sheetOptionLabel:  { color: "#d1d5db", fontSize: 14, fontWeight: "700" },
+  sheetOptionActive:      { backgroundColor: "rgba(124,58,237,0.10)" },
+  sheetOptionEmoji:       { fontSize: 20, width: 26, textAlign: "center" },
+  sheetOptionLabel:       { color: "#d1d5db", fontSize: 14, fontWeight: "700" },
   sheetOptionLabelActive: { color: "#c4b5fd" },
-  sheetOptionSub:    { color: "#4b5563", fontSize: 11, marginTop: 1 },
-  sheetOptionCheck:  { color: "#a78bfa", fontSize: 15, fontWeight: "900" },
+  sheetOptionSub:         { color: "#4b5563", fontSize: 11, marginTop: 1 },
+  sheetOptionCheck:       { color: "#a78bfa", fontSize: 15, fontWeight: "900" },
   sheetDivider: {
     height: 1, backgroundColor: "rgba(255,255,255,0.06)",
     marginHorizontal: 20, marginTop: 8,

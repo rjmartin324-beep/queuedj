@@ -48,6 +48,7 @@ import { CopyrightResultsView }   from "../components/experiences/copyright-infr
 
 // GeoGuesser
 import { GuessingView as GeoGuessingView } from "../components/experiences/geo-guesser/GuessingView";
+import { RegionGuessView as GeoRegionGuessView } from "../components/experiences/geo-guesser/RegionGuessView";
 import { RevealView as GeoRevealView } from "../components/experiences/geo-guesser/RevealView";
 
 // Drawback
@@ -232,6 +233,7 @@ export default function GuestScreen() {
 
       // ── GeoGuesser ───────────────────────────────────────────────────────
       case "geo_guessing":      return <GeoGuessingView />;
+      case "geo_region_guess":  return <GeoRegionGuessView />;
       case "geo_reveal":        return <GeoRevealView />;
       case "geo_waiting":       return (
         <WaitingForPlayersView

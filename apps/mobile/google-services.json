@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "419826897479",
+    "project_id": "queuedj-588e8",
+    "storage_bucket": "queuedj-588e8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419826897479:android:6c057008cd9f083cab9762",
+        "android_client_info": {
+          "package_name": "com.queuedj.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwwV76X94VrdNeU-lAQtNJ65N56QFrkmI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

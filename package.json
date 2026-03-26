@@ -1,5 +1,5 @@
 {
-  "name": "partyglue",
+  "name": "queuedj",
   "version": "0.0.1",
   "private": true,
   "workspaces": [
@@ -12,14 +12,19 @@
     "dev:infra": "docker compose up",
     "dev:api": "dotenv -e .env -- tsx watch services/api/src/index.ts",
     "dev:realtime": "dotenv -e .env -- tsx watch services/realtime/src/index.ts",
+    "dev:ml": "cd services/ml && uvicorn main:app --reload --port 8000",
+    "dev:all": "concurrently \"npm run dev:api\" \"npm run dev:realtime\" \"npm run dev:ml\"",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "db:migrate": "node services/api/src/db/migrate.js",
-    "db:seed": "node services/api/src/db/seed.js"
+    "typecheck": "turbo run typecheck",
+    "db:schema": "docker compose exec -T postgres psql -U queuedj -d queuedj < services/api/src/db/schema.sql",
+    "db:seed": "docker compose exec -T postgres psql -U queuedj -d queuedj < services/api/src/db/seed.sql",
+    "db:reset": "npm run db:schema && npm run db:seed"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "concurrently": "^8.2.0",
     "dotenv-cli": "^7.4.4",
     "eslint": "^9.0.0",
     "prettier": "^3.2.0",

@@ -171,6 +171,7 @@ const ALL_REGIONS: Region[] = ["Africa", "Asia", "Europe", "North America", "Sou
 // ─────────────────────────────────────────────────────────────────────────────
 
 type GeoPhase = "idle" | "guessing" | "reveal" | "final";
+type GeoMode  = "pin" | "region";
 
 interface GeoState {
   phase: GeoPhase;
@@ -224,6 +225,7 @@ interface ViewModeProps {
 export function GeoGuesserControls({ viewMode, onViewModeChange: setViewMode }: ViewModeProps) {
   const { dispatch } = useRoom();
   const [game, setGame]         = useState<GeoState>(IDLE_STATE);
+  const [gameMode, setGameMode] = useState<GeoMode>("pin");
 
   const isActive = game.phase !== "idle";
   const current  = game.locations[game.idx];
@@ -249,7 +251,7 @@ export function GeoGuesserControls({ viewMode, onViewModeChange: setViewMode }: 
     dispatch({
       type: "SET_EXPERIENCE",
       experience: "geo_guesser",
-      view: "geo_guessing",
+      view: gameMode === "pin" ? "geo_guessing" : "geo_region_guess",
       viewData: {
         clue: locations[0].clue,
         locationName: locations[0].locationName,
@@ -320,7 +322,7 @@ export function GeoGuesserControls({ viewMode, onViewModeChange: setViewMode }: 
     dispatch({
       type: "SET_EXPERIENCE",
       experience: "geo_guesser",
-      view: "geo_guessing",
+      view: gameMode === "pin" ? "geo_guessing" : "geo_region_guess",
       viewData: {
         clue:          next.clue,
         locationName:  next.locationName,
@@ -457,20 +459,48 @@ export function GeoGuesserControls({ viewMode, onViewModeChange: setViewMode }: 
     <ScrollView contentContainerStyle={s.container} showsVerticalScrollIndicator={false}>
       <View style={s.card}>
         <Text style={s.idleTitle}>🗺  Geo Guesser</Text>
-        <Text style={s.idleSubtitle}>5 rounds · World landmarks · Guess the region · 300 pts for correct</Text>
+        <Text style={s.idleSubtitle}>5 rounds · World landmarks · 300 pts for correct</Text>
+        <View style={s.divider} />
+
+        {/* Mode toggle */}
+        <Text style={s.labelSmall}>GUESS MODE</Text>
+        <View style={s.modeToggle}>
+          <TouchableOpacity
+            style={[s.modeBtn, gameMode === "pin" && s.modeBtnActive]}
+            onPress={() => setGameMode("pin")}
+            activeOpacity={0.8}
+          >
+            <Text style={s.modeBtnEmoji}>📍</Text>
+            <Text style={[s.modeBtnLabel, gameMode === "pin" && s.modeBtnLabelActive]}>Drop a Pin</Text>
+            <Text style={s.modeBtnDesc}>Tap a world map</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[s.modeBtn, gameMode === "region" && s.modeBtnActive]}
+            onPress={() => setGameMode("region")}
+            activeOpacity={0.8}
+          >
+            <Text style={s.modeBtnEmoji}>🌍</Text>
+            <Text style={[s.modeBtnLabel, gameMode === "region" && s.modeBtnLabelActive]}>Region Guess</Text>
+            <Text style={s.modeBtnDesc}>Pick from 7 regions</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={s.divider} />
         <Text style={s.labelSmall}>HOW IT WORKS</Text>
         <Text style={s.infoText}>
-          Players read a clue about a famous world landmark and must guess which region it belongs to.
-          Correct answers earn 300 points. The player with the most points after 5 rounds wins.
+          {gameMode === "pin"
+            ? "Players see a clue about a world landmark and drop a pin on the map to guess its exact location. Closest guess wins the round."
+            : "Players read a clue about a famous world landmark and pick which of 7 world regions it belongs to. Correct answers earn 300 points."}
         </Text>
       </View>
       <TouchableOpacity onPress={startGame} activeOpacity={0.85}>
         <LinearGradient colors={["#4c1d95", "#6c47ff"]} style={s.launchBtn}>
-          <Text style={s.launchEmoji}>🗺</Text>
+          <Text style={s.launchEmoji}>{gameMode === "pin" ? "📍" : "🌍"}</Text>
           <View>
             <Text style={s.launchLabel}>Start Geo Guesser</Text>
-            <Text style={s.launchSub}>Offline · 5 rounds · 6 players</Text>
+            <Text style={s.launchSub}>
+              {gameMode === "pin" ? "Drop a Pin mode" : "Region Guess mode"} · 5 rounds · 6 players
+            </Text>
           </View>
         </LinearGradient>
       </TouchableOpacity>
@@ -527,4 +557,12 @@ const s = StyleSheet.create({
   launchEmoji:      { fontSize: 28 },
   launchLabel:      { color: "#fff", fontSize: 16, fontWeight: "800" },
   launchSub:        { color: "rgba(255,255,255,0.5)", fontSize: 11, marginTop: 2 },
+
+  modeToggle:       { flexDirection: "row", gap: 8 },
+  modeBtn:          { flex: 1, backgroundColor: "#0d0d1a", borderRadius: 12, borderWidth: 1, borderColor: "#222", padding: 12, alignItems: "center", gap: 4 },
+  modeBtnActive:    { backgroundColor: "rgba(108,71,255,0.15)", borderColor: ACCENT + "88" },
+  modeBtnEmoji:     { fontSize: 22 },
+  modeBtnLabel:     { color: "#666", fontSize: 13, fontWeight: "800" },
+  modeBtnLabelActive: { color: "#c4b5fd" },
+  modeBtnDesc:      { color: "#444", fontSize: 10 },
 });

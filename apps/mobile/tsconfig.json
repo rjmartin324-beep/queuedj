@@ -3,7 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@partyglue/shared-types": ["../../packages/shared-types/src/index.ts"]
+      "@queuedj/shared-types": ["../../packages/shared-types/src/index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "../../packages/shared-types/src"]

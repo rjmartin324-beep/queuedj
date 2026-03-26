@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+apps
+.git
+dist
+build
+*.log
+.env
+.env.*
+infra
+docs
+assets
+package-lock.json
