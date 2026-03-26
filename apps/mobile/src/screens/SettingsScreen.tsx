@@ -124,7 +124,11 @@ export function SettingsScreen({ guestId, onClose }: Props) {
   async function saveName() {
     const trimmed = name.trim();
     if (!trimmed) return;
-    await AsyncStorage.setItem(GUEST_NAME_KEY, trimmed);
+    // Write to both keys so the room join flow picks it up without re-prompting
+    await AsyncStorage.multiSet([
+      [GUEST_NAME_KEY,        trimmed],   // Account tab display
+      ["queuedj:displayName", trimmed],   // socketManager / room join key
+    ]);
     tapLight();
     setEditingName(false);
     setNameSaved(true);

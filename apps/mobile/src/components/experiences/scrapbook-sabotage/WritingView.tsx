@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WritingView — guests write a response using ONLY words from the word bank
@@ -41,6 +42,25 @@ export function WritingView() {
         </Text>
       );
     });
+  }
+
+  if (submitted) {
+    return (
+      <WaitingForPlayersView
+        emoji="📖"
+        accent="#6c47ff"
+        title="Chapter Submitted!"
+        subtitle="Waiting for all writers to finish their chapter..."
+        submittedCount={(state.guestViewData as any)?.submittedCount}
+        tips={[
+          "Great authors know when to stop writing ✍️",
+          "Saboteurs are watching every word 👀",
+          "The story is getting weird in the best way 🌀",
+          "Your chapter might just be the plot twist 🎭",
+          "Literary masterpiece incoming 📚",
+        ]}
+      />
+    );
   }
 
   return (
@@ -89,9 +109,7 @@ export function WritingView() {
         onPress={submit}
         disabled={!isValid || submitted}
       >
-        <Text style={styles.submitBtnText}>
-          {submitted ? "Submitted! Waiting for others..." : "Submit Response"}
-        </Text>
+        <Text style={styles.submitBtnText}>Submit Response</Text>
       </TouchableOpacity>
     </ScrollView>
   );

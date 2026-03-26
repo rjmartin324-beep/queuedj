@@ -1,0 +1,71 @@
+# ─── EAS Build Archive Ignore ─────────────────────────────────────────────────
+# Cuts upload from ~156MB to ~5MB.
+# EAS installs dependencies fresh on the build server, so node_modules
+# and other generated artifacts should never be uploaded.
+
+# Dependencies (biggest savings — usually 140MB+)
+node_modules/
+**/node_modules/
+
+# Git history
+.git/
+
+# Python ML service — not needed for Android builds
+services/ml/__pycache__/
+services/ml/*.pyc
+services/ml/venv/
+services/ml/.venv/
+services/ml/models/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# Build artifacts
+.next/
+dist/
+build/
+out/
+
+# Turbo cache
+.turbo/
+
+# Local env files (never upload secrets)
+.env
+.env.local
+.env.*.local
+
+# Expo local state
+.expo/
+apps/mobile/.expo/
+
+# Android build outputs (EAS builds these fresh)
+apps/mobile/android/build/
+apps/mobile/android/app/build/
+apps/mobile/android/.gradle/
+apps/mobile/android/local.properties
+
+# iOS build outputs
+apps/mobile/ios/build/
+apps/mobile/ios/Pods/
+apps/mobile/ios/*.xcarchive
+
+# macOS junk
+**/.DS_Store
+
+# Editor
+.vscode/
+.idea/
+**/*.swp
+
+# Logs
+**/*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+**/.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

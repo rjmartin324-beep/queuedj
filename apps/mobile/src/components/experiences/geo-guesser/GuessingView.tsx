@@ -5,6 +5,7 @@ import {
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Geo Guesser — GuessingView
@@ -148,13 +149,20 @@ export function GuessingView() {
 
   if (submitted) {
     return (
-      <View style={styles.root}>
-        <View style={styles.submittedScreen}>
-          <Text style={styles.submittedEmoji}>📍</Text>
-          <Text style={styles.submittedTitle}>Guess Locked!</Text>
-          <Text style={styles.submittedSub}>Waiting for the reveal...</Text>
-        </View>
-      </View>
+      <WaitingForPlayersView
+        emoji="📍"
+        accent={ACCENT}
+        title="Guess Locked!"
+        subtitle="Waiting for everyone to drop their pin..."
+        submittedCount={(state.guestViewData as any)?.submittedCount}
+        tips={[
+          "Was that Siberia or Scotland? 🤔",
+          "Confidence is key — even wrong pins look bold 📌",
+          "Geography class is paying off right now 🌍",
+          "Someone definitely pinned the ocean floor 🌊",
+          "The reveal is going to be spicy 🔥",
+        ]}
+      />
     );
   }
 

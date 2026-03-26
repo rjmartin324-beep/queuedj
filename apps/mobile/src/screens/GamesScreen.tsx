@@ -39,6 +39,7 @@ const CATEGORIES: Category[] = [
     games: [
       { id: "trivia",       title: "Party Trivia",    tagline: "10 rounds, 10s each",        emoji: "🧠" },
       { id: "connections",  title: "Connections",     tagline: "Find the 4 groups",          emoji: "🔗" },
+      { id: "geo_guesser",  title: "Geo Guesser",     tagline: "Pin the mystery location",   emoji: "🗺️" },
       { id: "fake_news",    title: "Fake News",       tagline: "Real or fake headline?",     emoji: "📰" },
       { id: "pop_culture",  title: "Pop Culture Quiz",tagline: "TV, film & music",           emoji: "🎬" },
       { id: "cropped_look", title: "Cropped Look",    tagline: "Zoom in and guess",          emoji: "🔎" },
@@ -57,9 +58,7 @@ const CATEGORIES: Category[] = [
       { id: "truth_or_dare",     title: "Truth or Dare",     tagline: "Brave enough?",      emoji: "💀" },
       { id: "would_you_rather",  title: "Would You Rather",  tagline: "Pick your poison",   emoji: "🤔" },
       { id: "two_truths",        title: "Two Truths One Lie",tagline: "Spot the fake",       emoji: "🤥" },
-      { id: "fight_or_flight",   title: "Fight or Flight",   tagline: "What would you do?", emoji: "💪" },
       { id: "who_knows_who",     title: "Who Knows Who",     tagline: "Who did it?",         emoji: "👥" },
-      { id: "bucket_list",       title: "Bucket List",       tagline: "Guess who dreamed it",emoji: "🌍" },
       { id: "party_dice",        title: "Party Dice",        tagline: "Roll for a challenge",emoji: "🎲" },
     ],
   },
@@ -82,9 +81,7 @@ const CATEGORIES: Category[] = [
     colors: ["#1a0a30", "#0d0518"],
     accent: "#c084fc",
     games: [
-      { id: "draw_it",     title: "Draw It",          tagline: "Draw, others guess",         emoji: "🎨" },
       { id: "emoji_story", title: "Emoji Story",      tagline: "Decode the emojis",          emoji: "😂" },
-      { id: "story_time",  title: "Story Time",       tagline: "Build it word by word",      emoji: "📖" },
       { id: "improv",      title: "Improv Challenge", tagline: "Act the scene out",          emoji: "🎭" },
       { id: "accent",      title: "Accent Challenge", tagline: "Read it in the accent",      emoji: "🗣️" },
       { id: "mimic_me",    title: "Mimic Me",         tagline: "Copy the move",              emoji: "🪞" },
@@ -99,7 +96,6 @@ const CATEGORIES: Category[] = [
     games: [
       { id: "word_association", title: "Word Association", tagline: "First word that pops",       emoji: "💭" },
       { id: "chain_reaction",   title: "Chain Reaction",   tagline: "Word starts with last letter",emoji: "🔗" },
-      { id: "speed_typing",     title: "Speed Typing",     tagline: "Type it fastest",             emoji: "⌨️" },
     ],
   },
   {
@@ -110,7 +106,6 @@ const CATEGORIES: Category[] = [
     accent: "#a78bfa",
     games: [
       { id: "alibi",      title: "Alibi",    tagline: "Who did the crime?",   emoji: "🔍" },
-      { id: "photo_bomb", title: "Photo Bomb",tagline: "Spot the odd one out", emoji: "💣" },
     ],
   },
   {
@@ -120,7 +115,6 @@ const CATEGORIES: Category[] = [
     colors: ["#1a1000", "#0d0800"],
     accent: "#fbbf24",
     games: [
-      { id: "hot_takes",      title: "Hot Takes",      tagline: "Slide your opinion",  emoji: "🌡️" },
       { id: "rank_it",        title: "Rank It",        tagline: "Sort the list",       emoji: "🏆" },
       { id: "celebrity_head", title: "Celebrity Head", tagline: "Guess who you are",   emoji: "👑" },
     ],
@@ -134,7 +128,6 @@ const CATEGORIES: Category[] = [
     games: [
       { id: "thumb_war",    title: "Thumb War",    tagline: "Tap fastest to win",     emoji: "👍" },
       { id: "speed_round",  title: "Speed Round",  tagline: "30 seconds to name them",emoji: "⏱️" },
-      { id: "photo_bomb",   title: "Photo Bomb",   tagline: "Spot the odd one out",   emoji: "💣" },
     ],
   },
 ];
@@ -142,12 +135,12 @@ const CATEGORIES: Category[] = [
 // ─── Game Routes map ──────────────────────────────────────────────────────────
 // Games that have a standalone screen in app/games/[id].tsx
 const ROUTED_GAMES = new Set([
-  "trivia","would_you_rather","never_have_i_ever","truth_or_dare","hot_takes",
+  "trivia","would_you_rather","never_have_i_ever","truth_or_dare",
   "rank_it","lyrics_drop","emoji_story","celebrity_head","two_truths",
-  "word_association","who_knows_who","story_time","fake_news","bucket_list",
-  "fight_or_flight","pop_culture","improv","alibi","cropped_look","mind_reading",
-  "speed_round","musical_chairs","thumb_war","photo_bomb","hum_it","mimic_me",
-  "accent","draw_it","speed_typing","connections","chain_reaction","party_dice",
+  "word_association","who_knows_who","fake_news","pop_culture","improv","alibi",
+  "cropped_look","mind_reading","speed_round","musical_chairs","thumb_war",
+  "hum_it","mimic_me","accent","connections","chain_reaction","party_dice",
+  "geo_guesser",
 ]);
 
 // ─── Featured Banner ─────────────────────────────────────────────────────────
@@ -382,7 +375,7 @@ export default function GamesScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>Party Games</Text>
-          <Text style={styles.headerSub}>40 games · 8 categories</Text>
+          <Text style={styles.headerSub}>31 games · 8 categories</Text>
         </View>
         <TouchableOpacity onPress={openRandomGame} style={styles.randomBtn}>
           <Text style={styles.randomBtnText}>🎲</Text>

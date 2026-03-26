@@ -23,15 +23,23 @@ interface SnapEntry {
 export function GalleryView() {
   const { state, sendAction } = useRoom();
   const data = state.guestViewData as any;
-  const snaps: SnapEntry[] = data?.snaps ?? [];
   const myId = state.guestId;
+
+  // Server sends photos as Record<guestId, base64DataUri>
+  const photosRecord: Record<string, string> = data?.photos ?? {};
+  const snaps: SnapEntry[] = Object.entries(photosRecord).map(([guestId, photoUri]) => ({
+    guestId,
+    photoUri,
+    isMe: guestId === myId,
+    playerNum: (state.members.findIndex(m => m.guestId === guestId) + 1) || undefined,
+  }));
 
   const [voted, setVoted] = useState<string | null>(null);
 
   function vote(guestId: string) {
     if (voted || guestId === myId) return;
     setVoted(guestId);
-    sendAction("vote_snap", { winnerId: guestId });
+    sendAction("cast_vote", { targetGuestId: guestId });
   }
 
   const hasVoted = voted !== null;

@@ -5,6 +5,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const PROMPTS = [
   { a: "Always have to speak in rhymes", b: "Never be able to use emojis again" },
@@ -24,8 +25,9 @@ type Phase = "lobby" | "voting" | "reveal" | "results";
 export default function WouldYouRatherScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
 
   const [phase, setPhase] = useState<Phase>("lobby");
   const [round, setRound] = useState(0);
@@ -284,24 +286,13 @@ export default function WouldYouRatherScreen() {
 
   if (phase === "results") {
     return (
-      <LinearGradient colors={["#03001c", "#1a0040"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <View style={s.center}>
-            <Text style={{ fontSize: 64 }}>🗳️</Text>
-            <Text style={s.gameTitle}>Final Score</Text>
-            <Text style={s.bigScore}>{score}</Text>
-            <Text style={s.scoreLabel}>POINTS</Text>
-            <TouchableOpacity style={s.startBtn} onPress={startGame}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={score}
+        maxScore={1000}
+        gameEmoji="🤔"
+        gameTitle="Would You Rather"
+        onPlayAgain={startGame}
+      />
     );
   }
 

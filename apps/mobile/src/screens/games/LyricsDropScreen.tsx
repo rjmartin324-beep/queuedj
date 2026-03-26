@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const LYRICS = [
   {
@@ -71,8 +72,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function LyricsDropScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
   const [mpGuess, setMpGuess] = useState("");
@@ -311,30 +313,14 @@ export default function LyricsDropScreen() {
   }
 
   if (phase === "results") {
-    const maxScore = LYRICS.length * 400;
-    const pct = Math.round((score / maxScore) * 100);
     return (
-      <LinearGradient colors={["#03001c", "#0a0020"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <View style={s.center}>
-            <Text style={{ fontSize: 64 }}>🎶</Text>
-            <Text style={s.title}>Lyrics Master!</Text>
-            <Text style={s.bigScore}>{score}</Text>
-            <Text style={s.scoreLabel}>TOTAL POINTS</Text>
-            <Text style={s.verdict}>
-              {pct >= 80 ? "🎤 Karaoke King!" : pct >= 60 ? "🎵 Music Fan" : pct >= 40 ? "🙂 Decent" : "😅 Study up!"}
-            </Text>
-            <TouchableOpacity style={s.startBtn} onPress={startGame}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={score}
+        maxScore={1000}
+        gameEmoji="🎤"
+        gameTitle="Lyrics Drop"
+        onPlayAgain={startGame}
+      />
     );
   }
 

@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
 import * as Sentry from "@sentry/react-native";
 import { RoomProvider } from "../src/contexts/RoomContext";
 import { ThemeProvider } from "../src/contexts/ThemeContext";
 import { OnboardingScreen, ONBOARDED_KEY } from "../src/screens/OnboardingScreen";
 import { ErrorBoundary } from "../src/components/shared/ErrorBoundary";
 import { AchievementToast } from "../src/components/shared/AchievementToast";
-import { registerForPushNotifications, registerGlobalToken } from "../src/lib/notifications";
+import {
+  registerForPushNotifications,
+  registerGlobalToken,
+  addNotificationResponseListener,
+} from "../src/lib/notifications";
 import { getIdentity } from "../src/lib/identity";
 
 Sentry.init({
@@ -28,6 +33,7 @@ Sentry.init({
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export default function RootLayout() {
+  const router = useRouter();
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -46,6 +52,49 @@ export default function RootLayout() {
       await registerGlobalToken(API_URL, guestId, token);
     })();
   }, [onboarded]);
+
+  // ─── Notification tap handling ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!onboarded) return;
+
+    function handleData(data: Record<string, unknown>) {
+      if (!data?.type) return;
+      switch (data.type as string) {
+        case "room_closing":
+        case "room_invite": {
+          const code = data.roomCode as string | undefined;
+          if (code) {
+            // Navigate home with code pre-filled and join modal auto-opened
+            router.push({ pathname: "/", params: { code, openJoin: "1" } } as any);
+          } else {
+            router.push("/");
+          }
+          break;
+        }
+        // Engagement notifications just bring the user to the home screen
+        case "song_of_the_day":
+        case "streak_at_risk":
+        case "guest_joined":
+        case "track_requested":
+        case "now_playing":
+        default:
+          router.push("/");
+          break;
+      }
+    }
+
+    // Warm start: app was in foreground or background
+    const sub = addNotificationResponseListener((resp) => {
+      handleData(resp.notification.request.content.data as Record<string, unknown>);
+    });
+
+    // Cold start: app was killed when notification arrived
+    Notifications.getLastNotificationResponseAsync().then((resp) => {
+      if (resp) handleData(resp.notification.request.content.data as Record<string, unknown>);
+    });
+
+    return () => sub.remove();
+  }, [onboarded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Null = loading, don't flash anything
   if (onboarded === null) return null;

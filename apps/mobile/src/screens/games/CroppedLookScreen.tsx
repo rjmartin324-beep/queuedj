@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, TextI
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 // Cropped look puzzles - each is described as an emoji grid representing a zoomed portion
 const PUZZLES = [
@@ -23,8 +24,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function CroppedLookScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
   const [mpGuess, setMpGuess] = useState("");
@@ -166,21 +168,14 @@ export default function CroppedLookScreen() {
   );
 
   if (phase === "results") {
-    const pct = Math.round((score / (PUZZLES.length * 400)) * 100);
     return (
-      <LinearGradient colors={["#03001c","#001020"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <View style={s.center}>
-            <Text style={{ fontSize: 64 }}>🔍</Text>
-            <Text style={s.title}>Observation Complete!</Text>
-            <Text style={s.bigScore}>{score}</Text>
-            <Text style={s.label}>POINTS</Text>
-            <Text style={s.verdict}>{pct >= 80 ? "👀 Eagle Eye!" : pct >= 60 ? "🔎 Sharp Looker" : pct >= 40 ? "🤔 Average Eye" : "😵 Need glasses?"}</Text>
-            <TouchableOpacity style={s.btn} onPress={startGame}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnI}><Text style={s.btnT}>PLAY AGAIN</Text></LinearGradient></TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnT}>Back to Home</Text></TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={score}
+        maxScore={1000}
+        gameEmoji="🔎"
+        gameTitle="Cropped Look"
+        onPlayAgain={startGame}
+      />
     );
   }
 

@@ -6,12 +6,13 @@ import { SessionRecapScreen, type SessionRecapData } from "./SessionRecapScreen"
 import { useRouter } from "expo-router";
 
 // Shared
-import { DJQueueView }       from "../components/experiences/dj/DJQueueView";
-import { TriviaQuestionView } from "../components/experiences/trivia/TriviaQuestionView";
-import { TriviaWaitingView }  from "../components/experiences/trivia/TriviaWaitingView";
-import { LeaderboardView }    from "../components/experiences/trivia/LeaderboardView";
-import { PollView }           from "../components/experiences/shared/PollView";
-import { IntermissionView }   from "../components/experiences/shared/IntermissionView";
+import { DJQueueView }           from "../components/experiences/dj/DJQueueView";
+import { TriviaQuestionView }    from "../components/experiences/trivia/TriviaQuestionView";
+import { TriviaWaitingView }     from "../components/experiences/trivia/TriviaWaitingView";
+import { LeaderboardView }       from "../components/experiences/trivia/LeaderboardView";
+import { PollView }              from "../components/experiences/shared/PollView";
+import { IntermissionView }      from "../components/experiences/shared/IntermissionView";
+import { WaitingForPlayersView } from "../components/experiences/shared/WaitingForPlayersView";
 import { ConnectionBar }      from "../components/shared/ConnectionBar";
 import { VibeCreditsBar }     from "../components/shared/VibeCreditsBar";
 import { GuestAvatarRow, type GuestPresence } from "../components/shared/GuestAvatarRow";
@@ -200,12 +201,30 @@ export default function GuestScreen() {
       case "scrapbook_writing":    return <WritingView />;
       case "scrapbook_voting":     return <ScrapbookVotingView />;
       case "scrapbook_reveal":     return <ScrapbookRevealView />;
+      case "scrapbook_waiting":    return (
+        <WaitingForPlayersView
+          emoji="📖" accent="#6c47ff"
+          title="Chapter Received!"
+          subtitle="Waiting for all writers to finish..."
+          submittedCount={(state.guestViewData as any)?.submittedCount}
+          totalCount={state.members.length}
+        />
+      );
 
       // ── The Glitch ───────────────────────────────────────────────────────
       case "glitch_watching":   return <WatchingView />;
       case "glitch_describing": return <DescribingView />;
       case "glitch_voting":     return <GlitchVotingView />;
       case "glitch_reveal":     return <GlitchRevealView />;
+      case "glitch_waiting":    return (
+        <WaitingForPlayersView
+          emoji="📺" accent="#818cf8"
+          title="Round Finished!"
+          subtitle="Waiting for the next clip..."
+          submittedCount={(state.guestViewData as any)?.submittedCount}
+          totalCount={state.members.length}
+        />
+      );
 
       // ── Copyright Infringement ───────────────────────────────────────────
       case "copyright_viewing":  return <ViewingView />;
@@ -216,16 +235,43 @@ export default function GuestScreen() {
       // ── GeoGuesser ───────────────────────────────────────────────────────
       case "geo_guessing":      return <GeoGuessingView />;
       case "geo_reveal":        return <GeoRevealView />;
+      case "geo_waiting":       return (
+        <WaitingForPlayersView
+          emoji="🌍" accent="#22c55e"
+          title="Round Complete!"
+          subtitle="Waiting for the next location..."
+          submittedCount={(state.guestViewData as any)?.submittedCount}
+          totalCount={state.members.length}
+        />
+      );
 
       // ── Drawback ─────────────────────────────────────────────────────────
       case "drawback_drawing":  return <DrawingView />;
       case "drawback_voting":   return <DrawbackVotingView />;
       case "drawback_reveal":   return <DrawbackRevealView />;
+      case "drawback_waiting":  return (
+        <WaitingForPlayersView
+          emoji="🎨" accent="#3b82f6"
+          title="Round Over!"
+          subtitle="Waiting for the next drawing prompt..."
+          submittedCount={(state.guestViewData as any)?.submittedCount}
+          totalCount={state.members.length}
+        />
+      );
 
       // ── Scavenger Snap ───────────────────────────────────────────────────
       case "snap_challenge":    return <ChallengeView />;
       case "snap_gallery":      return <SnapGalleryView />;
       case "snap_results":      return <SnapResultsView />;
+      case "snap_waiting":      return (
+        <WaitingForPlayersView
+          emoji="📸" accent="#10b981"
+          title="All Snaps In!"
+          subtitle="Get ready for the next challenge..."
+          submittedCount={(state.guestViewData as any)?.submittedCount}
+          totalCount={state.members.length}
+        />
+      );
 
       // ── ArtifactHunt ─────────────────────────────────────────────────────
       case "artifact_hunt":     return <ArtifactHuntView />;

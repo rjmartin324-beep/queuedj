@@ -5,6 +5,7 @@ import {
 } from "react-native";
 import { useRoom } from "../../contexts/RoomContext";
 import { socketManager } from "../../lib/socket";
+import { SkeletonShimmer } from "../shared/SkeletonShimmer";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AIRecommendations
@@ -28,10 +29,12 @@ interface Recommendation {
 
 export function AIRecommendations() {
   const { state } = useRoom();
-  const [recs, setRecs]         = useState<Recommendation[]>([]);
-  const [loading, setLoading]   = useState(false);
+  const [recs, setRecs]           = useState<Recommendation[]>([]);
+  const [loading, setLoading]     = useState(false);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
-  const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
+  const [source, setSource]       = useState<"personal" | "trending">("trending");
+  const [addedIds, setAddedIds]   = useState<Set<string>>(new Set());
+  const [thumbs, setThumbs]       = useState<Map<string, "up" | "down">>(new Map());
 
   const crowdState = (state.room?.crowdState as string) ?? "PEAK";
   const guestId    = state.guestId;
@@ -50,6 +53,7 @@ export function AIRecommendations() {
       const data = await res.json();
       setRecs(data.recommendations ?? []);
       setUpdatedAt(data.profile_updated_at ?? null);
+      setSource(data.source ?? "trending");
     } catch {
       // ML unavailable — no-op
     } finally {
@@ -77,6 +81,18 @@ export function AIRecommendations() {
     });
   }
 
+  async function sendFeedback(rec: Recommendation, signal: "up" | "down") {
+    if (!guestId || thumbs.get(rec.isrc)) return;
+    setThumbs(prev => new Map(prev).set(rec.isrc, signal));
+    try {
+      await fetch(`${API_URL}/recommendations/${guestId}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isrc: rec.isrc, signal }),
+      });
+    } catch { /* offline — signal is still stored locally */ }
+  }
+
   function vibeBar(score: number) {
     const pct = Math.round(score * 100);
     return (
@@ -88,9 +104,18 @@ export function AIRecommendations() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator color="#6c47ff" />
-        <Text style={styles.loadingText}>Reading your taste graph...</Text>
+      <View style={styles.skeletonWrap}>
+        {[0, 1, 2, 3, 4].map(i => (
+          <View key={i} style={styles.skeletonRow}>
+            <SkeletonShimmer width={28} height={14} borderRadius={4} />
+            <View style={styles.skeletonInfo}>
+              <SkeletonShimmer width="65%" height={13} borderRadius={6} />
+              <SkeletonShimmer width="45%" height={10} borderRadius={5} style={{ marginTop: 5 }} />
+              <SkeletonShimmer width="80%" height={2} borderRadius={1} style={{ marginTop: 6 }} />
+            </View>
+            <SkeletonShimmer width={32} height={32} borderRadius={16} />
+          </View>
+        ))}
       </View>
     );
   }
@@ -127,9 +152,16 @@ export function AIRecommendations() {
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.crowdTag}>
-        Tuned for: <Text style={styles.crowdTagBold}>{crowdState}</Text> crowd
-      </Text>
+      <View style={styles.metaRow}>
+        <Text style={styles.crowdTag}>
+          Tuned for: <Text style={styles.crowdTagBold}>{crowdState}</Text> crowd
+        </Text>
+        <View style={[styles.sourceBadge, source === "personal" && styles.sourceBadgePersonal]}>
+          <Text style={[styles.sourceText, source === "personal" && styles.sourceTextPersonal]}>
+            {source === "personal" ? "✨ Personal" : "📈 Trending"}
+          </Text>
+        </View>
+      </View>
 
       {/* Track list */}
       <FlatList
@@ -160,15 +192,33 @@ export function AIRecommendations() {
                 </View>
                 {vibeBar(item.score)}
               </View>
-              <TouchableOpacity
-                style={[styles.addBtn, added && styles.addBtnDone]}
-                onPress={() => handleAddToQueue(item)}
-                disabled={added}
-              >
-                <Text style={[styles.addBtnText, added && styles.addBtnTextDone]}>
-                  {added ? "✓" : "+"}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.rowActions}>
+                <View style={styles.thumbs}>
+                  <TouchableOpacity
+                    style={[styles.thumbBtn, thumbs.get(item.isrc) === "up" && styles.thumbBtnUp]}
+                    onPress={() => sendFeedback(item, "up")}
+                    disabled={!!thumbs.get(item.isrc)}
+                  >
+                    <Text style={styles.thumbIcon}>👍</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.thumbBtn, thumbs.get(item.isrc) === "down" && styles.thumbBtnDown]}
+                    onPress={() => sendFeedback(item, "down")}
+                    disabled={!!thumbs.get(item.isrc)}
+                  >
+                    <Text style={styles.thumbIcon}>👎</Text>
+                  </TouchableOpacity>
+                </View>
+                <TouchableOpacity
+                  style={[styles.addBtn, added && styles.addBtnDone]}
+                  onPress={() => handleAddToQueue(item)}
+                  disabled={added}
+                >
+                  <Text style={[styles.addBtnText, added && styles.addBtnTextDone]}>
+                    {added ? "✓" : "+"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           );
         }}
@@ -213,4 +263,21 @@ const styles = StyleSheet.create({
   addBtnDone:    { backgroundColor: "#14532d22", borderColor: "#22c55e55" },
   addBtnText:    { color: "#c4b5fd", fontSize: 18, fontWeight: "700", lineHeight: 22 },
   addBtnTextDone:{ color: "#22c55e" },
+
+  metaRow:       { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
+  sourceBadge:   { backgroundColor: "#1a1a1a", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: "#2a2a2a" },
+  sourceBadgePersonal: { backgroundColor: "#1a0f3a", borderColor: "#4c2ea0" },
+  sourceText:    { color: "#555", fontSize: 11, fontWeight: "700" },
+  sourceTextPersonal: { color: "#c4b5fd" },
+
+  rowActions:    { alignItems: "center", gap: 6 },
+  thumbs:        { flexDirection: "row", gap: 4 },
+  thumbBtn:      { width: 26, height: 26, borderRadius: 13, backgroundColor: "#1a1a1a", alignItems: "center", justifyContent: "center" },
+  thumbBtnUp:    { backgroundColor: "#14532d" },
+  thumbBtnDown:  { backgroundColor: "#450a0a" },
+  thumbIcon:     { fontSize: 12 },
+
+  skeletonWrap:  { paddingTop: 8 },
+  skeletonRow:   { flexDirection: "row", alignItems: "center", paddingVertical: 12, gap: 10, borderBottomWidth: 1, borderBottomColor: "#141414" },
+  skeletonInfo:  { flex: 1 },
 });

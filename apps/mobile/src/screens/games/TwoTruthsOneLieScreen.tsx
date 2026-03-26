@@ -6,32 +6,45 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 type Phase = "lobby" | "submit" | "vote" | "reveal" | "results";
 
-const EXAMPLE_PLAYERS = [
-  {
-    name: "Alex",
-    facts: ["I once met the President", "I can solve a Rubik's cube in under a minute", "I've never eaten pizza"],
-    lie: 0,
-  },
-  {
-    name: "Jordan",
-    facts: ["I speak four languages", "I once ran a marathon", "I was a professional dancer"],
-    lie: 2,
-  },
-  {
-    name: "Sam",
-    facts: ["I have a twin sibling", "I've been skydiving twice", "I'm afraid of butterflies"],
-    lie: 1,
-  },
+const CONTENT_BANK = [
+  { name: "Riley",  facts: ["I once texted my boss a meme meant for my friend", "I have visited all 50 US states", "I used to sleepwalk as a teenager"],           lie: 1 },
+  { name: "Jordan", facts: ["I've never seen a single Star Wars film", "I can wiggle my ears independently", "I once accidentally called the fire brigade"],        lie: 1 },
+  { name: "Sam",    facts: ["I broke my nose learning to skateboard", "I've won a pub quiz three times in a row", "I can hold my breath for 4 minutes"],            lie: 2 },
+  { name: "Alex",   facts: ["I once got a standing ovation at karaoke", "I have a fear of escalators", "I can name every country in the world"],                    lie: 2 },
+  { name: "Taylor", facts: ["I've never had a cavity in my life", "I once slept for 18 hours straight after a festival", "I can do a backflip"],                    lie: 2 },
+  { name: "Morgan", facts: ["I was once bitten by a penguin at a zoo", "I can solve a Rubik's cube in under two minutes", "I've been to 30 countries"],              lie: 2 },
+  { name: "Casey",  facts: ["I was ranked top 500 in my country at a video game", "I've never been on a plane", "I once cooked Christmas dinner for 20 people"],    lie: 1 },
+  { name: "Drew",   facts: ["I once drove a forklift at a warehouse job", "I can speak three languages fluently", "I got a hole-in-one my first time playing golf"], lie: 1 },
+  { name: "Avery",  facts: ["I have an unusual fear of buttons on clothes", "I once found a wallet with £200 and returned it", "I've met the same celebrity twice"], lie: 2 },
+  { name: "Blake",  facts: ["I won a local spelling bee as a child", "I've never eaten a burger in my life", "I once appeared as an extra in a TV show"],            lie: 1 },
+  { name: "Quinn",  facts: ["I once fainted at a magic show in front of the audience", "I can type over 110 words per minute", "I have a photographic memory"],      lie: 2 },
+  { name: "Reese",  facts: ["I grew up living in four different countries", "I failed my driving test five times", "I can hold my breath for 5 minutes"],             lie: 2 },
+  { name: "Finley", facts: ["I broke my collarbone twice before the age of 12", "I once won a radio call-in competition", "I've appeared in a documentary film"],   lie: 2 },
+  { name: "Emery",  facts: ["I once lived next door to a famous athlete", "I've been struck by lightning", "I used to collect vintage stamps as a kid"],              lie: 1 },
+  { name: "Rowan",  facts: ["I ate a ghost chili pepper on a dare and finished it", "I've climbed a mountain over 4,000m", "I once went viral on social media"],     lie: 1 },
 ];
+
+function pickRounds() {
+  const shuffled = [...CONTENT_BANK].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, 3).map(p => {
+    // Shuffle fact order so the lie isn't always in the same position
+    const order = [0, 1, 2].sort(() => Math.random() - 0.5);
+    const facts  = order.map(i => p.facts[i]);
+    const lie    = order.indexOf(p.lie);
+    return { name: p.name, facts, lie };
+  });
+}
 
 export default function TwoTruthsOneLieScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
 
@@ -44,6 +57,7 @@ export default function TwoTruthsOneLieScreen() {
   const [score, setScore] = useState(0);
   const [voteIdx, setVoteIdx] = useState<number | null>(null);
   const [roundIdx, setRoundIdx] = useState(0);
+  const [rounds, setRounds] = useState<{ name: string; facts: string[]; lie: number }[]>([]);
   const [log, setLog] = useState<{ correct: boolean; lieWas: string }[]>([]);
   const [hasVoted, setHasVoted] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -204,6 +218,7 @@ export default function TwoTruthsOneLieScreen() {
   }
 
   function startGame() {
+    setRounds(pickRounds());
     setPhase("submit");
     setFact1(""); setFact2(""); setLie("");
     setSubmitted(false);
@@ -229,7 +244,7 @@ export default function TwoTruthsOneLieScreen() {
 
   function revealAnswer() {
     if (voteIdx === null) return;
-    const player = EXAMPLE_PLAYERS[roundIdx % EXAMPLE_PLAYERS.length];
+    const player = rounds[roundIdx];
     const correct = voteIdx === player.lie;
     setScore((s) => s + (correct ? 300 : 0));
     setLog((l) => [...l, { correct, lieWas: player.facts[player.lie] }]);
@@ -237,7 +252,7 @@ export default function TwoTruthsOneLieScreen() {
   }
 
   function nextRound() {
-    if (roundIdx + 1 >= EXAMPLE_PLAYERS.length) {
+    if (roundIdx + 1 >= rounds.length) {
       setPhase("results");
     } else {
       setRoundIdx((r) => r + 1);
@@ -275,38 +290,14 @@ export default function TwoTruthsOneLieScreen() {
   }
 
   if (phase === "results") {
-    const correct = log.filter((l) => l.correct).length;
     return (
-      <LinearGradient colors={["#03001c", "#0a001a"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <ScrollView contentContainerStyle={s.resultsScroll}>
-            <Text style={{ fontSize: 64, textAlign: "center" }}>🏆</Text>
-            <Text style={s.resultsTitle}>Final Scores</Text>
-            <Text style={s.bigScore}>{score}</Text>
-            <Text style={s.scoreLabel}>POINTS</Text>
-            <Text style={s.verdict}>
-              {correct}/{log.length} lies spotted —{" "}
-              {correct === log.length ? "🕵️ Lie Detector!" : correct > 1 ? "👀 Sharp Eye" : "🤷 Easily Fooled"}
-            </Text>
-            {log.map((entry, i) => (
-              <View key={i} style={[s.logRow, { borderLeftColor: entry.correct ? "#16a34a" : "#dc2626" }]}>
-                <Text style={s.logEmoji}>{entry.correct ? "✓" : "✗"}</Text>
-                <Text style={s.logText}>
-                  {entry.correct ? "Caught the lie: " : "Missed it: "} "{entry.lieWas}"
-                </Text>
-              </View>
-            ))}
-            <TouchableOpacity style={s.startBtn} onPress={startGame}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={score}
+        maxScore={300}
+        gameEmoji="🤥"
+        gameTitle="Two Truths One Lie"
+        onPlayAgain={startGame}
+      />
     );
   }
 
@@ -347,7 +338,7 @@ export default function TwoTruthsOneLieScreen() {
   }
 
   if (phase === "vote") {
-    const player = EXAMPLE_PLAYERS[roundIdx % EXAMPLE_PLAYERS.length];
+    const player = rounds[roundIdx] ?? rounds[0];
     return (
       <LinearGradient colors={["#03001c", "#0a001a"]} style={s.flex}>
         <SafeAreaView style={s.flex}>
@@ -388,7 +379,7 @@ export default function TwoTruthsOneLieScreen() {
   }
 
   if (phase === "reveal") {
-    const player = EXAMPLE_PLAYERS[roundIdx % EXAMPLE_PLAYERS.length];
+    const player = rounds[roundIdx] ?? rounds[0];
     const correct = voteIdx === player.lie;
     return (
       <LinearGradient colors={["#03001c", "#0a001a"]} style={s.flex}>
@@ -405,7 +396,7 @@ export default function TwoTruthsOneLieScreen() {
             <Text style={s.ptsEarned}>{correct ? "+300 pts" : "+0 pts"}</Text>
             <TouchableOpacity style={s.startBtn} onPress={nextRound}>
               <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>{roundIdx + 1 >= EXAMPLE_PLAYERS.length ? "See Results" : "Next Round →"}</Text>
+                <Text style={s.startBtnText}>{roundIdx + 1 >= rounds.length ? "See Results" : "Next Round →"}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>

@@ -26,6 +26,7 @@ import { historyRoutes } from "./routes/history";
 import { creditRoutes } from "./routes/credits";
 import { sotdRoutes } from "./routes/sotd";
 import { tasteReportRoutes } from "./routes/tasteReport";
+import { recommendationRoutes } from "./routes/recommendations";
 import { startScheduledJobs } from "./lib/scheduledJobs";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -93,6 +94,7 @@ async function start() {
   await fastify.register(creditRoutes, { prefix: "/" });
   await fastify.register(sotdRoutes, { prefix: "/" });
   await fastify.register(tasteReportRoutes, { prefix: "/" });
+  await fastify.register(recommendationRoutes, { prefix: "/" });
 
   // ─── Start ─────────────────────────────────────────────────────────────────
   await fastify.listen({ port: PORT, host: "0.0.0.0" });

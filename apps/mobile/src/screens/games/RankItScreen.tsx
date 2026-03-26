@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const CHALLENGES = [
   {
@@ -28,6 +29,66 @@ const CHALLENGES = [
     title: "Best movie genres",
     items: ["Action", "Comedy", "Horror", "Romance", "Sci-Fi"],
   },
+  {
+    title: "Best superpowers to have",
+    items: ["Invisibility", "Flying", "Time Travel", "Telekinesis", "Telepathy"],
+  },
+  {
+    title: "Best snacks ever",
+    items: ["Doritos", "Pringles", "Popcorn", "Haribo", "Chocolate"],
+  },
+  {
+    title: "Best things about summer",
+    items: ["Beach days", "Ice cream", "Long evenings", "No school", "BBQs"],
+  },
+  {
+    title: "Worst things to step on barefoot",
+    items: ["Lego", "Plug socket", "Nail", "Gravel", "Broken glass"],
+  },
+  {
+    title: "Best breakfast foods",
+    items: ["Bacon", "Eggs", "Pancakes", "Avocado Toast", "French Toast"],
+  },
+  {
+    title: "Best Marvel movies",
+    items: ["Iron Man", "Avengers", "Black Panther", "Thor", "Spider-Man"],
+  },
+  {
+    title: "Most annoying sounds",
+    items: ["Nails on chalkboard", "Alarm clock", "Loud chewing", "Car alarm", "Baby crying"],
+  },
+  {
+    title: "Best holiday destinations",
+    items: ["Paris", "Bali", "New York", "Tokyo", "Santorini"],
+  },
+  {
+    title: "Best board games",
+    items: ["Catan", "Monopoly", "Scrabble", "Chess", "Risk"],
+  },
+  {
+    title: "Best things to eat at 3am",
+    items: ["Pizza", "Ramen", "Toast", "Cereal", "Leftovers"],
+  },
+  {
+    title: "Best social media platforms",
+    items: ["Instagram", "TikTok", "YouTube", "Twitter / X", "Reddit"],
+  },
+  {
+    title: "Worst things about Mondays",
+    items: ["Early alarm", "Traffic", "Back-to-back meetings", "No weekend", "Work emails"],
+  },
+  {
+    title: "Best things to do on a rainy day",
+    items: ["Movie marathon", "Bake something", "Video games", "Sleep in", "Read a book"],
+  },
+  {
+    title: "Most important school subjects",
+    items: ["Maths", "English", "Science", "Art", "PE"],
+  },
+  {
+    title: "Best fast food chains",
+    items: ["McDonald's", "Burger King", "KFC", "Subway", "Five Guys"],
+  },
 ];
 
 type Phase = "lobby" | "playing" | "reveal" | "results";
@@ -35,8 +96,9 @@ type Phase = "lobby" | "playing" | "reveal" | "results";
 export default function RankItScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
 
   const [phase, setPhase] = useState<Phase>("lobby");
   const [challengeIdx, setChallengeIdx] = useState(0);
@@ -308,36 +370,14 @@ export default function RankItScreen() {
   }
 
   if (phase === "results") {
-    const maxScore = CHALLENGES.length * ranking.length * 300;
-    const pct = Math.round((score / maxScore) * 100);
     return (
-      <LinearGradient colors={["#03001c", "#001a20"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <ScrollView contentContainerStyle={s.resultsScroll}>
-            <Text style={{ fontSize: 64, textAlign: "center" }}>🏆</Text>
-            <Text style={s.resultsTitle}>Final Score</Text>
-            <Text style={s.bigScore}>{score}</Text>
-            <Text style={s.scoreLabel}>{pct}% alignment with group</Text>
-            <Text style={s.verdict}>
-              {pct >= 80 ? "🧠 Group Mind Reader!" : pct >= 60 ? "👍 Pretty Aligned" : pct >= 40 ? "🤷 Unique Taste" : "🌪️ Chaotic Ranker"}
-            </Text>
-            {roundScores.map((rs, i) => (
-              <View key={i} style={s.roundScoreRow}>
-                <Text style={s.roundScoreLabel}>{CHALLENGES[i].title}</Text>
-                <Text style={s.roundScoreVal}>{rs} pts</Text>
-              </View>
-            ))}
-            <TouchableOpacity style={s.startBtn} onPress={startGame}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={score}
+        maxScore={2000}
+        gameEmoji="🏆"
+        gameTitle="Rank It"
+        onPlayAgain={startGame}
+      />
     );
   }
 

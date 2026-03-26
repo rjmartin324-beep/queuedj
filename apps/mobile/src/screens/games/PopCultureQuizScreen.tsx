@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Scrol
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const QUESTIONS = [
   { q: "Which show features the phrase 'Winter is Coming'?", opts: ["The Crown", "Vikings", "Game of Thrones", "Merlin"], a: 2, category: "TV" },
@@ -29,8 +30,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function PopCultureQuizScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
   const [mpAnswered, setMpAnswered] = useState(false);
@@ -181,8 +183,7 @@ export default function PopCultureQuizScreen() {
   function advance(i: number) {
     setTimeout(() => {
       if (i + 1 >= QUESTIONS.length) setPhase("results");
-      else loadQuestion(i + 1) || setIdx(i + 1);
-      setIdx(i + 1);
+      else { loadQuestion(i + 1); setIdx(i + 1); }
     }, 1200);
   }
 
@@ -201,19 +202,13 @@ export default function PopCultureQuizScreen() {
   );
 
   if (phase === "results") return (
-    <LinearGradient colors={["#03001c","#0a001a"]} style={s.flex}>
-      <SafeAreaView style={s.flex}>
-        <View style={s.center}>
-          <Text style={{ fontSize: 64 }}>🎬</Text>
-          <Text style={s.title}>Quiz Done!</Text>
-          <Text style={s.bigScore}>{score}</Text>
-          <Text style={s.label}>POINTS</Text>
-          <Text style={s.verdict}>{score >= 2000 ? "🏆 Pop Culture God!" : score >= 1200 ? "⭐ Trendy" : score >= 600 ? "📱 Decent" : "📺 Touch grass"}</Text>
-          <TouchableOpacity style={s.btn} onPress={startGame}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnI}><Text style={s.btnT}>PLAY AGAIN</Text></LinearGradient></TouchableOpacity>
-          <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnT}>Back to Home</Text></TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <PostGameCard
+      score={score}
+      maxScore={3000}
+      gameEmoji="🎬"
+      gameTitle="Pop Culture Quiz"
+      onPlayAgain={startGame}
+    />
   );
 
   const q = QUESTIONS[Math.min(idx, QUESTIONS.length - 1)];

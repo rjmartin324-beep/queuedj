@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   SafeAreaView, Alert, ScrollView, Modal, KeyboardAvoidingView,
-  Platform, Animated, Dimensions, ImageBackground, Image, Easing, AppState,
+  Platform, Animated, Dimensions, ImageBackground, Image, Easing, AppState, BackHandler,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import type { Room } from "@queuedj/shared-types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { socketManager } from "../lib/socket";
 import { useRoom } from "../contexts/RoomContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -708,13 +709,24 @@ export default function HomeScreen() {
   const router = useRouter();
   const { dispatch } = useRoom();
   const { bgTheme: theme, setBgTheme: saveTheme } = useTheme();
-  const params = useLocalSearchParams<{ code?: string }>();
+  const params = useLocalSearchParams<{ code?: string; openJoin?: string }>();
 
   const [activeTab, setActiveTab]     = useState<Tab>("home");
   const [roomCode, setRoomCode]       = useState(params.code ?? "");
   const [loading, setLoading]         = useState(false);
   const [pendingAction, setPending]   = useState<PendingAction>(null);
   const [joinModalVisible, setJoinModal] = useState(false);
+  const [errorMsg, setErrorMsg]       = useState("");
+  const errorOpacity = useRef(new Animated.Value(0)).current;
+
+  function showError(msg: string) {
+    setErrorMsg(msg);
+    Animated.sequence([
+      Animated.timing(errorOpacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+      Animated.delay(3200),
+      Animated.timing(errorOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+    ]).start(() => setErrorMsg(""));
+  }
 
   // ─── Lifted avatar state ─────────────────────────────────────────────────
   const [bodyIdx, setBodyIdx]               = useState(0);
@@ -722,6 +734,7 @@ export default function HomeScreen() {
   const [outfitColorIdx, setOutfitColorIdx] = useState(0);
   const [outfitId, setOutfitId]             = useState<OutfitType>("default");
   const [exprIdx, setExprIdx]               = useState(0);
+  const [avatarLoaded, setAvatarLoaded]     = useState(false);
   const [welcomeDismissed, setWelcomeDismissed] = useState(true);
   const [myGuestId, setMyGuestId] = useState<string | null>(null);
 
@@ -729,6 +742,52 @@ export default function HomeScreen() {
   useEffect(() => {
     socketManager.getOrCreateGuestId().then(setMyGuestId).catch(() => {});
   }, []);
+
+  // Auto-open join modal when arriving from a push notification (room_closing / room_invite)
+  useEffect(() => {
+    if (params.openJoin === "1" && params.code) {
+      setJoinModal(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Persist avatar across app restarts ──────────────────────────────────
+  useEffect(() => {
+    AsyncStorage.multiGet([
+      "pg_avatar_body", "pg_avatar_hp", "pg_avatar_outfit_color",
+      "pg_avatar_outfit_id", "pg_avatar_expr",
+    ]).then((pairs) => {
+      const m = Object.fromEntries(pairs);
+      if (m["pg_avatar_body"]         !== null) setBodyIdx(Number(m["pg_avatar_body"]));
+      if (m["pg_avatar_hp"]           !== null) setHpIdx(Number(m["pg_avatar_hp"]));
+      if (m["pg_avatar_outfit_color"] !== null) setOutfitColorIdx(Number(m["pg_avatar_outfit_color"]));
+      if (m["pg_avatar_outfit_id"]    !== null) setOutfitId(m["pg_avatar_outfit_id"] as OutfitType);
+      if (m["pg_avatar_expr"]         !== null) setExprIdx(Number(m["pg_avatar_expr"]));
+      setAvatarLoaded(true);
+    }).catch(() => setAvatarLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    if (!avatarLoaded) return; // don't overwrite on first mount before load
+    AsyncStorage.multiSet([
+      ["pg_avatar_body",         String(bodyIdx)],
+      ["pg_avatar_hp",           String(hpIdx)],
+      ["pg_avatar_outfit_color", String(outfitColorIdx)],
+      ["pg_avatar_outfit_id",    outfitId],
+      ["pg_avatar_expr",         String(exprIdx)],
+    ]);
+  }, [bodyIdx, hpIdx, outfitColorIdx, outfitId, exprIdx, avatarLoaded]);
+
+  // Android back button: go to Home tab instead of exiting the app
+  useEffect(() => {
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (activeTab !== "home") {
+        setActiveTab("home");
+        return true;
+      }
+      return false;
+    });
+    return () => sub.remove();
+  }, [activeTab]);
 
   // ─── Name confirmed → execute the pending action ─────────────────────────
   async function onNameConfirmed(name: string) {
@@ -749,7 +808,7 @@ export default function HomeScreen() {
       if (!saved) { setPending({ type: "create" }); return; }
       await doCreateRoom(saved, guestId);
     } catch (e: any) {
-      Alert.alert("Error", e?.message ?? "Could not start room");
+      showError(e?.message ?? "Could not start room");
     }
   }
 
@@ -813,7 +872,7 @@ export default function HomeScreen() {
       router.push(`/host/${roomId}` as any);
       recordActivity().catch(() => {});
     } catch (e: any) {
-      Alert.alert("Error", e.message ?? "Could not create room");
+      showError(e.message ?? "Could not create room");
     } finally {
       setLoading(false);
     }
@@ -822,7 +881,7 @@ export default function HomeScreen() {
   // ─── Join Room (Guest) ────────────────────────────────────────────────────
   async function handleJoinRoom() {
     const code = roomCode.trim();
-    if (code.length < 4) { Alert.alert("Enter the 4-letter room code"); return; }
+    if (code.length < 4) return; // button already disabled below 4 chars
     const saved = await socketManager.getDisplayName();
     setJoinModal(false);
     if (!saved) { setPending({ type: "join", code }); return; }
@@ -848,7 +907,7 @@ export default function HomeScreen() {
       router.push(`/guest/${data.id}`);
       recordActivity().catch(() => {});
     } catch (e: any) {
-      Alert.alert("Error", e.message ?? "Could not join room");
+      showError(e.message ?? "Could not join room");
     } finally {
       setLoading(false);
     }
@@ -894,7 +953,12 @@ export default function HomeScreen() {
         );
       case "social":
         return (
-          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingTop: 16, paddingBottom: 60 }}>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 60 }}>
+            {/* Page header */}
+            <View style={styles.tabHeader}>
+              <Text style={styles.tabHeaderTitle}>Social</Text>
+            </View>
+
             <Text style={{ color: "#6b7280", fontSize: 10, fontWeight: "800", letterSpacing: 2, paddingHorizontal: 16, marginBottom: 8 }}>
               GLOBAL LEADERBOARD
             </Text>
@@ -978,6 +1042,13 @@ export default function HomeScreen() {
         onStartRoom={handleStartRoom}
         theme={theme}
       />
+
+      {/* Error toast — slides up above the tab bar */}
+      {!!errorMsg && (
+        <Animated.View style={[styles.errorToast, { opacity: errorOpacity }]} pointerEvents="none">
+          <Text style={styles.errorToastText}>⚠️  {errorMsg}</Text>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
@@ -1557,6 +1628,14 @@ function AvatarTab({
   return (
     <ScrollView contentContainerStyle={avStyles.scroll} showsVerticalScrollIndicator={false}>
 
+      {/* ── Page header ── */}
+      <View style={avStyles.pageHeader}>
+        <Text style={avStyles.pageTitle}>My Avatar</Text>
+        <View style={[avStyles.levelBadge, { borderColor: isStudio ? "rgba(52,211,153,0.4)" : "rgba(167,139,250,0.4)", backgroundColor: isStudio ? "rgba(29,185,84,0.15)" : "rgba(124,58,237,0.15)" }]}>
+          <Text style={[avStyles.levelBadgeText, { color: accentColor }]}>⭐ Lv 1  ·  DJ Rookie</Text>
+        </View>
+      </View>
+
       {/* ── Hero stage ── */}
       <View style={avStyles.stage}>
         {/* Background glow rings */}
@@ -1689,6 +1768,17 @@ function AvatarTab({
 
 const avStyles = StyleSheet.create({
   scroll: { paddingBottom: 40 },
+
+  // Page header
+  pageHeader: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16,
+    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.05)",
+    marginBottom: 0,
+  },
+  pageTitle:      { color: "#fff", fontSize: 26, fontWeight: "900" },
+  levelBadge:     { borderRadius: 20, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 5 },
+  levelBadgeText: { fontSize: 12, fontWeight: "700" },
 
   // Stage
   stage: {
@@ -1825,6 +1915,22 @@ function PlaceholderTab({ icon, label, sub }: { icon: string; label: string; sub
 const styles = StyleSheet.create({
   safe:    { flex: 1, backgroundColor: "#0d0818" },
   content: { flex: 1 },
+
+  // Error toast
+  errorToast: {
+    position: "absolute",
+    bottom: 90,           // sits just above the tab bar
+    left: 16, right: 16,
+    backgroundColor: "#2d0a0a",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#ef444455",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  errorToastText: { color: "#fca5a5", fontSize: 14, fontWeight: "600", flex: 1 },
 
   // Home tab scroll
   homeScroll: { paddingTop: 8, backgroundColor: "transparent" },
@@ -1993,6 +2099,14 @@ const styles = StyleSheet.create({
   modalBtnSecondary: { backgroundColor: "#1a1a1a" },
   modalBtnTextPrimary:   { color: "#fff", fontWeight: "700", fontSize: 16 },
   modalBtnTextSecondary: { color: "#888", fontWeight: "700", fontSize: 16 },
+
+  // Tab page headers
+  tabHeader: {
+    paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16,
+    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.05)",
+    marginBottom: 8,
+  },
+  tabHeaderTitle: { color: "#fff", fontSize: 26, fontWeight: "900" },
 
   // Avatar tab
   avatarTabScroll: { padding: 20, alignItems: "center" },

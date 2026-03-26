@@ -175,6 +175,7 @@ export function GameLaunchModal({ game, visible, onClose }: Props) {
           {/* ── Description ── */}
           {!!game.description && (
             <View style={styles.descBox}>
+              <Text style={styles.descLabel}>ABOUT THIS GAME</Text>
               <Text style={styles.descText}>{game.description}</Text>
             </View>
           )}
@@ -182,12 +183,19 @@ export function GameLaunchModal({ game, visible, onClose }: Props) {
           {/* ── How to play ── */}
           {!!game.rules?.length && (
             <View style={styles.rulesBox}>
-              <Text style={styles.rulesLabel}>HOW TO PLAY</Text>
+              <View style={styles.rulesHeader}>
+                <View style={styles.rulesHeaderLine} />
+                <Text style={styles.rulesLabel}>HOW TO PLAY</Text>
+                <View style={styles.rulesHeaderLine} />
+              </View>
               {game.rules.map((rule, i) => (
                 <View key={i} style={styles.ruleRow}>
-                  <View style={styles.ruleNum}>
+                  <LinearGradient
+                    colors={["#7c3aed", "#a855f7"]}
+                    style={styles.ruleNum}
+                  >
                     <Text style={styles.ruleNumText}>{i + 1}</Text>
-                  </View>
+                  </LinearGradient>
                   <Text style={styles.ruleText}>{rule}</Text>
                 </View>
               ))}
@@ -347,27 +355,37 @@ const styles = StyleSheet.create({
 
   // Description
   descBox: {
-    marginHorizontal: 24, marginBottom: 14,
-    backgroundColor: "rgba(255,255,255,0.04)",
+    marginHorizontal: 24, marginBottom: 16,
+    backgroundColor: "rgba(124,58,237,0.07)",
     borderRadius: 14, padding: 14,
-    borderWidth: 1, borderColor: "rgba(167,139,250,0.10)",
+    borderWidth: 1, borderColor: "rgba(167,139,250,0.18)",
   },
-  descText: { color: "#9ca3af", fontSize: 13, lineHeight: 19 },
+  descLabel: { color: "#7c3aed", fontSize: 9, fontWeight: "900", letterSpacing: 1.6, marginBottom: 6 },
+  descText: { color: "#c4b5fd", fontSize: 13, lineHeight: 20 },
 
   // Rules
-  rulesBox: { marginHorizontal: 24, marginBottom: 14 },
-  rulesLabel: {
-    color: "#4a5568", fontSize: 10, fontWeight: "800", letterSpacing: 1.4,
-    marginBottom: 10,
+  rulesBox: {
+    marginHorizontal: 24, marginBottom: 18,
+    backgroundColor: "rgba(255,255,255,0.03)",
+    borderRadius: 16, padding: 16,
+    borderWidth: 1, borderColor: "rgba(167,139,250,0.12)",
   },
-  ruleRow: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginBottom: 8 },
+  rulesHeader: {
+    flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 14,
+  },
+  rulesHeaderLine: {
+    flex: 1, height: 1, backgroundColor: "rgba(167,139,250,0.20)",
+  },
+  rulesLabel: {
+    color: "#a78bfa", fontSize: 10, fontWeight: "900", letterSpacing: 1.8,
+  },
+  ruleRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 10 },
   ruleNum: {
-    width: 22, height: 22, borderRadius: 11,
-    backgroundColor: "rgba(124,58,237,0.25)",
+    width: 24, height: 24, borderRadius: 12,
     alignItems: "center", justifyContent: "center", flexShrink: 0,
   },
-  ruleNumText: { color: "#a78bfa", fontSize: 11, fontWeight: "900" },
-  ruleText:    { color: "#9ca3af", fontSize: 13, lineHeight: 18, flex: 1 },
+  ruleNumText: { color: "#fff", fontSize: 11, fontWeight: "900" },
+  ruleText:    { color: "#d1d5db", fontSize: 13, lineHeight: 19, flex: 1, paddingTop: 3 },
 
   divider: {
     height: 1, marginHorizontal: 24,

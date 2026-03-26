@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, TextI
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 // Chain Reaction: each word must start with the last letter of previous word
 type Phase = "lobby" | "playing" | "results";
@@ -25,8 +26,9 @@ const BOT_WORDS: Record<string, string[]> = {
 export default function ChainReactionScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
 
   const [phase, setPhase] = useState<Phase>("lobby");
   const [category, setCategory] = useState("Animals");
@@ -268,19 +270,13 @@ export default function ChainReactionScreen() {
   );
 
   if (phase === "results") return (
-    <LinearGradient colors={["#03001c","#002010"]} style={s.flex}>
-      <SafeAreaView style={s.flex}>
-        <View style={s.center}>
-          <Text style={{ fontSize: 64 }}>🔗</Text>
-          <Text style={s.title}>Chain Complete!</Text>
-          <Text style={s.bigScore}>{score}</Text>
-          <Text style={s.label}>{chain.length} word chain · {category}</Text>
-          <View style={s.chainDisplay}>{chain.map((w, i) => <Text key={i} style={s.chainWord}>{w}{i < chain.length - 1 ? " → " : ""}</Text>)}</View>
-          <TouchableOpacity style={s.btn} onPress={() => setPhase("lobby")}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnI}><Text style={s.btnT}>PLAY AGAIN</Text></LinearGradient></TouchableOpacity>
-          <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnT}>Back to Home</Text></TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <PostGameCard
+      score={score}
+      maxScore={800}
+      gameEmoji="⚡"
+      gameTitle="Chain Reaction"
+      onPlayAgain={() => setPhase("lobby")}
+    />
   );
 
   return (

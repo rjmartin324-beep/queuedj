@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const TRUTHS = [
   "What's the most embarrassing thing you've ever done?",
@@ -43,8 +44,9 @@ type Choice = "truth" | "dare";
 export default function TruthOrDareScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
 
@@ -231,40 +233,13 @@ export default function TruthOrDareScreen() {
 
   if (phase === "results") {
     return (
-      <LinearGradient colors={["#03001c", "#300010"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <View style={s.center}>
-            <Text style={{ fontSize: 64 }}>🏆</Text>
-            <Text style={s.title}>Session Over!</Text>
-            <View style={s.statsGrid}>
-              <View style={s.statBox}>
-                <Text style={[s.statNum, { color: "#b5179e" }]}>{completed}</Text>
-                <Text style={s.statLabel}>Completed</Text>
-              </View>
-              <View style={s.statBox}>
-                <Text style={[s.statNum, { color: "#fbbf24" }]}>{passed}</Text>
-                <Text style={s.statLabel}>Passed</Text>
-              </View>
-              <View style={s.statBox}>
-                <Text style={[s.statNum, { color: "#a78bfa" }]}>{MAX_ROUNDS}</Text>
-                <Text style={s.statLabel}>Rounds</Text>
-              </View>
-            </View>
-            <Text style={s.bravery}>
-              Bravery score: {Math.round((completed / MAX_ROUNDS) * 100)}%{" "}
-              {completed / MAX_ROUNDS > 0.8 ? "🦁 Legend" : completed / MAX_ROUNDS > 0.5 ? "😤 Solid" : "🐔 Chicken"}
-            </Text>
-            <TouchableOpacity style={s.startBtn} onPress={startGame}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={completed * Math.floor(500 / MAX_ROUNDS)}
+        maxScore={500}
+        gameEmoji="💀"
+        gameTitle="Truth or Dare"
+        onPlayAgain={startGame}
+      />
     );
   }
 

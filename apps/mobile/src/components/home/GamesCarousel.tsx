@@ -3,6 +3,7 @@ import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Alert, Image, Ima
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { GameLaunchModal } from "../shared/GameLaunchModal";
+import { SkeletonShimmer } from "../shared/SkeletonShimmer";
 
 const CARD_W = 142;
 const CARD_H = 192;
@@ -39,7 +40,6 @@ const GAME_ROUTES: Record<string, string> = {
   would_you_rather:    "would_you_rather",
   never_have_i_ever:   "never_have_i_ever",
   truth_or_dare:       "truth_or_dare",
-  hot_takes:           "hot_takes",
   rank_it:             "rank_it",
   lyrics_drop:         "lyrics_drop",
   emoji_story:         "emoji_story",
@@ -47,10 +47,7 @@ const GAME_ROUTES: Record<string, string> = {
   two_truths:          "two_truths_one_lie",
   word_association:    "word_association",
   who_knows_who:       "who_knows_who",
-  story_time:          "story_time",
   fake_news:           "fake_news",
-  bucket_list:         "bucket_list",
-  fight_or_flight:     "fight_or_flight",
   pop_culture:         "pop_culture_quiz",
   improv:              "improv_challenge",
   alibi:               "alibi",
@@ -59,15 +56,18 @@ const GAME_ROUTES: Record<string, string> = {
   speed_round:         "speed_round",
   musical_chairs:      "musical_chairs",
   thumb_war:           "thumb_war",
-  photo_bomb:          "photo_bomb",
   hum_it:              "hum_it",
   mimic_me:            "mimic_me",
   accent:              "accent_challenge",
-  draw_it:             "draw_it",
-  speed_typing:        "speed_typing",
   connections:         "connections",
   chain_reaction:      "chain_reaction",
   party_dice:          "party_dice",
+  geo_guesser:         "geo_guesser",
+  unpopular_opinions:  "unpopular_opinions",
+  drawback:            "drawback",
+  the_glitch:          "the_glitch",
+  scrapbook_sabotage:  "scrapbook_sabotage",
+  scavenger_snap:      "scavenger_snap",
 };
 
 const GAMES: Game[] = [
@@ -161,14 +161,6 @@ const GAMES: Game[] = [
     floatProps: [{ e: "💀", top: 6, right: 8, size: 20 }, { e: "🎯", top: 36, left: 5, size: 16 }, { e: "😈", bottom: 52, right: 8, size: 14 }],
   },
   {
-    id: "hot_takes",
-    title: "Hot Takes", tagline: "Slide your opinion",
-    label: "Hot", labelColor: "#f59e0b",
-    bgColors: ["#1a0a00", "#0d0500"], accent: "#fbbf24",
-    bodyColor: "#fde68a", blushColor: "#fef3c7",
-    floatProps: [{ e: "🌡️", top: 6, right: 8, size: 20 }, { e: "🔥", top: 36, left: 5, size: 16 }, { e: "💬", bottom: 52, right: 8, size: 13 }],
-  },
-  {
     id: "rank_it",
     title: "Rank It", tagline: "Sort the list",
     label: "Strategy", labelColor: "#8b5cf6",
@@ -225,36 +217,12 @@ const GAMES: Game[] = [
     floatProps: [{ e: "👥", top: 6, right: 8, size: 20 }, { e: "🤔", top: 36, left: 5, size: 16 }, { e: "🏆", bottom: 52, right: 8, size: 14 }],
   },
   {
-    id: "story_time",
-    title: "Story Time", tagline: "Build it word by word",
-    label: "Creative", labelColor: "#8b5cf6",
-    bgColors: ["#1a0a30", "#0d0518"], accent: "#a78bfa",
-    bodyColor: "#c4b5fd", blushColor: "#ddd6fe",
-    floatProps: [{ e: "📖", top: 6, right: 8, size: 20 }, { e: "✍️", top: 36, left: 5, size: 16 }, { e: "💫", bottom: 52, right: 8, size: 14 }],
-  },
-  {
     id: "fake_news",
     title: "Fake News", tagline: "Real or fake headline?",
     label: "Think Fast", labelColor: "#f59e0b",
     bgColors: ["#1a1000", "#0d0800"], accent: "#fbbf24",
     bodyColor: "#fde68a", blushColor: "#fef3c7",
     floatProps: [{ e: "📰", top: 6, right: 8, size: 20 }, { e: "❓", top: 36, left: 5, size: 16 }, { e: "🗞️", bottom: 52, right: 8, size: 13 }],
-  },
-  {
-    id: "bucket_list",
-    title: "Bucket List", tagline: "Guess who dreamed it",
-    label: "Social", labelColor: "#06b6d4",
-    bgColors: ["#001a20", "#000d10"], accent: "#22d3ee",
-    bodyColor: "#67e8f9", blushColor: "#a5f3fc",
-    floatProps: [{ e: "🌍", top: 6, right: 8, size: 20 }, { e: "🎯", top: 36, left: 5, size: 16 }, { e: "✈️", bottom: 52, right: 8, size: 14 }],
-  },
-  {
-    id: "fight_or_flight",
-    title: "Fight or Flight", tagline: "What would you do?",
-    label: "Spicy", labelColor: "#ef4444",
-    bgColors: ["#2a0010", "#150008"], accent: "#f87171",
-    bodyColor: "#fca5a5", blushColor: "#fecdd3",
-    floatProps: [{ e: "💪", top: 6, right: 8, size: 20 }, { e: "🏃", top: 36, left: 5, size: 16 }, { e: "⚡", bottom: 52, right: 8, size: 14 }],
   },
   {
     id: "pop_culture",
@@ -321,14 +289,6 @@ const GAMES: Game[] = [
     floatProps: [{ e: "👍", top: 6, right: 8, size: 20 }, { e: "⚡", top: 36, left: 5, size: 16 }, { e: "🏆", bottom: 52, right: 8, size: 14 }],
   },
   {
-    id: "photo_bomb",
-    title: "Photo Bomb", tagline: "Spot the odd one out",
-    label: "Quick", labelColor: "#0ea5e9",
-    bgColors: ["#001a30", "#000d18"], accent: "#38bdf8",
-    bodyColor: "#7dd3fc", blushColor: "#bae6fd",
-    floatProps: [{ e: "💣", top: 6, right: 8, size: 20 }, { e: "👀", top: 36, left: 5, size: 16 }, { e: "🔍", bottom: 52, right: 8, size: 14 }],
-  },
-  {
     id: "hum_it",
     title: "Hum It", tagline: "Hum the tune",
     label: "Music", labelColor: "#ec4899",
@@ -351,22 +311,6 @@ const GAMES: Game[] = [
     bgColors: ["#1a0a00", "#0d0500"], accent: "#fbbf24",
     bodyColor: "#fde68a", blushColor: "#fef3c7",
     floatProps: [{ e: "🗣️", top: 6, right: 8, size: 20 }, { e: "🌍", top: 36, left: 5, size: 16 }, { e: "😂", bottom: 52, right: 8, size: 14 }],
-  },
-  {
-    id: "draw_it",
-    title: "Draw It", tagline: "Draw, others guess",
-    label: "Draw It", labelColor: "#3b82f6",
-    bgColors: ["#1a0a30", "#0a0518"], accent: "#c084fc",
-    bodyColor: "#e9d5ff", blushColor: "#f3e8ff",
-    floatProps: [{ e: "🎨", top: 6, right: 8, size: 20 }, { e: "✏️", top: 36, left: 5, size: 16 }, { e: "🖌️", bottom: 52, right: 8, size: 14 }],
-  },
-  {
-    id: "speed_typing",
-    title: "Speed Typing", tagline: "Type it fastest",
-    label: "Fast", labelColor: "#22d3ee",
-    bgColors: ["#001a2a", "#000d14"], accent: "#22d3ee",
-    bodyColor: "#67e8f9", blushColor: "#a5f3fc",
-    floatProps: [{ e: "⌨️", top: 6, right: 8, size: 20 }, { e: "⚡", top: 36, left: 5, size: 16 }, { e: "🏆", bottom: 52, right: 8, size: 14 }],
   },
   {
     id: "connections",
@@ -548,7 +492,6 @@ export const GAME_DETAILS: Record<string, { description: string; howToPlay: stri
   would_you_rather:      { description: "Two terrible choices, one decision. Pick your option and see how the rest of the group voted — are you in the majority or the wild card?", howToPlay: ["Read the two options carefully", "Tap the one you'd rather do", "See how the group voted after locking in", "+200 pts for majority, +50 pts for minority"], players: "2–20 players", category: "Spicy" },
   never_have_i_ever:     { description: "Classic party confessional game. Read the prompt — if you've done it, you've got to fess up (or take a sip). Tallies mount as the truths come out.", howToPlay: ["A 'Never have I ever…' prompt appears", "Tap 'I HAVE' or 'NEVER'", "Your drink counter goes up for each I HAVE", "See the full results after 15 rounds"], players: "2–15 players", category: "Party" },
   truth_or_dare:         { description: "The classic! Spin to pick a player, choose Truth or Dare, and either spill the tea or take the challenge. One pass allowed per game.", howToPlay: ["Tap SPIN to pick a player", "Choose TRUTH or DARE", "Complete the challenge to earn points", "You get 1 pass — use it wisely!"], players: "3–10 players", category: "Bold" },
-  hot_takes:             { description: "12 spicy statements, and you have to slide your true opinion. Lock it in, then see how far off the group average you really are.", howToPlay: ["Read each statement carefully", "Drag the slider to show your opinion (0–100)", "Tap LOCK IT IN to submit", "Score based on how close you are to the group"], players: "2–20 players", category: "Hot" },
   rank_it:               { description: "5 items. 1 correct order. Use the ↑↓ buttons to rank them, then see how you compare to the 'official' ranking. Exact matches score big.", howToPlay: ["Tap ↑↓ to reorder the items", "Submit when you're happy with your ranking", "Compare to the correct ranking", "+300 for exact matches, +200 for one-off"], players: "1–20 players", category: "Strategy" },
   lyrics_drop:           { description: "A famous lyric appears with one word missing. Type the missing word before the timer runs out. Speed bonus for fast correct answers.", howToPlay: ["Read the song lyric with the blank", "Type the missing word in the box", "Submit before the 15-second timer runs out", "Faster correct answers score more points"], players: "1–20 players", category: "Music" },
   emoji_story:           { description: "An emoji sequence represents a movie or show. Decode it! Use the hint if you're stuck (costs points). Type your best guess to score.", howToPlay: ["Look at the emoji sequence", "Think of what movie or show it represents", "Type your answer and tap Submit", "Use the hint button if stuck (costs -100 pts)"], players: "1–20 players", category: "Creative" },
@@ -556,10 +499,7 @@ export const GAME_DETAILS: Record<string, { description: string; howToPlay: stri
   two_truths:            { description: "Submit 3 facts about yourself — 2 true, 1 a lie. Everyone votes on which one is fake. Fool the most people for maximum points.", howToPlay: ["Type your 3 facts (2 truths, 1 lie)", "The group votes on which is the lie", "+300 pts for each person you fool", "+100 pts for correctly spotting others' lies"], players: "3–10 players", category: "Bluff" },
   word_association:      { description: "One word leads to another. Each player has 5 seconds to say the first word that comes to mind. Keep the chain going — hesitate and you're out!", howToPlay: ["A starter word appears", "Type the first word you associate with it", "You have 5 seconds per turn", "Bots take turns between players"], players: "2–10 players", category: "Fast" },
   who_knows_who:         { description: "'Who in this group is most likely to…' — vote and see how the group agrees. Match the majority answer for points. Reveals who people really see you as.", howToPlay: ["Read the 'who in this group' question", "Vote for the person you think fits best", "See how everyone voted after submitting", "+250 pts for matching the majority"], players: "3–12 players", category: "Social" },
-  story_time:            { description: "Build a story one word at a time. Each player adds one word. The results are always gloriously chaotic. Most words contributed wins.", howToPlay: ["A starter word begins the story", "Type one word to continue the narrative", "You have 5 seconds to add your word", "Story ends at 20 words — read the masterpiece"], players: "2–10 players", category: "Creative" },
   fake_news:             { description: "Real headline or fabricated fiction? A headline appears and you call it: REAL or FAKE. Build a streak multiplier for maximum points.", howToPlay: ["Read the headline carefully", "Tap REAL or FAKE", "Build streaks for bonus multipliers", "10 headlines total — highest score wins"], players: "1–20 players", category: "Think Fast" },
-  bucket_list:           { description: "Everyone submits one bucket list item anonymously. Then you guess who wrote each one. Match your guess to the right person for big points.", howToPlay: ["Submit your own bucket list item", "Anonymous items are revealed one by one", "Guess which player wrote each item", "+300 pts for each correct attribution"], players: "3–10 players", category: "Social" },
-  fight_or_flight:       { description: "8 absurd, funny scenarios. Choose A or B — and see if you match the group's collective reaction. Majority picks score points.", howToPlay: ["Read the bizarre scenario", "Tap A or B for your reaction", "See what the majority chose after submitting", "+200 pts for matching the group"], players: "2–20 players", category: "Spicy" },
   pop_culture:           { description: "10 questions across TV, Film, Music, and Social Media. Beat the 12-second timer for max points. A true pop culture champion earns over 800.", howToPlay: ["Read the question and 4 answer options", "Tap your answer before time runs out", "Faster correct answers score more", "Cover TV, Film, Music & Social categories"], players: "1–20 players", category: "Think Fast" },
   improv:                { description: "You get a WHO, WHERE, and WHAT. Act out the scene for 60 seconds. Your group rates your performance. The best improv actor wins.", howToPlay: ["Get your WHO, WHERE, and WHAT scenario", "Perform the scene for 60 seconds", "Your group shouts 'Scene!' when they rate it", "+300 pts for a completed performance"], players: "3–10 players", category: "Improv" },
   alibi:                 { description: "A silly crime has been committed! Four suspects each have an alibi. Listen carefully, then vote for who you think is guilty. 3 cases to crack.", howToPlay: ["Read the crime that was committed", "Hear each suspect's alibi", "Vote for who you think is guilty", "+400 pts for a correct accusation"], players: "3–12 players", category: "Mystery" },
@@ -568,12 +508,9 @@ export const GAME_DETAILS: Record<string, { description: string; howToPlay: stri
   speed_round:           { description: "7 categories, 30 seconds each. Name as many things as you can in the category before time runs out. Tap DONE when finished, SKIP to bail.", howToPlay: ["Read the category challenge", "Complete the challenge within 30 seconds", "Tap DONE when finished for +pts", "Tap SKIP if it's too hard (no points)"], players: "1–20 players", category: "Fast" },
   musical_chairs:        { description: "Digital musical chairs! Seats pulse while the 'music plays' — tap your seat the instant it stops. Last one to tap each round is eliminated.", howToPlay: ["Watch the seats pulse to the beat", "When the music stops, tap your seat FAST", "Last person to tap is eliminated", "+500 pts for surviving each round"], players: "3–12 players", category: "Active" },
   thumb_war:             { description: "Rapid-tap thumb war! Mash the big TAP button as fast as you can in 5 seconds. Out-tap the bot to win the round. 5 rounds total.", howToPlay: ["Tap TAP! as fast as you can", "You have 5 seconds per round", "Out-tap the bot to win the round", "Most rounds won after 5 total wins"], players: "1–10 players", category: "Active" },
-  photo_bomb:            { description: "A grid of emojis appears — one doesn't match. Tap the odd one out before the 10-second timer runs out. Faster taps = more points.", howToPlay: ["Scan the emoji grid for the odd one out", "Tap the emoji that doesn't belong", "You have 10 seconds per puzzle", "+100 + timer × 30 points for each correct tap"], players: "1–20 players", category: "Quick" },
   hum_it:                { description: "The hummer sees a song title and has 10 seconds to hum it. Everyone else votes whether they got it right. Audience scores points for correct calls.", howToPlay: ["The hummer sees a secret song title", "They have 10 seconds to hum it", "Tap GOT IT or DIDN'T GET IT to vote", "+200 pts for correct votes"], players: "3–10 players", category: "Music" },
   mimic_me:              { description: "An emoji + instruction appears. Study it for 3 seconds, then perform it for 10. Group rates you: Bad, Good, or Perfect. Highest-rated performance wins.", howToPlay: ["Study the emoji and instruction for 3 seconds", "Perform the action when the timer starts", "Group rates your performance", "+0 / +150 / +300 pts for Bad/Good/Perfect"], players: "2–10 players", category: "Active" },
   accent:                { description: "You get a random accent and a phrase. Read it convincingly for 30 seconds — then your group rates your performance. Spot On scores max points.", howToPlay: ["Get your random accent and phrase", "Practice reading it in the accent", "Your group rates: Bad / OK / Good / Spot On", "Higher rating = more points earned"], players: "2–10 players", category: "Improv" },
-  draw_it:               { description: "Pick up the digital brush and draw the secret prompt. When done, the group picks from 4 options to guess what you drew. Drawing + guessing both score points.", howToPlay: ["Get your secret drawing prompt", "Draw it on the canvas in 60 seconds", "Tap DONE when finished drawing", "Others select from 4 options to guess"], players: "2–10 players", category: "Draw It" },
-  speed_typing:          { description: "A phrase appears — type it as fast and accurately as you can! Your score is WPM × accuracy. 3 rounds of increasingly tricky phrases.", howToPlay: ["Read the phrase at the top", "Type it in the text box as fast as you can", "Green = correct, red = wrong character", "Score = WPM × accuracy × 10"], players: "1–10 players", category: "Fast" },
   connections:           { description: "16 words, 4 hidden groups of 4. Find all the connections to solve the puzzle. The fewer mistakes, the higher your score. Can you get a perfect run?", howToPlay: ["Select 4 words you think share a connection", "Tap Submit to check your group", "Correct groups are revealed with color coding", "Minimize mistakes for a perfect score"], players: "1–20 players", category: "Brain" },
   chain_reaction:        { description: "Each word in the chain must start with the last letter of the previous word. Pick a category and keep the chain going. Bots compete against you!", howToPlay: ["Pick a category to start", "Type a word that starts with the required letter", "Submit before the 8-second timer runs out", "+100 + timer bonus per word added"], players: "1–10 players", category: "Word" },
   party_dice:            { description: "Roll the dice! Each number gets a different party challenge — higher numbers mean spicier dares and bigger point rewards. Complete 6 rounds!", howToPlay: ["Tap ROLL to roll the dice", "Complete the challenge shown", "Tap DONE to advance to the next round", "Complete all 6 rounds for a final score"], players: "1–20 players", category: "Party" },
@@ -719,7 +656,13 @@ export function GamesCarousel({ onSelectGame }: Props) {
   const [launchGame,   setLaunchGame]     = useState<Game | null>(null);
   const [showLaunch,   setShowLaunch]     = useState(false);
   const [showAll, setShowAll]             = useState(false);
+  const [ready, setReady]                 = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => setReady(true), 550);
+    return () => clearTimeout(t);
+  }, []);
 
   function handleCardPress(game: Game) {
     // Always show the Solo vs Party chooser first
@@ -746,32 +689,46 @@ export function GamesCarousel({ onSelectGame }: Props) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        ref={scrollRef}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
-        decelerationRate="fast"
-        snapToInterval={SNAP_INTERVAL}
-        snapToAlignment="start"
-        onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}
-        style={styles.scrollView}
-      >
-        {GAMES.map((game, idx) => {
-          const img = GAME_IMAGES[game.id];
-          const isTrending = idx === 0;
-          return (
-            <GameCard
-              key={game.id}
-              game={game}
-              img={img}
-              isTrending={isTrending}
-              onPress={() => handleCardPress(game)}
-            />
-          );
-        })}
-      </ScrollView>
+      {!ready ? (
+        <View style={styles.skeletonRow}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={styles.skeletonCard}>
+              <SkeletonShimmer width={CARD_W} height={CARD_H * 0.62} borderRadius={18} />
+              <View style={styles.skeletonFooter}>
+                <SkeletonShimmer width={CARD_W * 0.7} height={13} borderRadius={6} />
+                <SkeletonShimmer width={CARD_W * 0.9} height={10} borderRadius={6} style={{ marginTop: 6 }} />
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scroll}
+          decelerationRate="fast"
+          snapToInterval={SNAP_INTERVAL}
+          snapToAlignment="start"
+          onMomentumScrollEnd={handleScrollEnd}
+          onScrollEndDrag={handleScrollEnd}
+          style={styles.scrollView}
+        >
+          {GAMES.map((game, idx) => {
+            const img = GAME_IMAGES[game.id];
+            const isTrending = idx === 0;
+            return (
+              <GameCard
+                key={game.id}
+                game={game}
+                img={img}
+                isTrending={isTrending}
+                onPress={() => handleCardPress(game)}
+              />
+            );
+          })}
+        </ScrollView>
+      )}
 
       {/* View All sheet */}
       {showAll && (
@@ -840,6 +797,9 @@ export function GamesCarousel({ onSelectGame }: Props) {
 const styles = StyleSheet.create({
   section: { marginTop: 20, overflow: "hidden" },
   scrollView: { height: CARD_H + 20, flexGrow: 0 },
+  skeletonRow: { flexDirection: "row", paddingHorizontal: 20, gap: 12, height: CARD_H + 20, alignItems: "flex-start", paddingTop: 4 },
+  skeletonCard: { width: CARD_W, height: CARD_H, borderRadius: 18, overflow: "hidden", backgroundColor: "#12122a" },
+  skeletonFooter: { padding: 10, gap: 0 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, marginBottom: 12 },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 6 },
   fire:    { fontSize: 16 },

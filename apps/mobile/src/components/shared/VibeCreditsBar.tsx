@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Animated, Easing } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { localNotifyCreditsEarned } from "../../lib/notifications";
 import { socketManager } from "../../lib/socket";
+import { SkeletonShimmer } from "./SkeletonShimmer";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 const EARN_LABELS: Record<string, string> = {
@@ -107,10 +108,13 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
   }, [guestId]);
 
   if (compact) {
+    if (balance === null) {
+      return <SkeletonShimmer width={60} height={28} borderRadius={16} />;
+    }
     return (
       <Animated.View style={[styles.compactBadge, { transform: [{ scale: scaleAnim }] }]}>
         <Text style={styles.compactEmoji}>⚡</Text>
-        <Text style={styles.compactBalance}>{balance ?? "—"}</Text>
+        <Text style={styles.compactBalance}>{balance}</Text>
       </Animated.View>
     );
   }

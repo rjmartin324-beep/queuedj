@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Scrol
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 // Digital musical chairs: tap your seat when music "stops"
 type Phase = "lobby" | "round" | "stopped" | "eliminated" | "results";
@@ -10,8 +11,9 @@ type Phase = "lobby" | "round" | "stopped" | "eliminated" | "results";
 export default function MusicalChairsScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
   const [mpTapped, setMpTapped] = useState(false);
@@ -204,19 +206,13 @@ export default function MusicalChairsScreen() {
   );
 
   if (phase === "results") return (
-    <LinearGradient colors={["#03001c","#001020"]} style={s.flex}>
-      <SafeAreaView style={s.flex}>
-        <View style={s.center}>
-          <Text style={{ fontSize: 64 }}>🪑</Text>
-          <Text style={s.title}>{score > 1000 ? "Champion!" : "Eliminated!"}</Text>
-          <Text style={s.bigScore}>{score}</Text>
-          <Text style={s.label}>Survived {round - 1} rounds</Text>
-          {eliminated.length > 0 && <Text style={s.elimText}>Eliminated: {eliminated.join(", ")}</Text>}
-          <TouchableOpacity style={s.btn} onPress={startGame}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnI}><Text style={s.btnT}>PLAY AGAIN</Text></LinearGradient></TouchableOpacity>
-          <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnT}>Back to Home</Text></TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <PostGameCard
+      score={score}
+      maxScore={500}
+      gameEmoji="🪑"
+      gameTitle="Musical Chairs"
+      onPlayAgain={startGame}
+    />
   );
 
   const musicPlaying = phase === "round";

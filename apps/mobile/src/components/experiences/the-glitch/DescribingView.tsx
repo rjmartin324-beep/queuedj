@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DescribingView — everyone types (or says out loud) their description
@@ -17,6 +18,25 @@ export function DescribingView() {
     if (!text.trim() || submitted) return;
     setSubmitted(true);
     sendAction("submit_description", { text: text.trim() });
+  }
+
+  if (submitted) {
+    return (
+      <WaitingForPlayersView
+        emoji="📺"
+        accent="#818cf8"
+        title="Description Sent!"
+        subtitle="Waiting for all players to submit their description..."
+        submittedCount={(state.guestViewData as any)?.submittedCount}
+        tips={[
+          "The Glitch is hiding in plain sight 🕵️",
+          "Everyone thinks their description is unique 😅",
+          "Someone just described the wrong show entirely 💀",
+          "Voting is going to be heated 🔥",
+          "Trust no one. Not even yourself. 👀",
+        ]}
+      />
+    );
   }
 
   return (
@@ -41,9 +61,7 @@ export function DescribingView() {
         onPress={submit}
         disabled={submitted || !text.trim()}
       >
-        <Text style={styles.submitBtnText}>
-          {submitted ? "Submitted! Waiting for host..." : "Submit"}
-        </Text>
+        <Text style={styles.submitBtnText}>Submit</Text>
       </TouchableOpacity>
     </View>
   );

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useReducer, useRef } from 
 import { audioEngine } from "../lib/engines/audioEngineSingleton";
 import type {
   Room, QueueItem, RoomMember, CrowdState,
-  ExperienceType, GuestViewType, DJExperienceState,
+  ExperienceType, GuestViewType, DJExperienceState, RoomEvent,
 } from "@queuedj/shared-types";
 import { socketManager } from "../lib/socket";
 import { getIdentity } from "../lib/identity";
@@ -162,6 +162,26 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "SET_MEMBERS", members: snapshot.members });
     };
 
+    // ─── Event Replay (reconnect, small gap) ─────────────────────────────────
+    // Server replays stored events when the client missed < MAX_EVENT_REPLAY_COUNT.
+    // Only queue and crowd-state events are stored server-side; apply them here
+    // so the queue stays accurate without requesting a full snapshot.
+    const onEventReplay = (events: RoomEvent[]) => {
+      for (const event of events) {
+        switch (event.type) {
+          case "queue_item_added":
+            dispatch({ type: "ADD_QUEUE_ITEM", item: event.payload as QueueItem });
+            break;
+          case "bathroom_toggle": {
+            const { active } = event.payload as { active: boolean };
+            dispatch({ type: "SET_CROWD_STATE", crowdState: (active ? "RECOVERY" : "RISING") as CrowdState });
+            break;
+          }
+          // queue_reordered: full queue arrives on the next queue:updated — skip
+        }
+      }
+    };
+
     // ─── Queue Updates ───────────────────────────────────────────────────────
     const onQueueUpdated   = (queue: QueueItem[]) => dispatch({ type: "SET_QUEUE", queue });
     const onItemAdded      = (item: QueueItem) => dispatch({ type: "ADD_QUEUE_ITEM", item });
@@ -231,6 +251,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     const onRoleDemoted  = () => dispatch({ type: "SET_ROLE", role: "GUEST" });
 
     socket.on("room:state_snapshot",      onStateSnapshot);
+    socket.on("room:event_replay" as any, onEventReplay);
     socket.on("queue:updated",            onQueueUpdated as any);
     socket.on("queue:item_added" as any,  onItemAdded as any);
     socket.on("room:member_joined",       onMemberJoined as any);
@@ -252,6 +273,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     return () => {
       // Remove only RoomContext handlers — bindCoreEvents handlers stay intact
       socket.off("room:state_snapshot",      onStateSnapshot);
+      socket.off("room:event_replay" as any, onEventReplay);
       socket.off("queue:updated",            onQueueUpdated as any);
       socket.off("queue:item_added" as any,  onItemAdded as any);
       socket.off("room:member_joined",       onMemberJoined as any);

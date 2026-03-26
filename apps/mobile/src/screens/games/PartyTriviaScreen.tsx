@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const { width: SW } = Dimensions.get("window");
 
@@ -27,8 +28,10 @@ type Phase = "lobby" | "playing" | "results";
 export default function PartyTriviaScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  // Snapshot at mount — never let a socket reconnect flip solo play into multiplayer mid-game
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
   const [mpAnswered, setMpAnswered] = useState(false);
@@ -291,34 +294,14 @@ export default function PartyTriviaScreen() {
 
   // ── Results ────────────────────────────────────────────────────────────────
   if (phase === "results") {
-    const maxPts = QUESTIONS.length * 500;
-    const pct = Math.round((score / maxPts) * 100);
-    const grade = pct >= 90 ? "🏆 Trivia God" : pct >= 70 ? "⭐ Sharp Mind" : pct >= 50 ? "🙂 Not Bad" : "💀 Keep Trying";
     return (
-      <LinearGradient colors={["#03001c", "#0d0060"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <View style={s.center}>
-            <Text style={{ fontSize: 64 }}>🎉</Text>
-            <Text style={s.resultsTitle}>Round Complete!</Text>
-            <Text style={s.resultsScore}>{score}</Text>
-            <Text style={s.resultsLabel}>TOTAL POINTS</Text>
-            <View style={s.gradeBox}>
-              <Text style={s.gradeText}>{grade}</Text>
-            </View>
-            <Text style={{ color: "#888", marginBottom: 32 }}>
-              {pct}% of max score
-            </Text>
-            <TouchableOpacity style={s.startBtn} onPress={startLobby}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={score}
+        maxScore={3000}
+        gameEmoji="🧠"
+        gameTitle="Party Trivia"
+        onPlayAgain={startLobby}
+      />
     );
   }
 

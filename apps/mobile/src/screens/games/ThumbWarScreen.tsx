@@ -3,14 +3,16 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, PanRe
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 type Phase = "lobby" | "playing" | "results";
 
 export default function ThumbWarScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
   const [phase, setPhase] = useState<Phase>("lobby");
@@ -202,18 +204,13 @@ export default function ThumbWarScreen() {
   );
 
   if (phase === "results") return (
-    <LinearGradient colors={["#03001c","#1a0a00"]} style={s.flex}>
-      <SafeAreaView style={s.flex}>
-        <View style={s.center}>
-          <Text style={{ fontSize: 64 }}>{score >= MAX_ROUNDS * 150 ? "🏆" : "👍"}</Text>
-          <Text style={s.title}>{score >= MAX_ROUNDS * 150 ? "Thumb Champion!" : "Close match!"}</Text>
-          <Text style={s.bigScore}>{score}</Text>
-          <Text style={s.label}>POINTS FROM {MAX_ROUNDS} ROUNDS</Text>
-          <TouchableOpacity style={s.btn} onPress={startGame}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnI}><Text style={s.btnT}>REMATCH</Text></LinearGradient></TouchableOpacity>
-          <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnT}>Back to Home</Text></TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <PostGameCard
+      score={score}
+      maxScore={500}
+      gameEmoji="👍"
+      gameTitle="Thumb War"
+      onPlayAgain={startGame}
+    />
   );
 
   return (

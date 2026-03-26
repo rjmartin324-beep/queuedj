@@ -3,24 +3,187 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Scrol
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const PUZZLES = [
   {
     title: "Types of music",
     groups: [
-      { label: "Types of Music", color: "#fbbf24", items: ["Jazz", "Blues", "Funk", "Soul"] },
-      { label: "Cooking methods", color: "#4ade80", items: ["Grill", "Steam", "Bake", "Fry"] },
-      { label: "Dog breeds", color: "#60a5fa", items: ["Poodle", "Beagle", "Labrador", "Husky"] },
-      { label: "Planets", color: "#f472b6", items: ["Mars", "Venus", "Saturn", "Jupiter"] },
+      { label: "Types of Music",    color: "#fbbf24", items: ["Jazz", "Blues", "Funk", "Soul"] },
+      { label: "Cooking methods",   color: "#4ade80", items: ["Grill", "Steam", "Bake", "Fry"] },
+      { label: "Dog breeds",        color: "#60a5fa", items: ["Poodle", "Beagle", "Labrador", "Husky"] },
+      { label: "Planets",           color: "#f472b6", items: ["Mars", "Venus", "Saturn", "Jupiter"] },
     ],
   },
   {
     title: "Word connections",
     groups: [
-      { label: "___ board", color: "#fbbf24", items: ["Key", "Snow", "Card", "Skate"] },
+      { label: "___ board",         color: "#fbbf24", items: ["Key", "Snow", "Card", "Skate"] },
       { label: "Things in a kitchen", color: "#4ade80", items: ["Whisk", "Ladle", "Tongs", "Grater"] },
-      { label: "Shades of blue", color: "#60a5fa", items: ["Cobalt", "Navy", "Teal", "Azure"] },
-      { label: "Currencies", color: "#f472b6", items: ["Yen", "Euro", "Pound", "Peso"] },
+      { label: "Shades of blue",    color: "#60a5fa", items: ["Cobalt", "Navy", "Teal", "Azure"] },
+      { label: "Currencies",        color: "#f472b6", items: ["Yen", "Euro", "Pound", "Peso"] },
+    ],
+  },
+  {
+    title: "Sports & dance",
+    groups: [
+      { label: "___ ball",          color: "#fbbf24", items: ["Fire", "Basket", "Foot", "Base"] },
+      { label: "Pasta shapes",      color: "#4ade80", items: ["Penne", "Fusilli", "Farfalle", "Orzo"] },
+      { label: "Dances",            color: "#60a5fa", items: ["Tango", "Waltz", "Salsa", "Foxtrot"] },
+      { label: "Marvel heroes",     color: "#f472b6", items: ["Thor", "Hawkeye", "Hulk", "Vision"] },
+    ],
+  },
+  {
+    title: "Gems & cocktails",
+    groups: [
+      { label: "Gemstones",         color: "#fbbf24", items: ["Ruby", "Sapphire", "Emerald", "Topaz"] },
+      { label: "Classic cocktails", color: "#4ade80", items: ["Negroni", "Mojito", "Daiquiri", "Cosmo"] },
+      { label: "Greek gods",        color: "#60a5fa", items: ["Ares", "Hermes", "Poseidon", "Artemis"] },
+      { label: "80s films",         color: "#f472b6", items: ["Gremlins", "Beetlejuice", "Labyrinth", "Willow"] },
+    ],
+  },
+  {
+    title: "Food & drink",
+    groups: [
+      { label: "Coffee drinks",     color: "#fbbf24", items: ["Latte", "Macchiato", "Cortado", "Ristretto"] },
+      { label: "Spices",            color: "#4ade80", items: ["Cumin", "Turmeric", "Cardamom", "Saffron"] },
+      { label: "Cheeses",           color: "#60a5fa", items: ["Brie", "Gouda", "Cheddar", "Gruyere"] },
+      { label: "Bread types",       color: "#f472b6", items: ["Ciabatta", "Brioche", "Sourdough", "Focaccia"] },
+    ],
+  },
+  {
+    title: "Around the world",
+    groups: [
+      { label: "Martial arts",      color: "#fbbf24", items: ["Karate", "Judo", "Aikido", "Capoeira"] },
+      { label: "Islands",           color: "#4ade80", items: ["Crete", "Bali", "Fiji", "Malta"] },
+      { label: "Scottish things",   color: "#60a5fa", items: ["Haggis", "Tartan", "Bagpipes", "Kilt"] },
+      { label: "Steak cuts",        color: "#f472b6", items: ["Ribeye", "Sirloin", "T-Bone", "Tenderloin"] },
+    ],
+  },
+  {
+    title: "___ time",
+    groups: [
+      { label: "___ time",          color: "#fbbf24", items: ["Bed", "Over", "Half", "Life"] },
+      { label: "World rivers",      color: "#4ade80", items: ["Amazon", "Nile", "Thames", "Danube"] },
+      { label: "Noble gases",       color: "#60a5fa", items: ["Neon", "Argon", "Krypton", "Xenon"] },
+      { label: "Pixar films",       color: "#f472b6", items: ["Coco", "Soul", "Luca", "Brave"] },
+    ],
+  },
+  {
+    title: "Outdoors",
+    groups: [
+      { label: "Camping gear",      color: "#fbbf24", items: ["Tent", "Lantern", "Hammock", "Compass"] },
+      { label: "Gym equipment",     color: "#4ade80", items: ["Barbell", "Kettlebell", "Treadmill", "Dumbbell"] },
+      { label: "Fast food chains",  color: "#60a5fa", items: ["Wendy's", "Arby's", "Chipotle", "Five Guys"] },
+      { label: "African animals",   color: "#f472b6", items: ["Okapi", "Aardvark", "Meerkat", "Pangolin"] },
+    ],
+  },
+  {
+    title: "Languages & more",
+    groups: [
+      { label: "Languages",         color: "#fbbf24", items: ["Swahili", "Catalan", "Tamil", "Maori"] },
+      { label: "Currencies",        color: "#4ade80", items: ["Krona", "Zloty", "Dinar", "Baht"] },
+      { label: "Social media apps", color: "#60a5fa", items: ["TikTok", "Discord", "Reddit", "Pinterest"] },
+      { label: "Olympic sports",    color: "#f472b6", items: ["Luge", "Dressage", "Biathlon", "Bobsled"] },
+    ],
+  },
+  {
+    title: "Shades of colour",
+    groups: [
+      { label: "Shades of green",   color: "#4ade80", items: ["Lime", "Sage", "Forest", "Olive"] },
+      { label: "Shades of red",     color: "#f87171", items: ["Crimson", "Scarlet", "Maroon", "Burgundy"] },
+      { label: "Shades of purple",  color: "#c084fc", items: ["Lavender", "Mauve", "Violet", "Indigo"] },
+      { label: "Shades of yellow",  color: "#fbbf24", items: ["Amber", "Gold", "Ochre", "Lemon"] },
+    ],
+  },
+  {
+    title: "Horror & mystery",
+    groups: [
+      { label: "Horror films",      color: "#fbbf24", items: ["Jaws", "It", "Scream", "Halloween"] },
+      { label: "Hospital things",   color: "#4ade80", items: ["Scalpel", "Gurney", "Forceps", "Sutures"] },
+      { label: "Card games",        color: "#60a5fa", items: ["Poker", "Snap", "Rummy", "Cribbage"] },
+      { label: "___ car",           color: "#f472b6", items: ["Stock", "Box", "Cable", "Side"] },
+    ],
+  },
+  {
+    title: "Pop culture",
+    groups: [
+      { label: "TV sitcoms",        color: "#fbbf24", items: ["Friends", "Seinfeld", "Frasier", "Cheers"] },
+      { label: "Boy bands",         color: "#4ade80", items: ["NSYNC", "Boyzone", "Westlife", "Hanson"] },
+      { label: "Disney villains",   color: "#60a5fa", items: ["Maleficent", "Ursula", "Gaston", "Jafar"] },
+      { label: "One-word bands",    color: "#f472b6", items: ["Radiohead", "Gorillaz", "Evanescence", "Nirvana"] },
+    ],
+  },
+  {
+    title: "Science lab",
+    groups: [
+      { label: "Prog. languages",   color: "#fbbf24", items: ["Python", "Ruby", "Go", "Swift"] },
+      { label: "Space terms",       color: "#4ade80", items: ["Quasar", "Nebula", "Pulsar", "Comet"] },
+      { label: "Lab equipment",     color: "#60a5fa", items: ["Beaker", "Pipette", "Burette", "Flask"] },
+      { label: "Computer parts",    color: "#f472b6", items: ["RAM", "GPU", "SSD", "CPU"] },
+    ],
+  },
+  {
+    title: "Music",
+    groups: [
+      { label: "Instruments",       color: "#fbbf24", items: ["Oboe", "Sitar", "Cello", "Lute"] },
+      { label: "Music genres",      color: "#4ade80", items: ["Reggae", "Grunge", "Bluegrass", "Techno"] },
+      { label: "Guitarists",        color: "#60a5fa", items: ["Hendrix", "Clapton", "Santana", "Beck"] },
+      { label: "Music apps",        color: "#f472b6", items: ["Spotify", "Tidal", "Deezer", "Bandcamp"] },
+    ],
+  },
+  {
+    title: "Wild animals",
+    groups: [
+      { label: "Big cats",          color: "#fbbf24", items: ["Lion", "Tiger", "Cheetah", "Leopard"] },
+      { label: "Birds of prey",     color: "#4ade80", items: ["Eagle", "Hawk", "Falcon", "Osprey"] },
+      { label: "Deep sea creatures",color: "#60a5fa", items: ["Octopus", "Narwhal", "Seahorse", "Anglerfish"] },
+      { label: "Reptiles",          color: "#f472b6", items: ["Iguana", "Gecko", "Komodo", "Chameleon"] },
+    ],
+  },
+  {
+    title: "___ run",
+    groups: [
+      { label: "___ run",           color: "#fbbf24", items: ["Dry", "Home", "Bull", "Ski"] },
+      { label: "F1 track terms",    color: "#4ade80", items: ["Chicane", "Hairpin", "Apex", "Pitlane"] },
+      { label: "Anime series",      color: "#60a5fa", items: ["Naruto", "Bleach", "Haikyuu", "Inuyasha"] },
+      { label: "Car types",         color: "#f472b6", items: ["Coupe", "Saloon", "Estate", "Hatchback"] },
+    ],
+  },
+  {
+    title: "History",
+    groups: [
+      { label: "Ancient wonders",   color: "#fbbf24", items: ["Colossus", "Lighthouse", "Mausoleum", "Colosseum"] },
+      { label: "Explorers",         color: "#4ade80", items: ["Magellan", "Columbus", "Drake", "Cabot"] },
+      { label: "Empires",           color: "#60a5fa", items: ["Roman", "Ottoman", "Mongol", "Persian"] },
+      { label: "Ancient peoples",   color: "#f472b6", items: ["Aztec", "Inca", "Maya", "Sumerian"] },
+    ],
+  },
+  {
+    title: "Sushi & circus",
+    groups: [
+      { label: "Sushi types",       color: "#fbbf24", items: ["Nigiri", "Maki", "Temaki", "Uramaki"] },
+      { label: "Mexican dishes",    color: "#4ade80", items: ["Burrito", "Tamale", "Enchilada", "Tostada"] },
+      { label: "Types of cake",     color: "#60a5fa", items: ["Bundt", "Chiffon", "Angel", "Sponge"] },
+      { label: "Circus acts",       color: "#f472b6", items: ["Trapeze", "Juggling", "Acrobat", "Tightrope"] },
+    ],
+  },
+  {
+    title: "In the courtroom",
+    groups: [
+      { label: "Courtroom things",  color: "#fbbf24", items: ["Gavel", "Verdict", "Bailiff", "Jury"] },
+      { label: "Yoga poses",        color: "#4ade80", items: ["Cobra", "Warrior", "Pigeon", "Lotus"] },
+      { label: "Fonts",             color: "#60a5fa", items: ["Arial", "Helvetica", "Garamond", "Futura"] },
+      { label: "Baking agents",     color: "#f472b6", items: ["Yeast", "Pectin", "Gelatin", "Agar"] },
+    ],
+  },
+  {
+    title: "Miscellaneous",
+    groups: [
+      { label: "Types of cheese",   color: "#fbbf24", items: ["Feta", "Ricotta", "Manchego", "Halloumi"] },
+      { label: "Volcanoes",         color: "#4ade80", items: ["Etna", "Vesuvius", "Krakatoa", "Fuji"] },
+      { label: "Philosophers",      color: "#60a5fa", items: ["Plato", "Socrates", "Nietzsche", "Descartes"] },
+      { label: "World deserts",     color: "#f472b6", items: ["Sahara", "Gobi", "Atacama", "Namib"] },
     ],
   },
 ];
@@ -30,8 +193,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function ConnectionsScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
 
@@ -176,19 +340,13 @@ export default function ConnectionsScreen() {
   );
 
   if (phase === "results") return (
-    <LinearGradient colors={["#03001c","#1a1000"]} style={s.flex}>
-      <SafeAreaView style={s.flex}>
-        <View style={s.center}>
-          <Text style={{ fontSize: 64 }}>🔗</Text>
-          <Text style={s.title}>Puzzle Solved!</Text>
-          <Text style={s.bigScore}>{score}</Text>
-          <Text style={s.label}>{mistakes} mistakes total</Text>
-          <Text style={s.verdict}>{mistakes === 0 ? "🧠 Perfect!" : mistakes <= 3 ? "👍 Sharp!" : "💪 Finished it!"}</Text>
-          <TouchableOpacity style={s.btn} onPress={startGame}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnI}><Text style={s.btnT}>PLAY AGAIN</Text></LinearGradient></TouchableOpacity>
-          <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnT}>Back to Home</Text></TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <PostGameCard
+      score={score}
+      maxScore={400}
+      gameEmoji="🔗"
+      gameTitle="Connections"
+      onPlayAgain={startGame}
+    />
   );
 
   return (

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, TextI
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const SEED_WORDS = ["OCEAN", "FIRE", "CASTLE", "MUSIC", "CLOUD", "THUNDER", "PIZZA", "DREAM", "MIRROR", "JUNGLE"];
 
@@ -11,8 +12,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function WordAssociationScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
 
   const [phase, setPhase] = useState<Phase>("lobby");
   const [seed, setSeed] = useState("");
@@ -209,19 +211,13 @@ export default function WordAssociationScreen() {
   );
 
   if (phase === "results") return (
-    <LinearGradient colors={["#03001c","#001020"]} style={s.flex}>
-      <SafeAreaView style={s.flex}>
-        <View style={s.center}>
-          <Text style={{ fontSize: 64 }}>💬</Text>
-          <Text style={s.title}>Chain Complete!</Text>
-          <Text style={s.bigScore}>{score}</Text>
-          <Text style={s.label}>POINTS</Text>
-          <View style={s.chainBox}>{chain.map((c,i) => <Text key={i} style={s.chainItem}>{c.word} <Text style={s.chainPlayer}>({c.player})</Text></Text>)}</View>
-          <TouchableOpacity style={s.btn} onPress={startGame}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnInner}><Text style={s.btnText}>PLAY AGAIN</Text></LinearGradient></TouchableOpacity>
-          <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnText}>Back to Home</Text></TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <PostGameCard
+      score={score}
+      maxScore={800}
+      gameEmoji="💭"
+      gameTitle="Word Association"
+      onPlayAgain={startGame}
+    />
   );
 
   const currentWord = chain[chain.length - 1];

@@ -48,11 +48,14 @@ class SocketManager {
 
   private async _prewarm() {
     try {
-      const [guestId, displayName] = await Promise.all([
+      const [guestId, socketName, settingsName] = await Promise.all([
         AsyncStorage.getItem(GUEST_ID_KEY),
         AsyncStorage.getItem(DISPLAY_NAME_KEY),
+        AsyncStorage.getItem("guest_display_name"),
       ]);
-      if (guestId)     this._guestId     = guestId;
+      if (guestId) this._guestId = guestId;
+      // Prefer socketManager key; fall back to SettingsScreen key
+      const displayName = socketName ?? settingsName ?? null;
       if (displayName) this._displayName = displayName;
     } catch { /* non-fatal */ }
   }
@@ -78,14 +81,27 @@ class SocketManager {
 
   async getDisplayName(): Promise<string | null> {
     if (this._displayName !== undefined) return this._displayName;
-    const name = await AsyncStorage.getItem(DISPLAY_NAME_KEY);
+    // Read from socketManager key first, fall back to SettingsScreen key
+    const [socketName, settingsName] = await Promise.all([
+      AsyncStorage.getItem(DISPLAY_NAME_KEY),
+      AsyncStorage.getItem("guest_display_name"),
+    ]);
+    const name = socketName ?? settingsName ?? null;
     this._displayName = name;
+    // If only the settings key had a name, sync it into the socket key
+    if (!socketName && settingsName) {
+      await AsyncStorage.setItem(DISPLAY_NAME_KEY, settingsName);
+    }
     return name;
   }
 
   async saveDisplayName(name: string): Promise<void> {
     this._displayName = name;
-    await AsyncStorage.setItem(DISPLAY_NAME_KEY, name);
+    // Write to both keys so SettingsScreen and the join flow stay in sync
+    await AsyncStorage.multiSet([
+      [DISPLAY_NAME_KEY,      name],
+      ["guest_display_name",  name],
+    ]);
   }
 
   // ─── Connect ───────────────────────────────────────────────────────────────
@@ -199,7 +215,8 @@ class SocketManager {
       this.offlineState.isOffline = true;
     });
 
-    // Update lastSequenceId on every queue update — enables precise reconnect
+    // Track lastSequenceId across all sequenced server events so reconnects
+    // send an accurate cursor and the server replays only truly missed events.
     this.socket.on("queue:updated", (_, sequenceId) => {
       if (this.currentRoomId) {
         this.saveLastSequenceId(this.currentRoomId, sequenceId);
@@ -207,7 +224,16 @@ class SocketManager {
     });
 
     this.socket.on("room:crowd_state_changed", ({ sequenceId }) => {
-      if (this.currentRoomId) {
+      if (this.currentRoomId && sequenceId) {
+        this.saveLastSequenceId(this.currentRoomId, sequenceId);
+      }
+    });
+
+    // experience:changed carries a sequenceId — track it so a guest who drops
+    // mid-game reconnects with the right cursor (otherwise they'd send a stale
+    // queue-only seq and miss the game phase change events in the replay window).
+    this.socket.on("experience:changed" as any, ({ sequenceId }: any) => {
+      if (this.currentRoomId && sequenceId) {
         this.saveLastSequenceId(this.currentRoomId, sequenceId);
       }
     });

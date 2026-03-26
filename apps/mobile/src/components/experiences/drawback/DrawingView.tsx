@@ -4,6 +4,7 @@ import {
   PanResponder, GestureResponderEvent,
 } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Drawback — DrawingView
@@ -13,7 +14,7 @@ import { useRoom } from "../../../contexts/RoomContext";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ACCENT = "#3b82f6";
-const TIMER_TOTAL = 60;
+const TIMER_TOTAL = 30; // must match server DRAW_SECS
 
 const PALETTE = [
   "#ffffff",
@@ -37,6 +38,7 @@ export function DrawingView() {
   const [submitted, setSubmitted] = useState(false);
   const startedAt = useRef(Date.now());
   const canvasRef = useRef<View>(null);
+  const canvasLayout = useRef({ width: 300, height: 400 });
   const lastPoint = useRef<{ x: number; y: number } | null>(null);
 
   // Countdown
@@ -136,18 +138,28 @@ export function DrawingView() {
   function submit() {
     if (submitted) return;
     setSubmitted(true);
-    sendAction("submit_drawing", { dataUrl: "sketch_placeholder" });
+    const { width, height } = canvasLayout.current;
+    const strokes = JSON.stringify({ dots, width, height });
+    sendAction("submit_drawing", { strokes });
   }
 
   if (submitted) {
+    const d = state.guestViewData as any;
     return (
-      <View style={styles.root}>
-        <View style={styles.submittedScreen}>
-          <Text style={styles.submittedIcon}>✏️</Text>
-          <Text style={styles.submittedTitle}>Drawing Locked!</Text>
-          <Text style={styles.submittedSub}>Waiting for everyone to finish...</Text>
-        </View>
-      </View>
+      <WaitingForPlayersView
+        emoji="✏️"
+        accent={ACCENT}
+        title="Drawing Locked!"
+        subtitle="Waiting for everyone to finish their masterpiece..."
+        submittedCount={d?.submittedCount}
+        tips={[
+          "Picasso didn't draw in 60 seconds either 🎨",
+          "Your abstract art is being judged as we speak 👀",
+          "Bold color choices were made today 🖌️",
+          "Someone definitely drew a stick figure 😂",
+          "The real art was the friends we made along the way 🎉",
+        ]}
+      />
     );
   }
 
@@ -173,6 +185,12 @@ export function DrawingView() {
       <View
         ref={canvasRef}
         style={styles.canvas}
+        onLayout={(e) => {
+          canvasLayout.current = {
+            width: e.nativeEvent.layout.width,
+            height: e.nativeEvent.layout.height,
+          };
+        }}
         {...panResponderWithColor.panHandlers}
       >
         {dots.map((dot, i) => (
@@ -224,9 +242,9 @@ export function DrawingView() {
             <Text style={styles.clearBtnText}>Clear</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.submitBtn, timeLeft === 0 && styles.submitBtnDisabled]}
+            style={[styles.submitBtn, (submitted || dots.length === 0) && styles.submitBtnDisabled]}
             onPress={submit}
-            disabled={timeLeft === 0 && dots.length === 0}
+            disabled={submitted || dots.length === 0}
           >
             <Text style={styles.submitBtnText}>Submit Drawing</Text>
           </TouchableOpacity>

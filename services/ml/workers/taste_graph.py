@@ -17,7 +17,9 @@ GDPR: host_fingerprint is a hash of a device ID — never the raw ID.
 
 import hashlib
 import json
+import math
 from collections import defaultdict
+from datetime import datetime, timezone
 from typing import Optional
 
 import asyncpg
@@ -87,22 +89,28 @@ class TasteGraphWorker:
             log.info("taste_graph_no_signals", host=host_fingerprint[:8])
             return {}
 
-        # ── BPM preferences (weight by reward, positive signals only) ───────
+        # ── BPM preferences (reward × temporal decay, positive signals only) ─
+        # Decay constant: 30 days — a signal 30 days old has 37% the weight of today's.
+        now_utc = datetime.now(timezone.utc)
         bpm_values, bpm_weights = [], []
         for row in rows:
             if row["bpm"] and row["reward"] > 0:
+                days_old = max(0, (now_utc - row["created_at"].replace(tzinfo=timezone.utc)).days)
+                decay = math.exp(-days_old / 30.0)
                 bpm_values.append(float(row["bpm"]))
-                bpm_weights.append(float(row["reward"]))
+                bpm_weights.append(float(row["reward"]) * decay)
 
         avg_bpm      = _weighted_avg(bpm_values, bpm_weights)
         bpm_variance = _weighted_variance(bpm_values, bpm_weights, avg_bpm)
 
-        # ── Camelot key preferences ──────────────────────────────────────────
+        # ── Camelot key preferences (decay-weighted) ─────────────────────────
         key_scores: dict[str, float] = defaultdict(float)
         for row in rows:
             if row["camelot_key"] and row["camelot_type"]:
                 key = f"{row['camelot_key']}{row['camelot_type']}"
-                key_scores[key] += float(row["reward"])
+                days_old = max(0, (now_utc - row["created_at"].replace(tzinfo=timezone.utc)).days)
+                decay = math.exp(-days_old / 30.0)
+                key_scores[key] += float(row["reward"]) * decay
 
         preferred_keys = [
             {"key": int(k[:-1]), "type": k[-1], "weight": round(w, 3)}
@@ -110,9 +118,10 @@ class TasteGraphWorker:
             if w > 0
         ][:6]  # Top 6 keys
 
-        # ── Energy curve by hour of night ────────────────────────────────────
-        # Bucket into 4 periods: early (18-21), mid (21-00), peak (00-03), late (03-06)
-        hour_buckets: dict[str, list[float]] = {
+        # ── Energy curve by hour of night (decay-weighted average) ──────────
+        # Bucket into 5 periods: early (18-21), mid (21-00), peak (00-03), late (03-06), day
+        # Each entry is (energy, decay_weight) for weighted average calculation.
+        hour_buckets: dict[str, list[tuple[float, float]]] = {
             "early": [], "mid": [], "peak": [], "late": [], "day": [],
         }
         for row in rows:
@@ -125,18 +134,24 @@ class TasteGraphWorker:
                     "late"  if 3  <= h < 6  else
                     "day"
                 )
-                hour_buckets[bucket].append(float(row["energy"]))
+                days_old = max(0, (now_utc - row["created_at"].replace(tzinfo=timezone.utc)).days)
+                decay = math.exp(-days_old / 30.0)
+                hour_buckets[bucket].append((float(row["energy"]), float(row["reward"]) * decay))
 
         energy_curve = {
-            bucket: round(sum(vals) / len(vals), 3) if vals else None
+            bucket: round(
+                sum(e * w for e, w in vals) / sum(w for _, w in vals), 3
+            ) if vals else None
             for bucket, vals in hour_buckets.items()
         }
 
-        # ── Genre weights ────────────────────────────────────────────────────
+        # ── Genre weights (decay-weighted) ───────────────────────────────────
         genre_acc: dict[str, float] = defaultdict(float)
         for row in rows:
             if row["genre"]:
-                genre_acc[row["genre"]] += float(row["reward"])
+                days_old = max(0, (now_utc - row["created_at"].replace(tzinfo=timezone.utc)).days)
+                decay = math.exp(-days_old / 30.0)
+                genre_acc[row["genre"]] += float(row["reward"]) * decay
 
         # Normalise to [-1, 1] range
         max_abs = max((abs(v) for v in genre_acc.values()), default=1)
@@ -157,9 +172,7 @@ class TasteGraphWorker:
             for t, c in sorted(transition_counts.items(), key=lambda x: -x[1])
         }
 
-        session_count = len({
-            row for row in rows  # proxy — count distinct days
-        })
+        session_count = len({row["session_id"] for row in rows})
 
         profile = {
             "avg_bpm":               round(avg_bpm, 2) if avg_bpm else None,

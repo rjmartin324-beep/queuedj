@@ -278,10 +278,15 @@ export interface ClientToServerEvents {
   "tap:beat":        (payload: { roomId: string; guestId: string; timestamp: number }) => void;
   "shoutout:send":   (payload: { roomId: string; guestId: string; message: string }) => void;
   "deck:command":    (payload: DeckCommand) => void;
-  "vibe:set":        (payload: { roomId: string; preset: VibePreset }) => void;
-  "bathroom:toggle": (payload: { roomId: string; active: boolean }) => void;
+  "vibe:set":          (payload: { roomId: string; preset: VibePreset }) => void;
+  "crowd_state:set":   (payload: { roomId: string; crowdState: CrowdState }) => void;
+  "bathroom:toggle":   (payload: { roomId: string; active: boolean }) => void;
   "guest:promote":   (payload: { roomId: string; targetGuestId: string; newRole: "CO_HOST" | "GUEST" }) => void;
   "guest:kick":      (payload: { roomId: string; targetGuestId: string }) => void;
+  "role:promote":    (payload: { roomId: string; targetGuestId: string; newRole: "CO_HOST" }) => void;
+  "role:demote":     (payload: { roomId: string; targetGuestId: string }) => void;
+  "room:setting":    (payload: { roomId: string; key: string; value: unknown }) => void;
+  "guest:set_anthem": (payload: { roomId: string; isrc: string | null }) => void;
 }
 
 export interface ServerToClientEvents {
@@ -297,6 +302,13 @@ export interface ServerToClientEvents {
   "poll:started":           (poll: Poll) => void;
   "poll:result":            (result: { pollId: string; results: Record<string, number> }) => void;
   "error":                  (payload: { code: ErrorCode; message: string }) => void;
+  // Role change events (sent to the affected guest)
+  "role:promoted":          (payload: { newRole: "CO_HOST" | "HOST" }) => void;
+  "role:demoted":           (payload: { previousRole: "CO_HOST" | "HOST" }) => void;
+  // Walk-in anthem (sent to host only)
+  "room:walk_in_anthem":    (payload: { guestId: string; displayName: string; isrc: string }) => void;
+  // Room settings change (sent to all members)
+  "room:setting_changed":   (payload: { key: string; value: unknown }) => void;
 }
 
 // ─── Error Codes ──────────────────────────────────────────────────────────────

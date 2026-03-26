@@ -21,11 +21,9 @@ import { GeoGuesserControls }        from "../components/host/controls/GeoGuesse
 import { WouldYouRatherControls }    from "../components/host/controls/WouldYouRatherControls";
 import { NeverHaveIEverControls }    from "../components/host/controls/NeverHaveIEverControls";
 import { TruthOrDareControls }       from "../components/host/controls/TruthOrDareControls";
-import { HotTakesControls }          from "../components/host/controls/HotTakesControls";
 import { TwoTruthsOneLieControls }   from "../components/host/controls/TwoTruthsOneLieControls";
 import { CelebrityHeadControls }     from "../components/host/controls/CelebrityHeadControls";
 import { ConnectionsControls }       from "../components/host/controls/ConnectionsControls";
-import { DrawItControls }            from "../components/host/controls/DrawItControls";
 import { WordAssociationControls }   from "../components/host/controls/WordAssociationControls";
 import { ChainReactionControls }     from "../components/host/controls/ChainReactionControls";
 import { FakeNewsControls }          from "../components/host/controls/FakeNewsControls";
@@ -35,10 +33,7 @@ import { SpeedRoundControls }        from "../components/host/controls/SpeedRoun
 import { ThumbWarControls }          from "../components/host/controls/ThumbWarControls";
 import { MusicalChairsControls }     from "../components/host/controls/MusicalChairsControls";
 import { PopCultureQuizControls }    from "../components/host/controls/PopCultureQuizControls";
-import { StoryTimeControls }         from "../components/host/controls/StoryTimeControls";
 import { WhoKnowsWhoControls }       from "../components/host/controls/WhoKnowsWhoControls";
-import { BucketListControls }        from "../components/host/controls/BucketListControls";
-import { FightOrFlightControls }     from "../components/host/controls/FightOrFlightControls";
 import { AlibiControls }             from "../components/host/controls/AlibiControls";
 import { CroppedLookControls }       from "../components/host/controls/CroppedLookControls";
 import { MindReadingControls }       from "../components/host/controls/MindReadingControls";
@@ -47,8 +42,6 @@ import { AccentChallengeControls }   from "../components/host/controls/AccentCha
 import { HumItControls }             from "../components/host/controls/HumItControls";
 import { MimicMeControls }           from "../components/host/controls/MimicMeControls";
 import { LyricsDropControls }        from "../components/host/controls/LyricsDropControls";
-import { PhotoBombControls }         from "../components/host/controls/PhotoBombControls";
-import { SpeedTypingControls }       from "../components/host/controls/SpeedTypingControls";
 import { PartyDiceControls }         from "../components/host/controls/PartyDiceControls";
 import { RoomQRCode }                from "../components/host/RoomQRCode";
 import { HostQueueView }             from "../components/host/HostQueueView";
@@ -95,11 +88,9 @@ const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
   { type: "would_you_rather",       label: "Would You Rather", emoji: "🤔" },
   { type: "never_have_i_ever",      label: "Never Have I",     emoji: "🤫" },
   { type: "truth_or_dare",          label: "Truth or Dare",    emoji: "💀" },
-  { type: "hot_takes",              label: "Hot Takes",        emoji: "🌡️" },
   { type: "two_truths_one_lie",     label: "Two Truths",       emoji: "🤥" },
   { type: "celebrity_head",         label: "Celebrity Head",   emoji: "👑" },
   { type: "connections",            label: "Connections",      emoji: "🔗" },
-  { type: "draw_it",                label: "Draw It",          emoji: "🎨" },
   { type: "word_association",       label: "Word Chain",       emoji: "💭" },
   { type: "chain_reaction",         label: "Chain Reaction",   emoji: "⚡" },
   { type: "fake_news",              label: "Fake News",        emoji: "📰" },
@@ -109,10 +100,7 @@ const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
   { type: "thumb_war",              label: "Thumb War",        emoji: "👍" },
   { type: "musical_chairs",         label: "Musical Chairs",   emoji: "🪑" },
   { type: "pop_culture_quiz",       label: "Pop Culture",      emoji: "🎬" },
-  { type: "story_time",             label: "Story Time",       emoji: "📖" },
   { type: "who_knows_who",          label: "Who Knows Who",    emoji: "👥" },
-  { type: "bucket_list",            label: "Bucket List",      emoji: "🌍" },
-  { type: "fight_or_flight",        label: "Fight/Flight",     emoji: "💪" },
   { type: "alibi",                  label: "Alibi",            emoji: "🔍" },
   { type: "cropped_look",           label: "Cropped Look",     emoji: "🔎" },
   { type: "mind_reading",           label: "Mind Reading",     emoji: "🔮" },
@@ -121,8 +109,6 @@ const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
   { type: "hum_it",                 label: "Hum It",           emoji: "🎵" },
   { type: "mimic_me",               label: "Mimic Me",         emoji: "🪞" },
   { type: "lyrics_drop",            label: "Lyrics Drop",      emoji: "🎤" },
-  { type: "photo_bomb",             label: "Photo Bomb",       emoji: "💣" },
-  { type: "speed_typing",           label: "Speed Typing",     emoji: "⌨️" },
   { type: "party_dice",             label: "Party Dice",       emoji: "🎲" },
 ];
 
@@ -224,11 +210,9 @@ export default function HostScreen() {
       case "would_you_rather":       return <WouldYouRatherControls {...vmProps} />;
       case "never_have_i_ever":      return <NeverHaveIEverControls {...vmProps} />;
       case "truth_or_dare":          return <TruthOrDareControls {...vmProps} />;
-      case "hot_takes":              return <HotTakesControls {...vmProps} />;
       case "two_truths_one_lie":     return <TwoTruthsOneLieControls {...vmProps} />;
       case "celebrity_head":         return <CelebrityHeadControls {...vmProps} />;
       case "connections":            return <ConnectionsControls {...vmProps} />;
-      case "draw_it":                return <DrawItControls {...vmProps} />;
       case "word_association":       return <WordAssociationControls {...vmProps} />;
       case "chain_reaction":         return <ChainReactionControls {...vmProps} />;
       case "fake_news":              return <FakeNewsControls {...vmProps} />;
@@ -238,10 +222,7 @@ export default function HostScreen() {
       case "thumb_war":              return <ThumbWarControls {...vmProps} />;
       case "musical_chairs":         return <MusicalChairsControls {...vmProps} />;
       case "pop_culture_quiz":       return <PopCultureQuizControls {...vmProps} />;
-      case "story_time":             return <StoryTimeControls {...vmProps} />;
       case "who_knows_who":          return <WhoKnowsWhoControls {...vmProps} />;
-      case "bucket_list":            return <BucketListControls {...vmProps} />;
-      case "fight_or_flight":        return <FightOrFlightControls {...vmProps} />;
       case "alibi":                  return <AlibiControls {...vmProps} />;
       case "cropped_look":           return <CroppedLookControls {...vmProps} />;
       case "mind_reading":           return <MindReadingControls {...vmProps} />;
@@ -250,8 +231,6 @@ export default function HostScreen() {
       case "hum_it":                 return <HumItControls {...vmProps} />;
       case "mimic_me":               return <MimicMeControls {...vmProps} />;
       case "lyrics_drop":            return <LyricsDropControls {...vmProps} />;
-      case "photo_bomb":             return <PhotoBombControls {...vmProps} />;
-      case "speed_typing":           return <SpeedTypingControls {...vmProps} />;
       case "party_dice":             return <PartyDiceControls {...vmProps} />;
       default:                       return null;
     }

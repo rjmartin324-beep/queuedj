@@ -11,7 +11,7 @@ import structlog
 
 log = structlog.get_logger()
 
-QUEUE_NAMES = ["audio_analysis", "isrc_lookup", "transition_analysis", "rlhf_signal"]
+QUEUE_NAMES = ["audio_analysis", "isrc_lookup", "transition_analysis", "rlhf_signal", "taste_graph"]
 
 
 class BullMQConsumer:

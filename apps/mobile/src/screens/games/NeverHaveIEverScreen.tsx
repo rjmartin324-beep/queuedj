@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const PROMPTS = [
   "Never have I ever … lied about my age",
@@ -30,8 +31,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function NeverHaveIEverScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
 
@@ -226,45 +228,13 @@ export default function NeverHaveIEverScreen() {
   }
 
   if (phase === "results") {
-    const total = haveCount + neverCount;
-    const havePercent = Math.round((haveCount / total) * 100);
     return (
-      <LinearGradient colors={["#03001c", "#0d1a00"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <ScrollView contentContainerStyle={s.resultsScroll}>
-            <Text style={{ fontSize: 56, textAlign: "center", marginBottom: 16 }}>📋</Text>
-            <Text style={s.resultsTitle}>Your Confessions</Text>
-            <View style={s.statRow}>
-              <View style={[s.statBox, { borderColor: "#dc2626" }]}>
-                <Text style={[s.statNum, { color: "#dc2626" }]}>{haveCount}</Text>
-                <Text style={s.statLabel}>I HAVE</Text>
-              </View>
-              <View style={[s.statBox, { borderColor: "#16a34a" }]}>
-                <Text style={[s.statNum, { color: "#16a34a" }]}>{neverCount}</Text>
-                <Text style={s.statLabel}>NEVER</Text>
-              </View>
-            </View>
-            <Text style={s.confessionRate}>
-              {havePercent}% confession rate — {havePercent > 60 ? "Wildcard! 🔥" : havePercent > 30 ? "Honest legend 👍" : "Pure soul 😇"}
-            </Text>
-            <Text style={s.logTitle}>Round Log</Text>
-            {log.map((item, i) => (
-              <View key={i} style={[s.logRow, { borderLeftColor: item.choice === "have" ? "#dc2626" : "#16a34a" }]}>
-                <Text style={s.logEmoji}>{item.choice === "have" ? "🍺" : "😇"}</Text>
-                <Text style={s.logPrompt}>{item.prompt.replace("Never have I ever … ", "")}</Text>
-              </View>
-            ))}
-            <TouchableOpacity style={s.playBtn} onPress={startGame}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.playBtnInner}>
-                <Text style={s.playBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={0}
+        gameEmoji="🤫"
+        gameTitle="Never Have I Ever"
+        onPlayAgain={startGame}
+      />
     );
   }
 

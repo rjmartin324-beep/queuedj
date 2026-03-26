@@ -2,22 +2,50 @@ import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Drawback — RevealView
-// Reveals the drawing prompt, showcases the winner's drawing (placeholder),
-// then lists all entries with player names and vote counts.
-// ─────────────────────────────────────────────────────────────────────────────
-
 const ACCENT = "#3b82f6";
 
-interface RevealEntry {
-  guestId: string;
-  votes: number;
-  playerNum: number;
+interface ParsedDrawing {
+  dots: { x: number; y: number; color: string; size: number }[];
+  width: number;
+  height: number;
 }
 
-interface WinnerData {
-  guestId: string;
+function parseStrokes(json: string): ParsedDrawing | null {
+  try { return JSON.parse(json); }
+  catch { return null; }
+}
+
+function DotsCanvas({ strokes, displayW, displayH, bg = "#0a0f1e" }: {
+  strokes: string; displayW: number; displayH: number; bg?: string;
+}) {
+  const parsed = parseStrokes(strokes);
+  if (!parsed || parsed.dots.length === 0) {
+    return (
+      <View style={{ width: displayW, height: displayH, backgroundColor: bg, alignItems: "center", justifyContent: "center" }}>
+        <Text style={{ fontSize: 28, opacity: 0.25 }}>✏️</Text>
+      </View>
+    );
+  }
+  const sx = displayW / parsed.width;
+  const sy = displayH / parsed.height;
+  return (
+    <View style={{ width: displayW, height: displayH, backgroundColor: bg, overflow: "hidden", position: "relative" }}>
+      {parsed.dots.map((dot, i) => (
+        <View
+          key={i}
+          style={{
+            position: "absolute",
+            left: dot.x * sx - (dot.size * sx) / 2,
+            top: dot.y * sy - (dot.size * sy) / 2,
+            width: Math.max(2, dot.size * sx),
+            height: Math.max(2, dot.size * sy),
+            borderRadius: Math.max(1, (dot.size * sx) / 2),
+            backgroundColor: dot.color,
+          }}
+        />
+      ))}
+    </View>
+  );
 }
 
 export function RevealView() {
@@ -27,11 +55,35 @@ export function RevealView() {
   if (!data) return null;
 
   const prompt: string = data.prompt ?? "???";
-  const winner: WinnerData | undefined = data.winner;
-  const entries: RevealEntry[] = data.entries ?? [];
   const myId = state.guestId;
 
-  const sorted = [...entries].sort((a, b) => b.votes - a.votes);
+  // Server sends: scores: Record<guestId, voteCount>, drawings: Record<guestId, strokesJson>
+  const scores: Record<string, number> = data.scores ?? {};
+  const drawings: Record<string, string> = data.drawings ?? {};
+
+  // Build sorted entries from scores
+  const entries = Object.entries(scores)
+    .map(([guestId, votes]) => ({
+      guestId,
+      votes,
+      playerNum: (state.members.findIndex(m => m.guestId === guestId) + 1) || 1,
+      strokes: drawings[guestId] ?? "",
+    }))
+    .sort((a, b) => b.votes - a.votes);
+
+  // Also include drawers with 0 votes
+  Object.entries(drawings).forEach(([guestId, strokes]) => {
+    if (!entries.find(e => e.guestId === guestId)) {
+      entries.push({
+        guestId,
+        votes: 0,
+        playerNum: (state.members.findIndex(m => m.guestId === guestId) + 1) || 1,
+        strokes,
+      });
+    }
+  });
+
+  const winner = entries[0];
 
   function rankLabel(i: number) {
     if (i === 0) return "1st";
@@ -46,14 +98,13 @@ export function RevealView() {
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     >
-      {/* Eyebrow + prompt reveal */}
       <Text style={styles.eyebrow}>DRAWBACK · RESULTS</Text>
+
       <View style={styles.promptRevealCard}>
         <Text style={styles.promptRevealLabel}>The prompt was</Text>
         <Text style={styles.promptRevealText}>"{prompt}"</Text>
       </View>
 
-      {/* Winner showcase */}
       {winner && (
         <View style={styles.winnerSection}>
           <View style={styles.winnerHeader}>
@@ -63,37 +114,29 @@ export function RevealView() {
               <Text style={styles.winnerName}>
                 {winner.guestId === myId
                   ? "Your drawing won!"
-                  : `Player ${entries.find(e => e.guestId === winner.guestId)?.playerNum ?? "?"}`}
+                  : `Player ${winner.playerNum}`}
               </Text>
             </View>
             <View style={styles.winnerVotes}>
-              <Text style={styles.winnerVoteNum}>
-                {entries.find(e => e.guestId === winner.guestId)?.votes ?? 0}
-              </Text>
+              <Text style={styles.winnerVoteNum}>{winner.votes}</Text>
               <Text style={styles.winnerVoteLabel}>votes</Text>
             </View>
           </View>
 
-          {/* Winner drawing placeholder */}
           <View style={styles.winnerCanvas}>
-            <Text style={styles.winnerCanvasIcon}>✏️</Text>
-            <Text style={styles.winnerCanvasText}>
-              {winner.guestId === myId ? "Your Masterpiece" : `Player ${entries.find(e => e.guestId === winner.guestId)?.playerNum ?? "?"}'s Drawing`}
-            </Text>
+            <DotsCanvas strokes={winner.strokes} displayW={300} displayH={200} bg="#0a0f1e" />
           </View>
         </View>
       )}
 
-      {/* Divider */}
       <View style={styles.divider}>
         <View style={styles.dividerLine} />
         <Text style={styles.dividerLabel}>ALL DRAWINGS</Text>
         <View style={styles.dividerLine} />
       </View>
 
-      {/* All entries */}
-      {sorted.map((entry, i) => {
-        const isWinner = entry.guestId === winner?.guestId;
+      {entries.map((entry, i) => {
+        const isWinner = i === 0;
         const isMe = entry.guestId === myId;
 
         return (
@@ -105,13 +148,10 @@ export function RevealView() {
               isMe && styles.entryRowMe,
             ]}
           >
-            {/* Mini drawing placeholder */}
             <View style={[styles.miniCanvas, isWinner && styles.miniCanvasWinner]}>
-              <Text style={styles.miniCanvasIcon}>✏️</Text>
-              <Text style={styles.miniPlayerNum}>P{entry.playerNum}</Text>
+              <DotsCanvas strokes={entry.strokes} displayW={56} displayH={56} bg={isWinner ? "#0a1428" : "#0f0f24"} />
             </View>
 
-            {/* Info */}
             <View style={styles.entryInfo}>
               <Text style={styles.entryRank}>
                 {rankLabel(i)} {isWinner && "👑"}
@@ -122,7 +162,6 @@ export function RevealView() {
               </Text>
             </View>
 
-            {/* Votes */}
             <View style={[styles.votePill, isWinner && styles.votePillWinner]}>
               <Text style={[styles.votePillText, isWinner && styles.votePillTextWinner]}>
                 {entry.votes} {entry.votes === 1 ? "vote" : "votes"}
@@ -140,30 +179,16 @@ export function RevealView() {
 const styles = StyleSheet.create({
   root:               { flex: 1, backgroundColor: "#08081a" },
   container:          { padding: 20, paddingTop: 24 },
-
-  // Header
   eyebrow:            { color: ACCENT, fontSize: 11, fontWeight: "800", letterSpacing: 2, marginBottom: 16 },
-
-  // Prompt reveal
   promptRevealCard: {
-    backgroundColor: "#12122a",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#1e1e3a",
-    padding: 18,
-    marginBottom: 20,
+    backgroundColor: "#12122a", borderRadius: 16, borderWidth: 1,
+    borderColor: "#1e1e3a", padding: 18, marginBottom: 20,
   },
   promptRevealLabel:  { color: "#888", fontSize: 12, fontWeight: "600", marginBottom: 6 },
   promptRevealText:   { color: "#fff", fontSize: 20, fontWeight: "900", lineHeight: 26 },
-
-  // Winner section
   winnerSection: {
-    backgroundColor: "#0d1a30",
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: ACCENT,
-    overflow: "hidden",
-    marginBottom: 24,
+    backgroundColor: "#0d1a30", borderRadius: 20, borderWidth: 2,
+    borderColor: ACCENT, overflow: "hidden", marginBottom: 24,
   },
   winnerHeader:       { flexDirection: "row", alignItems: "center", gap: 12, padding: 16 },
   trophyEmoji:        { fontSize: 32 },
@@ -172,33 +197,19 @@ const styles = StyleSheet.create({
   winnerVotes:        { marginLeft: "auto", alignItems: "center" },
   winnerVoteNum:      { color: ACCENT, fontSize: 24, fontWeight: "900", lineHeight: 26 },
   winnerVoteLabel:    { color: "#888", fontSize: 10 },
-  winnerCanvas:       { height: 160, backgroundColor: "#0a0f1e", alignItems: "center", justifyContent: "center", gap: 8 },
-  winnerCanvasIcon:   { fontSize: 36 },
-  winnerCanvasText:   { color: "#2a3a5a", fontSize: 14, fontWeight: "700" },
-
-  // Divider
+  winnerCanvas:       { overflow: "hidden", alignItems: "center" },
   divider:            { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 14 },
   dividerLine:        { flex: 1, height: 1, backgroundColor: "#1e1e3a" },
   dividerLabel:       { color: "#555", fontSize: 10, fontWeight: "700", letterSpacing: 2 },
-
-  // Entry rows
   entryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: "#12122a",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#1e1e3a",
-    padding: 12,
-    marginBottom: 8,
+    flexDirection: "row", alignItems: "center", gap: 12,
+    backgroundColor: "#12122a", borderRadius: 14, borderWidth: 1,
+    borderColor: "#1e1e3a", padding: 12, marginBottom: 8,
   },
   entryRowWinner:     { borderColor: ACCENT, backgroundColor: "#0d1a30" },
   entryRowMe:         { borderColor: "#2a2a5a" },
-  miniCanvas:         { width: 56, height: 56, backgroundColor: "#0f0f24", borderRadius: 10, alignItems: "center", justifyContent: "center", gap: 2 },
-  miniCanvasWinner:   { backgroundColor: "#0a1428" },
-  miniCanvasIcon:     { fontSize: 18 },
-  miniPlayerNum:      { color: "#2a2a5a", fontSize: 11, fontWeight: "900" },
+  miniCanvas:         { borderRadius: 10, overflow: "hidden" },
+  miniCanvasWinner:   {},
   entryInfo:          { flex: 1, gap: 3 },
   entryRank:          { color: "#888", fontSize: 12, fontWeight: "700" },
   entryPlayer:        { color: "#fff", fontSize: 15, fontWeight: "700" },
@@ -207,6 +218,5 @@ const styles = StyleSheet.create({
   votePillWinner:     { backgroundColor: ACCENT },
   votePillText:       { color: "#888", fontSize: 12, fontWeight: "700" },
   votePillTextWinner: { color: "#fff" },
-
   bottomSpacer:       { height: 32 },
 });

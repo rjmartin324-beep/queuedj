@@ -256,6 +256,22 @@ async function main() {
         }
         // strategy === "already_current": no sync needed
 
+        // ── Restore active experience state for reconnecting guests ──────────
+        // The snapshot/event_replay covers queue + members, but NOT which game
+        // is active or what phase it's in. Without this, a guest who drops
+        // mid-game rejoins to the wrong screen and must wait for the next
+        // server-pushed state event (which may never come).
+        try {
+          const activeExp = await redisClient.get(`room:${roomId}:experience`);
+          const expType   = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
+          const view      = await getExperience(expType).getGuestViewDescriptor(roomId);
+          socket.emit("experience:state" as any, {
+            experienceType: expType,
+            state: null,   // view.data carries the phase; full state only needed by host controls
+            view,
+          });
+        } catch { /* non-critical — best effort; client will sync on next state push */ }
+
         // Notify room of new member (excluding push token — private)
         const { pushToken, ...publicMember } = { ...existing, role, guestId: resolvedGuestId, joinedAt: Date.now(), isWorkerNode: false, pushToken: existing?.pushToken };
         socket.to(roomId).emit("room:member_joined", {

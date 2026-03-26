@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Animated, Scrol
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const QUESTIONS = [
   { q: "Who in this group would survive a zombie apocalypse?", opts: ["Alex", "Jordan", "Sam", "Me"] },
@@ -23,8 +24,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function WhoKnowsWhoScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
   const myGuestId = state.guestId;
   function memberName(gId: string) { return state.members.find(m => m.guestId === gId)?.displayName ?? (gId?.slice(0,6) ?? "?"); }
 
@@ -172,19 +174,13 @@ export default function WhoKnowsWhoScreen() {
   );
 
   if (phase === "results") return (
-    <LinearGradient colors={["#03001c","#0a1a00"]} style={s.flex}>
-      <SafeAreaView style={s.flex}>
-        <View style={s.center}>
-          <Text style={{ fontSize: 64 }}>🏆</Text>
-          <Text style={s.title}>Group Synced!</Text>
-          <Text style={s.big}>{score}</Text>
-          <Text style={s.label}>POINTS</Text>
-          <Text style={s.verdict}>{score >= 1500 ? "🧠 You know your crew!" : score >= 1000 ? "👍 Pretty connected" : "🤷 Meet your friends"}</Text>
-          <TouchableOpacity style={s.btn} onPress={startGame}><LinearGradient colors={["#b5179e","#7209b7"]} style={s.btnI}><Text style={s.btnT}>PLAY AGAIN</Text></LinearGradient></TouchableOpacity>
-          <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}><Text style={s.homeBtnT}>Back to Home</Text></TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+    <PostGameCard
+      score={score}
+      maxScore={1000}
+      gameEmoji="👥"
+      gameTitle="Who Knows Who"
+      onPlayAgain={startGame}
+    />
   );
 
   const q = QUESTIONS[idx];

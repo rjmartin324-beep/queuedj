@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   View, Text, StyleSheet, TouchableOpacity, Image, Animated, Easing, ActivityIndicator,
 } from "react-native";
+import { SkeletonShimmer } from "../shared/SkeletonShimmer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
@@ -148,9 +149,13 @@ export function SongOfTheDayCard() {
 
   if (loading) {
     return (
-      <View style={styles.loadingCard}>
-        <ActivityIndicator color="#a78bfa" />
-        <Text style={styles.loadingText}>Loading today's track...</Text>
+      <View style={styles.skeletonCard}>
+        <SkeletonShimmer width={64} height={64} borderRadius={14} />
+        <View style={styles.skeletonBody}>
+          <SkeletonShimmer width="60%" height={14} borderRadius={7} />
+          <SkeletonShimmer width="80%" height={11} borderRadius={6} style={{ marginTop: 8 }} />
+          <SkeletonShimmer width="45%" height={9} borderRadius={5} style={{ marginTop: 6 }} />
+        </View>
       </View>
     );
   }
@@ -247,6 +252,14 @@ const styles = StyleSheet.create({
     borderRadius: 20, padding: 20,
     alignItems: "center", gap: 8, flexDirection: "row",
   },
+  skeletonCard: {
+    marginHorizontal: 16, marginVertical: 8,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 20, padding: 16,
+    flexDirection: "row", alignItems: "center", gap: 14,
+    borderWidth: 1, borderColor: "rgba(124,58,237,0.15)",
+  },
+  skeletonBody: { flex: 1, gap: 0 },
   loadingText: { color: "#6b7280", fontSize: 13, flex: 1 },
   retryBtn:    { backgroundColor: "rgba(124,58,237,0.2)", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: "rgba(124,58,237,0.4)" },
   retryText:   { color: "#a78bfa", fontSize: 13, fontWeight: "700" },

@@ -6,6 +6,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useRoom } from "../../contexts/RoomContext";
+import { PostGameCard } from "../../components/shared/PostGameCard";
 
 const PUZZLES = [
   { emojis: "🦁👑🐾🌅", answer: "The Lion King", hint: "Disney animated film about a prince and his destiny" },
@@ -25,8 +26,9 @@ type Phase = "lobby" | "playing" | "results";
 export default function EmojiStoryScreen() {
   const router = useRouter();
   const { state, sendAction } = useRoom();
-  const inRoom = !!state.room;
-  const mpState = state.guestViewData as any;
+  const startedInRoom = useRef(!!state.room);
+  const inRoom = startedInRoom.current && !!state.room;
+  const mpState = inRoom ? (state.guestViewData as any) : null;
 
   const [phase, setPhase] = useState<Phase>("lobby");
   const [idx, setIdx] = useState(0);
@@ -282,29 +284,14 @@ export default function EmojiStoryScreen() {
   }
 
   if (phase === "results") {
-    const pct = Math.round((score / (PUZZLES.length * 500)) * 100);
     return (
-      <LinearGradient colors={["#03001c", "#200a00"]} style={s.flex}>
-        <SafeAreaView style={s.flex}>
-          <View style={s.center}>
-            <Text style={{ fontSize: 64 }}>🏆</Text>
-            <Text style={s.title}>Emoji Master!</Text>
-            <Text style={s.bigScore}>{score}</Text>
-            <Text style={s.scoreLabel}>POINTS EARNED</Text>
-            <Text style={s.verdict}>
-              {pct >= 80 ? "🎬 Film Buff!" : pct >= 50 ? "🎥 Movie Watcher" : "📺 Casual Viewer"}
-            </Text>
-            <TouchableOpacity style={s.startBtn} onPress={startGame}>
-              <LinearGradient colors={["#b5179e", "#7209b7"]} style={s.startBtnInner}>
-                <Text style={s.startBtnText}>PLAY AGAIN</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.homeBtn} onPress={() => router.back()}>
-              <Text style={s.homeBtnText}>Back to Home</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <PostGameCard
+        score={score}
+        maxScore={1000}
+        gameEmoji="😂"
+        gameTitle="Emoji Story"
+        onPlayAgain={startGame}
+      />
     );
   }
 

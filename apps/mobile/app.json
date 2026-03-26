@@ -1,17 +1,20 @@
 {
   "expo": {
     "name": "PartyGlue",
-    "slug": "partyglue",
+    "slug": "queuedj",
     "version": "0.1.0",
     "orientation": "portrait",
-    "scheme": "partyglue",
+    "scheme": "queuedj",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/logo.png",
     "splash": {
-      "backgroundColor": "#0a0a0a"
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a000f"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.partyglue.app",
+      "bundleIdentifier": "com.queuedj.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -19,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.partyglue.app",
+      "package": "com.queuedj.app",
       "adaptiveIcon": {
         "backgroundColor": "#0a0a0a"
       },
@@ -40,9 +43,17 @@
       "expo-router",
       "expo-av",
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#7c3aed",
+          "sounds": []
+        }
+      ],
+      [
         "expo-camera",
         {
-          "cameraPermission": "PartyGlue uses the camera to scan room QR codes."
+          "cameraPermission": "QueueDJ uses the camera to scan room QR codes."
         }
       ],
       [
