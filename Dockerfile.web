@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy full monorepo so workspace packages resolve
+COPY . .
+
+# Install all workspace dependencies from root
+RUN npm install --legacy-peer-deps --ignore-scripts
+
+# Build the Expo web app
+RUN cd apps/mobile && npx expo export -p web
+
+# Serve the built output
+RUN npm install -g serve
+
+EXPOSE 3000
+
+CMD ["serve", "apps/mobile/dist", "-p", "3000"]
