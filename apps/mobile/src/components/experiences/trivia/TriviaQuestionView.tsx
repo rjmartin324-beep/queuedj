@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   View, Text, TouchableOpacity, StyleSheet, Animated,
   Dimensions, Easing,
@@ -128,8 +128,13 @@ function AnswerCard({ option, index, onPress, isSelected, isCorrect, isWrong, sh
 export function TriviaQuestionView({ showResult = false }: { showResult?: boolean }) {
   const { state, sendAction } = useRoom();
 
-  const rawData   = state.guestViewData as any;
-  const question  = showResult ? rawData?.currentQuestion : rawData;
+  const rawData = state.guestViewData as any;
+
+  // Stabilize question reference — server sends guestViewData every tick (timeLeft updates).
+  // Without memoization, the component re-renders each second causing the text to flicker.
+  const questionRaw = showResult ? rawData?.currentQuestion : rawData;
+  const question = useMemo(() => questionRaw, [questionRaw?.id, showResult]);
+
   const correctId = showResult ? rawData?.currentQuestion?.correctOptionId : null;
   const timeLimit = question?.timeLimitSeconds ?? 20;
 
