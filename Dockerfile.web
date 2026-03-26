@@ -1,20 +1,33 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy full monorepo so workspace packages resolve
-COPY . .
+# ── Install (layer-cached) ────────────────────────────────────────────────────
+# Copy shared-types source and only the mobile package.json first
+COPY packages/shared-types ./packages/shared-types
+COPY apps/mobile/package.json ./apps/mobile/package.json
 
-# Install all workspace dependencies from root
-# Remove lockfile first — it may have stale registry refs for workspace packages
-RUN rm -f package-lock.json && npm install --legacy-peer-deps --ignore-scripts
+# Pre-link @queuedj/shared-types directly into mobile's node_modules.
+# npm checks node_modules before the registry — version "0.0.1" satisfies "*",
+# so it treats the package as already installed and skips the registry fetch.
+RUN mkdir -p apps/mobile/node_modules/@queuedj && \
+    ln -sf /app/packages/shared-types apps/mobile/node_modules/@queuedj/shared-types
 
-# Build the Expo web app
-RUN cd apps/mobile && npx expo export -p web
+WORKDIR /app/apps/mobile
+RUN npm install --legacy-peer-deps --ignore-scripts
 
-# Serve the built output
+# ── Build ─────────────────────────────────────────────────────────────────────
+WORKDIR /app
+# Copy remaining source (node_modules is NOT in git so it won't be overwritten)
+COPY apps/mobile/. ./apps/mobile/
+COPY tsconfig.base.json ./
+
+WORKDIR /app/apps/mobile
+RUN npx expo export -p web
+
+# ── Runtime ───────────────────────────────────────────────────────────────────
+FROM node:20-alpine
 RUN npm install -g serve
-
+COPY --from=builder /app/apps/mobile/dist /dist
 EXPOSE 3000
-
-CMD ["serve", "apps/mobile/dist", "-p", "3000"]
+CMD ["serve", "/dist", "-p", "3000"]
