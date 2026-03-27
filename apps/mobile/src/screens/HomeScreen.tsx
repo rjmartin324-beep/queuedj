@@ -1089,6 +1089,7 @@ function HomeTab({
   const [howItWorksVisible, setHowItWorksVisible] = useState(false);
   const avatarSize = Math.min(Dimensions.get("window").width * 0.62, 300);
   const isStudio = theme === "studio";
+  const { state: roomState } = useRoom();
 
   return (
     <ScrollView
@@ -1237,6 +1238,27 @@ function HomeTab({
 
       {/* ── Recently Played ──────────────────────────────────────────── */}
       <RecentlyPlayedSection />
+
+      {/* ── DJ Section ───────────────────────────────────────────────── */}
+      <View style={styles.djHomeSection}>
+        <View style={styles.djHomeSectionHeader}>
+          <Text style={styles.djHomeSectionLabel}>🎛️  DJ MODE</Text>
+        </View>
+        <View style={styles.djHomeCard}>
+          <View style={styles.djHomeCardLeft}>
+            <Text style={styles.djHomeCardTitle}>Drop the Beat</Text>
+            <Text style={styles.djHomeCardSub}>BPM-synced crossfades · AI DJ · Spotify queue</Text>
+          </View>
+          <TouchableOpacity style={styles.djHomeBtn} onPress={onStartRoom} activeOpacity={0.85}>
+            <Text style={styles.djHomeBtnText}>Start</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.djHomePillRow}>
+          {["🎵 Queue", "🤖 AI DJ", "🎚️ Decks", "🔀 Crossfader"].map(f => (
+            <View key={f} style={styles.djHomePill}><Text style={styles.djHomePillText}>{f}</Text></View>
+          ))}
+        </View>
+      </View>
 
       {/* Bottom padding */}
       <View style={{ height: 32 }} />
@@ -1995,8 +2017,8 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   avatarCardTop: {
-    height: 200, alignItems: "center", justifyContent: "flex-end",
-    position: "relative", overflow: "hidden",
+    height: 280, alignItems: "center", justifyContent: "flex-end",
+    position: "relative", paddingBottom: 8,
   },
   emoteBubble: {
     position: "absolute", top: 14, right: 14, zIndex: 5,
@@ -2291,4 +2313,28 @@ const styles = StyleSheet.create({
   recentGameName:{ color: "#fff", fontSize: 14, fontWeight: "700" },
   recentMeta:    { color: "#6b7280", fontSize: 12, marginTop: 2 },
   recentArrow:   { color: "#4a5568", fontSize: 22 },
+
+  // DJ home section
+  djHomeSection:       { marginHorizontal: 16, marginBottom: 20 },
+  djHomeSectionHeader: { marginBottom: 8 },
+  djHomeSectionLabel:  { color: "#6b7280", fontSize: 10, fontWeight: "800", letterSpacing: 2 },
+  djHomeCard: {
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "#110e1e", borderWidth: 1, borderColor: "#2a2450",
+    borderRadius: 16, padding: 16, marginBottom: 10,
+  },
+  djHomeCardLeft:  { flex: 1 },
+  djHomeCardTitle: { color: "#fff", fontSize: 16, fontWeight: "800" },
+  djHomeCardSub:   { color: "#7c6fa0", fontSize: 11, marginTop: 3 },
+  djHomeBtn: {
+    backgroundColor: "#7c3aed", borderRadius: 10,
+    paddingHorizontal: 18, paddingVertical: 9,
+  },
+  djHomeBtnText:   { color: "#fff", fontSize: 13, fontWeight: "800" },
+  djHomePillRow:   { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  djHomePill: {
+    backgroundColor: "#1a1530", borderWidth: 1, borderColor: "#2a2450",
+    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5,
+  },
+  djHomePillText:  { color: "#a78bfa", fontSize: 11, fontWeight: "700" },
 });

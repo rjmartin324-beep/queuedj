@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -109,6 +110,7 @@ export default function RootLayout() {
   }
 
   return (
+    <SafeAreaProvider>
     <ErrorBoundary>
       <ThemeProvider>
         <RoomProvider>
@@ -124,5 +126,6 @@ export default function RootLayout() {
         </RoomProvider>
       </ThemeProvider>
     </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }

@@ -374,8 +374,8 @@ export default function HostScreen() {
       {/* CONNECTED BAR */}
       <ConnectionBar isOffline={state.isOffline} memberCount={state.members.length} />
 
-      {/* SUB-NAV - horizontal scroll pills */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.subNav} contentContainerStyle={styles.subNavContent}>
+      {/* SUB-NAV - pills row */}
+      <View style={[styles.subNav, styles.subNavContent]}>
         {SECONDARY_TABS.map(({ id, label, badge }) => {
           const on = tab === id;
           return (
@@ -387,7 +387,7 @@ export default function HostScreen() {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </View>
 
       {/* GAMES SECTION */}
       <View style={styles.section}>
