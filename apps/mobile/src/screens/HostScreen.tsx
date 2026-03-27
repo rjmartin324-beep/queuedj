@@ -341,7 +341,6 @@ export default function HostScreen() {
 
   const SECONDARY_TABS: { id: Tab; label: string; badge?: number }[] = [
     { id: "controls", label: "Controls" },
-    { id: "queue",    label: "Queue",    badge: state.queue.length   || undefined },
     { id: "guests",   label: "Guests",   badge: state.members.length || undefined },
     { id: "recs",     label: "AI Picks" },
     { id: "history",  label: "History" },
@@ -469,6 +468,10 @@ export default function HostScreen() {
         {djExpanded && (
           <ScrollView style={styles.djPanel} contentContainerStyle={{ padding: 16, paddingBottom: 24 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <DJControls />
+            <View style={styles.djQueueDivider}>
+              <Text style={styles.djQueueLabel}>QUEUE</Text>
+            </View>
+            <HostQueueView />
           </ScrollView>
         )}
       </View>
@@ -899,7 +902,9 @@ const styles = StyleSheet.create({
   toggleTrackOn: { backgroundColor: "#a78bfa", borderColor: "#8b5cf6" },
   toggleThumb: { width: 20, height: 20, backgroundColor: "#fff", borderRadius: 10, alignSelf: "flex-start" },
   toggleThumbOn: { alignSelf: "flex-end" },
-  djPanel: { maxHeight: 360 },
+  djPanel: { maxHeight: 520 },
+  djQueueDivider: { borderTopWidth: 1, borderTopColor: "#2a2450", marginTop: 16, paddingTop: 12 },
+  djQueueLabel: { color: "#6a64a0", fontSize: 10, fontWeight: "800", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 },
 
   // CHAT FAB
   chatFab: { position: "absolute", bottom: 72, right: 16, zIndex: 20 },
