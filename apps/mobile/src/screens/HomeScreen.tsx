@@ -1113,9 +1113,6 @@ function HomeTab({
           </View>
         </View>
         <View style={styles.topRight}>
-          <View style={styles.streakPill}>
-            <Text style={styles.streakPillText}>🔥 {1} day streak</Text>
-          </View>
           <TouchableOpacity style={styles.notifBtn} activeOpacity={0.8}>
             <Text style={{ fontSize: 16 }}>🔔</Text>
             <View style={styles.notifDot} />

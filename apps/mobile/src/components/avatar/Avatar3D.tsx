@@ -1,8 +1,9 @@
-import React, { Suspense, useEffect, useRef } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { View, PanResponder } from "react-native";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { Asset } from "expo-asset";
 
 export type EmotionId   = "neutral" | "happy" | "laugh" | "sad" | "angry" | "surprised" | "cry" | "love" | "cool" | "shocked" | "sleepy" | "confused" | "celebrate";
 export type AnimStateId = "idle" | "bounceIdle" | "wave" | "celebrate" | "react_happy" | "react_laugh" | "react_sad" | "react_angry" | "react_surprised" | "react_cry" | "react_love" | "react_cool" | "react_shocked" | "react_sleepy" | "react_confused";
@@ -16,32 +17,48 @@ interface Props {
   expression?: "happy" | "cool" | "party";
 }
 
-// ─── GLB Model ────────────────────────────────────────────────────────────────
+// ─── Resolve GLB asset to a real URI (works on web + native) ─────────────────
 
-const AVATAR_GLB = require("../../../assets/avatar.glb");
+function useGLBUri() {
+  const [uri, setUri] = useState<string | null>(null);
 
-function GLBModel({ rotY }: { rotY: React.MutableRefObject<number> }) {
-  const gltf     = useLoader(GLTFLoader, AVATAR_GLB);
+  useEffect(() => {
+    const mod = require("../../../assets/avatar.glb");
+    // On web, require() of a bundled asset already returns a URL string.
+    // On native, it returns a numeric module ID — expo-asset resolves it.
+    if (typeof mod === "string") {
+      setUri(mod);
+    } else {
+      Asset.fromModule(mod)
+        .downloadAsync()
+        .then(a => setUri(a.localUri ?? a.uri ?? null))
+        .catch(() => setUri(null));
+    }
+  }, []);
+
+  return uri;
+}
+
+// ─── GLB Model (only rendered once we have a valid URI) ───────────────────────
+
+function GLBLoader({ uri, rotY }: { uri: string; rotY: React.MutableRefObject<number> }) {
+  const gltf     = useLoader(GLTFLoader, uri);
   const groupRef = useRef<THREE.Group>(null);
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
 
-  // Auto-center and scale the model to fit the viewport
   useEffect(() => {
     if (!gltf.scene) return;
+    // Auto-center and normalise to ~1 unit tall
     const box    = new THREE.Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new THREE.Vector3());
     const height = box.getSize(new THREE.Vector3()).y;
-    // Shift model so base sits at y=0, centered on x/z
-    gltf.scene.position.set(-center.x, -box.min.y, -center.z);
-    // Normalise scale so the model is roughly 1 unit tall
-    const scale = 1.0 / (height || 1);
-    gltf.scene.scale.setScalar(scale);
-
-    // Play first animation if any (idle)
+    gltf.scene.scale.setScalar(1.0 / (height || 1));
+    // Shift down by half the normalised height so the model sits lower in frame
+    gltf.scene.position.set(-center.x, -box.min.y / (height || 1) - 0.5, -center.z);
+    // Play first animation if present
     if (gltf.animations.length > 0) {
       mixerRef.current = new THREE.AnimationMixer(gltf.scene);
-      const action = mixerRef.current.clipAction(gltf.animations[0]);
-      action.play();
+      mixerRef.current.clipAction(gltf.animations[0]).play();
     }
   }, [gltf]);
 
@@ -57,45 +74,32 @@ function GLBModel({ rotY }: { rotY: React.MutableRefObject<number> }) {
   );
 }
 
-// ─── Fallback blob shown while GLB loads ──────────────────────────────────────
+// ─── Scene — resolves URI then renders model or fallback ─────────────────────
 
-function FallbackMesh({ rotY }: { rotY: React.MutableRefObject<number> }) {
+function Scene({ rotY }: { rotY: React.MutableRefObject<number> }) {
+  const uri = useGLBUri();
+  return uri ? (
+    <Suspense fallback={<FallbackBlob rotY={rotY} />}>
+      <GLBLoader uri={uri} rotY={rotY} />
+    </Suspense>
+  ) : (
+    <FallbackBlob rotY={rotY} />
+  );
+}
+
+// ─── Fallback shown while GLB resolves / loads ────────────────────────────────
+
+function FallbackBlob({ rotY }: { rotY: React.MutableRefObject<number> }) {
   const ref = useRef<THREE.Mesh>(null);
-  useFrame(() => {
-    if (ref.current) ref.current.rotation.y = rotY.current;
-  });
+  useFrame(() => { if (ref.current) ref.current.rotation.y = rotY.current; });
   return (
     <mesh ref={ref} position={[0, 0.5, 0]}>
       <sphereGeometry args={[0.4, 32, 32]} />
-      <meshStandardMaterial color="#7c3aed" roughness={0.8} metalness={0.1} />
+      <meshStandardMaterial color="#7c3aed" roughness={0.8} />
     </mesh>
   );
 }
 
-// ─── Ground glow rings ────────────────────────────────────────────────────────
-
-function GroundRings() {
-  return (
-    <>
-      <mesh position={[0, 0.002, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.24, 0.34, 80]} />
-        <meshBasicMaterial color="#c084fc" transparent opacity={0.55} />
-      </mesh>
-      <mesh position={[0, 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.36, 0.44, 80]} />
-        <meshBasicMaterial color="#a855f7" transparent opacity={0.35} />
-      </mesh>
-      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.48, 0.80, 80]} />
-        <meshBasicMaterial color="#7c3aed" transparent opacity={0.12} />
-      </mesh>
-      <mesh position={[0, -0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.26, 80]} />
-        <meshBasicMaterial color="#a855f7" transparent opacity={0.08} />
-      </mesh>
-    </>
-  );
-}
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
@@ -117,12 +121,12 @@ export function Avatar3D({ size }: Props) {
   return (
     <View style={{ width: size, height: size }} {...pan.panHandlers}>
       <Canvas
-        camera={{ position: [0, 0.6, 2.8], fov: 40 }}
+        camera={{ position: [0, 0.1, 2.8], fov: 40 }}
         style={{ width: size, height: size, background: "transparent" }}
         gl={{ alpha: true, antialias: true }}
         onCreated={({ gl, camera }) => {
           gl.setClearColor(0x000000, 0);
-          (camera as THREE.PerspectiveCamera).lookAt(0, 0.5, 0);
+          (camera as THREE.PerspectiveCamera).lookAt(0, 0.0, 0);
         }}
       >
         <ambientLight intensity={0.55} color="#cce4ff" />
@@ -130,10 +134,7 @@ export function Avatar3D({ size }: Props) {
         <directionalLight position={[2.2, 4.0, 3.5]} intensity={1.55} color="#ffffff" />
         <directionalLight position={[-2.8, 2.0, 1.2]} intensity={0.32} color="#c8dcff" />
         <pointLight position={[0, -0.5, 2.2]} intensity={0.15} color="#fde68a" />
-        <GroundRings />
-        <Suspense fallback={<FallbackMesh rotY={rotY} />}>
-          <GLBModel rotY={rotY} />
-        </Suspense>
+        <Scene rotY={rotY} />
       </Canvas>
     </View>
   );
