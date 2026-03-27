@@ -42,7 +42,7 @@ const LYRIC_BANK = [
 ];
 
 export class FinishLyricExperience implements ExperienceModule {
-  readonly type = "finish_lyric" as const;
+  readonly type = "finish_the_lyric" as const;
   private usedIndices: Set<number> = new Set();
 
   async onActivate(roomId: string): Promise<void> {

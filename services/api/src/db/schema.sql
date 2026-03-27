@@ -46,6 +46,9 @@ CREATE TABLE tracks (
   intro_end_ms          INTEGER,
   first_drop_ms         INTEGER,
   outro_start_ms        INTEGER,
+  -- Beat grid: ms from track start to the first downbeat ("1" of bar 1)
+  -- Used for phase-locked quantized launch between decks
+  downbeat_offset_ms    INTEGER,
   -- AcoustID fingerprint for local file matching
   acoustid_fingerprint  TEXT,
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),

@@ -226,6 +226,132 @@ const CHALLENGES: RankingChallenge[] = [
     items: ["Gorilla", "Blue whale", "African elephant", "Hippopotamus"],
     correctOrder: [1, 2, 3, 0], // Blue whale, African elephant, Hippopotamus, Gorilla
   },
+  // ── added ────────────────────────────────────────────────────────────────────
+  {
+    prompt: "Rank these countries by number of UNESCO World Heritage Sites (most first)",
+    items: ["Mexico", "Italy", "China", "Spain"],
+    correctOrder: [1, 2, 3, 0], // Italy (58), China (57), Spain (50), Mexico (35)
+  },
+  {
+    prompt: "Rank these fast food chains by approximate number of global locations (most first)",
+    items: ["Burger King", "KFC", "McDonald's", "Subway"],
+    correctOrder: [3, 2, 1, 0], // Subway (~37k), McDonald's (~40k), KFC (~27k), BK (~18k) → McDonald's, Subway, KFC, BK
+  },
+  {
+    prompt: "Rank these currencies by value against the US dollar (most valuable first)",
+    items: ["Indian Rupee", "Bahraini Dinar", "Kuwaiti Dinar", "Euro"],
+    correctOrder: [2, 1, 3, 0], // Kuwaiti Dinar, Bahraini Dinar, Euro, Indian Rupee
+  },
+  {
+    prompt: "Rank these space objects by distance from Earth (closest first)",
+    items: ["Alpha Centauri", "The Moon", "Mars", "The Sun"],
+    correctOrder: [1, 3, 2, 0], // Moon, Sun, Mars, Alpha Centauri
+  },
+  {
+    prompt: "Rank these social networks by year of founding (oldest first)",
+    items: ["TikTok", "Facebook", "Twitter", "Instagram"],
+    correctOrder: [1, 2, 3, 0], // Facebook (2004), Twitter (2006), Instagram (2010), TikTok (2016)
+  },
+  {
+    prompt: "Rank these animated films by worldwide box office gross (highest first)",
+    items: ["Moana", "The Lion King (2019)", "Finding Dory", "Frozen II"],
+    correctOrder: [1, 3, 2, 0], // Lion King 2019 ($1.66B), Frozen II ($1.45B), Finding Dory ($1.03B), Moana ($643M)
+  },
+  {
+    prompt: "Rank these tech companies by founding year (oldest first)",
+    items: ["Google", "Amazon", "Apple", "Meta (Facebook)"],
+    correctOrder: [2, 1, 0, 3], // Apple (1976), Amazon (1994), Google (1998), Facebook (2004)
+  },
+  {
+    prompt: "Rank these desserts by approximate calorie count per serving (highest first)",
+    items: ["Slice of carrot cake", "Plain yoghurt (150g)", "Cheese pizza slice", "Chocolate lava cake"],
+    correctOrder: [3, 0, 2, 1], // Choc lava cake (~450), Carrot cake (~400), Pizza slice (~285), Yoghurt (~100)
+  },
+  {
+    prompt: "Rank these movies by running time (longest first)",
+    items: ["Avengers: Endgame", "Pulp Fiction", "Titanic", "LOTR: Return of the King"],
+    correctOrder: [3, 2, 0, 1], // LOTR RotK (201min), Titanic (194min), Endgame (181min), Pulp Fiction (154min)
+  },
+  {
+    prompt: "Rank these instruments by approximate age of invention (oldest first)",
+    items: ["Electric guitar", "Piano", "Violin", "Flute"],
+    correctOrder: [3, 2, 1, 0], // Flute (~40,000 yrs), Violin (1500s), Piano (1700), Electric guitar (1930s)
+  },
+  {
+    prompt: "Rank these US states by population (largest first)",
+    items: ["Florida", "Texas", "California", "New York"],
+    correctOrder: [2, 1, 0, 3], // California (39M), Texas (30M), Florida (22M), New York (20M)
+  },
+  {
+    prompt: "Rank these Taylor Swift albums by release year (oldest first)",
+    items: ["Fearless", "1989", "Reputation", "Folklore"],
+    correctOrder: [0, 1, 2, 3], // Fearless (2008), 1989 (2014), Reputation (2017), Folklore (2020)
+  },
+  {
+    prompt: "Rank these world landmarks by height (tallest first)",
+    items: ["Eiffel Tower", "Burj Khalifa", "Leaning Tower of Pisa", "Big Ben"],
+    correctOrder: [1, 0, 2, 3], // Burj Khalifa (828m), Eiffel Tower (330m), Leaning Tower (56m), Big Ben (96m) → Burj, Eiffel, Big Ben, Leaning Tower
+  },
+  {
+    prompt: "Rank these video game consoles by global units sold (most first)",
+    items: ["Xbox One", "Nintendo Switch", "PlayStation 4", "PlayStation 2"],
+    correctOrder: [3, 1, 2, 0], // PS2 (155M), Switch (140M+), PS4 (117M), Xbox One (51M)
+  },
+  {
+    prompt: "Rank these animals by gestation period (longest first)",
+    items: ["Dog", "Human", "African elephant", "Cat"],
+    correctOrder: [2, 1, 3, 0], // Elephant (645 days), Human (280), Cat (65), Dog (63)
+  },
+  {
+    prompt: "Rank these cities by altitude above sea level (highest first)",
+    items: ["La Paz, Bolivia", "Amsterdam", "Denver, USA", "London"],
+    correctOrder: [0, 2, 3, 1], // La Paz (3,640m), Denver (1,609m), London (11m), Amsterdam (-2m)
+  },
+  {
+    prompt: "Rank these words by number of letters (most first)",
+    items: ["Elephant", "Hippopotamus", "Cat", "Rhinoceros"],
+    correctOrder: [1, 3, 0, 2], // Hippopotamus (12), Rhinoceros (10), Elephant (8), Cat (3)
+  },
+  {
+    prompt: "Rank these Netflix shows by number of seasons (most first)",
+    items: ["Orange Is the New Black", "Stranger Things", "House of Cards", "The Crown"],
+    correctOrder: [0, 3, 2, 1], // OITNB (7), The Crown (6), House of Cards (5), Stranger Things (5)
+  },
+  {
+    prompt: "Rank these countries by coastline length (longest first)",
+    items: ["Russia", "Norway", "Canada", "Australia"],
+    correctOrder: [2, 1, 0, 3], // Canada (202k km), Norway (58k km), Russia (37k km), Australia (36k km)
+  },
+  {
+    prompt: "Rank these animals by average lifespan (longest first)",
+    items: ["Chimpanzee", "Bowhead whale", "Giant tortoise", "African elephant"],
+    correctOrder: [1, 2, 3, 0], // Bowhead whale (~200 yrs), Giant tortoise (~150), African elephant (~70), Chimp (~45)
+  },
+  {
+    prompt: "Rank these classic novels by publication date (oldest first)",
+    items: ["1984 – Orwell", "Pride and Prejudice – Austen", "To Kill a Mockingbird – Lee", "Frankenstein – Shelley"],
+    correctOrder: [1, 3, 0, 2], // Pride and Prejudice (1813), Frankenstein (1818), 1984 (1949), Mockingbird (1960)
+  },
+  {
+    prompt: "Rank these roller coasters by height (tallest first)",
+    items: ["Space Mountain (Disney)", "Top Thrill 2 (Ohio)", "Kingda Ka (NJ)", "Steel Dragon (Japan)"],
+    correctOrder: [2, 1, 3, 0], // Kingda Ka (139m), Top Thrill (128m), Steel Dragon (97m), Space Mountain (23m)
+  },
+  {
+    prompt: "Rank these athletes by estimated career earnings (highest first)",
+    items: ["Serena Williams", "Roger Federer", "Tiger Woods", "LeBron James"],
+    correctOrder: [2, 1, 3, 0], // Tiger Woods (~$1.7B), Federer (~$1.1B), LeBron (~$1B), Serena (~$200M)
+  },
+  {
+    prompt: "Rank these instruments from highest typical pitch to lowest",
+    items: ["Double bass", "Piccolo", "Cello", "Violin"],
+    correctOrder: [1, 3, 2, 0], // Piccolo, Violin, Cello, Double bass
+  },
+  {
+    prompt: "Rank these music festivals by typical attendance (largest first)",
+    items: ["Glastonbury", "Coachella", "Tomorrowland", "Reading Festival"],
+    correctOrder: [0, 2, 1, 3], // Glastonbury (~200k), Tomorrowland (~180k), Coachella (~125k), Reading (~90k)
+  },
 ];
 
 // ─── State ────────────────────────────────────────────────────────────────────

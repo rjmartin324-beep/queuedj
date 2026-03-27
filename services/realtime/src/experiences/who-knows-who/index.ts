@@ -29,6 +29,7 @@ interface WhoKnowsWhoState {
   currentQ: { text: string; options: string[] } | null; // options = guestIds
   votes: Record<string, string>; // voter guestId -> target guestId
   correctAnswer: string | null;  // majority winner revealed after reveal
+  tally: Record<string, number>; // guestId -> vote count (revealed on reveal)
   guestIds: string[];            // participant list
   queue: number[];
 }
@@ -85,6 +86,54 @@ const QUESTIONS: WhoKnowsWhoQuestion[] = [
   { text: "Who is most likely to leave the party and not say goodbye to anyone?" },
   { text: "Who is most likely to be the last one to leave the dance floor?" },
   { text: "Who is most likely to have a signature catchphrase that everyone knows?" },
+  // ── added to reach 100 ───────────────────────────────────────────────────────
+  { text: "Who is most likely to accidentally volunteer for something they deeply regret?" },
+  { text: "Who is most likely to fall asleep on public transport and miss their stop?" },
+  { text: "Who is most likely to have an opinion about everything at all times?" },
+  { text: "Who is most likely to go full method actor for a Halloween costume?" },
+  { text: "Who is most likely to be the one everyone calls at 2am in a crisis?" },
+  { text: "Who is most likely to have the messiest handbag or backpack?" },
+  { text: "Who is most likely to name their children after fictional characters?" },
+  { text: "Who is most likely to start a band and actually follow through?" },
+  { text: "Who is most likely to spend their entire paycheck in the first three days?" },
+  { text: "Who is most likely to get into a heated debate about something nobody else cares about?" },
+  { text: "Who is most likely to sneak their pet into a place pets are not allowed?" },
+  { text: "Who is most likely to go to a music festival alone and love it?" },
+  { text: "Who is most likely to cry at an advertisement?" },
+  { text: "Who is most likely to start a podcast that somehow gets really popular?" },
+  { text: "Who is most likely to have a plan for the zombie apocalypse already written down?" },
+  { text: "Who is most likely to try to fix something themselves and make it significantly worse?" },
+  { text: "Who is most likely to introduce everyone to a band nobody's heard of?" },
+  { text: "Who is most likely to marry someone they met on an app?" },
+  { text: "Who is most likely to be wearing the most comfortable shoes at a formal event?" },
+  { text: "Who is most likely to ghost someone after three weeks of great conversation?" },
+  { text: "Who is most likely to accidentally confess something huge in a group chat?" },
+  { text: "Who is most likely to turn a one-hour errand into an all-day event and have stories?" },
+  { text: "Who is most likely to go on a silent retreat and last twelve hours?" },
+  { text: "Who is most likely to become obsessed with a very niche hobby for exactly six weeks?" },
+  { text: "Who is most likely to start an argument about the correct way to load a dishwasher?" },
+  { text: "Who is most likely to have seventeen unread emails and feel completely fine about it?" },
+  { text: "Who is most likely to leave a five-star review for a place that was just average?" },
+  { text: "Who is most likely to be filming themselves during an emergency?" },
+  { text: "Who is most likely to have met a celebrity and not made a big deal of it?" },
+  { text: "Who is most likely to be the last person to know about something the whole group already knows?" },
+  { text: "Who is most likely to try a new diet every two weeks and tell everyone about it?" },
+  { text: "Who is most likely to name their houseplants and check on them more than their friends?" },
+  { text: "Who is most likely to get recognised in public one day?" },
+  { text: "Who is most likely to immediately regret a haircut but pretend they love it for weeks?" },
+  { text: "Who is most likely to accidentally become the main character of a situation?" },
+  { text: "Who is most likely to be described as 'a lot' by someone who loves them?" },
+  { text: "Who is most likely to have a drawer in their home that nobody is allowed to open?" },
+  { text: "Who is most likely to get personally offended by a film they chose to watch?" },
+  { text: "Who is most likely to bring homemade baked goods to every social event forever?" },
+  { text: "Who is most likely to leave a house party having made three new best friends they'll never see again?" },
+  { text: "Who is most likely to have a tattoo that is meaningful but also a little bit chaotic?" },
+  { text: "Who is most likely to win a staring contest against anyone?" },
+  { text: "Who is most likely to have a very specific and unusual morning ritual?" },
+  { text: "Who is most likely to adopt a 'live laugh love' attitude completely unironically?" },
+  { text: "Who is most likely to have genuinely excellent reasons for doing something ridiculous?" },
+  { text: "Who is most likely to have seventeen tabs open and be stressed by all of them?" },
+  { text: "Who is most likely to make a toast at a dinner they weren't asked to make a toast at?" },
 ];
 
 export class WhoKnowsWhoExperience implements ExperienceModule {
@@ -100,6 +149,7 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
       currentQ: null,
       votes: {},
       correctAnswer: null,
+      tally: {},
       guestIds: membersRaw,
       queue: shuffledIndices(QUESTIONS.length),
     };
@@ -175,6 +225,7 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
     state.round = 1;
     state.votes = {};
     state.correctAnswer = null;
+    state.tally = {};
     state.queue = shuffledIndices(QUESTIONS.length);
     state.currentQ = { text: QUESTIONS[state.queue[0]].text, options: state.guestIds };
     state.phase = "question";
@@ -214,6 +265,7 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
     }
 
     state.correctAnswer = majorityId;
+    state.tally = tally;
 
     // Award +250 to guests who voted for the majority
     if (majorityId) {
@@ -245,6 +297,7 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
     state.round = nextRound;
     state.votes = {};
     state.correctAnswer = null;
+    state.tally = {};
     state.currentQ = { text: QUESTIONS[state.queue[(nextRound - 1) % state.queue.length]].text, options: state.guestIds };
     state.phase = "question";
 
@@ -252,9 +305,13 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
     await this._broadcast(roomId, state, io);
   }
 
-  /** Hide raw votes during question phase */
+  /** Hide raw votes during question phase; expose tally only on reveal */
   private _safeState(state: WhoKnowsWhoState): Omit<WhoKnowsWhoState, "votes"> & { voteCount: number } {
     const { votes, ...safe } = state;
+    if (state.phase !== "reveal" && state.phase !== "finished") {
+      // During question phase, hide tally too
+      return { ...safe, tally: {}, voteCount: Object.keys(votes).length };
+    }
     return { ...safe, voteCount: Object.keys(votes).length };
   }
 

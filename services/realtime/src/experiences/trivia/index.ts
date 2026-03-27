@@ -31,6 +31,12 @@ export class TriviaExperience implements ExperienceModule {
   private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, hostGuestId: string): Promise<void> {
+    // Don't reset state if a game is already in progress — host reconnect or
+    // accidental re-activation would otherwise wipe scores and kill the timer.
+    const existing = await this._getState(roomId);
+    if (existing && existing.phase !== "waiting" && existing.phase !== "finished") {
+      return;
+    }
     const state: TriviaRoundState = {
       roundNumber: 0,
       totalRounds: 10,
@@ -60,6 +66,12 @@ export class TriviaExperience implements ExperienceModule {
       case "start_round":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._startRound(roomId, io);
+        break;
+
+      // ─── HOST: Resume after server restart (re-arm timer if stuck in question) ─
+      case "resume":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._resumeIfStuck(roomId, io);
         break;
 
       // ─── HOST: Next question ────────────────────────────────────────────
@@ -168,7 +180,9 @@ export class TriviaExperience implements ExperienceModule {
     if (existing) clearTimeout(existing);
     const timer = setTimeout(() => {
       this.timers.delete(roomId);
-      this._revealAnswer(roomId, io);
+      this._revealAnswer(roomId, io).catch((err) => {
+        console.error("[trivia] auto-reveal failed", { roomId, err });
+      });
     }, question.timeLimitSeconds * 1000);
     this.timers.set(roomId, timer);
   }
@@ -239,6 +253,36 @@ export class TriviaExperience implements ExperienceModule {
     if (state.phase === "finished") {
       await awardGameWin(io, state.scores, roomId);
     }
+  }
+
+  // Re-arm the auto-reveal timer if the server restarted mid-question.
+  // Safe to call any time — only acts when phase is "question" and no timer is running.
+  private async _resumeIfStuck(roomId: string, io: Server): Promise<void> {
+    const state = await this._getState(roomId);
+    if (!state || state.phase !== "question") return;
+    if (this.timers.has(roomId)) return; // Timer already running
+
+    const question = state.currentQuestion;
+    if (!question) return;
+
+    // Re-arm with a short grace window so guests aren't waiting the full duration again
+    const GRACE_MS = 10_000;
+    const timer = setTimeout(() => {
+      this.timers.delete(roomId);
+      this._revealAnswer(roomId, io).catch((err) => {
+        console.error("[trivia] resume auto-reveal failed", { roomId, err });
+      });
+    }, GRACE_MS);
+    this.timers.set(roomId, timer);
+
+    // Re-broadcast current question so any reconnected guests see it
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "trivia",
+      state: { ...state, answers: undefined },
+      view: { type: "trivia_question", data: this._safeQuestion(question) },
+      sequenceId: seq,
+    });
   }
 
   private async _getState(roomId: string): Promise<TriviaRoundState | null> {

@@ -6,6 +6,53 @@ import { writeFile, unlink } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 import { randomUUID } from "crypto";
+import { stemsExist, getPresignedStemUrls } from "../lib/r2";
+import { queueManager } from "../queue/bullmq";
+
+const ITUNES_SEARCH_URL = "https://itunes.apple.com/search";
+
+interface NormalizedTrack {
+  isrc:          string;
+  title:         string;
+  artist:        string;
+  album:         string | null;
+  album_art_url: string | null;
+  duration_ms:   number | null;
+  bpm:           number | null;
+  energy:        number | null;
+  preview_url:   string | null;
+  source:        "db" | "itunes";
+}
+
+async function searchItunes(query: string, limit: number): Promise<NormalizedTrack[]> {
+  try {
+    const params = new URLSearchParams({
+      term:   query,
+      entity: "song",
+      media:  "music",
+      limit:  String(limit),
+    });
+    const res  = await fetch(`${ITUNES_SEARCH_URL}?${params.toString()}`);
+    if (!res.ok) return [];
+    const data = await res.json() as { results?: any[] };
+    return (data.results ?? [])
+      .filter((r: any) => r.previewUrl)
+      .map((r: any) => ({
+        isrc:          `itunes:${r.trackId}`,
+        title:         r.trackName     ?? "",
+        artist:        r.artistName    ?? "",
+        album:         r.collectionName ?? null,
+        album_art_url: (r.artworkUrl100 as string | undefined)?.replace("100x100", "300x300") ?? null,
+        duration_ms:   r.trackTimeMillis ?? null,
+        bpm:           null,
+        energy:        null,
+        preview_url:   r.previewUrl,
+        source:        "itunes" as const,
+      }));
+  } catch {
+    return [];
+  }
+}
 
 const execFileAsync = promisify(execFile);
 
@@ -42,57 +89,60 @@ export async function trackRoutes(fastify: FastifyInstance) {
 
     if (!query) return reply.send({ tracks: [] });
 
+    // ── 1. Search Postgres (tracks we've already analyzed — have BPM/key) ────
+    let dbTracks: NormalizedTrack[] = [];
     try {
-      // Trigram similarity search across title + artist
-      // Similarity threshold 0.2 keeps results relevant without being too strict
       const result = await db.query<{
-        isrc: string;
-        title: string;
-        artist: string;
-        album: string | null;
-        album_art_url: string | null;
-        duration_ms: number | null;
-        bpm: number | null;
-        energy: number | null;
-        similarity: number;
-      }>(
-        `SELECT
-           isrc, title, artist, album, album_art_url, duration_ms, bpm, energy,
-           GREATEST(
-             similarity(title, $1),
-             similarity(artist, $1)
-           ) AS similarity
-         FROM tracks
-         WHERE
-           title % $1 OR artist % $1
-         ORDER BY similarity DESC
-         LIMIT $2`,
-        [query, limit],
-      );
-
-      return reply.send({ tracks: result.rows });
-    } catch {
-      // pg_trgm not available — fallback to LIKE
-      const result = await db.query<{
-        isrc: string;
-        title: string;
-        artist: string;
-        album: string | null;
-        album_art_url: string | null;
-        duration_ms: number | null;
-        bpm: number | null;
-        energy: number | null;
+        isrc: string; title: string; artist: string;
+        album: string | null; album_art_url: string | null;
+        duration_ms: number | null; bpm: number | null; energy: number | null;
       }>(
         `SELECT isrc, title, artist, album, album_art_url, duration_ms, bpm, energy
          FROM tracks
-         WHERE
-           title ILIKE $1 OR artist ILIKE $1
-         ORDER BY title
+         WHERE title % $1 OR artist % $1
+         ORDER BY GREATEST(similarity(title, $1), similarity(artist, $1)) DESC
          LIMIT $2`,
-        [`%${query}%`, limit],
+        [query, limit],
       );
-      return reply.send({ tracks: result.rows });
+      dbTracks = result.rows.map((r) => ({ ...r, preview_url: null, source: "db" as const }));
+    } catch {
+      // pg_trgm not available — LIKE fallback
+      try {
+        const result = await db.query<{
+          isrc: string; title: string; artist: string;
+          album: string | null; album_art_url: string | null;
+          duration_ms: number | null; bpm: number | null; energy: number | null;
+        }>(
+          `SELECT isrc, title, artist, album, album_art_url, duration_ms, bpm, energy
+           FROM tracks WHERE title ILIKE $1 OR artist ILIKE $1 ORDER BY title LIMIT $2`,
+          [`%${query}%`, limit],
+        );
+        dbTracks = result.rows.map((r) => ({ ...r, preview_url: null, source: "db" as const }));
+      } catch { /* DB unavailable — iTunes only */ }
     }
+
+    // ── 2. Supplement with iTunes when DB has fewer results than requested ───
+    // iTunes runs in parallel only when needed, adds preview URLs for tracks
+    // not yet in the local cache. De-duped by normalised title+artist pair.
+    const remaining = limit - dbTracks.length;
+    let merged: NormalizedTrack[] = dbTracks;
+
+    if (remaining > 0) {
+      const itunesTracks = await searchItunes(query, Math.min(remaining + 5, 20));
+
+      // Build a set of "title|artist" keys already covered by DB results
+      const dbKeys = new Set(
+        dbTracks.map((t) => `${t.title.toLowerCase()}|${t.artist.toLowerCase()}`)
+      );
+
+      const novel = itunesTracks.filter(
+        (t) => !dbKeys.has(`${t.title.toLowerCase()}|${t.artist.toLowerCase()}`)
+      ).slice(0, remaining);
+
+      merged = [...dbTracks, ...novel];
+    }
+
+    return reply.send({ tracks: merged });
   });
 
   // ─── GET /tracks/:isrc ────────────────────────────────────────────────────
@@ -435,5 +485,93 @@ export async function trackRoutes(fastify: FastifyInstance) {
     } finally {
       unlink(tmpPath).catch(() => {});
     }
+  });
+
+  // ─── POST /internal/stems ─────────────────────────────────────────────────
+  // Called by the realtime service (fire-and-forget) when a track is loaded
+  // onto a deck that supports stem mixing. Enqueues a Demucs separation job.
+  //
+  // Idempotent — safe to call multiple times for the same ISRC.
+  // Job deduplication in BullMQ ensures only one job runs per ISRC.
+  //
+  // Responses:
+  //   200  { jobId }             — job enqueued (or already in queue)
+  //   200  { cached: true }      — stems already in R2, nothing to do
+  //   403  { error: "NO_DERIVATIVE" }  — no_derivative flag set
+  //   404  { error: "TRACK_NOT_FOUND" }
+  fastify.post<{
+    Body: { isrc: string; audioUrl: string }
+  }>("/internal/stems", {
+    schema: {
+      body: {
+        type: "object",
+        required: ["isrc", "audioUrl"],
+        properties: {
+          isrc:     { type: "string", minLength: 10, maxLength: 12 },
+          audioUrl: { type: "string", minLength: 1 },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    const { isrc, audioUrl } = request.body;
+
+    const row = await db.query<{ no_derivative: boolean }>(
+      "SELECT no_derivative FROM tracks WHERE isrc = $1",
+      [isrc],
+    );
+
+    if (row.rows.length === 0) {
+      return reply.code(404).send({ error: "TRACK_NOT_FOUND" });
+    }
+
+    if (row.rows[0].no_derivative) {
+      return reply.code(403).send({ error: "NO_DERIVATIVE" });
+    }
+
+    // Skip enqueue if stems already done
+    if (process.env.R2_ACCOUNT_ID && await stemsExist(isrc)) {
+      return reply.send({ cached: true });
+    }
+
+    const jobId = await queueManager.addStemSeparation(isrc, audioUrl);
+    return reply.send({ jobId });
+  });
+
+  // ─── GET /tracks/:isrc/stems ───────────────────────────────────────────────
+  // Returns presigned R2 URLs for the four stem files (vocals/drums/bass/other).
+  //
+  // Responses:
+  //   200  { vocals, drums, bass, other }  — stems ready, URLs valid for 1 hour
+  //   202  { status: "pending" }           — stems not yet separated (job in queue)
+  //   403  { error: "NO_DERIVATIVE" }      — no_derivative flag blocks stem use
+  //   404  { error: "TRACK_NOT_FOUND" }    — ISRC unknown
+  //   503  { error: "R2_NOT_CONFIGURED" }  — R2 env vars missing (dev/local)
+  fastify.get<{ Params: { isrc: string } }>("/tracks/:isrc/stems", async (request, reply) => {
+    const { isrc } = request.params;
+
+    const row = await db.query<{ no_derivative: boolean }>(
+      "SELECT no_derivative FROM tracks WHERE isrc = $1",
+      [isrc],
+    );
+
+    if (row.rows.length === 0) {
+      return reply.code(404).send({ error: "TRACK_NOT_FOUND" });
+    }
+
+    if (row.rows[0].no_derivative) {
+      return reply.code(403).send({ error: "NO_DERIVATIVE" });
+    }
+
+    if (!process.env.R2_ACCOUNT_ID) {
+      return reply.code(503).send({ error: "R2_NOT_CONFIGURED" });
+    }
+
+    const ready = await stemsExist(isrc);
+    if (!ready) {
+      return reply.code(202).send({ status: "pending" });
+    }
+
+    const urls = await getPresignedStemUrls(isrc);
+    return reply.send(urls);
   });
 }

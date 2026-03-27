@@ -1,11 +1,12 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "./storage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Persistent Identity
 //
-// Stores a stable anonymous identity in AsyncStorage that survives app restarts.
-// The guestId is a UUID v4 generated once on first launch and never changed.
-// displayName, avatarChoice, and vibeCredits are user-configurable.
+// Stores a stable anonymous identity via MMKV (synchronous) that survives
+// app restarts. The guestId is a UUID v4 generated once on first launch
+// and never changed. displayName, avatarChoice, and vibeCredits are
+// user-configurable.
 //
 // This is the single source of truth for local identity — used by SocketManager,
 // RoomContext, and any screen that needs the guest's profile.
@@ -38,28 +39,22 @@ function generateUUID(): string {
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
- * Load the full identity from AsyncStorage.
+ * Load the full identity from MMKV (synchronous).
  * Creates and persists a new guestId if one does not already exist.
+ * Kept async for backward compatibility with call sites.
  */
 export async function getIdentity(): Promise<Identity> {
-  const [guestId, displayName, avatarChoice, creditsRaw] = await Promise.all([
-    AsyncStorage.getItem(KEYS.guestId),
-    AsyncStorage.getItem(KEYS.displayName),
-    AsyncStorage.getItem(KEYS.avatarChoice),
-    AsyncStorage.getItem(KEYS.vibeCredits),
-  ]);
-
-  let resolvedGuestId = guestId;
-  if (!resolvedGuestId) {
-    resolvedGuestId = generateUUID();
-    await AsyncStorage.setItem(KEYS.guestId, resolvedGuestId);
+  let guestId = storage.getString(KEYS.guestId) ?? null;
+  if (!guestId) {
+    guestId = generateUUID();
+    storage.set(KEYS.guestId, guestId);
   }
 
   return {
-    guestId:      resolvedGuestId,
-    displayName:  displayName ?? null,
-    avatarChoice: avatarChoice ?? null,
-    vibeCredits:  creditsRaw ? parseInt(creditsRaw, 10) : 0,
+    guestId,
+    displayName:  storage.getString(KEYS.displayName) ?? null,
+    avatarChoice: storage.getString(KEYS.avatarChoice) ?? null,
+    vibeCredits:  parseInt(storage.getString(KEYS.vibeCredits) ?? "0", 10),
   };
 }
 
@@ -68,33 +63,25 @@ export async function getIdentity(): Promise<Identity> {
  * Only writes keys that are provided — partial updates are supported.
  */
 export async function saveIdentity(updates: Partial<Omit<Identity, "guestId">>): Promise<void> {
-  const pairs: [string, string][] = [];
-
   if (updates.displayName !== undefined) {
-    pairs.push([KEYS.displayName, updates.displayName ?? ""]);
+    storage.set(KEYS.displayName, updates.displayName ?? "");
   }
   if (updates.avatarChoice !== undefined) {
-    pairs.push([KEYS.avatarChoice, updates.avatarChoice ?? ""]);
+    storage.set(KEYS.avatarChoice, updates.avatarChoice ?? "");
   }
   if (updates.vibeCredits !== undefined) {
-    pairs.push([KEYS.vibeCredits, String(updates.vibeCredits)]);
-  }
-
-  if (pairs.length > 0) {
-    await AsyncStorage.multiSet(pairs);
+    storage.set(KEYS.vibeCredits, String(updates.vibeCredits));
   }
 }
 
 /**
- * Erase all identity data from AsyncStorage.
+ * Erase all identity data from MMKV.
  * A fresh guestId will be generated on the next getIdentity() call.
  * Use with caution — this is permanent and cannot be undone.
  */
 export async function clearIdentity(): Promise<void> {
-  await AsyncStorage.multiRemove([
-    KEYS.guestId,
-    KEYS.displayName,
-    KEYS.avatarChoice,
-    KEYS.vibeCredits,
-  ]);
+  storage.delete(KEYS.guestId);
+  storage.delete(KEYS.displayName);
+  storage.delete(KEYS.avatarChoice);
+  storage.delete(KEYS.vibeCredits);
 }

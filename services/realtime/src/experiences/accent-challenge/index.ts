@@ -20,6 +20,21 @@ const ACCENTS = [
   "Pirate",
   "Italian-American",
   "Scottish",
+  // ── added ────────────────────────────────────────────────────────────────────
+  "French",
+  "German",
+  "Indian",
+  "Mexican",
+  "Russian",
+  "Southern Irish",
+  "New York City",
+  "Jamaican",
+  "South African",
+  "Welsh",
+  "Texan",
+  "Scandinavian",
+  "Japanese",
+  "Valley Girl",
 ];
 
 const PHRASES = [
@@ -33,6 +48,47 @@ const PHRASES = [
   "The forecast calls for scattered cheese with a chance of bread.",
   "Excuse me, is this seat taken by a time traveller?",
   "I demand to speak to your manager's manager's manager.",
+  // ── added to reach 50 ────────────────────────────────────────────────────────
+  "My cat has been staring at the wall for three hours and I'm starting to worry.",
+  "Attention passengers, the pilot has requested that everyone stop breathing so loudly.",
+  "I told you the left turn was the right turn, and the right turn was the wrong turn.",
+  "Could you repeat that? I was distracted by how correctly you were pronouncing things.",
+  "Welcome to the party. We ran out of food at 7pm. It is now 7:02pm.",
+  "I have climbed the tallest mountain, swum the deepest sea, and forgotten my phone charger.",
+  "The WiFi password is forty-seven lowercase letters — would you like me to spell it?",
+  "Technically speaking, what you're describing is not a problem. It is a challenge opportunity.",
+  "I didn't choose the party life. The party life chose me, then immediately uninvited me.",
+  "You look exactly like someone who has never assembled IKEA furniture alone at midnight.",
+  "There is absolutely no reason to panic. This is a completely controlled situation. Everyone run.",
+  "My grandmother makes better decisions at 4am than this entire room is making right now.",
+  "I have been in this queue for forty-five minutes and I have forgotten what I was queuing for.",
+  "Excuse me, could you lower your voice? Some of us are trying to overhear other conversations.",
+  "I am perfectly calm. I have never been calmer in my life. Please do not look at my hands.",
+  "According to my calculations, we should arrive approximately three hours after we needed to be there.",
+  "The doctor said I need more rest, more vegetables, and significantly better life choices.",
+  "I ordered one small coffee and somehow left the café having spent forty-three dollars.",
+  "This is my opinion and I stand by it firmly, unless you disagree, in which case I never said it.",
+  "I just want to say, for the record, that this was not my idea and I voted against it.",
+  "Someone has eaten my clearly labelled lunch from the fridge again and I am done being civil.",
+  "The GPS told me to turn left and I did, and now I am in the ocean.",
+  "I packed for a weekend and brought enough clothes for a small theatrical production.",
+  "My flight was delayed six hours and the lounge ran out of free croissants — this is a disaster.",
+  "Hello yes I am calling to complain about a product I purchased several years ago with great confidence.",
+  "I fully understand the rules. I simply choose to interpret them differently.",
+  "The meeting that could have been an email has now become a three-day retreat.",
+  "I have never been more relaxed in my life. These are relaxed eyes. This is my relaxed voice.",
+  "Technically I was on time — I was just in a different building.",
+  "Please lower your expectations before I continue, as what follows may disappoint you.",
+  "I ordered a table for two and brought eleven people. Surely this is solvable.",
+  "That is a very good question and I plan to answer it at some point before the end of the meeting.",
+  "I am not lost. I am exploring a route that has not been officially recognised by any GPS system.",
+  "My bag contains everything I need for any situation, including fourteen situations that will never occur.",
+  "Thank you for your feedback. I have read it carefully and chosen to continue exactly as before.",
+  "I don't have a problem waking up early. I simply refuse to do it for any reason.",
+  "The plan was perfect. The execution was also perfect. The outcome was not part of the plan.",
+  "I speak three languages fluently: sarcasm, silence, and a third one I haven't started yet.",
+  "This restaurant has a wait time of forty minutes. I have already eaten my entire bread basket.",
+  "I am an adult who makes adult decisions, and today's decision is to have dessert before dinner.",
 ];
 
 interface AccentChallengeState {
@@ -69,7 +125,9 @@ export class AccentChallengeExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(roomId: string): Promise<void> {
+    await redisClient.del(KEY(roomId));
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -106,7 +164,7 @@ export class AccentChallengeExperience implements ExperienceModule {
   async getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor> {
     const state = await this._load(roomId);
     return {
-      type: `accent_challenge_${state.phase}` as any,
+      type: "accent_challenge" as any,
       data: {
         phase: state.phase,
         round: state.round,

@@ -125,10 +125,13 @@ class AudioAnalysisWorker:
         # ─── BPM ──────────────────────────────────────────────────────────────
         tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
         bpm = float(tempo)
+        beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+
+        # Downbeat offset: ms from track start to the first detected beat
+        downbeat_offset_ms = int(beat_times[0] * 1000) if len(beat_times) > 0 else None
 
         # Confidence: how stable is the beat? (lower variance = higher confidence)
         if len(beat_frames) > 4:
-            beat_times = librosa.frames_to_time(beat_frames, sr=sr)
             intervals = np.diff(beat_times)
             bpm_variance = float(np.std(intervals))
             bpm_confidence = max(0.0, 1.0 - min(bpm_variance / 0.1, 1.0))
@@ -156,6 +159,7 @@ class AudioAnalysisWorker:
             "camelot_type": camelot_type,
             "energy": round(energy_normalized, 3),
             "analysis_confidence": round(min(bpm_confidence, key_confidence), 3),
+            "downbeat_offset_ms": downbeat_offset_ms,
         }
 
         # ─── Full analysis (Phase 3+) ──────────────────────────────────────────
@@ -217,7 +221,7 @@ class AudioAnalysisWorker:
         try:
             pool = await self._get_db()
             row = await pool.fetchrow(
-                "SELECT bpm, camelot_key, camelot_type, energy, analysis_confidence, analysis_source "
+                "SELECT bpm, camelot_key, camelot_type, energy, analysis_confidence, analysis_source, downbeat_offset_ms "
                 "FROM tracks WHERE isrc = $1",
                 isrc,
             )
@@ -233,8 +237,8 @@ class AudioAnalysisWorker:
             pool = await self._get_db()
             await pool.execute(
                 """
-                INSERT INTO tracks (isrc, title, artist, bpm, camelot_key, camelot_type, energy, analysis_confidence, analysis_source)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                INSERT INTO tracks (isrc, title, artist, bpm, camelot_key, camelot_type, energy, analysis_confidence, analysis_source, downbeat_offset_ms)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 ON CONFLICT (isrc) DO UPDATE SET
                   bpm = EXCLUDED.bpm,
                   camelot_key = EXCLUDED.camelot_key,
@@ -242,6 +246,7 @@ class AudioAnalysisWorker:
                   energy = EXCLUDED.energy,
                   analysis_confidence = EXCLUDED.analysis_confidence,
                   analysis_source = EXCLUDED.analysis_source,
+                  downbeat_offset_ms = EXCLUDED.downbeat_offset_ms,
                   updated_at = NOW()
                 WHERE tracks.analysis_confidence < EXCLUDED.analysis_confidence
                 """,
@@ -254,6 +259,7 @@ class AudioAnalysisWorker:
                 result.get("energy"),
                 result.get("analysis_confidence"),
                 result.get("analysis_source", "librosa"),
+                result.get("downbeat_offset_ms"),
             )
         except Exception as e:
             log.error("upsert_track_failed", error=str(e))
@@ -267,4 +273,5 @@ class AudioAnalysisWorker:
             "energy": None,
             "analysis_confidence": 0.0,
             "analysis_source": "unknown",
+            "downbeat_offset_ms": None,
         }

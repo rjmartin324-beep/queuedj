@@ -19,31 +19,43 @@ const ACTIONS: Record<number, { desc: string; pts: number; emoji: string }[]> = 
     { desc: "Take a sip of your drink", pts: 50, emoji: "🥤" },
     { desc: "Say something nice to the person on your left", pts: 100, emoji: "💬" },
     { desc: "Do 5 jumping jacks right now", pts: 150, emoji: "🏃" },
+    { desc: "Tell the group one embarrassing thing you did this week", pts: 100, emoji: "😬" },
+    { desc: "High-five everyone in the group", pts: 75, emoji: "🙌" },
   ],
   2: [
     { desc: "Tell your funniest joke — others rate it", pts: 150, emoji: "😂" },
     { desc: "Imitate someone in this group", pts: 200, emoji: "🎭" },
     { desc: "Give a dramatic speech about your favorite food", pts: 100, emoji: "🎤" },
+    { desc: "Do your best celebrity impression", pts: 200, emoji: "🌟" },
+    { desc: "Narrate what's happening right now like a nature documentary", pts: 175, emoji: "🎬" },
   ],
   3: [
     { desc: "Spin in place 3 times then try to walk straight", pts: 200, emoji: "🌀" },
     { desc: "Say the alphabet backwards as fast as you can", pts: 250, emoji: "🔤" },
     { desc: "Do your best dance move for 10 seconds", pts: 150, emoji: "🕺" },
+    { desc: "Walk across the room balancing an imaginary book on your head", pts: 175, emoji: "📖" },
+    { desc: "Do a 10-second air guitar solo", pts: 150, emoji: "🎸" },
   ],
   4: [
     { desc: "Everyone takes a group selfie — you get to pose", pts: 200, emoji: "📸" },
     { desc: "Whisper something you've never told the group", pts: 300, emoji: "🤫" },
     { desc: "Rate every person in the room's vibe out of 10", pts: 200, emoji: "📊" },
+    { desc: "Describe your ideal version of the person to your right in 3 words", pts: 250, emoji: "🎭" },
+    { desc: "Give someone in the group a completely made-up award and explain why", pts: 225, emoji: "🏆" },
   ],
   5: [
     { desc: "You control the music for the next 2 minutes!", pts: 400, emoji: "🎵" },
     { desc: "Everyone has to compliment you for 30 seconds", pts: 350, emoji: "👑" },
     { desc: "Invent a new word and use it in a sentence", pts: 300, emoji: "📚" },
+    { desc: "Pick someone to swap seats with you for the next round", pts: 325, emoji: "🔀" },
+    { desc: "Give the group a 30-second pep talk before the next challenge", pts: 300, emoji: "📣" },
   ],
   6: [
     { desc: "Make a toast to the group — be heartfelt", pts: 500, emoji: "🥂" },
     { desc: "You pick someone to do a dare of your choosing", pts: 450, emoji: "🎯" },
     { desc: "Freestyle rap for 15 seconds — any topic", pts: 400, emoji: "🎤" },
+    { desc: "Invent a group handshake and teach it to everyone right now", pts: 475, emoji: "🤝" },
+    { desc: "Make a house rule that everyone must follow for the next 3 rounds", pts: 500, emoji: "📜" },
   ],
 };
 

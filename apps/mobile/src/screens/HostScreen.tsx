@@ -475,7 +475,7 @@ export default function HostScreen() {
             </ScrollView>
           ) : tab === "history" ? (
             <RoomHistory />
-          ) : tab === "demo" ? (
+          ) : tab === "demo" && __DEV__ ? (
             <DevTestPanel />
           ) : null}
         </Animated.View>

@@ -32,6 +32,7 @@ interface CroppedLookState {
   correctGuessers: string[];             // guestIds who guessed correctly
   revealLevel: number;                   // 0-3: how many hints shown
   hintUsed: Record<string, boolean>;     // guestId -> used a text hint
+  puzzleOrder: number[];                 // shuffled indices into PUZZLES
 }
 
 const PUZZLES: EmojiPuzzle[] = [
@@ -59,6 +60,149 @@ const PUZZLES: EmojiPuzzle[] = [
     emojis: ["🤖", "🌌", "⚡", "🛸", "🪐"],
     answer: "star wars",
   },
+  // ── Movies ────────────────────────────────────────────────────────────────
+  {
+    emojis: ["🦈", "🌊", "😱", "🎵", "🏖️"],
+    answer: "jaws",
+  },
+  {
+    emojis: ["🧊", "❄️", "👸", "☃️", "🏔️"],
+    answer: "frozen",
+  },
+  {
+    emojis: ["🦴", "🐕", "🎠", "🌈", "🏡"],
+    answer: "101 dalmatians",
+  },
+  {
+    emojis: ["🐀", "👨‍🍳", "🍽️", "🇫🇷", "⭐"],
+    answer: "ratatouille",
+  },
+  {
+    emojis: ["🤖", "❤️", "🌱", "🚀", "♻️"],
+    answer: "wall-e",
+  },
+  {
+    emojis: ["🦖", "🌿", "🏃", "😱", "🔬"],
+    answer: "jurassic park",
+  },
+  {
+    emojis: ["🌀", "💊", "🕶️", "🖥️", "🤜"],
+    answer: "the matrix",
+  },
+  {
+    emojis: ["🃏", "💜", "😂", "🤡", "🔫"],
+    answer: "joker",
+  },
+  {
+    emojis: ["🚂", "⏰", "🔙", "🔥", "⚡"],
+    answer: "back to the future",
+  },
+  {
+    emojis: ["🌹", "🕰️", "🏰", "🐻", "✨"],
+    answer: "beauty and the beast",
+  },
+  {
+    emojis: ["🧸", "🚀", "🤝", "⭐", "🎮"],
+    answer: "toy story",
+  },
+  {
+    emojis: ["🕵️", "🔍", "🎩", "🧪", "🚂"],
+    answer: "sherlock holmes",
+  },
+  {
+    emojis: ["🧟", "🌍", "🔫", "🛡️", "🩸"],
+    answer: "zombie apocalypse",
+  },
+  {
+    emojis: ["🎭", "😷", "🎶", "💡", "🕯️"],
+    answer: "phantom of the opera",
+  },
+  {
+    emojis: ["🦁", "🧙‍♀️", "❄️", "🚪", "👧"],
+    answer: "narnia",
+  },
+  // ── TV Shows & Pop Culture ────────────────────────────────────────────────
+  {
+    emojis: ["🧪", "💰", "🔫", "🍕", "🏜️"],
+    answer: "breaking bad",
+  },
+  {
+    emojis: ["🐉", "🏰", "❄️", "⚔️", "👑"],
+    answer: "game of thrones",
+  },
+  {
+    emojis: ["🏝️", "✈️", "💥", "🔍", "🌀"],
+    answer: "lost",
+  },
+  {
+    emojis: ["🏥", "🩺", "❤️", "🔪", "🏫"],
+    answer: "greys anatomy",
+  },
+  {
+    emojis: ["☕", "🛋️", "🏙️", "❤️", "👫"],
+    answer: "friends",
+  },
+  {
+    emojis: ["🏢", "📋", "😅", "🖊️", "💼"],
+    answer: "the office",
+  },
+  {
+    emojis: ["🧠", "💊", "🔬", "🔫", "🏙️"],
+    answer: "limitless",
+  },
+  {
+    emojis: ["🎸", "💀", "🌮", "🎵", "🌻"],
+    answer: "coco",
+  },
+  // ── Brands & Logos ────────────────────────────────────────────────────────
+  {
+    emojis: ["🍎", "💻", "📱", "🎵", "⌚"],
+    answer: "apple",
+  },
+  {
+    emojis: ["🔵", "👍", "📘", "👥", "🌐"],
+    answer: "facebook",
+  },
+  {
+    emojis: ["🔴", "▶️", "📺", "🎬", "🍿"],
+    answer: "youtube",
+  },
+  {
+    emojis: ["🟢", "🎵", "🎧", "💚", "▶️"],
+    answer: "spotify",
+  },
+  {
+    emojis: ["📸", "📷", "🌸", "💜", "🔲"],
+    answer: "instagram",
+  },
+  {
+    emojis: ["🐦", "💬", "🔵", "📢", "🌐"],
+    answer: "twitter",
+  },
+  {
+    emojis: ["🛒", "📦", "🚚", "⭐", "📬"],
+    answer: "amazon",
+  },
+  {
+    emojis: ["🎮", "👾", "🕹️", "🟥", "⚔️"],
+    answer: "nintendo",
+  },
+  {
+    emojis: ["☕", "🟢", "⭐", "🐻", "🏙️"],
+    answer: "starbucks",
+  },
+  {
+    emojis: ["🍟", "🍔", "🟡", "🅼", "🏁"],
+    answer: "mcdonalds",
+  },
+  {
+    emojis: ["🍕", "🔴", "📦", "🛵", "⏱️"],
+    answer: "dominos",
+  },
+  {
+    emojis: ["🟥", "⬜", "🎯", "🛒", "✳️"],
+    answer: "target",
+  },
 ];
 
 export class CroppedLookExperience implements ExperienceModule {
@@ -75,6 +219,7 @@ export class CroppedLookExperience implements ExperienceModule {
       correctGuessers: [],
       revealLevel: 0,
       hintUsed: {},
+      puzzleOrder: [...Array(PUZZLES.length).keys()].sort(() => Math.random() - 0.5),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -142,7 +287,7 @@ export class CroppedLookExperience implements ExperienceModule {
     const state = await this._load(roomId);
     if (!state) return;
 
-    const puzzle = PUZZLES[0];
+    const puzzle = PUZZLES[state.puzzleOrder[0]];
     state.round = 1;
     state.revealLevel = 0;
     state.guesses = {};
@@ -209,7 +354,7 @@ export class CroppedLookExperience implements ExperienceModule {
       return;
     }
 
-    const puzzle = PUZZLES[nextRound - 1];
+    const puzzle = PUZZLES[state.puzzleOrder[nextRound - 1]];
     state.round = nextRound;
     state.revealLevel = 0;
     state.guesses = {};

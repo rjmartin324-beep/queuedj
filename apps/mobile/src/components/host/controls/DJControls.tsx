@@ -628,9 +628,10 @@ interface DeckPanelProps {
   guestId: string;
   siblingIsrc: string | null;          // ISRC loaded on the other deck — skip it
   onLoaded: (isrc: string | null) => void;
+  onBpm?: (bpm: number) => void;       // Called after Librosa analysis — feeds BPM Sync
 }
 
-function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded }: DeckPanelProps) {
+function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded, onBpm }: DeckPanelProps) {
   const { state } = useRoom();
   const [isPlaying, setIsPlaying]     = useState(false);
   const [positionMs, setPositionMs]   = useState(0);
@@ -638,6 +639,8 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded }: DeckPanel
   const [loadedTrack, setLoadedTrack] = useState<{ isrc: string; title: string; artist: string; uri?: string } | null>(null);
   const [loading, setLoading]         = useState(false);
   const [volume, setVolume]           = useState(1);
+  const [analyzingBpm, setAnalyzingBpm] = useState(false);
+  const [detectedBpm,  setDetectedBpm]  = useState<number | null>(null);
   const positionInterval              = useRef<ReturnType<typeof setInterval> | null>(null);
   const volumeRef                     = useRef(1);
   const volTrackWidthRef              = useRef(0);
@@ -667,6 +670,21 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded }: DeckPanel
       onPanResponderTerminate: () => {},
     })
   ).current;
+
+  // Analyze BPM of loaded track in background, push result to BPM Sync panel
+  async function analyzeAndReport(uri: string, duration: number) {
+    setAnalyzingBpm(true);
+    setDetectedBpm(null);
+    try {
+      const analysis = await analyzeTrack(uri, duration);
+      setDetectedBpm(analysis.bpm);
+      onBpm?.(analysis.bpm);
+    } catch {
+      // BPM analysis is best-effort — don't block the load
+    } finally {
+      setAnalyzingBpm(false);
+    }
+  }
 
   // Poll position every 500ms while playing
   useEffect(() => {
@@ -708,6 +726,7 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded }: DeckPanel
       setDurationMs(track.track.durationMs ?? 0);
       setPositionMs(0);
       emitDeckCommand("cue");
+      analyzeAndReport(uri, track.track.durationMs ?? 30000);
     } finally {
       setLoading(false);
     }
@@ -722,6 +741,7 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded }: DeckPanel
       setDurationMs(duration ?? 0);
       setPositionMs(0);
       emitDeckCommand("cue");
+      if (uri) analyzeAndReport(uri, duration ?? 30000);
     } finally {
       setLoading(false);
     }
@@ -764,6 +784,10 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded }: DeckPanel
         <View style={[styles.deckBadge, { backgroundColor: accentColor }]}>
           <Text style={styles.deckBadgeText}>DECK {deckId}</Text>
         </View>
+        {analyzingBpm && <Text style={[styles.bpmBadge, { color: "#555" }]}>BPM...</Text>}
+        {!analyzingBpm && detectedBpm !== null && (
+          <Text style={[styles.bpmBadge, { color: accentColor }]}>{detectedBpm} BPM</Text>
+        )}
         {isPlaying && (
           <View style={styles.playingDot}>
             <View style={[styles.playingDotInner, { backgroundColor: accentColor }]} />
@@ -835,9 +859,257 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded }: DeckPanel
         </View>
         <Text style={styles.volPct}>{Math.round(volume * 100)}%</Text>
       </View>
+
+      {/* Stem mixer — polls for stems once a track with URI is loaded */}
+      <StemMixer
+        isrc={loadedTrack?.isrc ?? null}
+        audioUri={loadedTrack?.uri}
+        deckId={deckId}
+      />
     </View>
   );
 }
+
+// ─── Stem Mixer ───────────────────────────────────────────────────────────────
+// Polls /tracks/:isrc/stems until ready, then presents 4 volume sliders.
+// STEM MODE toggle: pauses main deck, plays the 4 stem Sound objects instead.
+
+const API_URL_STEMS = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
+
+type StemName = "vocals" | "drums" | "bass" | "other";
+interface StemUrls { vocals: string; drums: string; bass: string; other: string; }
+
+const STEM_LABELS: { key: StemName; label: string; emoji: string; color: string }[] = [
+  { key: "vocals", label: "VOX",   emoji: "🎤", color: "#f472b6" },
+  { key: "drums",  label: "DRUMS", emoji: "🥁", color: "#f97316" },
+  { key: "bass",   label: "BASS",  emoji: "🎸", color: "#22c55e" },
+  { key: "other",  label: "OTHER", emoji: "🎹", color: "#06b6d4" },
+];
+
+function StemSlider({ value, color, onChange }: {
+  value: number;
+  color: string;
+  onChange: (v: number) => void;
+}) {
+  const widthRef = useRef(0);
+  const valRef   = useRef(value);
+  const pan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder:  () => true,
+      onPanResponderGrant: (e) => {
+        const w = widthRef.current;
+        if (w <= 0) return;
+        const next = Math.max(0, Math.min(1, e.nativeEvent.locationX / w));
+        valRef.current = next;
+        onChange(next);
+      },
+      onPanResponderMove: (_, g) => {
+        const w = widthRef.current;
+        if (w <= 0) return;
+        const startX = valRef.current * w;
+        const next   = Math.max(0, Math.min(1, (startX + g.dx) / w));
+        valRef.current = next;
+        onChange(next);
+      },
+      onPanResponderRelease: () => {},
+    })
+  ).current;
+
+  return (
+    <View
+      style={stemStyles.sliderTrack}
+      onLayout={e => { widthRef.current = e.nativeEvent.layout.width; }}
+      {...pan.panHandlers}
+    >
+      <View style={[stemStyles.sliderFill, { width: `${value * 100}%` as any, backgroundColor: color }]} />
+    </View>
+  );
+}
+
+function StemMixer({ isrc, audioUri, deckId }: {
+  isrc:     string | null;
+  audioUri: string | undefined;
+  deckId:   "A" | "B";
+}) {
+  const [status,   setStatus]   = useState<"idle" | "pending" | "ready" | "error">("idle");
+  const [stemUrls, setStemUrls] = useState<StemUrls | null>(null);
+  const [stemMode, setStemMode] = useState(false);
+  const [volumes,  setVolumes]  = useState<Record<StemName, number>>({
+    vocals: 1, drums: 1, bass: 1, other: 1,
+  });
+
+  const soundsRef   = useRef<Partial<Record<StemName, Audio.Sound>>>({});
+  const pollRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stemModeRef = useRef(false);
+
+  // Cleanup on unmount
+  useEffect(() => () => {
+    _stopAllStems();
+    if (pollRef.current) clearInterval(pollRef.current);
+  }, []);
+
+  // When track changes: reset, trigger job, start polling
+  useEffect(() => {
+    _stopAllStems();
+    if (pollRef.current) clearInterval(pollRef.current);
+    setStemMode(false);
+    stemModeRef.current = false;
+    setStemUrls(null);
+    setStatus("idle");
+
+    if (!isrc || !audioUri) return;
+
+    // Fire-and-forget: enqueue stem separation job
+    fetch(`${API_URL_STEMS}/internal/stems`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ isrc, audioUrl: audioUri }),
+    }).catch(() => {});
+
+    setStatus("pending");
+
+    // Poll every 5s until stems are ready or blocked
+    pollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `${API_URL_STEMS}/tracks/${encodeURIComponent(isrc)}/stems`
+        );
+        if (res.status === 200) {
+          const urls: StemUrls = await res.json();
+          setStemUrls(urls);
+          setStatus("ready");
+          if (pollRef.current) clearInterval(pollRef.current);
+        } else if (res.status === 403) {
+          // no_derivative — stems blocked for this track
+          setStatus("error");
+          if (pollRef.current) clearInterval(pollRef.current);
+        }
+        // 202 = still pending — keep polling
+      } catch { /* network — keep polling */ }
+    }, 5000);
+  }, [isrc]);
+
+  function _stopAllStems() {
+    for (const sound of Object.values(soundsRef.current)) {
+      sound?.stopAsync().catch(() => {});
+      sound?.unloadAsync().catch(() => {});
+    }
+    soundsRef.current = {};
+  }
+
+  async function toggleStemMode() {
+    if (!stemUrls) return;
+
+    if (stemMode) {
+      // ── OFF: snapshot position, stop stems, hand back to main deck ─────────
+      const status = await soundsRef.current.vocals?.getStatusAsync().catch(() => null);
+      const posMs  = (status as any)?.positionMillis ?? 0;
+      _stopAllStems();
+      await audioEngine.seek(deckId, posMs).catch(() => {});
+      await audioEngine.play(deckId).catch(() => {});
+      setStemMode(false);
+      stemModeRef.current = false;
+    } else {
+      // ── ON: pause main deck, load stems from current position, play ────────
+      const posMs = await audioEngine.getPosition(deckId).catch(() => 0);
+      await audioEngine.pause(deckId).catch(() => {});
+      _stopAllStems();
+
+      // Load all 4 stems, seek each to current deck position
+      const loaded: Partial<Record<StemName, Audio.Sound>> = {};
+      for (const { key } of STEM_LABELS) {
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: stemUrls[key] },
+          { shouldPlay: false, volume: volumes[key] },
+        );
+        await sound.setPositionAsync(posMs);
+        loaded[key] = sound;
+      }
+      soundsRef.current = loaded;
+
+      // Fire all 4 plays without awaiting — keeps drift to ~1-2ms
+      loaded.vocals?.playAsync();
+      loaded.drums?.playAsync();
+      loaded.bass?.playAsync();
+      loaded.other?.playAsync();
+
+      setStemMode(true);
+      stemModeRef.current = true;
+    }
+  }
+
+  async function handleVolume(stem: StemName, value: number) {
+    setVolumes(v => ({ ...v, [stem]: value }));
+    await soundsRef.current[stem]?.setVolumeAsync(value).catch(() => {});
+  }
+
+  if (status === "idle" || !isrc) return null;
+
+  return (
+    <View style={stemStyles.wrap}>
+      <View style={stemStyles.header}>
+        <Text style={stemStyles.title}>STEMS</Text>
+        {status === "pending" && (
+          <Text style={stemStyles.statusPending}>separating…</Text>
+        )}
+        {status === "error" && (
+          <Text style={stemStyles.statusError}>blocked</Text>
+        )}
+        {status === "ready" && (
+          <TouchableOpacity
+            style={[stemStyles.modeBtn, stemMode && stemStyles.modeBtnOn]}
+            onPress={toggleStemMode}
+          >
+            <Text style={[stemStyles.modeBtnText, stemMode && stemStyles.modeBtnTextOn]}>
+              {stemMode ? "● STEM MODE" : "STEM MODE"}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {status === "ready" && stemMode && (
+        <View style={stemStyles.sliders}>
+          {STEM_LABELS.map(({ key, label, emoji, color }) => (
+            <View key={key} style={stemStyles.sliderRow}>
+              <Text style={stemStyles.sliderLabel}>{emoji} {label}</Text>
+              <StemSlider
+                value={volumes[key]}
+                color={color}
+                onChange={v => handleVolume(key, v)}
+              />
+              <Text style={[stemStyles.sliderPct, { color }]}>
+                {volumes[key] === 0 ? "MUTE" : `${Math.round(volumes[key] * 100)}%`}
+              </Text>
+            </View>
+          ))}
+          <Text style={stemStyles.hint}>
+            Slide to 0 to mute any stem — transitions from deck {deckId === "A" ? "B" : "A"} will fade in cleanly
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const stemStyles = StyleSheet.create({
+  wrap:           { marginTop: 4, backgroundColor: "rgba(255,255,255,0.03)", borderRadius: 10, borderWidth: 1, borderColor: "#1e1e1e", padding: 10, gap: 8 },
+  header:         { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  title:          { color: "#444", fontSize: 10, fontWeight: "800", letterSpacing: 1 },
+  statusPending:  { color: "#555", fontSize: 10, fontStyle: "italic" },
+  statusError:    { color: "#7f1d1d", fontSize: 10 },
+  modeBtn:        { backgroundColor: "#111", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: "#2a2a2a" },
+  modeBtnOn:      { backgroundColor: "rgba(34,197,94,0.15)", borderColor: "rgba(34,197,94,0.5)" },
+  modeBtnText:    { color: "#555", fontSize: 10, fontWeight: "800", letterSpacing: 0.5 },
+  modeBtnTextOn:  { color: "#22c55e" },
+  sliders:        { gap: 6 },
+  sliderRow:      { flexDirection: "row", alignItems: "center", gap: 6 },
+  sliderLabel:    { color: "#666", fontSize: 10, fontWeight: "700", width: 52 },
+  sliderTrack:    { flex: 1, height: 6, backgroundColor: "#1a1a1a", borderRadius: 3, overflow: "hidden" },
+  sliderFill:     { height: 6, borderRadius: 3 },
+  sliderPct:      { fontSize: 9, fontWeight: "800", width: 32, textAlign: "right" },
+  hint:           { color: "#333", fontSize: 9, lineHeight: 13, marginTop: 2 },
+});
 
 // ─── BPM Sync ─────────────────────────────────────────────────────────────────
 // Master/slave BPM sync — like Serato/Traktor.
@@ -859,10 +1131,22 @@ interface BPMSyncProps {
 function BPMSync({ roomId, deckABpm, deckBBpm, onDeckABpm, onDeckBBpm }: BPMSyncProps) {
   const setDeckABpm = onDeckABpm;
   const setDeckBBpm = onDeckBBpm;
-  const [master,    setMaster]    = useState<"A" | "B">("A"); // A is master → mixing into B
-  const [autoSync,  setAutoSync]  = useState(false);
-  const [tappedBpm, setTappedBpm] = useState<number | null>(null);
-  const tapsRef = useRef<number[]>([]);
+  const [master,      setMaster]      = useState<"A" | "B">("A"); // A is master → mixing into B
+  const [autoSync,    setAutoSync]    = useState(false);
+  const [tappedBpm,   setTappedBpm]   = useState<number | null>(null);
+  const [launching,   setLaunching]   = useState(false);
+  const [countdownMs, setCountdownMs] = useState<number>(0);
+  const tapsRef          = useRef<number[]>([]);
+  const launchTimerRef   = useRef<ReturnType<typeof setTimeout>  | null>(null);
+  const countdownTickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const launchStartRef   = useRef<number>(0);
+  const launchWaitRef    = useRef<number>(0);
+
+  // Cleanup timers on unmount
+  useEffect(() => () => {
+    if (launchTimerRef.current)   clearTimeout(launchTimerRef.current);
+    if (countdownTickRef.current) clearInterval(countdownTickRef.current);
+  }, []);
 
   // AUTO: reapply slave rate whenever any BPM or master changes
   useEffect(() => {
@@ -911,6 +1195,54 @@ function BPMSync({ roomId, deckABpm, deckBBpm, onDeckABpm, onDeckBBpm }: BPMSync
 
   function flipMaster() {
     setMaster(m => m === "A" ? "B" : "A");
+  }
+
+  async function handleSyncLaunch() {
+    if (launching) return;
+    const slave     = master === "A" ? "B" : "A";
+    const masterBpm = master === "A" ? deckABpm : deckBBpm;
+    const slaveBpm  = master === "A" ? deckBBpm : deckABpm;
+
+    // Rate-match slave before launch
+    if (masterBpm > 0 && slaveBpm > 0) {
+      await audioEngine.setRate(slave, masterBpm / slaveBpm).catch(() => {});
+      audioEngine.setRate(master, 1).catch(() => {});
+    }
+
+    // Calculate time to next bar boundary on the master deck
+    const barMs     = masterBpm > 0 ? (60000 / masterBpm) * 4 : 2000;
+    const masterPos = await audioEngine.getPosition(master).catch(() => 0);
+    const posInBar  = masterPos % barMs;
+    // Wait until next bar — if we're within 80ms of a bar edge, skip to the one after
+    const rawWait   = barMs - posInBar;
+    const waitMs    = rawWait < 80 ? rawWait + barMs : rawWait;
+
+    setLaunching(true);
+    setCountdownMs(waitMs);
+    launchStartRef.current = Date.now();
+    launchWaitRef.current  = waitMs;
+
+    // Tick countdown every 50ms
+    countdownTickRef.current = setInterval(() => {
+      const elapsed   = Date.now() - launchStartRef.current;
+      const remaining = Math.max(0, launchWaitRef.current - elapsed);
+      setCountdownMs(remaining);
+    }, 50);
+
+    // Fire at bar boundary
+    launchTimerRef.current = setTimeout(async () => {
+      if (countdownTickRef.current) clearInterval(countdownTickRef.current);
+      await audioEngine.play(slave).catch(() => {});
+      setLaunching(false);
+      setCountdownMs(0);
+    }, waitMs);
+  }
+
+  function cancelLaunch() {
+    if (launchTimerRef.current)   clearTimeout(launchTimerRef.current);
+    if (countdownTickRef.current) clearInterval(countdownTickRef.current);
+    setLaunching(false);
+    setCountdownMs(0);
   }
 
   const slave     = master === "A" ? "B" : "A";
@@ -1038,6 +1370,35 @@ function BPMSync({ roomId, deckABpm, deckBBpm, onDeckABpm, onDeckBBpm }: BPMSync
           <Text style={bpmStyles.resetText}>reset</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Quantized launch */}
+      {!launching ? (
+        <TouchableOpacity
+          style={bpmStyles.launchBtn}
+          onPress={handleSyncLaunch}
+          disabled={slaveBpm <= 0 || masterBpm <= 0}
+        >
+          <Text style={bpmStyles.launchBtnText}>⬛ SYNC LAUNCH  DECK {slave}</Text>
+          <Text style={bpmStyles.launchBtnSub}>starts Deck {slave} on next bar of Deck {master}</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={bpmStyles.countdownWrap}>
+          <View style={bpmStyles.countdownHeader}>
+            <Text style={bpmStyles.countdownLabel}>
+              LAUNCHING DECK {slave} IN {(countdownMs / 1000).toFixed(1)}s
+            </Text>
+            <TouchableOpacity onPress={cancelLaunch}>
+              <Text style={bpmStyles.cancelText}>CANCEL</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={bpmStyles.countdownTrack}>
+            <View style={[
+              bpmStyles.countdownFill,
+              { width: `${Math.max(0, (1 - countdownMs / launchWaitRef.current) * 100)}%` as any },
+            ]} />
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -1085,6 +1446,17 @@ const bpmStyles = StyleSheet.create({
   syncNowText: { color: "#c4b5fd", fontSize: 10, fontWeight: "900", letterSpacing: 1 },
   autoHint:    { color: "#22c55e", fontSize: 10, fontWeight: "700", flex: 1 },
   resetText:   { color: "#333", fontSize: 11 },
+
+  launchBtn:     { backgroundColor: "rgba(34,197,94,0.10)", borderRadius: 10, borderWidth: 1, borderColor: "rgba(34,197,94,0.35)", paddingHorizontal: 14, paddingVertical: 10, alignItems: "center", gap: 2 },
+  launchBtnText: { color: "#22c55e", fontSize: 12, fontWeight: "900", letterSpacing: 0.5 },
+  launchBtnSub:  { color: "#16a34a", fontSize: 9, fontWeight: "600" },
+
+  countdownWrap:   { gap: 6 },
+  countdownHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  countdownLabel:  { color: "#22c55e", fontSize: 11, fontWeight: "900", letterSpacing: 0.5 },
+  cancelText:      { color: "#ef4444", fontSize: 10, fontWeight: "800" },
+  countdownTrack:  { height: 4, backgroundColor: "#1a1a1a", borderRadius: 2, overflow: "hidden" },
+  countdownFill:   { height: 4, backgroundColor: "#22c55e", borderRadius: 2 },
 });
 
 // ─── Demo Track Loader ────────────────────────────────────────────────────────
@@ -1344,11 +1716,11 @@ export function DJControls() {
       <View style={styles.decksRow}>
         <View style={styles.deckWrap}>
           <DeckPanel deckId="A" roomId={roomId} guestId={guestId}
-            siblingIsrc={deckBIsrc} onLoaded={setDeckAIsrc} />
+            siblingIsrc={deckBIsrc} onLoaded={setDeckAIsrc} onBpm={setDeckABpm} />
         </View>
         <View style={styles.deckWrap}>
           <DeckPanel deckId="B" roomId={roomId} guestId={guestId}
-            siblingIsrc={deckAIsrc} onLoaded={setDeckBIsrc} />
+            siblingIsrc={deckAIsrc} onLoaded={setDeckBIsrc} onBpm={setDeckBBpm} />
         </View>
       </View>
 
@@ -1467,6 +1839,7 @@ const styles = StyleSheet.create({
   deckHeader:   { flexDirection: "row", alignItems: "center", gap: 8 },
   deckBadge:    { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
   deckBadgeText:{ color: "#fff", fontSize: 10, fontWeight: "900", letterSpacing: 1 },
+  bpmBadge:     { fontSize: 10, fontWeight: "800", letterSpacing: 0.5, flex: 1, textAlign: "right" },
   playingDot:   { width: 10, height: 10, borderRadius: 5, backgroundColor: "#1a1a1a", alignItems: "center", justifyContent: "center" },
   playingDotInner: { width: 6, height: 6, borderRadius: 3 },
 

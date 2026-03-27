@@ -40,7 +40,7 @@ function buildOptions(correct: string): string[] {
 }
 
 export class NameGenreExperience implements ExperienceModule {
-  readonly type = "name_genre" as const;
+  readonly type = "name_that_genre" as const;
 
   async onActivate(roomId: string): Promise<void> {
     const state: GenreRoundState = {
@@ -92,7 +92,7 @@ export class NameGenreExperience implements ExperienceModule {
   async getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor> {
     const state = await this._load(roomId);
     return {
-      view: "name_genre",
+      type: "name_that_genre" as const,
       data: {
         phase: state.phase,
         roundNumber: state.roundNumber,

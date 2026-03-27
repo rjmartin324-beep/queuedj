@@ -103,6 +103,26 @@ class SocketRateLimiter {
 
 const rateLimiter = new SocketRateLimiter();
 
+// ─── Per-guest request cooldown ───────────────────────────────────────────────
+// Keyed by `roomId:guestId`. Survives reconnections (socket.id changes, guestId
+// doesn't). Entries older than GUEST_REQUEST_COOLDOWN_MS are stale but harmless —
+// they'll be overwritten on the next accepted request.
+const GUEST_REQUEST_COOLDOWN_MS = 30_000; // 30 s between track requests per guest
+const guestLastRequest: Map<string, number> = new Map();
+
+/** Returns remaining cooldown ms (0 = allowed, >0 = blocked) */
+function guestRequestCooldownMs(roomId: string, guestId: string): number {
+  const key = `${roomId}:${guestId}`;
+  const last = guestLastRequest.get(key);
+  if (last === undefined) return 0;
+  const elapsed = Date.now() - last;
+  return elapsed < GUEST_REQUEST_COOLDOWN_MS ? GUEST_REQUEST_COOLDOWN_MS - elapsed : 0;
+}
+
+function consumeGuestRequestCooldown(roomId: string, guestId: string): void {
+  guestLastRequest.set(`${roomId}:${guestId}`, Date.now());
+}
+
 // ─── Profanity Filter ─────────────────────────────────────────────────────────
 // Word-boundary regex list. Extend BLOCKED_WORDS to add more terms.
 // Words are replaced with *** to keep the message length predictable.
@@ -305,12 +325,18 @@ async function main() {
     socket.on("queue:request", async (payload: QueueRequestPayload, ack) => {
       if (!checkRate(socket, "queue:request")) return ack({ accepted: false });
 
+      const remainingMs = guestRequestCooldownMs(payload.roomId, payload.guestId);
+      if (remainingMs > 0) {
+        return ack({ accepted: false, error: `COOLDOWN:${Math.ceil(remainingMs / 1000)}` });
+      }
+
       const { allowed } = await requirePermission(payload.roomId, payload.guestId, "canRequestTrack");
       if (!allowed) return ack({ accepted: false });
 
       const result = await handleQueueRequest(payload, io);
       ack(result);
       if (result.accepted) {
+        consumeGuestRequestCooldown(payload.roomId, payload.guestId);
         awardCreditsAndNotify(io, payload.guestId, "track_request", payload.roomId).catch(() => {});
         incrementSessionStat(payload.roomId, payload.guestId, "requests").catch(() => {});
       }

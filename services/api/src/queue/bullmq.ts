@@ -139,6 +139,18 @@ class QueueManager {
     });
   }
 
+  async addStemSeparation(isrc: string, audioUrl: string): Promise<string> {
+    // Low priority — stem separation is background work, takes 1-3 min on CPU
+    // Deduped by ISRC so re-enqueueing the same track is safe
+    const queue = this.queues.get("low")!;
+    const job = await queue.add("stem_separation", { isrc, audioUrl }, {
+      jobId: `stem_separation:${isrc}`,
+      attempts: 2,
+      backoff: { type: "fixed", delay: 30_000 }, // retry after 30s on failure
+    });
+    return job.id!;
+  }
+
   // ─── Wait for Result (Critical Jobs) ──────────────────────────────────────
   // Used when caller needs the ML result before proceeding
   // e.g.: Transition analysis must finish before we commit to a transition plan

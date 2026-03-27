@@ -64,6 +64,7 @@ import { ResultsView as SnapResultsView } from "../components/experiences/scaven
 // Phase 2 games (phase-based, single-component views)
 import { NightShiftView }    from "../components/experiences/night-shift/NightShiftView";
 import { MindMoleView }      from "../components/experiences/mind-mole/MindMoleView";
+import { CroppedLookView }   from "../components/experiences/cropped-look/CroppedLookView";
 import { GuessSongView }     from "../components/experiences/guess-the-song/GuessSongView";
 import { NameGenreView }     from "../components/experiences/name-that-genre/NameGenreView";
 import { VibeCheckView }     from "../components/experiences/vibe-check/VibeCheckView";
@@ -284,6 +285,9 @@ export default function GuestScreen() {
 
       // ── MindMole ─────────────────────────────────────────────────────────
       case "mind_mole":         return <MindMoleView />;
+
+      // ── Cropped Look ─────────────────────────────────────────────────────
+      case "cropped_look":      return <CroppedLookView />;
 
       // ── Music Games ──────────────────────────────────────────────────────
       case "guess_the_song":    return <GuessSongView />;

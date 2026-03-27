@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, Switch, Alert, ActivityIndicator, Modal, Linking, Share,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { CreditsWalletView } from "../components/shared/CreditsWalletView";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme, type ThemePref, type BgTheme } from "../contexts/ThemeContext";
@@ -78,6 +79,7 @@ interface Props {
 }
 
 export function SettingsScreen({ guestId, onClose }: Props) {
+  const router = useRouter();
   const { pref, setTheme, bgTheme, setBgTheme } = useTheme();
   const [name, setName]             = useState("");
   const [editingName, setEditingName] = useState(false);
@@ -195,11 +197,11 @@ export function SettingsScreen({ guestId, onClose }: Props) {
   }
 
   function handlePrivacyPolicy() {
-    Linking.openURL("https://partyglue.app/privacy").catch(() => {});
+    router.push("/privacy");
   }
 
   function handleTerms() {
-    Linking.openURL("https://partyglue.app/terms").catch(() => {});
+    router.push("/terms");
   }
 
   const THEME_OPTIONS: { label: string; value: ThemePref; emoji: string }[] = [

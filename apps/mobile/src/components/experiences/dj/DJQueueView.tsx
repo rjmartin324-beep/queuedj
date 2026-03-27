@@ -170,16 +170,30 @@ export function DJQueueView() {
       if (!ack.accepted) {
         setOptimisticQueue(null);
         setSearchText("");
-        const score = ack.guardrailResult?.vibeDistanceScore ?? 0;
-        const msg = score > 0.7
-          ? `That track doesn't fit the vibe right now.\n${ack.guardrailResult?.alternativePositionSuggestion ?? ""}`
-          : "Could not add track";
         notifyError();
-        Alert.alert("Not added", msg);
+        // Server-side per-guest cooldown — show badge with exact remaining seconds
+        if (ack.error?.startsWith("COOLDOWN:")) {
+          const secs = parseInt(ack.error.split(":")[1], 10) || 30;
+          setCooldown(secs);
+          if (cooldownRef.current) clearInterval(cooldownRef.current);
+          cooldownRef.current = setInterval(() => {
+            setCooldown((c) => {
+              if (c <= 1) { clearInterval(cooldownRef.current!); return 0; }
+              return c - 1;
+            });
+          }, 1000);
+        } else {
+          const score = ack.guardrailResult?.vibeDistanceScore ?? 0;
+          const msg = score > 0.7
+            ? `That track doesn't fit the vibe right now.\n${ack.guardrailResult?.alternativePositionSuggestion ?? ""}`
+            : "Could not add track";
+          Alert.alert("Not added", msg);
+        }
       } else {
         notifySuccess();
         setSearchText("");
-        // Start 30s cooldown
+        // Start 30s cooldown after successful request
+        if (cooldownRef.current) clearInterval(cooldownRef.current);
         setCooldown(30);
         cooldownRef.current = setInterval(() => {
           setCooldown((c) => {
@@ -231,8 +245,21 @@ export function DJQueueView() {
     }, (ack) => {
       if (!ack.accepted) {
         setOptimisticQueue(null);
-        const score = ack.guardrailResult?.vibeDistanceScore ?? 0;
-        Alert.alert("Not added", score > 0.7 ? "Doesn't fit the vibe right now." : "Could not add track");
+        notifyError();
+        if (ack.error?.startsWith("COOLDOWN:")) {
+          const secs = parseInt(ack.error.split(":")[1], 10) || 30;
+          if (cooldownRef.current) clearInterval(cooldownRef.current);
+          setCooldown(secs);
+          cooldownRef.current = setInterval(() => {
+            setCooldown((c) => {
+              if (c <= 1) { clearInterval(cooldownRef.current!); return 0; }
+              return c - 1;
+            });
+          }, 1000);
+        } else {
+          const score = ack.guardrailResult?.vibeDistanceScore ?? 0;
+          Alert.alert("Not added", score > 0.7 ? "Doesn't fit the vibe right now." : "Could not add track");
+        }
       }
       setRequesting(false);
     });

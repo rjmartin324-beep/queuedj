@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppState, AppStateStatus } from "react-native";
+import { storage } from "./storage";
 
 import type {
   ClientToServerEvents,
@@ -46,16 +46,12 @@ class SocketManager {
     this._prewarm();
   }
 
-  private async _prewarm() {
+  private _prewarm() {
     try {
-      const [guestId, socketName, settingsName] = await Promise.all([
-        AsyncStorage.getItem(GUEST_ID_KEY),
-        AsyncStorage.getItem(DISPLAY_NAME_KEY),
-        AsyncStorage.getItem("guest_display_name"),
-      ]);
+      const guestId = storage.getString(GUEST_ID_KEY) ?? null;
       if (guestId) this._guestId = guestId;
       // Prefer socketManager key; fall back to SettingsScreen key
-      const displayName = socketName ?? settingsName ?? null;
+      const displayName = storage.getString(DISPLAY_NAME_KEY) ?? storage.getString("guest_display_name") ?? null;
       if (displayName) this._displayName = displayName;
     } catch { /* non-fatal */ }
   }
@@ -64,10 +60,10 @@ class SocketManager {
 
   async getOrCreateGuestId(): Promise<string> {
     if (this._guestId) return this._guestId;
-    let guestId = await AsyncStorage.getItem(GUEST_ID_KEY);
+    let guestId = storage.getString(GUEST_ID_KEY) ?? null;
     if (!guestId) {
       guestId = generateUUID();
-      await AsyncStorage.setItem(GUEST_ID_KEY, guestId);
+      storage.set(GUEST_ID_KEY, guestId);
     }
     this._guestId = guestId;
     return guestId;
@@ -81,16 +77,13 @@ class SocketManager {
 
   async getDisplayName(): Promise<string | null> {
     if (this._displayName !== undefined) return this._displayName;
-    // Read from socketManager key first, fall back to SettingsScreen key
-    const [socketName, settingsName] = await Promise.all([
-      AsyncStorage.getItem(DISPLAY_NAME_KEY),
-      AsyncStorage.getItem("guest_display_name"),
-    ]);
+    const socketName   = storage.getString(DISPLAY_NAME_KEY) ?? null;
+    const settingsName = storage.getString("guest_display_name") ?? null;
     const name = socketName ?? settingsName ?? null;
     this._displayName = name;
     // If only the settings key had a name, sync it into the socket key
     if (!socketName && settingsName) {
-      await AsyncStorage.setItem(DISPLAY_NAME_KEY, settingsName);
+      storage.set(DISPLAY_NAME_KEY, settingsName);
     }
     return name;
   }
@@ -98,10 +91,8 @@ class SocketManager {
   async saveDisplayName(name: string): Promise<void> {
     this._displayName = name;
     // Write to both keys so SettingsScreen and the join flow stay in sync
-    await AsyncStorage.multiSet([
-      [DISPLAY_NAME_KEY,      name],
-      ["guest_display_name",  name],
-    ]);
+    storage.set(DISPLAY_NAME_KEY, name);
+    storage.set("guest_display_name", name);
   }
 
   // ─── Connect ───────────────────────────────────────────────────────────────
@@ -167,12 +158,12 @@ class SocketManager {
   // On reconnect, server uses this to replay only missed events.
 
   async getLastSequenceId(roomId: string): Promise<number> {
-    const val = await AsyncStorage.getItem(LAST_SEQ_KEY(roomId));
+    const val = storage.getString(LAST_SEQ_KEY(roomId));
     return val ? parseInt(val) : 0;
   }
 
   async saveLastSequenceId(roomId: string, seq: number): Promise<void> {
-    await AsyncStorage.setItem(LAST_SEQ_KEY(roomId), String(seq));
+    storage.set(LAST_SEQ_KEY(roomId), String(seq));
     this.offlineState.lastKnownSequenceId = seq;
   }
 

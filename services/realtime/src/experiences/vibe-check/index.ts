@@ -12,6 +12,60 @@ import { redisClient } from "../../redis";
 
 const KEY = (roomId: string) => `experience:vibe_check:${roomId}`;
 
+// Pre-built scenarios for host to cycle through (rate 1–10)
+const SCENARIOS: string[] = [
+  "Sleeping with socks on",
+  "Texting your ex at 2am",
+  "Skipping the gym for three weeks straight",
+  "Replying 'you too' when the waiter says enjoy your meal",
+  "Eating cereal with water because there's no milk",
+  "Liking your own Instagram posts",
+  "Sending a voice note longer than two minutes",
+  "Bringing a salad to a barbecue",
+  "Telling someone their baby is ugly (in your head)",
+  "Fake-laughing at a joke you didn't hear",
+  "Cancelling plans you were excited about an hour ago",
+  "Reheating fish in the office microwave",
+  "Sending a 'k' as a reply",
+  "Taking the last slice without asking",
+  "Accepting a LinkedIn request from your boss's boss",
+  "Watching someone's full story on Instagram without reacting",
+  "Going to bed at 9pm on a Saturday",
+  "Muting the group chat but not leaving it",
+  "Using speakerphone in public",
+  "Recalling a conversation from years ago at 3am and cringing",
+  "Pretending your phone died to avoid a call",
+  "Ordering the most expensive thing at a group dinner",
+  "Wearing shoes inside at someone else's house",
+  "Giving a one-star review for a minor inconvenience",
+  "Asking 'is everything okay?' when you know it isn't",
+  "Refreshing your own Instagram reel views",
+  "Double-texting after being left on read",
+  "Wearing the same jeans for two weeks without washing them",
+  "Replying to a message three days later with 'lol sorry just saw this'",
+  "Skipping the queue because you 'only have one thing'",
+  "Venting to a friend about someone they also know",
+  "Eating a snack you bought for someone else",
+  "Ghosting a conversation mid-sentence",
+  "Saying 'I'm fine' when you are absolutely not fine",
+  "Keeping notifications unread so they feel urgent",
+  "Telling a story that includes 'you had to be there'",
+  "Taking a work call from the bathroom",
+  "Watching the same show for the fourth time instead of trying something new",
+  "Showing up early to a party and immediately regretting it",
+  "Setting seven alarms and still being late",
+  "Saying you'll be there in five minutes when you haven't left yet",
+  "Asking for 'just a taste' and taking a full bite",
+  "Owning a book you've never read but keep on display",
+  "Crying at a commercial",
+  "Blocking someone and then checking their profile anyway",
+  "Ordering delivery when the restaurant is walking distance",
+  "Going through someone's old photos 'just quickly'",
+  "Knowing all the words to a song you claim to hate",
+  "Ending a call and immediately talking about the person you just hung up with",
+  "Screenshotting a conversation to send to someone else",
+];
+
 interface VibeCheckState {
   phase: "rating" | "revealed";
   isrc: string | null;
@@ -65,6 +119,11 @@ export class VibeCheckExperience implements ExperienceModule {
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this.onActivate(roomId);
         io.to(roomId).emit("experience:state_updated", { phase: "rating", ratings: {}, average: 0, distribution: new Array(10).fill(0) });
+        break;
+
+      case "pick_scenario":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._pickScenario(roomId, io);
         break;
     }
   }
@@ -124,6 +183,11 @@ export class VibeCheckExperience implements ExperienceModule {
     if (state.average < 4 && vals.length >= 3) {
       io.to(roomId).emit("vibe_check:low_vibe_alert", { average: state.average });
     }
+  }
+
+  private async _pickScenario(roomId: string, io: Server): Promise<void> {
+    const scenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+    await this._setTrack(roomId, null as any, scenario, null as any, io);
   }
 
   private async _reveal(roomId: string, io: Server): Promise<void> {

@@ -58,6 +58,179 @@ const CASES = [
     ],
     killer: "s2",
   },
+  // ── Office Settings ────────────────────────────────────────────────────────
+  {
+    title: "The Deleted Files Incident",
+    scenario: "On Monday morning the Mercer Group discovered three years of client data had been wiped from the server at 11:59pm Friday. The IT logs show only internal access. Five employees had after-hours badges.",
+    evidence: [
+      { id: "e1", text: "Badge swipe records show one employee entered the server room at 11:41pm.", realOrPlanted: "real" },
+      { id: "e2", text: "A resignation letter dated the same Friday, never submitted.", realOrPlanted: "real" },
+      { id: "e3", text: "CCTV of the corridor is missing — hard drive 'malfunctioned'.", realOrPlanted: "real" },
+      { id: "e4", text: "Anonymous email accusing the new hire of selling data to a competitor.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Priya Nair",      role: "Systems Admin", alibi: "I was remote all weekend — check my VPN logs." },
+      { id: "s2", name: "Tom Caldwell",    role: "Account Manager", alibi: "I came in to finish a deck, nothing else." },
+      { id: "s3", name: "Dana Westfield",  role: "New Hire", alibi: "I don't even have server access yet." },
+      { id: "s4", name: "Greg Farrell",    role: "Director of Ops", alibi: "I was at my daughter's recital — I have photos." },
+    ],
+    killer: "s2",
+  },
+  {
+    title: "The Missing Bonus",
+    scenario: "The quarterly bonus payroll ran — but one employee's payment of £18,000 was redirected to an unknown account at 6:04am. The transfer was authorised internally.",
+    evidence: [
+      { id: "e1", text: "Login to the payroll system from an unfamiliar IP address.", realOrPlanted: "real" },
+      { id: "e2", text: "A sticky note with partial account numbers found on the victim's desk.", realOrPlanted: "real" },
+      { id: "e3", text: "HR record shows a workplace grievance filed two weeks prior.", realOrPlanted: "real" },
+      { id: "e4", text: "Rumour that the CFO has gambling debts — source unverified.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Claire Monroe",   role: "Payroll Administrator", alibi: "I processed everything correctly — someone changed it after." },
+      { id: "s2", name: "James Okonkwo",   role: "CFO", alibi: "I was in Tokyo at 6am London time." },
+      { id: "s3", name: "Sophie Reeves",   role: "Disgruntled Employee", alibi: "Yes I filed a grievance. That doesn't make me a thief." },
+      { id: "s4", name: "Nick Halstead",   role: "IT Contractor", alibi: "My contract ended last Thursday." },
+    ],
+    killer: "s3",
+  },
+  {
+    title: "The Conference Room Leak",
+    scenario: "A confidential pitch deck appeared on a competitor's website the day before the board presentation. Someone in the pre-meeting briefing of five people leaked it.",
+    evidence: [
+      { id: "e1", text: "The deck was accessed from a personal Dropbox account, not the company drive.", realOrPlanted: "real" },
+      { id: "e2", text: "One attendee had a competing interview scheduled for the following week.", realOrPlanted: "real" },
+      { id: "e3", text: "Print logs show someone printed the deck after-hours the previous night.", realOrPlanted: "real" },
+      { id: "e4", text: "An intern overheard a phone call — but admits they misheard some of it.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Aaron Park",      role: "Strategist", alibi: "I use Dropbox for everything — it's habit, not malice." },
+      { id: "s2", name: "Kezia Martin",    role: "Brand Lead", alibi: "I had a personal project in that folder, not the deck." },
+      { id: "s3", name: "Rob Tennant",     role: "Sales Director", alibi: "I'm the one who built the deck — why would I leak it?" },
+      { id: "s4", name: "Yasmin Cole",     role: "Analyst", alibi: "I printed it to annotate it before the meeting. That's it." },
+    ],
+    killer: "s4",
+  },
+  // ── Cruise Ship Settings ───────────────────────────────────────────────────
+  {
+    title: "Man Overboard on the Aurora Princess",
+    scenario: "At 2:17am on night three of the seven-night cruise, passenger Bernard Lowe was reported missing. A witness on Deck 9 heard a splash. His cabin was found unlocked.",
+    evidence: [
+      { id: "e1", text: "Bernard's keycard was used to access the stern observation deck at 2:09am.", realOrPlanted: "real" },
+      { id: "e2", text: "A torn cufflink found on the railing matches the style worn by another passenger.", realOrPlanted: "real" },
+      { id: "e3", text: "CCTV footage of Deck 9 was corrupted — crew says it happens in salt air.", realOrPlanted: "real" },
+      { id: "e4", text: "A printed note in Bernard's cabin reads 'I know what you did in Naples'.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Harriet Lowe",    role: "Wife", alibi: "I was in bed with the door chained. Ask the steward." },
+      { id: "s2", name: "Declan Foley",    role: "Business Partner", alibi: "We argued at dinner but I went to the casino after." },
+      { id: "s3", name: "Margaux Serre",   role: "Fellow Passenger", alibi: "I've only spoken to him once the whole voyage." },
+      { id: "s4", name: "Captain's Aide",  role: "Crew", alibi: "I was doing rounds — signed log will confirm." },
+    ],
+    killer: "s1",
+  },
+  {
+    title: "The Stolen Jewel Box",
+    scenario: "On the final morning of the Adriatic cruise, Lady Pemberton's emerald collection vanished from the ship's safe. Only five people knew the combination.",
+    evidence: [
+      { id: "e1", text: "Safe access logs show it was opened at 4:22am — an hour before sunrise.", realOrPlanted: "real" },
+      { id: "e2", text: "A ship steward found a false bottom in a passenger's luggage during routine checks.", realOrPlanted: "real" },
+      { id: "e3", text: "Lady Pemberton mentioned the collection at the Captain's Table dinner — four guests heard.", realOrPlanted: "real" },
+      { id: "e4", text: "Passenger rumoured to have previous insurance fraud conviction — source unverified.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Felix Strand",    role: "Retired Banker", alibi: "I don't even know where the ship's safe is." },
+      { id: "s2", name: "Anya Petrova",    role: "Jewellery Appraiser", alibi: "I appraised the collection — that's not a motive." },
+      { id: "s3", name: "Cruise Director", role: "Crew", alibi: "I had the combination for legitimate access only." },
+      { id: "s4", name: "Oliver Nash",     role: "Art Dealer", alibi: "I was seasick all night. The ship doctor saw me." },
+    ],
+    killer: "s2",
+  },
+  {
+    title: "Death at the Masquerade Dinner",
+    scenario: "The masked gala on Deck 7 ended when a passenger was found unconscious — later confirmed poisoned — behind the dessert table. Masks made identification during the event nearly impossible.",
+    evidence: [
+      { id: "e1", text: "A cocktail glass with an unusual residue found at the victim's table.", realOrPlanted: "real" },
+      { id: "e2", text: "One guest changed their outfit mid-event — cabin steward confirmed.", realOrPlanted: "real" },
+      { id: "e3", text: "The victim received an anonymous envelope earlier that day with a single question mark inside.", realOrPlanted: "real" },
+      { id: "e4", text: "Bartender claims they saw two guests arguing near the bar but can't be sure due to masks.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Camille DuBois",  role: "Former Colleague", alibi: "I barely knew them — we worked together years ago." },
+      { id: "s2", name: "Henrik Voss",     role: "Pharmaceutical Rep", alibi: "I don't carry medication that could cause this." },
+      { id: "s3", name: "Tara Fontaine",   role: "Event Planner", alibi: "I organised the evening — I was everywhere at once." },
+      { id: "s4", name: "Ravi Chopra",     role: "Ship's Doctor", alibi: "I was the one who raised the alarm." },
+    ],
+    killer: "s2",
+  },
+  // ── House Party Settings ───────────────────────────────────────────────────
+  {
+    title: "The Missing Watch",
+    scenario: "Sometime during Marcus's house party, his grandfather's vintage Rolex disappeared from the bedroom nightstand. Eight guests had access to the upstairs floor during the evening.",
+    evidence: [
+      { id: "e1", text: "A guest was seen heading upstairs twice within an hour.", realOrPlanted: "real" },
+      { id: "e2", text: "A pawn shop receipt for a similar watch was found in a jacket pocket.", realOrPlanted: "real" },
+      { id: "e3", text: "The bedroom window was left open — could someone have slipped in from outside?", realOrPlanted: "real" },
+      { id: "e4", text: "One guest claims they heard someone say 'keep it quiet' in the corridor.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Jamie Cross",     role: "Uni Friend", alibi: "I went upstairs to use the bathroom — that's it." },
+      { id: "s2", name: "Lexi Rhodes",     role: "Work Colleague", alibi: "I didn't even know there was a watch up there." },
+      { id: "s3", name: "Dan Morrow",      role: "Flatmate's Friend", alibi: "I've got a receipt but it's for my own watch — check the date." },
+      { id: "s4", name: "Chloe Park",      role: "Ex-girlfriend", alibi: "I wasn't going anywhere near that bedroom." },
+    ],
+    killer: "s3",
+  },
+  {
+    title: "The Screenshot That Wasn't Meant to Be Seen",
+    scenario: "A private group chat screenshot containing embarrassing messages about the host surfaced during the party — screenshotted and sent to everyone in the room. Someone with access leaked it live.",
+    evidence: [
+      { id: "e1", text: "The screenshot was sent from a number not saved in most contacts.", realOrPlanted: "real" },
+      { id: "e2", text: "Only four people were in the original group chat.", realOrPlanted: "real" },
+      { id: "e3", text: "One guest was visibly checking their phone moments before the message arrived.", realOrPlanted: "real" },
+      { id: "e4", text: "Someone claims they saw a guest forwarding messages in the kitchen.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Jade Osei",       role: "Best Friend", alibi: "Why would I do this — she's my best mate." },
+      { id: "s2", name: "Ryan Fletcher",   role: "Mutual Friend", alibi: "I'm not even in that chat." },
+      { id: "s3", name: "Emma Slade",      role: "Work Friend", alibi: "I only forwarded a meme earlier — nothing like this." },
+      { id: "s4", name: "Patrick Burns",   role: "New Boyfriend", alibi: "I don't even know half the people in that group." },
+    ],
+    killer: "s1",
+  },
+  {
+    title: "The Vanishing Birthday Fund",
+    scenario: "A group of friends collected £240 in cash to cover a joint birthday tab. By the end of the night the envelope was empty. Nobody saw it go.",
+    evidence: [
+      { id: "e1", text: "The envelope was last seen in the kitchen at 10:30pm.", realOrPlanted: "real" },
+      { id: "e2", text: "One guest paid their Uber home in cash despite claiming to be broke.", realOrPlanted: "real" },
+      { id: "e3", text: "Text message found: 'sort me out and I won't say anything'.", realOrPlanted: "real" },
+      { id: "e4", text: "Bartender at the next venue remembers someone with an unusually thick wallet.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Theo King",       role: "Organiser's Flatmate", alibi: "I collected the money, yes, but I put it in the envelope." },
+      { id: "s2", name: "Sienna Walsh",    role: "Work Colleague", alibi: "I literally Venmo'd my share — I never touched cash." },
+      { id: "s3", name: "Lewis Adebayo",   role: "Uni Friend", alibi: "I went home early — long before it went missing." },
+      { id: "s4", name: "Mia Torres",      role: "Plus-one",  alibi: "I don't even know these people that well." },
+    ],
+    killer: "s1",
+  },
+  {
+    title: "The Leaked Address",
+    scenario: "The house party was meant to be 20 people max. By midnight there were 80. Someone gave out the address publicly. The host's neighbours have called the police twice.",
+    evidence: [
+      { id: "e1", text: "A public Instagram story tagged the street name at 9:14pm.", realOrPlanted: "real" },
+      { id: "e2", text: "The invite was only shared in a group chat of six people.", realOrPlanted: "real" },
+      { id: "e3", text: "One guest is known for over-inviting at previous events.", realOrPlanted: "real" },
+      { id: "e4", text: "A gatecrash group on Facebook had the full address posted anonymously two hours before.", realOrPlanted: "planted" },
+    ],
+    suspects: [
+      { id: "s1", name: "Dani Ford",       role: "Social Butterfly", alibi: "I only told three people — and they're all here." },
+      { id: "s2", name: "Connor Blaine",   role: "Flatmate", alibi: "Why would I ruin my own flatmate's party?" },
+      { id: "s3", name: "Priya Sethi",     role: "University Friend", alibi: "I don't even have Instagram." },
+      { id: "s4", name: "Josh Whitmore",   role: "Boyfriend's Friend", alibi: "I just came along — I didn't even know where I was going." },
+    ],
+    killer: "s1",
+  },
 ];
 
 interface EvidenceItem { id: string; text: string; realOrPlanted: "real" | "planted"; erased?: boolean; }

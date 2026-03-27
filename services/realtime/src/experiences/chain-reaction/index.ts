@@ -18,16 +18,34 @@ const KEY = (roomId: string) => `experience:chain_reaction:${roomId}`;
 
 // ─── Content ─────────────────────────────────────────────────────────────────
 
-const CATEGORIES = ["Animals", "Countries", "Foods", "Movies", "Cities", "Sports", "Colors"] as const;
+const CATEGORIES = [
+  "Animals", "Countries", "Foods", "Movies", "Cities", "Sports", "Colors",
+  "Celebrities", "Brands", "Music Artists", "TV Shows", "Car Brands",
+  "Fruits", "Hobbies", "Superheroes", "Disney Characters", "Capitals",
+  "Dances", "Instruments", "Languages",
+] as const;
 
 const SEED_WORDS: Record<string, string> = {
-  Animals:   "Elephant",
-  Countries: "Argentina",
-  Foods:     "Apple",
-  Movies:    "Avatar",
-  Cities:    "Amsterdam",
-  Sports:    "Archery",
-  Colors:    "Amber",
+  Animals:           "Elephant",
+  Countries:         "Argentina",
+  Foods:             "Apple",
+  Movies:            "Avatar",
+  Cities:            "Amsterdam",
+  Sports:            "Archery",
+  Colors:            "Amber",
+  Celebrities:       "Adele",
+  Brands:            "Amazon",
+  "Music Artists":   "Ariana Grande",
+  "TV Shows":        "Arrested Development",
+  "Car Brands":      "Audi",
+  Fruits:            "Apricot",
+  Hobbies:           "Archery",
+  Superheroes:       "Ant-Man",
+  "Disney Characters": "Ariel",
+  Capitals:          "Athens",
+  Dances:            "Argentine Tango",
+  Instruments:       "Accordion",
+  Languages:         "Arabic",
 };
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -41,6 +59,7 @@ interface ChainReactionState {
   round: number;
   totalRounds: number;
   timerStart: number;
+  guestIds: string[];
 }
 
 export class ChainReactionExperience implements ExperienceModule {
@@ -56,6 +75,7 @@ export class ChainReactionExperience implements ExperienceModule {
       round: 0,
       totalRounds: 12,
       timerStart: 0,
+      guestIds: [],
     };
     await this._save(roomId, state);
   }
@@ -92,6 +112,7 @@ export class ChainReactionExperience implements ExperienceModule {
         state.currentTurn = guestIds[0] ?? null;
         state.timerStart = Date.now();
         state.scores = {};
+        state.guestIds = guestIds;
 
         await this._save(roomId, state);
         await this._broadcast(roomId, state, io);
@@ -107,7 +128,7 @@ export class ChainReactionExperience implements ExperienceModule {
         const word: string = (p.word ?? "").trim();
         if (!word) return;
 
-        const guestIds: string[] = p.guestIds ?? [];
+        const guestIds: string[] = state.guestIds;
         const lastWord = state.chain[state.chain.length - 1] ?? "";
         const lastChar = lastWord.slice(-1).toLowerCase();
         const firstChar = word.charAt(0).toLowerCase();

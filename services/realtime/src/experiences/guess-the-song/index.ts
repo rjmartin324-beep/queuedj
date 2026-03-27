@@ -81,7 +81,7 @@ export class GuessSongExperience implements ExperienceModule {
   async getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor> {
     const state = await this._load(roomId);
     return {
-      view: state.phase === "revealed" ? "guess_song_reveal" : "guess_song_guessing",
+      type: "guess_the_song" as const,
       data: {
         phase: state.phase,
         roundNumber: state.roundNumber,

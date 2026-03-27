@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "./storage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Streak System
@@ -7,7 +7,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Call  recordActivity()  once per session — it's idempotent within the same day.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const STREAK_KEY = "partyglue_streak";
+const STREAK_KEY    = "partyglue_streak";
+const STAT_STREAK   = "stat_dj_streak";
 
 export interface StreakData {
   currentStreak:  number;
@@ -28,7 +29,7 @@ function yesterday(): string {
 
 export async function getStreak(): Promise<StreakData> {
   try {
-    const raw = await AsyncStorage.getItem(STREAK_KEY);
+    const raw = storage.getString(STREAK_KEY);
     if (!raw) return { currentStreak: 0, longestStreak: 0, lastActiveDate: null, totalActiveDays: 0 };
     return JSON.parse(raw) as StreakData;
   } catch {
@@ -60,10 +61,10 @@ export async function recordActivity(): Promise<StreakData> {
     totalActiveDays: data.totalActiveDays + 1,
   };
 
-  await AsyncStorage.setItem(STREAK_KEY, JSON.stringify(updated));
+  storage.set(STREAK_KEY, JSON.stringify(updated));
 
   // Update the stat key used by achievements
-  await AsyncStorage.setItem("stat_dj_streak", String(updated.currentStreak));
+  storage.set(STAT_STREAK, String(updated.currentStreak));
 
   return updated;
 }

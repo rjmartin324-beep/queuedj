@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
+import { storage } from "../src/lib/storage";
 import * as Sentry from "@sentry/react-native";
 import { RoomProvider } from "../src/contexts/RoomContext";
 import { ThemeProvider } from "../src/contexts/ThemeContext";
@@ -36,14 +36,9 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export default function RootLayout() {
   const router = useRouter();
-  const [onboarded, setOnboarded] = useState<boolean | null>(null);
+  // MMKV is synchronous — read immediately, no async/null loading state needed
+  const [onboarded, setOnboarded] = useState<boolean>(() => storage.getString(ONBOARDED_KEY) === "1");
   const [showIntro, setShowIntro] = useState(false);
-
-  useEffect(() => {
-    AsyncStorage.getItem(ONBOARDED_KEY).then((val) => {
-      setOnboarded(val === "1");
-    });
-  }, []);
 
   // Register push token globally once after onboarding so daily SOTD + streak pushes work
   useEffect(() => {
@@ -98,9 +93,6 @@ export default function RootLayout() {
 
     return () => sub.remove();
   }, [onboarded]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Null = loading, don't flash anything
-  if (onboarded === null) return null;
 
   if (!onboarded) {
     return (

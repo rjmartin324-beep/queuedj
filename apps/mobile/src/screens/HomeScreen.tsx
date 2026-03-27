@@ -29,6 +29,7 @@ import { SongOfTheDayCard }    from "../components/home/SongOfTheDayCard";
 import { StreakBadge }         from "../components/home/StreakBadge";
 import { WeeklyTasteReport }   from "../components/home/WeeklyTasteReport";
 import { recordActivity }      from "../lib/streak";
+import { computeXP, XPInfo }  from "../lib/xp";
 import { LavaLampBg }          from "../components/shared/LavaLampBg";
 import { SpotifyConnectButton } from "../components/shared/SpotifyConnectButton";
 
@@ -737,10 +738,31 @@ export default function HomeScreen() {
   const [avatarLoaded, setAvatarLoaded]     = useState(false);
   const [welcomeDismissed, setWelcomeDismissed] = useState(true);
   const [myGuestId, setMyGuestId] = useState<string | null>(null);
+  const [myXP, setMyXP] = useState<XPInfo | null>(null);
+  const [heroStats, setHeroStats] = useState<{ parties: number; tracks: number; guests: number } | null>(null);
 
-  // Load persistent guestId for credits display
+  // Load guestId, then fetch credits (XP) and session history (hero stats)
   useEffect(() => {
-    socketManager.getOrCreateGuestId().then(setMyGuestId).catch(() => {});
+    socketManager.getOrCreateGuestId().then((id) => {
+      setMyGuestId(id);
+      fetch(`${API_URL}/credits/${encodeURIComponent(id)}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setMyXP(computeXP(data.balance ?? 0)); })
+        .catch(() => {});
+      fetch(`${API_URL}/history/${encodeURIComponent(id)}`)
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data?.sessions) {
+            const s = data.sessions as Array<{ trackCount?: number; guestCount?: number }>;
+            setHeroStats({
+              parties: s.length,
+              tracks:  s.reduce((a, x) => a + (x.trackCount ?? 0), 0),
+              guests:  s.reduce((a, x) => a + (x.guestCount ?? 0), 0),
+            });
+          }
+        })
+        .catch(() => {});
+    }).catch(() => {});
   }, []);
 
   // Auto-open join modal when arriving from a push notification (room_closing / room_invite)
@@ -932,6 +954,8 @@ export default function HomeScreen() {
             theme={theme}
             onToggleTheme={saveTheme}
             guestId={myGuestId}
+            xp={myXP}
+            heroStats={heroStats}
           />
         );
       case "avatar":
@@ -949,6 +973,7 @@ export default function HomeScreen() {
             setExprIdx={setExprIdx}
             guestId={myGuestId}
             theme={theme}
+            xp={myXP}
           />
         );
       case "social":
@@ -1070,7 +1095,9 @@ function HomeTab({
   onDismissWelcome,
   theme,
   onToggleTheme,
+  xp,
   guestId,
+  heroStats,
 }: {
   onStartRoom: () => void;
   onJoinRoom: () => void;
@@ -1082,6 +1109,8 @@ function HomeTab({
   expression: "happy" | "cool" | "party";
   welcomeDismissed: boolean;
   guestId?: string | null;
+  xp?: XPInfo | null;
+  heroStats?: { parties: number; tracks: number; guests: number } | null;
   onDismissWelcome: () => void;
   theme: "festival" | "space" | "studio";
   onToggleTheme: (t: "festival" | "space" | "studio") => void;
@@ -1143,9 +1172,11 @@ function HomeTab({
         {/* Name, level, XP */}
         <View style={styles.avatarCardInfo}>
           <View>
-            <Text style={styles.avatarCardName}>DJ Rookie</Text>
+            <Text style={styles.avatarCardName}>{xp?.rank ?? "DJ Rookie"}</Text>
             <View style={styles.avatarCardLevel}>
-              <Text style={styles.avatarCardLevelText}>⭐ Level 1  ·  18 / 100 XP</Text>
+              <Text style={styles.avatarCardLevelText}>
+                {xp ? `⭐ Level ${xp.level}  ·  ${xp.currentXP} / ${xp.levelXP} XP` : "⭐ Level 1"}
+              </Text>
             </View>
           </View>
           {guestId && <VibeCreditsBar guestId={guestId} compact />}
@@ -1154,16 +1185,22 @@ function HomeTab({
         {/* Stats row */}
         <View style={styles.heroStats}>
           <View style={styles.heroStat}>
-            <Text style={[styles.heroStatNum, { color: "#a78bfa" }]}>4</Text>
+            <Text style={[styles.heroStatNum, { color: "#a78bfa" }]}>
+              {heroStats != null ? heroStats.parties : "—"}
+            </Text>
             <Text style={styles.heroStatLabel}>Parties</Text>
           </View>
           <View style={[styles.heroStat, { borderLeftWidth: 1, borderRightWidth: 1, borderColor: "#221d3a" }]}>
-            <Text style={styles.heroStatNum}>12</Text>
-            <Text style={styles.heroStatLabel}>Games</Text>
+            <Text style={styles.heroStatNum}>
+              {heroStats != null ? heroStats.tracks : "—"}
+            </Text>
+            <Text style={styles.heroStatLabel}>Tracks</Text>
           </View>
           <View style={styles.heroStat}>
-            <Text style={[styles.heroStatNum, { color: "#fb923c" }]}>68%</Text>
-            <Text style={styles.heroStatLabel}>Win Rate</Text>
+            <Text style={[styles.heroStatNum, { color: "#fb923c" }]}>
+              {heroStats != null ? heroStats.guests : "—"}
+            </Text>
+            <Text style={styles.heroStatLabel}>Guests</Text>
           </View>
         </View>
       </View>
@@ -1554,6 +1591,7 @@ function AvatarTab({
   exprIdx, setExprIdx,
   guestId,
   theme,
+  xp,
 }: {
   bodyIdx: number;
   setBodyIdx: (i: number) => void;
@@ -1567,6 +1605,7 @@ function AvatarTab({
   setExprIdx: (i: number) => void;
   guestId?: string | null;
   theme?: "festival" | "space" | "studio";
+  xp?: XPInfo | null;
 }) {
   const avatarSize = Math.min(Dimensions.get("window").width * 0.82, 380);
   const [activeEmote, setActiveEmote] = React.useState<string | null>(null);
@@ -1610,7 +1649,9 @@ function AvatarTab({
       <View style={avStyles.pageHeader}>
         <Text style={avStyles.pageTitle}>My Avatar</Text>
         <View style={[avStyles.levelBadge, { borderColor: isStudio ? "rgba(52,211,153,0.4)" : "rgba(167,139,250,0.4)", backgroundColor: isStudio ? "rgba(29,185,84,0.15)" : "rgba(124,58,237,0.15)" }]}>
-          <Text style={[avStyles.levelBadgeText, { color: accentColor }]}>⭐ Lv 1  ·  DJ Rookie</Text>
+          <Text style={[avStyles.levelBadgeText, { color: accentColor }]}>
+            {xp ? `⭐ Lv ${xp.level}  ·  ${xp.rank}` : "⭐ Lv 1  ·  DJ Rookie"}
+          </Text>
         </View>
       </View>
 
@@ -1651,7 +1692,9 @@ function AvatarTab({
           backgroundColor: isStudio ? "rgba(29,185,84,0.28)" : "rgba(124,58,237,0.30)",
           borderColor: isStudio ? "rgba(52,211,153,0.45)" : "rgba(167,139,250,0.4)",
         }]}>
-          <Text style={[avStyles.levelPillText, { color: accentColor }]}>⭐ Lv 1  ·  DJ Rookie</Text>
+          <Text style={[avStyles.levelPillText, { color: accentColor }]}>
+            {xp ? `⭐ Lv ${xp.level}  ·  ${xp.rank}` : "⭐ Lv 1  ·  DJ Rookie"}
+          </Text>
         </View>
       </View>
 
@@ -1659,10 +1702,12 @@ function AvatarTab({
       <View style={avStyles.xpBar}>
         <View style={avStyles.xpRow}>
           <Text style={avStyles.xpLabel}>XP Progress</Text>
-          <Text style={[avStyles.xpValue, { color: accentColor }]}>240 / 500</Text>
+          <Text style={[avStyles.xpValue, { color: accentColor }]}>
+            {xp ? `${xp.currentXP} / ${xp.levelXP}` : "0 / 100"}
+          </Text>
         </View>
         <View style={avStyles.xpTrack}>
-          <LinearGradient colors={xpGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[avStyles.xpFill, { width: "48%" }]} />
+          <LinearGradient colors={xpGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[avStyles.xpFill, { width: `${Math.round((xp?.progress ?? 0) * 100)}%` }]} />
         </View>
       </View>
 

@@ -31,6 +31,7 @@ from workers.taste_graph import TasteGraphWorker
 from workers.reccobeats import ReccoBeatsWorker
 from workers.lastfm import LastFmWorker
 from workers.theaudiodb import TheAudioDBWorker
+from workers.stem_separation import StemSeparationWorker
 from workers.bullmq_consumer import BullMQConsumer
 
 # ─── Logging ──────────────────────────────────────────────────────────────────
@@ -78,6 +79,12 @@ async def lifespan(app: FastAPI):
         workers["rlhf_signal"] = RLHFSignalWorker(redis_client, DATABASE_URL)
         log.info("rlhf_worker_started")
 
+    # Stem separation: only start if feature flag is enabled
+    # Requires demucs, torch, torchaudio in requirements.txt (uncomment to activate)
+    if FEATURE_STEM_SEPARATION:
+        workers["stem_separation"] = StemSeparationWorker(redis_client, DATABASE_URL)
+        log.info("stem_separation_worker_started")
+
     consumer = BullMQConsumer(redis_client, workers)
     asyncio.create_task(consumer.start())
     log.info("ml_service_started", redis=REDIS_URL)
@@ -124,6 +131,7 @@ class AnalyzeTrackResponse(BaseModel):
     energy: float | None
     analysis_confidence: float
     analysis_source: str
+    downbeat_offset_ms: int | None = None
 
 class CompatibilityRequest(BaseModel):
     isrc_a: str
@@ -160,8 +168,8 @@ async def health():
     return {
         "status": "ok",
         "features": {
-            "rlhf_logging": FEATURE_RLHF_LOGGING,
-            "stem_separation": FEATURE_STEM_SEPARATION,
+            "rlhf_logging":     FEATURE_RLHF_LOGGING,
+            "stem_separation":  FEATURE_STEM_SEPARATION,
         },
         "queues": queue_health,
     }

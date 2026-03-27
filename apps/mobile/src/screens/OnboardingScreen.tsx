@@ -3,9 +3,9 @@ import {
   View, Text, StyleSheet, TouchableOpacity, TextInput, Image,
   Animated, Dimensions, Platform, KeyboardAvoidingView, SafeAreaView,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { socketManager } from "../lib/socket";
+import { storage } from "../lib/storage";
 
 export const ONBOARDED_KEY  = "queuedj_onboarded";
 export const GUEST_NAME_KEY = "guest_display_name";
@@ -152,7 +152,7 @@ export function OnboardingScreen({ onComplete }: Props) {
   }
 
   async function finish() {
-    await AsyncStorage.setItem(ONBOARDED_KEY, "1");
+    storage.set(ONBOARDED_KEY, "1");
     onComplete();
   }
 

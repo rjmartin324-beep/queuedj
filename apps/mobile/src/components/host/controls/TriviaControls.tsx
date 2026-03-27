@@ -729,7 +729,7 @@ export function TriviaControls({ viewMode, onViewModeChange: setViewMode }: View
             )}
             {(!serverPhase || serverPhase === "waiting") && <HostActionButton label="▶  Start Round" onPress={() => sendAction("start_round")} />}
             {serverPhase === "leaderboard" && <HostActionButton label={`▶  Next Question (${(serverState?.roundNumber ?? 1)}/${serverState?.totalRounds ?? 10})`} onPress={() => sendAction("next_question")} />}
-            {serverPhase === "question" && <><HostActionButton label="⏭  Reveal Answer" onPress={() => sendAction("reveal_answer")} variant="secondary" /><HostActionButton label="⏹  End Game" onPress={() => sendAction("end_trivia")} variant="secondary" /></>}
+            {serverPhase === "question" && <><HostActionButton label="⏭  Reveal Answer" onPress={() => sendAction("reveal_answer")} variant="secondary" /><HostActionButton label="🔄  Resume (if stuck)" onPress={() => sendAction("resume")} variant="secondary" /><HostActionButton label="⏹  End Game" onPress={() => sendAction("end_trivia")} variant="secondary" /></>}
             {serverPhase === "reveal"   && <><HostActionButton label="▶  Next Question" onPress={() => sendAction("next_question")} /><HostActionButton label="🏆  Show Leaderboard" onPress={() => sendAction("show_leaderboard")} variant="secondary" /><HostActionButton label="⏹  End Game" onPress={() => sendAction("end_trivia")} variant="secondary" /></>}
             {serverPhase === "finished" && <HostActionButton label="🔄  Play Again" onPress={() => sendAction("start_round")} />}
           </View>

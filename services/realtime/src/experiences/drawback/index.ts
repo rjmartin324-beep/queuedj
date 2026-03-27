@@ -50,6 +50,7 @@ export class DrawbackExperience implements ExperienceModule {
   async onDeactivate(roomId: string): Promise<void> {
     const timer = this.timers.get(roomId);
     if (timer) { clearTimeout(timer); this.timers.delete(roomId); }
+    await redisClient.del(STATE_KEY(roomId));
   }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {

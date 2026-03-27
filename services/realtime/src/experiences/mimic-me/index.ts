@@ -12,6 +12,7 @@ interface MimicMeState {
   action: { emoji: string; instruction: string } | null;
   ratings: Record<string, number>;
   performerOrder: string[];
+  usedActionIndices: number[];
 }
 
 const ACTIONS = [
@@ -25,6 +26,43 @@ const ACTIONS = [
   { emoji: "🥊", instruction: "Shadow box for 5 seconds" },
   { emoji: "🦋", instruction: "Flutter around like a butterfly" },
   { emoji: "🏄", instruction: "Surf an imaginary wave" },
+  // ── added to reach 50 ────────────────────────────────────────────────────────
+  { emoji: "🐊", instruction: "Crawl across the floor like a crocodile" },
+  { emoji: "🦒", instruction: "Stretch your neck as tall as possible and look around slowly" },
+  { emoji: "🕷️", instruction: "Scuttle sideways like a spider for 5 steps" },
+  { emoji: "🐸", instruction: "Do three frog jumps" },
+  { emoji: "🐒", instruction: "Swing your arms and walk like a gorilla" },
+  { emoji: "🦅", instruction: "Spread your arms and glide slowly around the room" },
+  { emoji: "🐢", instruction: "Move as slowly as humanly possible for 10 seconds" },
+  { emoji: "🦘", instruction: "Hop on one leg across the room and back" },
+  { emoji: "🦩", instruction: "Stand on one leg with your arms out for 5 seconds" },
+  { emoji: "🐍", instruction: "Slither along the floor like a snake" },
+  { emoji: "👻", instruction: "Float around the room like a ghost, making spooky sounds" },
+  { emoji: "🤡", instruction: "Do a silly walk across the room" },
+  { emoji: "🧟", instruction: "Walk like a zombie with arms out for 10 steps" },
+  { emoji: "💃", instruction: "Do a dramatic flamenco stomp and spin" },
+  { emoji: "🎭", instruction: "Act out being trapped in an invisible box" },
+  { emoji: "🎬", instruction: "Do your best slow-motion action movie fall" },
+  { emoji: "🥁", instruction: "Air drum a full 10-second drum solo" },
+  { emoji: "🎻", instruction: "Play an invisible violin dramatically" },
+  { emoji: "🏋️", instruction: "Pretend to lift an impossibly heavy barbell" },
+  { emoji: "⛷️", instruction: "Ski down an imaginary slope with poles" },
+  { emoji: "🧗", instruction: "Mime climbing a rock face for 10 seconds" },
+  { emoji: "🎣", instruction: "Cast and reel in a fish dramatically" },
+  { emoji: "🧹", instruction: "Ride an imaginary broomstick around the room" },
+  { emoji: "🛸", instruction: "Walk like you've just landed from another planet" },
+  { emoji: "🤠", instruction: "Do your best cowboy swagger and point at someone" },
+  { emoji: "🧙", instruction: "Cast a dramatic spell using both hands" },
+  { emoji: "🦸", instruction: "Strike your best superhero landing pose and hold it" },
+  { emoji: "🎪", instruction: "Walk an imaginary tightrope across the room" },
+  { emoji: "🎠", instruction: "Be a horse on a merry-go-round for 5 seconds" },
+  { emoji: "🪩", instruction: "Do your best 70s disco move with a point to the sky" },
+  { emoji: "🥴", instruction: "Walk around as if the floor is made of jelly" },
+  { emoji: "🤿", instruction: "Mime swimming through deep water in slow motion" },
+  { emoji: "🪆", instruction: "Move only in rigid, jointed puppet movements for 5 steps" },
+  { emoji: "🏇", instruction: "Gallop around the room like a jockey riding a horse" },
+  { emoji: "🧸", instruction: "Walk around stiff-armed like a teddy bear" },
+  { emoji: "🎩", instruction: "Do your best magician bow and 'ta-daa' reveal" },
 ];
 
 const KEY = (roomId: string) => `experience:mimic_me:${roomId}`;
@@ -36,6 +74,7 @@ export class MimicMeExperience implements ExperienceModule {
     const state: MimicMeState = {
       phase: "waiting", round: 0, totalRounds: 6,
       scores: {}, currentPerformer: null, action: null, ratings: {}, performerOrder: [],
+      usedActionIndices: [],
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -60,7 +99,11 @@ export class MimicMeExperience implements ExperienceModule {
         state.round = 1;
         state.totalRounds = Math.min(guestIds.length * 2, 6);
         state.currentPerformer = guestIds[0] ?? null;
-        state.action = ACTIONS[Math.floor(Math.random() * ACTIONS.length)];
+        state.usedActionIndices = [];
+        const _firstPool = ACTIONS.map((_, i) => i);
+        const _firstIdx = _firstPool[Math.floor(Math.random() * _firstPool.length)];
+        state.usedActionIndices = [_firstIdx];
+        state.action = ACTIONS[_firstIdx];
         state.ratings = {};
         state.phase = "studying";
         await redisClient.set(KEY(roomId), JSON.stringify(state));
@@ -115,7 +158,11 @@ export class MimicMeExperience implements ExperienceModule {
         } else {
           const nextIdx = (state.round - 1) % state.performerOrder.length;
           state.currentPerformer = state.performerOrder[nextIdx];
-          state.action = ACTIONS[Math.floor(Math.random() * ACTIONS.length)];
+          const _remaining = ACTIONS.map((_, i) => i).filter(i => !state.usedActionIndices.includes(i));
+          const _pool = _remaining.length > 0 ? _remaining : ACTIONS.map((_, i) => i);
+          const _idx = _pool[Math.floor(Math.random() * _pool.length)];
+          state.usedActionIndices = _remaining.length > 0 ? [...state.usedActionIndices, _idx] : [_idx];
+          state.action = ACTIONS[_idx];
           state.ratings = {};
           state.phase = "studying";
           await redisClient.set(KEY(roomId), JSON.stringify(state));

@@ -27,6 +27,42 @@ const WORD_PAIRS = [
   { crew: "FEAST", mole: "BANQUET" },
   { crew: "GALAXY", mole: "UNIVERSE" },
   { crew: "GUITAR", mole: "VIOLIN" },
+  // ── added to reach 50 ────────────────────────────────────────────────────────
+  { crew: "AUTOMOBILE", mole: "CAR" },
+  { crew: "SOFA", mole: "COUCH" },
+  { crew: "EVENING", mole: "DUSK" },
+  { crew: "CABIN", mole: "COTTAGE" },
+  { crew: "LIBERTY", mole: "FREEDOM" },
+  { crew: "SHORE", mole: "BEACH" },
+  { crew: "INFANT", mole: "BABY" },
+  { crew: "FRIGHTENED", mole: "SCARED" },
+  { crew: "CHEERFUL", mole: "HAPPY" },
+  { crew: "INTELLIGENT", mole: "SMART" },
+  { crew: "BEAUTIFUL", mole: "PRETTY" },
+  { crew: "WEALTHY", mole: "RICH" },
+  { crew: "JOURNEY", mole: "TRIP" },
+  { crew: "PHOTOGRAPH", mole: "PICTURE" },
+  { crew: "GIGGLE", mole: "CHUCKLE" },
+  { crew: "FURIOUS", mole: "ANGRY" },
+  { crew: "ENORMOUS", mole: "HUGE" },
+  { crew: "ANCIENT", mole: "OLD" },
+  { crew: "RAPID", mole: "FAST" },
+  { crew: "SILENT", mole: "QUIET" },
+  { crew: "GAZE", mole: "STARE" },
+  { crew: "WEEP", mole: "CRY" },
+  { crew: "STROLL", mole: "WALK" },
+  { crew: "PURCHASE", mole: "BUY" },
+  { crew: "CONSTRUCT", mole: "BUILD" },
+  { crew: "ASSIST", mole: "HELP" },
+  { crew: "FLAME", mole: "FIRE" },
+  { crew: "DAGGER", mole: "KNIFE" },
+  { crew: "VESSEL", mole: "SHIP" },
+  { crew: "CELEBRITY", mole: "STAR" },
+  { crew: "CEMETERY", mole: "GRAVEYARD" },
+  { crew: "ATTORNEY", mole: "LAWYER" },
+  { crew: "SPECTACLES", mole: "GLASSES" },
+  { crew: "GARBAGE", mole: "RUBBISH" },
+  { crew: "TROUSERS", mole: "PANTS" },
 ];
 
 interface MindMoleState {
@@ -45,6 +81,7 @@ interface MindMoleState {
 
 export class MindMoleExperience implements ExperienceModule {
   readonly type = "mind_mole" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const state: MindMoleState = {
@@ -63,7 +100,11 @@ export class MindMoleExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(roomId: string): Promise<void> {
+    const timer = this.timers.get(roomId);
+    if (timer) { clearTimeout(timer); this.timers.delete(roomId); }
+    await redisClient.del(KEY(roomId));
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -105,7 +146,7 @@ export class MindMoleExperience implements ExperienceModule {
   async getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor> {
     const state = await this._load(roomId);
     return {
-      view: `mind_mole_${state.phase}`,
+      type: "mind_mole",
       data: {
         phase: state.phase,
         roundNumber: state.roundNumber,
@@ -164,7 +205,10 @@ export class MindMoleExperience implements ExperienceModule {
       clueDurationMs: CLUE_TIMEOUT_MS,
       clues: state.clues,
     });
-    setTimeout(() => this._openVoting(roomId, io), CLUE_TIMEOUT_MS * state.totalRounds + 5000);
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    const t = setTimeout(() => this._openVoting(roomId, io), CLUE_TIMEOUT_MS + 5000);
+    this.timers.set(roomId, t);
   }
 
   private async _submitClue(roomId: string, guestId: string, clue: string, name: string, io: Server): Promise<void> {
