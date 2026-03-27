@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Alibi Experience
@@ -35,6 +36,7 @@ interface AlibiState {
   scores: Record<string, number>;
   currentCase: Omit<CrimeCase, "guiltyIndex"> | null; // guiltyIndex hidden during play
   votes: Record<string, number>; // guestId -> suspected index
+  queue: number[];
 }
 
 const CASES: CrimeCase[] = [
@@ -105,6 +107,7 @@ export class AlibiExperience implements ExperienceModule {
       scores: {},
       currentCase: null,
       votes: {},
+      queue: shuffledIndices(CASES.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -173,7 +176,8 @@ export class AlibiExperience implements ExperienceModule {
     const state = await this._load(roomId);
     if (!state) return;
 
-    const caseData = CASES[0];
+    state.queue = shuffledIndices(CASES.length);
+    const caseData = CASES[state.queue[0]];
     state.round = 1;
     state.votes = {};
     state.currentCase = { crime: caseData.crime, suspects: caseData.suspects };
@@ -210,7 +214,7 @@ export class AlibiExperience implements ExperienceModule {
     const state = await this._load(roomId);
     if (!state || state.phase !== "voting") return;
 
-    const caseIndex = state.round - 1;
+    const caseIndex = state.queue[(state.round - 1) % state.queue.length];
     const guiltyIndex = CASES[caseIndex]?.guiltyIndex ?? 0;
 
     for (const [gId, votedIndex] of Object.entries(state.votes)) {
@@ -245,7 +249,7 @@ export class AlibiExperience implements ExperienceModule {
       return;
     }
 
-    const caseData = CASES[nextRound - 1];
+    const caseData = CASES[state.queue[(nextRound - 1) % state.queue.length]];
     state.round = nextRound;
     state.votes = {};
     state.currentCase = { crime: caseData.crime, suspects: caseData.suspects };

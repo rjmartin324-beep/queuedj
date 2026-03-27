@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 const KEY = (roomId: string) => `experience:musical_chairs:${roomId}`;
 
@@ -26,6 +27,7 @@ interface MusicalChairsState {
   currentQ: { q: string; a: string } | null;
   answers: Record<string, string>;
   loser: string | null;
+  queue: number[];
 }
 
 export class MusicalChairsExperience implements ExperienceModule {
@@ -35,7 +37,7 @@ export class MusicalChairsExperience implements ExperienceModule {
     const state: MusicalChairsState = {
       phase: "waiting", round: 0, totalRounds: 0,
       scores: {}, activePlayers: [], eliminatedPlayers: [],
-      currentQ: null, answers: {}, loser: null,
+      currentQ: null, answers: {}, loser: null, queue: shuffledIndices(TRIVIA_QS.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -60,6 +62,7 @@ export class MusicalChairsExperience implements ExperienceModule {
         state.totalRounds = Math.max(1, guestIds.length - 1);
         state.round = 1;
         state.phase = "music";
+        state.queue = shuffledIndices(TRIVIA_QS.length);
         state.answers = {};
         state.loser = null;
         await redisClient.set(KEY(roomId), JSON.stringify(state));
@@ -72,7 +75,7 @@ export class MusicalChairsExperience implements ExperienceModule {
       }
       case "freeze": {
         if (role !== "HOST" && role !== "CO_HOST") return;
-        const qIdx = (state.round - 1) % TRIVIA_QS.length;
+        const qIdx = state.queue[(state.round - 1) % state.queue.length];
         state.currentQ = TRIVIA_QS[qIdx];
         state.answers = {};
         state.loser = null;

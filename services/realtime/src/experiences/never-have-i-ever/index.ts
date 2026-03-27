@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Never Have I Ever Experience
@@ -88,6 +89,7 @@ interface NeverHaveIEverState {
   responses: Record<string, "have" | "never">;
   haveCount: number;
   neverCount: number;
+  queue: number[];
 }
 
 const KEY = (roomId: string) => `experience:never_have_i_ever:${roomId}`;
@@ -105,6 +107,7 @@ export class NeverHaveIEverExperience implements ExperienceModule {
       responses: {},
       haveCount: 0,
       neverCount: 0,
+      queue: shuffledIndices(PROMPTS.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -130,7 +133,8 @@ export class NeverHaveIEverExperience implements ExperienceModule {
         if (role !== "HOST" && role !== "CO_HOST") return;
         state.phase = "question";
         state.round = 1;
-        state.currentPrompt = PROMPTS[0];
+        state.queue = shuffledIndices(PROMPTS.length);
+        state.currentPrompt = PROMPTS[state.queue[0]];
         state.responses = {};
         state.haveCount = 0;
         state.neverCount = 0;
@@ -205,7 +209,7 @@ export class NeverHaveIEverExperience implements ExperienceModule {
           });
         } else {
           state.phase = "question";
-          state.currentPrompt = PROMPTS[(state.round - 1) % PROMPTS.length];
+          state.currentPrompt = PROMPTS[state.queue[(state.round - 1) % state.queue.length]];
           state.responses = {};
           state.haveCount = 0;
           state.neverCount = 0;

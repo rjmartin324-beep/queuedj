@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  TextInput, ScrollView, KeyboardAvoidingView, Platform,
+  TextInput, KeyboardAvoidingView, Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { PostGameCard } from "../../components/shared/PostGameCard";
+import { StandaloneDrawingPad, DrawingDisplay } from "../../components/shared/StandaloneDrawingPad";
+import type { DrawPath } from "../../components/shared/StandaloneDrawingPad";
 
-const ACCENT = "#c084fc";
+const ACCENT      = "#c084fc";
 const TOTAL_ROUNDS = 5;
 
 const ALL_PROMPTS = [
@@ -36,15 +38,15 @@ type Phase = "welcome" | "drawing" | "guessing" | "reveal" | "results";
 
 export default function DrawbackScreen() {
   const router = useRouter();
-  const [phase, setPhase] = useState<Phase>("welcome");
+  const [phase, setPhase]   = useState<Phase>("welcome");
   const [prompts, setPrompts] = useState<string[]>([]);
-  const [round, setRound] = useState(0);
-  const [score, setScore] = useState(0);
-  const [guess, setGuess] = useState("");
+  const [round, setRound]   = useState(0);
+  const [score, setScore]   = useState(0);
+  const [guess, setGuess]   = useState("");
+  const [drawing, setDrawing] = useState<DrawPath[]>([]);
   const [roundResults, setRoundResults] = useState<{ prompt: string; guess: string; correct: boolean }[]>([]);
 
-  // Alternate: even rounds = Player 1 draws, odd rounds = Player 2 draws
-  const drawerName = round % 2 === 0 ? "Player 1" : "Player 2";
+  const drawerName  = round % 2 === 0 ? "Player 1" : "Player 2";
   const guesserName = round % 2 === 0 ? "Player 2" : "Player 1";
 
   function startGame() {
@@ -52,21 +54,23 @@ export default function DrawbackScreen() {
     setRound(0);
     setScore(0);
     setGuess("");
+    setDrawing([]);
     setRoundResults([]);
     setPhase("drawing");
   }
 
-  function donDrawing() {
+  function doneDrawing(paths: DrawPath[]) {
+    setDrawing(paths);
     setGuess("");
     setPhase("guessing");
   }
 
   function submitGuess() {
     if (!guess.trim()) return;
-    const prompt = prompts[round];
+    const prompt  = prompts[round];
     const correct = guess.trim().toLowerCase() === prompt.toLowerCase();
-    if (correct) setScore((s) => s + 100);
-    setRoundResults((r) => [...r, { prompt, guess: guess.trim(), correct }]);
+    if (correct) setScore(s => s + 100);
+    setRoundResults(r => [...r, { prompt, guess: guess.trim(), correct }]);
     setPhase("reveal");
   }
 
@@ -77,9 +81,12 @@ export default function DrawbackScreen() {
     } else {
       setRound(next);
       setGuess("");
+      setDrawing([]);
       setPhase("drawing");
     }
   }
+
+  // ── Welcome ──────────────────────────────────────────────────────────────────
 
   if (phase === "welcome") {
     return (
@@ -91,12 +98,12 @@ export default function DrawbackScreen() {
           <View style={s.center}>
             <Text style={s.emoji}>🎨</Text>
             <Text style={s.title}>Drawback</Text>
-            <Text style={s.sub}>Pass & play drawing guessing game for 2 players</Text>
+            <Text style={s.sub}>Pass & play drawing game for 2 players</Text>
             <View style={s.rulesBox}>
               <Text style={s.ruleItem}>• {TOTAL_ROUNDS} rounds — players alternate drawing</Text>
-              <Text style={s.ruleItem}>• Player 1 draws, Player 2 guesses (then swap)</Text>
+              <Text style={s.ruleItem}>• Draw the prompt on your phone</Text>
+              <Text style={s.ruleItem}>• Pass to the other player to guess</Text>
               <Text style={s.ruleItem}>• Exact match = +100 pts per round</Text>
-              <Text style={s.ruleItem}>• Use paper & pencil to draw!</Text>
             </View>
             <TouchableOpacity style={s.startBtn} onPress={startGame}>
               <LinearGradient colors={["#7c3aed", ACCENT]} style={s.startBtnInner}>
@@ -109,8 +116,9 @@ export default function DrawbackScreen() {
     );
   }
 
+  // ── Drawing ───────────────────────────────────────────────────────────────────
+
   if (phase === "drawing") {
-    const prompt = prompts[round];
     return (
       <LinearGradient colors={["#0e0024", "#08081a"]} style={s.flex}>
         <SafeAreaView style={s.flex}>
@@ -118,25 +126,23 @@ export default function DrawbackScreen() {
             <Text style={s.roundPill}>Round {round + 1} / {TOTAL_ROUNDS}</Text>
             <Text style={s.scoreChip}>Score: {score}</Text>
           </View>
-          <View style={s.center}>
+          <View style={s.playerBadgeWrap}>
             <View style={s.playerBadge}>
-              <Text style={s.playerBadgeText}>✏️ {drawerName} — draw this!</Text>
+              <Text style={s.playerBadgeText}>✏️  {drawerName} — draw this!</Text>
             </View>
-            <View style={s.promptCard}>
-              <Text style={s.promptLabel}>YOUR PROMPT</Text>
-              <Text style={s.promptText}>{prompt}</Text>
-            </View>
-            <Text style={s.hint}>{guesserName} — look away! No peeking.</Text>
-            <TouchableOpacity style={s.actionBtn} onPress={donDrawing}>
-              <LinearGradient colors={["#7c3aed", ACCENT]} style={s.actionBtnInner}>
-                <Text style={s.actionBtnText}>I'm Done Drawing →</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            <Text style={s.hint}>{guesserName} — look away!</Text>
           </View>
+          <StandaloneDrawingPad
+            prompt={prompts[round]}
+            onDone={doneDrawing}
+            accentColor={ACCENT}
+          />
         </SafeAreaView>
       </LinearGradient>
     );
   }
+
+  // ── Guessing ─────────────────────────────────────────────────────────────────
 
   if (phase === "guessing") {
     return (
@@ -147,16 +153,20 @@ export default function DrawbackScreen() {
               <Text style={s.roundPill}>Round {round + 1} / {TOTAL_ROUNDS}</Text>
               <Text style={s.scoreChip}>Score: {score}</Text>
             </View>
-            <View style={s.center}>
+            <View style={s.playerBadgeWrap}>
               <View style={s.playerBadge}>
-                <Text style={s.playerBadgeText}>🔍 {guesserName} — what did they draw?</Text>
+                <Text style={s.playerBadgeText}>🔍  {guesserName} — what did they draw?</Text>
               </View>
-              <Text style={s.guessLabel}>What did they draw?</Text>
+            </View>
+            {/* Show the drawing */}
+            <DrawingDisplay paths={drawing} style={s.drawingDisplay} />
+            {/* Guess input */}
+            <View style={s.guessPad}>
               <TextInput
                 style={s.input}
                 value={guess}
                 onChangeText={setGuess}
-                placeholder="Type your guess..."
+                placeholder="Type your guess…"
                 placeholderTextColor="#555"
                 autoFocus
                 returnKeyType="done"
@@ -181,6 +191,8 @@ export default function DrawbackScreen() {
     );
   }
 
+  // ── Reveal ────────────────────────────────────────────────────────────────────
+
   if (phase === "reveal") {
     const last = roundResults[roundResults.length - 1];
     return (
@@ -193,7 +205,7 @@ export default function DrawbackScreen() {
           <View style={s.center}>
             <Text style={s.revealEmoji}>{last.correct ? "🎉" : "😅"}</Text>
             <Text style={[s.revealVerdict, { color: last.correct ? "#4ade80" : "#f87171" }]}>
-              {last.correct ? "Correct! +100" : "Close... no points"}
+              {last.correct ? "Correct! +100" : "Close… no points"}
             </Text>
             <View style={s.revealCard}>
               <View style={s.revealRow}>
@@ -221,12 +233,13 @@ export default function DrawbackScreen() {
     );
   }
 
-  // Results
+  // ── Results ───────────────────────────────────────────────────────────────────
+
   if (phase === "results") {
     return (
       <PostGameCard
         score={score}
-        maxScore={500}
+        maxScore={TOTAL_ROUNDS * 100}
         gameEmoji="🎨"
         gameTitle="Drawback"
         onPlayAgain={startGame}
@@ -238,67 +251,51 @@ export default function DrawbackScreen() {
 }
 
 const s = StyleSheet.create({
-  flex: { flex: 1 },
-  back: { padding: 16, paddingTop: 8 },
-  backText: { color: ACCENT, fontSize: 16, fontWeight: "700" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
-  scrollContent: { alignItems: "center", paddingHorizontal: 24, paddingVertical: 40 },
-  emoji: { fontSize: 64, marginBottom: 16, textAlign: "center" },
-  title: { color: "#fff", fontSize: 30, fontWeight: "900", marginBottom: 8, textAlign: "center" },
-  sub: { color: "#888", fontSize: 14, textAlign: "center", marginBottom: 24 },
-  rulesBox: { backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 16, width: "100%", marginBottom: 32 },
-  ruleItem: { color: "#ccc", fontSize: 14, marginBottom: 6 },
-  startBtn: { width: "100%", borderRadius: 14, overflow: "hidden", marginBottom: 12 },
-  startBtnInner: { padding: 18, alignItems: "center" },
-  startBtnText: { color: "#fff", fontSize: 17, fontWeight: "900", letterSpacing: 1 },
-  homeBtn: { padding: 12, marginTop: 4 },
-  homeBtnText: { color: "#666", fontSize: 15 },
+  flex:            { flex: 1 },
+  back:            { padding: 16, paddingTop: 8 },
+  backText:        { color: ACCENT, fontSize: 16, fontWeight: "700" },
+  center:          { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 24 },
+  emoji:           { fontSize: 64, marginBottom: 16, textAlign: "center" },
+  title:           { color: "#fff", fontSize: 30, fontWeight: "900", marginBottom: 8, textAlign: "center" },
+  sub:             { color: "#888", fontSize: 14, textAlign: "center", marginBottom: 24 },
+  rulesBox:        { backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 16, padding: 16, width: "100%", marginBottom: 32 },
+  ruleItem:        { color: "#ccc", fontSize: 14, marginBottom: 6 },
+  startBtn:        { width: "100%", borderRadius: 14, overflow: "hidden" },
+  startBtnInner:   { padding: 18, alignItems: "center" },
+  startBtnText:    { color: "#fff", fontSize: 17, fontWeight: "900", letterSpacing: 1 },
 
-  topBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 12 },
-  roundPill: { color: "#888", fontWeight: "700", fontSize: 13 },
-  scoreChip: { color: ACCENT, fontWeight: "800", fontSize: 14 },
+  topBar:          { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 10 },
+  roundPill:       { color: "#888", fontWeight: "700", fontSize: 13 },
+  scoreChip:       { color: ACCENT, fontWeight: "800", fontSize: 14 },
 
-  playerBadge: { backgroundColor: "rgba(192,132,252,0.12)", borderRadius: 20, paddingHorizontal: 20, paddingVertical: 8, marginBottom: 24, borderWidth: 1, borderColor: "rgba(192,132,252,0.25)" },
-  playerBadgeText: { color: ACCENT, fontSize: 14, fontWeight: "800" },
+  playerBadgeWrap: { paddingHorizontal: 16, marginBottom: 4 },
+  playerBadge:     { backgroundColor: "rgba(192,132,252,0.12)", borderRadius: 20, paddingHorizontal: 18, paddingVertical: 7, alignSelf: "flex-start", borderWidth: 1, borderColor: "rgba(192,132,252,0.25)", marginBottom: 4 },
+  playerBadgeText: { color: ACCENT, fontSize: 13, fontWeight: "800" },
+  hint:            { color: "#555", fontSize: 12 },
 
-  promptCard: { backgroundColor: "rgba(192,132,252,0.08)", borderRadius: 24, padding: 32, width: "100%", alignItems: "center", marginBottom: 16, borderWidth: 1, borderColor: "rgba(192,132,252,0.2)" },
-  promptLabel: { color: ACCENT, fontSize: 11, fontWeight: "900", letterSpacing: 2, marginBottom: 16 },
-  promptText: { color: "#fff", fontSize: 24, fontWeight: "900", textAlign: "center", lineHeight: 34 },
-
-  hint: { color: "#555", fontSize: 13, textAlign: "center", marginBottom: 24 },
-
-  actionBtn: { width: "100%", borderRadius: 14, overflow: "hidden", marginTop: 8 },
-  actionBtnDisabled: { opacity: 0.5 },
-  actionBtnInner: { padding: 18, alignItems: "center" },
-  actionBtnText: { color: "#fff", fontSize: 17, fontWeight: "900" },
-
-  guessLabel: { color: "#fff", fontSize: 22, fontWeight: "800", marginBottom: 20, textAlign: "center" },
+  drawingDisplay:  { flex: 1, marginHorizontal: 10, marginVertical: 8, minHeight: 220 },
+  guessPad:        { paddingHorizontal: 16, paddingBottom: 16 },
   input: {
-    width: "100%",
     backgroundColor: "rgba(255,255,255,0.07)",
     borderWidth: 1,
     borderColor: "rgba(192,132,252,0.3)",
     borderRadius: 14,
-    padding: 18,
+    padding: 16,
     color: "#fff",
     fontSize: 18,
-    marginBottom: 20,
+    marginBottom: 12,
     textAlign: "center",
   },
+  actionBtn:       { borderRadius: 14, overflow: "hidden" },
+  actionBtnDisabled: { opacity: 0.5 },
+  actionBtnInner:  { padding: 18, alignItems: "center" },
+  actionBtnText:   { color: "#fff", fontSize: 17, fontWeight: "900" },
 
-  revealEmoji: { fontSize: 64, marginBottom: 12, textAlign: "center" },
+  revealEmoji:   { fontSize: 64, marginBottom: 12, textAlign: "center" },
   revealVerdict: { fontSize: 24, fontWeight: "900", marginBottom: 24 },
-  revealCard: { backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 20, padding: 24, width: "100%", marginBottom: 28 },
-  revealRow: { paddingVertical: 8 },
-  revealLabel: { color: "#666", fontSize: 12, fontWeight: "700", letterSpacing: 1, marginBottom: 4 },
-  revealValue: { color: "#fff", fontSize: 18, fontWeight: "700" },
-  divider: { height: 1, backgroundColor: "rgba(255,255,255,0.08)", marginVertical: 8 },
-
-  resultsEmoji: { fontSize: 64, textAlign: "center", marginBottom: 16 },
-  resultsScore: { color: ACCENT, fontSize: 56, fontWeight: "900", marginBottom: 8 },
-  historyRow: { flexDirection: "row", marginBottom: 12, alignItems: "flex-start" },
-  historyNum: { color: "#555", fontSize: 14, width: 24, marginTop: 2 },
-  historyContent: { flex: 1 },
-  historyPrompt: { color: "#ccc", fontSize: 14, fontWeight: "600" },
-  historyGuess: { fontSize: 13, marginTop: 2 },
+  revealCard:    { backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 20, padding: 24, width: "100%", marginBottom: 28 },
+  revealRow:     { paddingVertical: 8 },
+  revealLabel:   { color: "#666", fontSize: 12, fontWeight: "700", letterSpacing: 1, marginBottom: 4 },
+  revealValue:   { color: "#fff", fontSize: 18, fontWeight: "700" },
+  divider:       { height: 1, backgroundColor: "rgba(255,255,255,0.08)", marginVertical: 8 },
 });

@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Pop Culture Quiz Experience
@@ -32,6 +33,7 @@ interface PopCultureQuizState {
   currentQ: (PopCultureQuestion & { index: number }) | null;
   answers: Record<string, number>; // guestId -> option index (server only)
   questionStartedAt: number;
+  queue: number[];
 }
 
 const QUESTIONS: PopCultureQuestion[] = [
@@ -404,6 +406,7 @@ export class PopCultureQuizExperience implements ExperienceModule {
       currentQ: null,
       answers: {},
       questionStartedAt: 0,
+      queue: shuffledIndices(QUESTIONS.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -469,7 +472,8 @@ export class PopCultureQuizExperience implements ExperienceModule {
     state.round = 1;
     state.answers = {};
     state.questionStartedAt = Date.now();
-    state.currentQ = { ...QUESTIONS[0], index: 0 };
+    state.queue = shuffledIndices(QUESTIONS.length);
+    state.currentQ = { ...QUESTIONS[state.queue[0]], index: 0 };
     state.phase = "question";
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
@@ -519,7 +523,7 @@ export class PopCultureQuizExperience implements ExperienceModule {
     }
 
     const nextIndex = (state.currentQ?.index ?? 0) + 1;
-    const qIndex = nextIndex % QUESTIONS.length;
+    const qIndex = state.queue[nextIndex % state.queue.length];
     state.round = nextRound;
     state.answers = {};
     state.questionStartedAt = Date.now();

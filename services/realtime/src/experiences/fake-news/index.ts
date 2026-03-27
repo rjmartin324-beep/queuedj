@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Fake News Experience
@@ -46,6 +47,7 @@ interface FakeNewsState {
   currentHeadline: Headline | null;
   votes: Record<string, "real" | "fake">;
   streaks: Record<string, number>;
+  queue: number[];
 }
 
 export class FakeNewsExperience implements ExperienceModule {
@@ -60,6 +62,7 @@ export class FakeNewsExperience implements ExperienceModule {
       currentHeadline: null,
       votes: {},
       streaks: {},
+      queue: shuffledIndices(HEADLINES.length),
     };
     await this._save(roomId, state);
   }
@@ -86,7 +89,8 @@ export class FakeNewsExperience implements ExperienceModule {
 
         state.phase = "question";
         state.round = 1;
-        state.currentHeadline = HEADLINES[0];
+        state.queue = shuffledIndices(HEADLINES.length);
+        state.currentHeadline = HEADLINES[state.queue[0]];
         state.votes = {};
         state.streaks = {};
         state.scores = {};
@@ -154,7 +158,7 @@ export class FakeNewsExperience implements ExperienceModule {
           state.phase = "finished";
           state.currentHeadline = null;
         } else {
-          const headlineIdx = (state.round - 1) % HEADLINES.length;
+          const headlineIdx = state.queue[(state.round - 1) % state.queue.length];
           state.phase = "question";
           state.currentHeadline = HEADLINES[headlineIdx];
           state.votes = {};

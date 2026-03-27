@@ -1087,7 +1087,7 @@ function HomeTab({
   onToggleTheme: (t: "festival" | "space" | "studio") => void;
 }) {
   const [howItWorksVisible, setHowItWorksVisible] = useState(false);
-  const avatarSize = Math.min(Dimensions.get("window").width * 0.62, 300);
+  const avatarSize = Math.min(Dimensions.get("window").width * 0.82, 380);
   const isStudio = theme === "studio";
   const { state: roomState } = useRoom();
 
@@ -1568,7 +1568,7 @@ function AvatarTab({
   guestId?: string | null;
   theme?: "festival" | "space" | "studio";
 }) {
-  const avatarSize = Math.min(Dimensions.get("window").width * 0.68, 320);
+  const avatarSize = Math.min(Dimensions.get("window").width * 0.82, 380);
   const [activeEmote, setActiveEmote] = React.useState<string | null>(null);
   const emoteScale = React.useRef(new Animated.Value(1)).current;
 

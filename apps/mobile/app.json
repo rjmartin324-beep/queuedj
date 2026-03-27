@@ -37,7 +37,10 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "name": "PartyGlue",
+      "shortName": "PartyGlue",
+      "title": "PartyGlue"
     },
     "plugins": [
       "expo-router",
@@ -53,7 +56,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "QueueDJ uses the camera to scan room QR codes."
+          "cameraPermission": "PartyGlue uses the camera to scan room QR codes."
         }
       ],
       [

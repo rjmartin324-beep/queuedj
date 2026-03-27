@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mind Reading Experience
@@ -32,6 +33,7 @@ interface MindReadingState {
   currentPuzzle: NumberPuzzle | null;
   answers: Record<string, number>; // guestId -> chosen option index (server only)
   questionStartedAt: number;
+  queue: number[];
 }
 
 const PUZZLES: NumberPuzzle[] = [
@@ -97,6 +99,7 @@ export class MindReadingExperience implements ExperienceModule {
       currentPuzzle: null,
       answers: {},
       questionStartedAt: 0,
+      queue: shuffledIndices(PUZZLES.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -163,7 +166,8 @@ export class MindReadingExperience implements ExperienceModule {
     state.round = 1;
     state.answers = {};
     state.questionStartedAt = Date.now();
-    state.currentPuzzle = PUZZLES[0];
+    state.queue = shuffledIndices(PUZZLES.length);
+    state.currentPuzzle = PUZZLES[state.queue[0]];
     state.phase = "question";
 
     await this._save(roomId, state);
@@ -225,7 +229,7 @@ export class MindReadingExperience implements ExperienceModule {
     state.round = nextRound;
     state.answers = {};
     state.questionStartedAt = Date.now();
-    state.currentPuzzle = PUZZLES[nextRound - 1];
+    state.currentPuzzle = PUZZLES[state.queue[(nextRound - 1) % state.queue.length]];
     state.phase = "question";
 
     await this._save(roomId, state);

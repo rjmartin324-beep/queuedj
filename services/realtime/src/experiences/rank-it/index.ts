@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Rank It Experience
@@ -236,6 +237,7 @@ interface RankItState {
   scores: Record<string, number>;
   currentChallenge: { prompt: string; items: string[]; correctOrder: number[] } | null;
   rankings: Record<string, number[]>; // guestId → ordered indices
+  queue: number[];
 }
 
 export class RankItExperience implements ExperienceModule {
@@ -249,6 +251,7 @@ export class RankItExperience implements ExperienceModule {
       scores: {},
       currentChallenge: null,
       rankings: {},
+      queue: shuffledIndices(CHALLENGES.length),
     };
     await this._save(roomId, state);
   }
@@ -275,7 +278,8 @@ export class RankItExperience implements ExperienceModule {
         const state = await this._load(roomId);
         if (!state) return;
 
-        const challenge = CHALLENGES[0];
+        state.queue = shuffledIndices(CHALLENGES.length);
+        const challenge = CHALLENGES[state.queue[0]];
         state.phase = "ranking";
         state.round = 1;
         state.scores = {};
@@ -344,7 +348,7 @@ export class RankItExperience implements ExperienceModule {
           state.phase = "finished";
           state.currentChallenge = null;
         } else {
-          const challengeIdx = (state.round - 1) % CHALLENGES.length;
+          const challengeIdx = state.queue[(state.round - 1) % state.queue.length];
           state.phase = "ranking";
           state.currentChallenge = CHALLENGES[challengeIdx];
           state.rankings = {};

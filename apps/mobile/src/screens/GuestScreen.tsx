@@ -68,6 +68,12 @@ import { GuessSongView }     from "../components/experiences/guess-the-song/Gues
 import { NameGenreView }     from "../components/experiences/name-that-genre/NameGenreView";
 import { VibeCheckView }     from "../components/experiences/vibe-check/VibeCheckView";
 
+// 32 standalone card games
+import { GenericGameView }        from "../components/experiences/shared/GenericGameView";
+import { ImprovChallengeView }    from "../components/experiences/improv-challenge/ImprovChallengeView";
+import { HumItView }              from "../components/experiences/hum-it/HumItView";
+import { AccentChallengeView }    from "../components/experiences/accent-challenge/AccentChallengeView";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Guest Screen — The View Router
 //
@@ -281,9 +287,52 @@ export default function GuestScreen() {
 
       // ── Music Games ──────────────────────────────────────────────────────
       case "guess_the_song":    return <GuessSongView />;
-
       case "name_that_genre":   return <NameGenreView />;
       case "vibe_check":        return <VibeCheckView />;
+
+      // ── Improv Challenge ─────────────────────────────────────────────────
+      case "improv_challenge_performing":
+      case "improv_challenge_rating":
+      case "improv_challenge_reveal":
+      case "improv_challenge_finished":
+        return <ImprovChallengeView />;
+
+      // ── Hum It ───────────────────────────────────────────────────────────
+      case "hum_it_humming":
+      case "hum_it_guessing":
+      case "hum_it_reveal":
+      case "hum_it_finished":
+        return <HumItView />;
+
+      // ── Accent Challenge ─────────────────────────────────────────────────
+      case "accent_challenge_performing":
+      case "accent_challenge_rating":
+      case "accent_challenge_finished":
+        return <AccentChallengeView />;
+
+      // ── 21 Card / Voting Games ────────────────────────────────────────────
+      case "would_you_rather":
+      case "never_have_i_ever":
+      case "truth_or_dare":
+      case "two_truths_one_lie":
+      case "rank_it":
+      case "emoji_story":
+      case "celebrity_head":
+      case "word_association":
+      case "who_knows_who":
+      case "fake_news":
+      case "pop_culture_quiz":
+      case "alibi":
+      case "mind_reading":
+      case "speed_round":
+      case "mimic_me":
+      case "chain_reaction":
+      case "party_dice":
+      case "connections":
+      case "lyrics_drop":
+      case "musical_chairs":
+      case "thumb_war":
+        return <GenericGameView />;
 
       // ── Fallback ─────────────────────────────────────────────────────────
       case "intermission":

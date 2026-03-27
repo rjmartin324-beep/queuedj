@@ -9,6 +9,7 @@ import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { SAMPLE_QUESTIONS } from "./questions";
 import { awardGameWin } from "../../lib/credits";
+import { shuffle } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Trivia Experience
@@ -122,7 +123,9 @@ export class TriviaExperience implements ExperienceModule {
     state.roundNumber = 1;
     state.phase = "waiting";
     state.scores = {};
-    (state as any).usedQuestionIds = [];
+    // Build a fresh shuffled queue — no repeats until all questions used
+    (state as any).questionQueue = shuffle(SAMPLE_QUESTIONS.map(q => q.id));
+    (state as any).questionQueueIdx = 0;
     await this._saveState(roomId, state);
     await this._nextQuestion(roomId, io);
   }
@@ -136,12 +139,14 @@ export class TriviaExperience implements ExperienceModule {
       return;
     }
 
-    // Pick question — use shuffled order stored on first activation, fall back to rotation
-    const usedIds: string[] = (state as any).usedQuestionIds ?? [];
-    const remaining = SAMPLE_QUESTIONS.filter(q => !usedIds.includes(q.id));
-    const pool = remaining.length > 0 ? remaining : SAMPLE_QUESTIONS;
-    const question = pool[Math.floor(Math.random() * pool.length)];
-    (state as any).usedQuestionIds = [...usedIds, question.id];
+    // Pull next from pre-shuffled queue; re-shuffle when exhausted
+    let queue: string[] = (state as any).questionQueue ?? shuffle(SAMPLE_QUESTIONS.map(q => q.id));
+    let idx: number = (state as any).questionQueueIdx ?? 0;
+    if (idx >= queue.length) { queue = shuffle(SAMPLE_QUESTIONS.map(q => q.id)); idx = 0; }
+    const questionId = queue[idx];
+    (state as any).questionQueue = queue;
+    (state as any).questionQueueIdx = idx + 1;
+    const question = SAMPLE_QUESTIONS.find(q => q.id === questionId) ?? SAMPLE_QUESTIONS[0];
 
     state.currentQuestion = question;
     state.answers = {};      // Clear previous answers

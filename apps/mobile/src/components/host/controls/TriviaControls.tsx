@@ -280,6 +280,41 @@ export function TriviaControls({ viewMode, onViewModeChange: setViewMode }: View
 
   const isLocal = local.phase !== "idle";
 
+  // Always-fresh ref so the auto-advance timeout never reads stale state
+  const localRef = React.useRef(local);
+  localRef.current = local;
+
+  // ── Auto-advance: question → reveal when the timer runs out ──────────────
+  React.useEffect(() => {
+    if (local.phase !== "question") return;
+    const q = local.questions[local.idx];
+    const ms = ((q?.timeLimitSeconds ?? 20) + 0.8) * 1000;
+    const tid = setTimeout(() => {
+      const cur = localRef.current;
+      if (cur.phase !== "question") return;
+      const curQ = cur.questions[cur.idx];
+      if (!curQ) return;
+      const correct = cur.selected === curQ.correctOptionId;
+      const bonus = curQ.type === "close_call" ? 20 : curQ.type === "detail" ? 30 : curQ.type === "trick" ? 50 : 0;
+      const newScores: Record<string, number> = {
+        ...cur.scores,
+        [MOCK_GUEST]: (cur.scores[MOCK_GUEST] ?? 0) + (correct ? 100 + bonus : 0),
+      };
+      AI_PLAYERS.forEach(ai => {
+        const aiCorrect = Math.random() < ai.skill;
+        newScores[ai.id] = (cur.scores[ai.id] ?? 0) + (aiCorrect ? 100 + bonus : 0);
+      });
+      dispatch({
+        type: "SET_EXPERIENCE", experience: "trivia",
+        view: "trivia_result",
+        viewData: { currentQuestion: curQ },
+        expState: { phase: "reveal", roundNumber: cur.idx + 1, totalRounds: cur.questions.length, scores: newScores },
+      });
+      setLocal(prev => ({ ...prev, phase: "reveal", scores: newScores }));
+    }, ms);
+    return () => clearTimeout(tid);
+  }, [local.phase, local.idx]); // eslint-disable-line react-hooks/exhaustive-deps
+
   React.useEffect(() => { setServerSelected(null); }, [serverQuestion?.id]);
 
   // ── Start offline game ────────────────────────────────────────────────────

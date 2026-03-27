@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 const KEY = (roomId: string) => `experience:thumb_war:${roomId}`;
 
@@ -58,6 +59,7 @@ interface ThumbWarState {
   ready: Record<string, boolean>;
   winner: string | null;
   guestQueue: string[];
+  queue: number[];
 }
 
 export class ThumbWarExperience implements ExperienceModule {
@@ -67,7 +69,7 @@ export class ThumbWarExperience implements ExperienceModule {
     const state: ThumbWarState = {
       phase: "waiting", round: 0, totalRounds: CHALLENGES.length,
       scores: {}, currentChallenge: null, playerA: null, playerB: null,
-      ready: {}, winner: null, guestQueue: [],
+      ready: {}, winner: null, guestQueue: [], queue: shuffledIndices(CHALLENGES.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -92,7 +94,8 @@ export class ThumbWarExperience implements ExperienceModule {
         state.round = 1;
         state.playerA = state.guestQueue[0] ?? null;
         state.playerB = state.guestQueue[1] ?? null;
-        state.currentChallenge = CHALLENGES[0];
+        state.queue = shuffledIndices(CHALLENGES.length);
+        state.currentChallenge = CHALLENGES[state.queue[0]];
         state.ready = {};
         state.winner = null;
         state.phase = "challenge";
@@ -146,7 +149,7 @@ export class ThumbWarExperience implements ExperienceModule {
           const idx = (state.round - 1) * 2;
           state.playerA = state.guestQueue[idx % state.guestQueue.length];
           state.playerB = state.guestQueue[(idx + 1) % state.guestQueue.length];
-          state.currentChallenge = CHALLENGES[(state.round - 1) % CHALLENGES.length];
+          state.currentChallenge = CHALLENGES[state.queue[(state.round - 1) % state.queue.length]];
           state.ready = {};
           state.winner = null;
           state.phase = "challenge";

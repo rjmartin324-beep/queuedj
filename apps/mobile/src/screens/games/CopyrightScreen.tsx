@@ -1,24 +1,58 @@
 import React, { useState } from "react";
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-  TextInput, KeyboardAvoidingView, Platform,
+  TextInput, KeyboardAvoidingView, Platform, Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { PostGameCard } from "../../components/shared/PostGameCard";
+import { StandaloneDrawingPad, DrawingDisplay } from "../../components/shared/StandaloneDrawingPad";
+import type { DrawPath } from "../../components/shared/StandaloneDrawingPad";
 
 const ACCENT      = "#f59e0b";
 const TOTAL_ROUNDS = 5;
 
 const ARTWORKS = [
-  { title: "Starry Night",               emoji: "🌌", artist: "Van Gogh",    description: "A swirling night sky over a village with a bright crescent moon, painted with thick swirling brushstrokes in deep blues and yellows" },
-  { title: "Mona Lisa",                  emoji: "🖼️", artist: "Da Vinci",    description: "A mysterious woman with an enigmatic smile sits before a vast landscape, her gaze following the viewer wherever they stand" },
-  { title: "The Scream",                 emoji: "😱", artist: "Munch",       description: "A figure with a skull-like face holds its face in horror on a bridge while the sky swirls with red and orange behind it" },
-  { title: "Girl with a Pearl Earring",  emoji: "💎", artist: "Vermeer",     description: "A young girl looks back over her shoulder wearing a large pearl earring and a blue and gold headscarf against a dark background" },
-  { title: "The Persistence of Memory",  emoji: "⏰", artist: "Dalí",        description: "Melting clocks draped over bizarre landscape objects in a surreal dreamscape. A distorted face lies on the ground" },
-  { title: "American Gothic",            emoji: "🏚️", artist: "Wood",        description: "A stern-faced farmer and his daughter stand in front of a gothic-style farmhouse. He holds a pitchfork" },
-  { title: "The Birth of Venus",         emoji: "🐚", artist: "Botticelli",  description: "A nude goddess emerges from the sea standing on a giant shell, blown to shore by winds while a woman rushes to clothe her" },
-  { title: "Water Lilies",               emoji: "🌸", artist: "Monet",       description: "Floating lily pads and flowers on a pond's surface, reflected light creating shimmering abstract shapes in soft pinks and greens" },
+  {
+    title: "Starry Night",              emoji: "🌌", artist: "Van Gogh",
+    description: "A swirling night sky over a village with a bright crescent moon, painted with thick swirling brushstrokes in deep blues and yellows",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/800px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+  },
+  {
+    title: "Mona Lisa",                 emoji: "🖼️", artist: "Da Vinci",
+    description: "A mysterious woman with an enigmatic smile sits before a vast landscape, her gaze following the viewer wherever they stand",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/402px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+  },
+  {
+    title: "The Scream",                emoji: "😱", artist: "Munch",
+    description: "A figure with a skull-like face holds its face in horror on a bridge while the sky swirls with red and orange behind it",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg/579px-Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg",
+  },
+  {
+    title: "Girl with a Pearl Earring", emoji: "💎", artist: "Vermeer",
+    description: "A young girl looks back over her shoulder wearing a large pearl earring and a blue and gold headscarf against a dark background",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/591px-1665_Girl_with_a_Pearl_Earring.jpg",
+  },
+  {
+    title: "The Persistence of Memory", emoji: "⏰", artist: "Dalí",
+    description: "Melting clocks draped over bizarre landscape objects in a surreal dreamscape. A distorted face lies on the ground",
+    image: "https://upload.wikimedia.org/wikipedia/en/d/dd/The_Persistence_of_Memory.jpg",
+  },
+  {
+    title: "American Gothic",           emoji: "🏚️", artist: "Wood",
+    description: "A stern-faced farmer and his daughter stand in front of a gothic-style farmhouse. He holds a pitchfork",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Grant_DeVolson_Wood_-_American_Gothic.jpg/480px-Grant_DeVolson_Wood_-_American_Gothic.jpg",
+  },
+  {
+    title: "The Birth of Venus",        emoji: "🐚", artist: "Botticelli",
+    description: "A nude goddess emerges from the sea standing on a giant shell, blown to shore by winds while a woman rushes to clothe her",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg/800px-Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+  },
+  {
+    title: "Water Lilies",              emoji: "🌸", artist: "Monet",
+    description: "Floating lily pads and flowers on a pond's surface, reflected light creating shimmering abstract shapes in soft pinks and greens",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/800px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
+  },
 ];
 
 function pickRandom<T>(arr: T[], n: number): T[] {
@@ -39,6 +73,7 @@ export default function CopyrightScreen() {
   const [round, setRound]   = useState(0);
   const [score, setScore]   = useState(0);
   const [guess, setGuess]   = useState("");
+  const [drawing, setDrawing] = useState<DrawPath[]>([]);
   const [roundResults, setRoundResults] = useState<{ title: string; guess: string; correct: boolean }[]>([]);
 
   const drawerName  = round % 2 === 0 ? "Player 1" : "Player 2";
@@ -55,7 +90,8 @@ export default function CopyrightScreen() {
 
   function doneViewing() { setPhase("drawing"); }
 
-  function doneDrawing() {
+  function doneDrawing(paths: DrawPath[]) {
+    setDrawing(paths);
     setGuess("");
     setPhase("guessing");
   }
@@ -76,6 +112,7 @@ export default function CopyrightScreen() {
     } else {
       setRound(next);
       setGuess("");
+      setDrawing([]);
       setPhase("viewing");
     }
   }
@@ -121,11 +158,16 @@ export default function CopyrightScreen() {
             <Text style={s.roundPill}>Round {round + 1} / {TOTAL_ROUNDS}</Text>
             <Text style={s.scoreChip}>Score: {score}</Text>
           </View>
-          <View style={s.center}>
-            <View style={s.playerBadge}>
-              <Text style={s.playerBadgeText}>👁️ {drawerName} — study this artwork</Text>
-            </View>
-            <Text style={s.artEmoji}>{art.emoji}</Text>
+          <View style={[s.playerBadge, { marginHorizontal: 16, alignSelf: "flex-start" }]}>
+            <Text style={s.playerBadgeText}>👁️ {drawerName} — study this artwork</Text>
+          </View>
+          {/* Artwork image */}
+          <Image
+            source={{ uri: art.image }}
+            style={s.artImage}
+            resizeMode="contain"
+          />
+          <View style={{ paddingHorizontal: 16, flex: 1 }}>
             <View style={s.promptCard}>
               <Text style={s.promptLabel}>ARTWORK DESCRIPTION</Text>
               <Text style={s.promptText}>{art.description}</Text>
@@ -153,21 +195,12 @@ export default function CopyrightScreen() {
             <Text style={s.roundPill}>Round {round + 1} / {TOTAL_ROUNDS}</Text>
             <Text style={s.scoreChip}>Score: {score}</Text>
           </View>
-          <View style={s.center}>
-            <View style={s.playerBadge}>
-              <Text style={s.playerBadgeText}>✏️ {drawerName} — recreate the artwork!</Text>
-            </View>
-            <View style={s.drawCard}>
-              <Text style={s.drawCardTitle}>Draw the artwork you just saw</Text>
-              <Text style={s.drawCardSub}>Use paper — recreate it as accurately as you can</Text>
-            </View>
-            <Text style={s.hint}>{guesserName} — still no peeking at the phone!</Text>
-            <TouchableOpacity style={s.actionBtn} onPress={doneDrawing}>
-              <LinearGradient colors={["#b45309", ACCENT]} style={s.actionBtnInner}>
-                <Text style={s.actionBtnText}>Done Drawing →</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
+          <Text style={s.subHint}>{guesserName} — look away!</Text>
+          <StandaloneDrawingPad
+            prompt={artworks[round].title}
+            onDone={doneDrawing}
+            accentColor={ACCENT}
+          />
         </SafeAreaView>
       </LinearGradient>
     );
@@ -184,11 +217,13 @@ export default function CopyrightScreen() {
               <Text style={s.roundPill}>Round {round + 1} / {TOTAL_ROUNDS}</Text>
               <Text style={s.scoreChip}>Score: {score}</Text>
             </View>
-            <View style={s.center}>
-              <View style={s.playerBadge}>
-                <Text style={s.playerBadgeText}>🔍 {guesserName} — name the artwork!</Text>
-              </View>
-              <Text style={s.guessLabel}>What famous artwork is this?</Text>
+            <View style={[s.playerBadge, { marginHorizontal: 16, alignSelf: "flex-start" }]}>
+              <Text style={s.playerBadgeText}>🔍 {guesserName} — name this artwork!</Text>
+            </View>
+            {/* Show the drawing */}
+            <DrawingDisplay paths={drawing} style={s.drawingDisplay} />
+            {/* Guess input */}
+            <View style={s.guessPad}>
               <TextInput
                 style={s.input}
                 value={guess}
@@ -301,24 +336,23 @@ const s = StyleSheet.create({
   playerBadgeText: { color: ACCENT, fontSize: 14, fontWeight: "800" },
 
   artEmoji:        { fontSize: 48, marginBottom: 12 },
+  artImage:        { width: "100%", height: 200, marginBottom: 12 },
 
   promptCard:      { backgroundColor: "rgba(245,158,11,0.08)", borderRadius: 24, padding: 24, width: "100%", marginBottom: 16, borderWidth: 1, borderColor: "rgba(245,158,11,0.2)" },
   promptLabel:     { color: ACCENT, fontSize: 11, fontWeight: "900", letterSpacing: 2, marginBottom: 12 },
   promptText:      { color: "#fff", fontSize: 16, fontWeight: "600", textAlign: "center", lineHeight: 24 },
   artistHint:      { color: "#888", fontSize: 13, marginTop: 12, textAlign: "center", fontStyle: "italic" },
 
-  drawCard:        { backgroundColor: "rgba(245,158,11,0.08)", borderRadius: 24, padding: 32, width: "100%", alignItems: "center", marginBottom: 16, borderWidth: 1, borderColor: "rgba(245,158,11,0.2)" },
-  drawCardTitle:   { color: "#fff", fontSize: 20, fontWeight: "900", textAlign: "center", marginBottom: 10 },
-  drawCardSub:     { color: "#888", fontSize: 14, textAlign: "center" },
+  subHint:         { color: "#555", fontSize: 12, paddingHorizontal: 16, marginBottom: 4 },
+  hint:            { color: "#555", fontSize: 13, textAlign: "center", marginBottom: 16 },
 
-  hint:            { color: "#555", fontSize: 13, textAlign: "center", marginBottom: 24 },
+  drawingDisplay:  { flex: 1, marginHorizontal: 10, marginVertical: 8, minHeight: 200 },
+  guessPad:        { paddingHorizontal: 16, paddingBottom: 16 },
 
   actionBtn:       { width: "100%", borderRadius: 14, overflow: "hidden", marginTop: 8 },
   actionBtnDisabled: { opacity: 0.5 },
   actionBtnInner:  { padding: 18, alignItems: "center" },
   actionBtnText:   { color: "#fff", fontSize: 17, fontWeight: "900" },
-
-  guessLabel:      { color: "#fff", fontSize: 22, fontWeight: "800", marginBottom: 20, textAlign: "center" },
   input: {
     width: "100%",
     backgroundColor: "rgba(255,255,255,0.07)",

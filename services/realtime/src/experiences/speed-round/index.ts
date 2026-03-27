@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Speed Round Experience
@@ -78,6 +79,7 @@ interface SpeedRoundState {
   currentChallenge: SpeedChallenge | null;
   completions: Record<string, boolean>; // guestId → true=complete, false=skip
   startedAt: number;
+  queue: number[];
 }
 
 export class SpeedRoundExperience implements ExperienceModule {
@@ -92,6 +94,7 @@ export class SpeedRoundExperience implements ExperienceModule {
       currentChallenge: null,
       completions: {},
       startedAt: 0,
+      queue: shuffledIndices(CHALLENGES.length),
     };
     await this._save(roomId, state);
   }
@@ -119,7 +122,8 @@ export class SpeedRoundExperience implements ExperienceModule {
         state.phase = "playing";
         state.round = 1;
         state.scores = {};
-        state.currentChallenge = CHALLENGES[0];
+        state.queue = shuffledIndices(CHALLENGES.length);
+        state.currentChallenge = CHALLENGES[state.queue[0]];
         state.completions = {};
         state.startedAt = Date.now();
 
@@ -171,7 +175,7 @@ export class SpeedRoundExperience implements ExperienceModule {
           state.phase = "finished";
           state.currentChallenge = null;
         } else {
-          const challengeIdx = (state.round - 1) % CHALLENGES.length;
+          const challengeIdx = state.queue[(state.round - 1) % state.queue.length];
           state.phase = "playing";
           state.currentChallenge = CHALLENGES[challengeIdx];
           state.completions = {}; // Reset for new round

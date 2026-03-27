@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 interface LyricsDropState {
   phase: "waiting" | "question" | "reveal" | "finished";
@@ -11,6 +12,7 @@ interface LyricsDropState {
   currentLyric: { text: string; blank: string; answer: string; hint: string } | null;
   guesses: Record<string, string>;
   questionStartedAt: number;
+  queue: number[];
 }
 
 const LYRICS = [
@@ -33,6 +35,7 @@ export class LyricsDropExperience implements ExperienceModule {
     const state: LyricsDropState = {
       phase: "waiting", round: 0, totalRounds: LYRICS.length,
       scores: {}, currentLyric: null, guesses: {}, questionStartedAt: 0,
+      queue: shuffledIndices(LYRICS.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -53,7 +56,8 @@ export class LyricsDropExperience implements ExperienceModule {
       case "start": {
         if (role !== "HOST" && role !== "CO_HOST") return;
         state.round = 1;
-        state.currentLyric = LYRICS[0];
+        state.queue = shuffledIndices(LYRICS.length);
+        state.currentLyric = LYRICS[state.queue[0]];
         state.guesses = {};
         state.phase = "question";
         state.questionStartedAt = Date.now();
@@ -106,7 +110,7 @@ export class LyricsDropExperience implements ExperienceModule {
             view: { type: "leaderboard", data: state.scores }, sequenceId: seq,
           });
         } else {
-          state.currentLyric = LYRICS[(state.round - 1) % LYRICS.length];
+          state.currentLyric = LYRICS[state.queue[(state.round - 1) % state.queue.length]];
           state.guesses = {};
           state.phase = "question";
           state.questionStartedAt = Date.now();

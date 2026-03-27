@@ -96,14 +96,20 @@ export type GuestViewType =
   | "copyright_drawing"         // Draw it from memory (60s)
   | "copyright_gallery"         // See all drawings, vote
   | "copyright_results"         // Winner announced
+  | "scrapbook_waiting"         // Waiting for other writers
+  | "glitch_waiting"            // Waiting for next clip
   | "geo_guessing"              // Photo shown — tap map to place pin
-  | "geo_reveal"               // Correct location revealed + everyone's pins
+  | "geo_region_guess"          // Tap the region on a map
+  | "geo_reveal"                // Correct location revealed + everyone's pins
+  | "geo_waiting"               // Waiting between rounds
   | "drawback_drawing"          // Drawing the prompt
   | "drawback_voting"           // Voting for best drawing
   | "drawback_reveal"           // See who drew what + scores
+  | "drawback_waiting"          // Waiting between drawing rounds
   | "snap_challenge"            // Camera challenge — take/upload photo
   | "snap_gallery"              // See all submitted photos + vote
   | "snap_results"              // Winner revealed
+  | "snap_waiting"              // Waiting between challenges
   | "artifact_hunt"             // QR scavenger hunt — all phases handled internally
   | "night_shift"               // Social deduction — all phases handled internally
   | "mind_mole"                 // Word mole — all phases handled internally
@@ -135,9 +141,20 @@ export type GuestViewType =
   | "alibi"                     // all phases handled internally via data.phase
   | "cropped_look"              // all phases handled internally via data.phase
   | "mind_reading"              // all phases handled internally via data.phase
-  | "improv_challenge"          // all phases handled internally via data.phase
-  | "accent_challenge"          // all phases handled internally via data.phase
-  | "hum_it"                    // all phases handled internally via data.phase
+  | "improv_challenge"              // all phases handled internally via data.phase
+  | "improv_challenge_performing"   // performer's scene
+  | "improv_challenge_rating"       // audience rates
+  | "improv_challenge_reveal"       // scores shown
+  | "improv_challenge_finished"     // game over
+  | "accent_challenge"              // all phases handled internally via data.phase
+  | "accent_challenge_performing"   // performer reads phrase
+  | "accent_challenge_rating"       // audience rates
+  | "accent_challenge_finished"     // game over
+  | "hum_it"                        // all phases handled internally via data.phase
+  | "hum_it_humming"                // hummer's turn
+  | "hum_it_guessing"               // others guess
+  | "hum_it_reveal"                 // answer shown
+  | "hum_it_finished"               // game over
   | "mimic_me"                  // all phases handled internally via data.phase
   | "lyrics_drop"               // all phases handled internally via data.phase
   | "photo_bomb"                // all phases handled internally via data.phase

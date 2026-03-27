@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Emoji Story Experience
@@ -46,6 +47,7 @@ interface EmojiStoryState {
   guesses: Record<string, string>;        // guestId → their guess text
   hintUsed: Record<string, boolean>;      // guestId → whether they bought the hint
   winner: string | null;                  // guestId of first correct guesser
+  queue: number[];
 }
 
 export class EmojiStoryExperience implements ExperienceModule {
@@ -61,6 +63,7 @@ export class EmojiStoryExperience implements ExperienceModule {
       guesses: {},
       hintUsed: {},
       winner: null,
+      queue: shuffledIndices(PUZZLES.length),
     };
     await this._save(roomId, state);
   }
@@ -87,7 +90,8 @@ export class EmojiStoryExperience implements ExperienceModule {
         const state = await this._load(roomId);
         if (!state) return;
 
-        const puzzle = PUZZLES[0];
+        state.queue = shuffledIndices(PUZZLES.length);
+        const puzzle = PUZZLES[state.queue[0]];
         state.phase = "question";
         state.round = 1;
         state.scores = {};
@@ -157,7 +161,7 @@ export class EmojiStoryExperience implements ExperienceModule {
           state.phase = "finished";
           state.currentPuzzle = null;
         } else {
-          const puzzleIdx = (state.round - 1) % PUZZLES.length;
+          const puzzleIdx = state.queue[(state.round - 1) % state.queue.length];
           const puzzle = PUZZLES[puzzleIdx];
           state.phase = "question";
           state.currentPuzzle = { emojis: puzzle.emojis, answer: puzzle.answer, hint: puzzle.hint };

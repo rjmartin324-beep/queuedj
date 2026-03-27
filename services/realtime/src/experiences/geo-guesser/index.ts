@@ -3,6 +3,7 @@ import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-type
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { GEO_LOCATIONS, type GeoLocation } from "./locations";
+import { shuffle } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GeoGuesser Experience
@@ -26,6 +27,7 @@ interface GeoState {
   roundNumber: number;
   totalRounds: number;
   usedIds: string[];
+  locationQueue: string[];
 }
 
 export class GeoGuesserExperience implements ExperienceModule {
@@ -42,6 +44,7 @@ export class GeoGuesserExperience implements ExperienceModule {
       roundNumber: 0,
       totalRounds: 5,
       usedIds: [],
+      locationQueue: shuffle(GEO_LOCATIONS.map(l => l.id)),
     };
     await redisClient.set(STATE_KEY(roomId), JSON.stringify(state));
   }
@@ -104,9 +107,11 @@ export class GeoGuesserExperience implements ExperienceModule {
     const s = await this._getState(roomId);
     if (!s) return;
 
-    const remaining = GEO_LOCATIONS.filter(l => !s.usedIds.includes(l.id));
-    const pool = remaining.length > 0 ? remaining : GEO_LOCATIONS;
-    const location = pool[Math.floor(Math.random() * pool.length)];
+    // Work through pre-shuffled queue; fall back to re-shuffle if exhausted
+    let queue = s.locationQueue?.length ? s.locationQueue : shuffle(GEO_LOCATIONS.map(l => l.id));
+    const nextId = queue[0];
+    s.locationQueue = queue.slice(1);
+    const location = GEO_LOCATIONS.find(l => l.id === nextId) ?? GEO_LOCATIONS[0];
 
     s.phase = "guessing";
     s.location = location;

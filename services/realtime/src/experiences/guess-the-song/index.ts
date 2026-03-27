@@ -29,7 +29,7 @@ interface GuessSongState {
 }
 
 export class GuessSongExperience implements ExperienceModule {
-  readonly type = "guess_song" as const;
+  readonly type = "guess_the_song" as const;
 
   async onActivate(roomId: string): Promise<void> {
     const state: GuessSongState = {

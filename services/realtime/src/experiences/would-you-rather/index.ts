@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Would You Rather Experience
@@ -34,6 +35,7 @@ interface WouldYouRatherState {
   votes: Record<string, "a" | "b">;
   aCount: number;
   bCount: number;
+  queue: number[];
 }
 
 const KEY = (roomId: string) => `experience:would_you_rather:${roomId}`;
@@ -51,6 +53,7 @@ export class WouldYouRatherExperience implements ExperienceModule {
       votes: {},
       aCount: 0,
       bCount: 0,
+      queue: shuffledIndices(DILEMMAS.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -76,7 +79,8 @@ export class WouldYouRatherExperience implements ExperienceModule {
         if (role !== "HOST" && role !== "CO_HOST") return;
         state.phase = "question";
         state.round = 1;
-        state.currentQ = DILEMMAS[0];
+        state.queue = shuffledIndices(DILEMMAS.length);
+        state.currentQ = DILEMMAS[state.queue[0]];
         state.votes = {};
         state.aCount = 0;
         state.bCount = 0;
@@ -156,7 +160,7 @@ export class WouldYouRatherExperience implements ExperienceModule {
           });
         } else {
           state.phase = "question";
-          state.currentQ = DILEMMAS[(state.round - 1) % DILEMMAS.length];
+          state.currentQ = DILEMMAS[state.queue[(state.round - 1) % state.queue.length]];
           state.votes = {};
           state.aCount = 0;
           state.bCount = 0;

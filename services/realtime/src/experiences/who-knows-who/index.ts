@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { shuffledIndices } from "../../lib/shuffle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Who Knows Who Experience
@@ -29,6 +30,7 @@ interface WhoKnowsWhoState {
   votes: Record<string, string>; // voter guestId -> target guestId
   correctAnswer: string | null;  // majority winner revealed after reveal
   guestIds: string[];            // participant list
+  queue: number[];
 }
 
 const QUESTIONS: WhoKnowsWhoQuestion[] = [
@@ -99,6 +101,7 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
       votes: {},
       correctAnswer: null,
       guestIds: membersRaw,
+      queue: shuffledIndices(QUESTIONS.length),
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -172,7 +175,8 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
     state.round = 1;
     state.votes = {};
     state.correctAnswer = null;
-    state.currentQ = { text: QUESTIONS[0].text, options: state.guestIds };
+    state.queue = shuffledIndices(QUESTIONS.length);
+    state.currentQ = { text: QUESTIONS[state.queue[0]].text, options: state.guestIds };
     state.phase = "question";
 
     await this._save(roomId, state);
@@ -241,7 +245,7 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
     state.round = nextRound;
     state.votes = {};
     state.correctAnswer = null;
-    state.currentQ = { text: QUESTIONS[nextRound - 1].text, options: state.guestIds };
+    state.currentQ = { text: QUESTIONS[state.queue[(nextRound - 1) % state.queue.length]].text, options: state.guestIds };
     state.phase = "question";
 
     await this._save(roomId, state);
