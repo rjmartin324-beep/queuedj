@@ -149,7 +149,7 @@ class SocketManager {
         { roomId, guestId, lastSequenceId: lastSeq },
         (ack) => resolve(ack),
       );
-      setTimeout(() => reject(new Error("Join timeout")), 15000);
+      setTimeout(() => reject(new Error("Join timeout")), 45000);
     });
   }
 
