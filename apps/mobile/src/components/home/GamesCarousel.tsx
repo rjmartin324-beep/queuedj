@@ -68,6 +68,7 @@ const GAME_ROUTES: Record<string, string> = {
   the_glitch:          "the_glitch",
   scrapbook_sabotage:  "scrapbook_sabotage",
   scavenger_snap:      "scavenger_snap",
+  copyright:           "copyright",
 };
 
 const GAMES: Game[] = [
@@ -111,6 +112,14 @@ const GAMES: Game[] = [
     bgColors: ["#1a0a30", "#0a0518"], accent: "#c084fc",
     bodyColor: "#7ec8e3", blushColor: "#f0abfc",
     floatProps: [{ e: "🎨", top: 6, right: 8, size: 20 }, { e: "✏️", top: 36, left: 5, size: 15 }, { e: "🖼️", bottom: 52, right: 7, size: 12 }],
+  },
+  {
+    id: "copyright",
+    title: "Copyright", tagline: "Recreate famous art",
+    label: "Art", labelColor: "#f59e0b",
+    bgColors: ["#1a0a00", "#0d0800"], accent: "#f59e0b",
+    bodyColor: "#fde68a", blushColor: "#fef3c7",
+    floatProps: [{ e: "🎨", top: 6, right: 8, size: 20 }, { e: "🖼️", top: 36, left: 5, size: 15 }, { e: "✏️", bottom: 52, right: 7, size: 13 }],
   },
   {
     id: "scavenger_snap",

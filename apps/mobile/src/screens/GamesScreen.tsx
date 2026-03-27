@@ -82,6 +82,7 @@ const CATEGORIES: Category[] = [
     accent: "#c084fc",
     games: [
       { id: "emoji_story", title: "Emoji Story",      tagline: "Decode the emojis",          emoji: "😂" },
+      { id: "copyright",   title: "Copyright",        tagline: "Recreate famous artworks",   emoji: "🎨" },
       { id: "improv",      title: "Improv Challenge", tagline: "Act the scene out",          emoji: "🎭" },
       { id: "accent",      title: "Accent Challenge", tagline: "Read it in the accent",      emoji: "🗣️" },
       { id: "mimic_me",    title: "Mimic Me",         tagline: "Copy the move",              emoji: "🪞" },
@@ -141,6 +142,7 @@ const ROUTED_GAMES = new Set([
   "cropped_look","mind_reading","speed_round","musical_chairs","thumb_war",
   "hum_it","mimic_me","accent","connections","chain_reaction","party_dice",
   "geo_guesser",
+  "copyright",
 ]);
 
 // ─── Featured Banner ─────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/react-native";
 import { RoomProvider } from "../src/contexts/RoomContext";
 import { ThemeProvider } from "../src/contexts/ThemeContext";
 import { OnboardingScreen, ONBOARDED_KEY } from "../src/screens/OnboardingScreen";
+import { IntroVideoScreen } from "../src/screens/IntroVideoScreen";
 import { ErrorBoundary } from "../src/components/shared/ErrorBoundary";
 import { AchievementToast } from "../src/components/shared/AchievementToast";
 import {
@@ -36,6 +37,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 export default function RootLayout() {
   const router = useRouter();
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
+  const [showIntro, setShowIntro] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(ONBOARDED_KEY).then((val) => {
@@ -104,9 +106,13 @@ export default function RootLayout() {
     return (
       <ThemeProvider>
         <StatusBar style="light" />
-        <OnboardingScreen onComplete={() => setOnboarded(true)} />
+        <OnboardingScreen onComplete={() => { setOnboarded(true); setShowIntro(true); }} />
       </ThemeProvider>
     );
+  }
+
+  if (showIntro) {
+    return <IntroVideoScreen onFinish={() => setShowIntro(false)} />;
   }
 
   return (

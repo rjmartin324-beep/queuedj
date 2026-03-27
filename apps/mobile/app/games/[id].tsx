@@ -32,6 +32,7 @@ import DrawbackScreen from "../../src/screens/games/DrawbackScreen";
 import TheGlitchScreen from "../../src/screens/games/TheGlitchScreen";
 import ScrapbookSabotageScreen from "../../src/screens/games/ScrapbookSabotageScreen";
 import ScavengerSnapScreen from "../../src/screens/games/ScavengerSnapScreen";
+import CopyrightScreen from "../../src/screens/games/CopyrightScreen";
 
 const GAME_MAP: Record<string, React.ComponentType> = {
   // Full IDs
@@ -67,6 +68,7 @@ const GAME_MAP: Record<string, React.ComponentType> = {
   the_glitch: TheGlitchScreen,
   scrapbook_sabotage: ScrapbookSabotageScreen,
   scavenger_snap: ScavengerSnapScreen,
+  copyright: CopyrightScreen,
   // Short-ID aliases used by GamesScreen CATEGORIES
   trivia: PartyTriviaScreen,
   two_truths: TwoTruthsOneLieScreen,
