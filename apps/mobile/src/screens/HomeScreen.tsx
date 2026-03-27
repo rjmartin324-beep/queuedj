@@ -1098,105 +1098,105 @@ function HomeTab({
     >
       {/* ── Top bar ──────────────────────────────────────────────────── */}
       <View style={styles.topBar}>
-        {/* Logo + brand left */}
         <View style={styles.brandRow}>
           <LinearGradient
             colors={["#3b1f7a", "#6c47ff"]}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
             style={styles.logoWrap}
           >
-            <Image
-              source={require("../../assets/logo.png")}
-              style={styles.logoImg}
-              resizeMode="contain"
-            />
+            <Image source={require("../../assets/logo.png")} style={styles.logoImg} resizeMode="contain" />
           </LinearGradient>
           <View>
             <QueueDJName />
             <Text style={styles.brandTagline}>The glue that holds the party together</Text>
           </View>
         </View>
-
-        {/* Top right — credits + theme toggle */}
         <View style={styles.topRight}>
-          {guestId && <VibeCreditsBar guestId={guestId} compact />}
-          <View style={styles.themePicker}>
-            <TouchableOpacity
-              style={[styles.themeChip, theme === "festival" && styles.themeChipOn]}
-              onPress={() => onToggleTheme("festival")}
-              disabled={theme === "festival"}
-            >
-              <Text style={styles.themeChipIcon}>🫧</Text>
-              <Text style={[styles.themeChipLabel, theme === "festival" && styles.themeChipLabelOn]}>Lava</Text>
-            </TouchableOpacity>
-            <View style={styles.themeChipDivider} />
-            <TouchableOpacity
-              style={[styles.themeChip, theme === "space" && styles.themeChipOn]}
-              onPress={() => onToggleTheme("space")}
-              disabled={theme === "space"}
-            >
-              <Text style={styles.themeChipIcon}>🌌</Text>
-              <Text style={[styles.themeChipLabel, theme === "space" && styles.themeChipLabelOn]}>Space</Text>
-            </TouchableOpacity>
-            <View style={styles.themeChipDivider} />
-            <TouchableOpacity
-              style={[styles.themeChip, theme === "studio" && styles.themeChipOn, theme === "studio" && { borderColor: "#1DB954" }]}
-              onPress={() => onToggleTheme("studio")}
-              disabled={theme === "studio"}
-            >
-              <Text style={styles.themeChipIcon}>🎵</Text>
-              <Text style={[styles.themeChipLabel, theme === "studio" && styles.themeChipLabelOn, theme === "studio" && { color: "#1DB954" }]}>Studio</Text>
-            </TouchableOpacity>
+          <View style={styles.streakPill}>
+            <Text style={styles.streakPillText}>🔥 {1} day streak</Text>
           </View>
+          <TouchableOpacity style={styles.notifBtn} activeOpacity={0.8}>
+            <Text style={{ fontSize: 16 }}>🔔</Text>
+            <View style={styles.notifDot} />
+          </TouchableOpacity>
         </View>
       </View>
 
-      {/* ── Avatar hero ──────────────────────────────────────────────── */}
-      <View style={styles.avatarHero}>
-        {/* Stage platform rings — reinforce the background rings at foot level */}
-        <View style={styles.stageWrap} pointerEvents="none">
-          {(isStudio ? [
-            { w: SW * 1.1,  h: 70, color: "#0a4d22", opacity: 0.30 },
-            { w: SW * 0.85, h: 54, color: "#147a35", opacity: 0.38 },
-            { w: SW * 0.65, h: 40, color: "#1DB954", opacity: 0.45 },
-            { w: SW * 0.46, h: 28, color: "#34d399", opacity: 0.55 },
-            { w: SW * 0.28, h: 18, color: "#6ee7b7", opacity: 0.70 },
-            { w: SW * 0.14, h: 10, color: "#fff",    opacity: 0.55 },
-          ] : theme === "space" ? [
-            { w: SW * 1.1,  h: 70, color: "#3b0764", opacity: 0.06 },
-            { w: SW * 0.85, h: 54, color: "#6d28d9", opacity: 0.08 },
-            { w: SW * 0.65, h: 40, color: "#7c3aed", opacity: 0.10 },
-            { w: SW * 0.46, h: 28, color: "#a78bfa", opacity: 0.14 },
-            { w: SW * 0.28, h: 18, color: "#c4b5fd", opacity: 0.22 },
-            { w: SW * 0.14, h: 10, color: "#fff",    opacity: 0.30 },
-          ] : [
-            { w: SW * 1.1, h: 70,  color: "#7c1fa2", opacity: 0.22 },
-            { w: SW * 0.85, h: 54, color: "#a021c9", opacity: 0.30 },
-            { w: SW * 0.65, h: 40, color: "#c026d3", opacity: 0.38 },
-            { w: SW * 0.46, h: 28, color: "#d946ef", opacity: 0.50 },
-            { w: SW * 0.28, h: 18, color: "#f0abfc", opacity: 0.70 },
-            { w: SW * 0.14, h: 10, color: "#fff",    opacity: 0.55 },
-          ]).map((r, i) => (
-            <View key={i} style={{
-              position: "absolute",
-              width: r.w, height: r.h,
-              borderRadius: r.h / 2,
-              backgroundColor: r.color,
-              opacity: r.opacity,
-            }} />
-          ))}
+      {/* ── Avatar Hero Card ──────────────────────────────────────────── */}
+      <View style={styles.avatarHeroCard}>
+        {/* Card background glow */}
+        <View style={styles.avatarCardGlow} pointerEvents="none" />
+
+        {/* Avatar + emote bubble */}
+        <View style={styles.avatarCardTop}>
+          <View style={styles.emoteBubble}>
+            <Text style={styles.emoteBubbleText}>✨ Feeling fresh</Text>
+          </View>
+          {/* Stage rings behind avatar */}
+          <View style={styles.stageWrap} pointerEvents="none">
+            {(isStudio ? [
+              { w: SW * 1.1,  h: 70, color: "#0a4d22", opacity: 0.30 },
+              { w: SW * 0.65, h: 40, color: "#1DB954", opacity: 0.45 },
+              { w: SW * 0.28, h: 18, color: "#34d399", opacity: 0.70 },
+            ] : theme === "space" ? [
+              { w: SW * 1.1,  h: 70, color: "#3b0764", opacity: 0.06 },
+              { w: SW * 0.65, h: 40, color: "#7c3aed", opacity: 0.10 },
+              { w: SW * 0.28, h: 18, color: "#c4b5fd", opacity: 0.22 },
+            ] : [
+              { w: SW * 1.1, h: 70, color: "#7c1fa2", opacity: 0.22 },
+              { w: SW * 0.65, h: 40, color: "#c026d3", opacity: 0.38 },
+              { w: SW * 0.28, h: 18, color: "#f0abfc", opacity: 0.70 },
+            ]).map((r, i) => (
+              <View key={i} style={{
+                position: "absolute",
+                width: r.w, height: r.h,
+                borderRadius: r.h / 2,
+                backgroundColor: r.color,
+                opacity: r.opacity,
+              }} />
+            ))}
+          </View>
+          <Avatar3D
+            size={avatarSize}
+            bodyColor={bodyColor}
+            headphoneColor={hpColor}
+            outfitColor={outfitColor}
+            expression={expression}
+            outfit={outfitId}
+          />
         </View>
-        <Avatar3D
-          size={avatarSize}
-          bodyColor={bodyColor}
-          headphoneColor={hpColor}
-          outfitColor={outfitColor}
-          expression={expression}
-          outfit={outfitId}
-        />
-        {/* Level pill — floats at bottom-right of avatar, out of the flow */}
-        <View style={[styles.heroPill, isStudio && { backgroundColor: "rgba(29,185,84,0.18)", borderColor: "rgba(52,211,153,0.45)" }]}>
-          <Text style={[styles.heroPillText, isStudio && { color: "#34d399" }]}>⭐ Lv 1  ·  DJ Rookie</Text>
+
+        {/* Name, level, XP */}
+        <View style={styles.avatarCardInfo}>
+          <View>
+            <Text style={styles.avatarCardName}>DJ Rookie</Text>
+            <View style={styles.avatarCardLevel}>
+              <Text style={styles.avatarCardLevelText}>⭐ Level 1  ·  18 / 100 XP</Text>
+            </View>
+          </View>
+          {guestId && <VibeCreditsBar guestId={guestId} compact />}
+        </View>
+        <View style={styles.xpRow}>
+          <View style={styles.xpTrack}>
+            <View style={[styles.xpFill, isStudio && { backgroundColor: "#1DB954" }]} />
+          </View>
+          <Text style={styles.xpLabel}>180 XP to Level 2</Text>
+        </View>
+
+        {/* Stats row */}
+        <View style={styles.heroStats}>
+          <View style={styles.heroStat}>
+            <Text style={[styles.heroStatNum, { color: "#a78bfa" }]}>4</Text>
+            <Text style={styles.heroStatLabel}>Parties</Text>
+          </View>
+          <View style={[styles.heroStat, { borderLeftWidth: 1, borderRightWidth: 1, borderColor: "#221d3a" }]}>
+            <Text style={styles.heroStatNum}>12</Text>
+            <Text style={styles.heroStatLabel}>Games</Text>
+          </View>
+          <View style={styles.heroStat}>
+            <Text style={[styles.heroStatNum, { color: "#fb923c" }]}>68%</Text>
+            <Text style={styles.heroStatLabel}>Win Rate</Text>
+          </View>
         </View>
       </View>
 
@@ -1500,27 +1500,17 @@ function LiveNowSection({ onJoinRoom, activeRoom, isConnected }: {
 }) {
   const inRoom = !!activeRoom && isConnected;
   return (
-    <View style={styles.liveSection}>
-      <View style={styles.liveSectionHeader}>
-        <View style={styles.liveHeaderLeft}>
-          <View style={[styles.liveDot, inRoom && { backgroundColor: "#22c55e" }]} />
-          <Text style={styles.liveSectionTitle}>{inRoom ? "ACTIVE PARTY" : "LIVE NOW"}</Text>
-        </View>
-      </View>
-
-      {inRoom ? (
-        <TouchableOpacity style={[styles.liveCard, { borderColor: "rgba(34,197,94,0.3)", borderWidth: 1 }]} onPress={onJoinRoom} activeOpacity={0.85}>
-          <Text style={styles.liveEmptyIcon}>🎉</Text>
-          <Text style={styles.liveCardTitle}>Room {activeRoom.code}</Text>
-          <Text style={styles.liveCardSub}>You're still in this party — tap to rejoin.</Text>
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.liveCard}>
-          <Text style={styles.liveEmptyIcon}>🎉</Text>
-          <Text style={styles.liveCardTitle}>No Active Party</Text>
-          <Text style={styles.liveCardSub}>Start a room to kick off the party, or join one with a room code.</Text>
-        </View>
-      )}
+    <View style={styles.liveBanner}>
+      <View style={[styles.liveBannerDot, inRoom && { backgroundColor: "#22c55e" }]} />
+      <Text style={styles.liveBannerText} numberOfLines={1}>
+        {inRoom
+          ? <Text><Text style={{ color: "#fff", fontWeight: "700" }}>Room {activeRoom?.code}</Text> · Tap to rejoin</Text>
+          : <Text><Text style={{ color: "#fff", fontWeight: "700" }}>No active party</Text> · Start one or join with a code</Text>
+        }
+      </Text>
+      <TouchableOpacity style={styles.liveBannerBtn} onPress={inRoom ? onJoinRoom : onJoinRoom} activeOpacity={0.8}>
+        <Text style={styles.liveBannerBtnText}>{inRoom ? "Rejoin ›" : "+ Start"}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -1810,13 +1800,15 @@ const avStyles = StyleSheet.create({
   },
   levelPillText: { color: "#a78bfa", fontSize: 13, fontWeight: "700" },
 
-  // XP bar
+  // XP bar (avatar tab — kept for reference)
   xpBar: { marginHorizontal: 16, marginTop: 12, marginBottom: 4 },
-  xpRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
-  xpLabel: { color: "#9ca3af", fontSize: 12, fontWeight: "600" },
   xpValue: { color: "#a78bfa", fontSize: 12, fontWeight: "700" },
-  xpTrack: { height: 6, backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 3, overflow: "hidden" },
-  xpFill:  { height: 6, borderRadius: 3 },
+
+  // XP bar (home hero card)
+  xpRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, paddingBottom: 14 },
+  xpTrack: { flex: 1, height: 5, backgroundColor: "#1e1b30", borderRadius: 3, overflow: "hidden" },
+  xpFill:  { width: "18%", height: "100%", backgroundColor: "#7c3aed", borderRadius: 3 },
+  xpLabel: { color: "#6b63a0", fontSize: 10 } as any,
 
   // Cards
   card: {
@@ -1942,12 +1934,8 @@ const styles = StyleSheet.create({
 
   // Top bar
   topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 8,
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: 18, paddingTop: 14, paddingBottom: 10,
   },
   brandRow: {
     flexDirection: "row",
@@ -1966,11 +1954,7 @@ const styles = StyleSheet.create({
   },
   brandName:    { color: "#fff", fontSize: 22, fontWeight: "900", letterSpacing: -0.3 },
   brandTagline: { color: "rgba(255,255,255,0.55)", fontSize: 11, marginTop: 1, fontWeight: "600", letterSpacing: 0.3 },
-  topRight: {
-    alignItems: "flex-end",
-    gap: 6,
-    flexShrink: 1,
-  },
+  topRight: { flexDirection: "row", alignItems: "center", gap: 8 },
   joinChip: {
     backgroundColor: "rgba(124,58,237,0.55)",
     borderWidth: 1.5,
@@ -2013,6 +1997,79 @@ const styles = StyleSheet.create({
     borderColor: "#2d2d4e",
   },
   heroPillText: { color: "#a5b4fc", fontSize: 12, fontWeight: "700" },
+
+  // Streak pill + notif button (top bar)
+  streakPill: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    backgroundColor: "#1c1208", borderWidth: 1, borderColor: "#3a2410",
+    borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5,
+  },
+  streakPillText: { color: "#fb923c", fontSize: 11, fontWeight: "600" },
+
+  notifBtn: {
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: "#110e1e", borderWidth: 1, borderColor: "#221d3a",
+    alignItems: "center", justifyContent: "center", position: "relative",
+  },
+  notifDot: {
+    position: "absolute", top: 5, right: 5,
+    width: 6, height: 6, borderRadius: 3, backgroundColor: "#ef4444",
+    borderWidth: 1.5, borderColor: "#07050e",
+  },
+
+  // Avatar hero card (home tab)
+  avatarHeroCard: {
+    marginHorizontal: 16, marginBottom: 14,
+    backgroundColor: "#110e1e", borderWidth: 1, borderColor: "#221d3a",
+    borderRadius: 22, overflow: "hidden",
+  },
+  avatarCardGlow: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "transparent",
+  },
+  avatarCardTop: {
+    height: 200, alignItems: "center", justifyContent: "flex-end",
+    position: "relative", overflow: "hidden",
+  },
+  emoteBubble: {
+    position: "absolute", top: 14, right: 14, zIndex: 5,
+    backgroundColor: "#1e1840", borderWidth: 1, borderColor: "#3a2f70",
+    borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6,
+  },
+  emoteBubbleText: { color: "#c4b5fd", fontSize: 11, fontWeight: "600" },
+
+  avatarCardInfo: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4,
+  },
+  avatarCardName: { color: "#f0ecff", fontSize: 18, fontWeight: "900" },
+  avatarCardLevel: { marginTop: 3 },
+  avatarCardLevelText: { color: "#a78bfa", fontSize: 11, fontWeight: "600" },
+
+  heroStats: {
+    flexDirection: "row", borderTopWidth: 1, borderTopColor: "#221d3a",
+  },
+  heroStat: { flex: 1, paddingVertical: 12, alignItems: "center" },
+  heroStatNum: { color: "#f0ecff", fontSize: 18, fontWeight: "900", lineHeight: 22 },
+  heroStatLabel: { color: "#6b63a0", fontSize: 9, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5, marginTop: 3 },
+
+  // Live banner (replaces liveSection cards)
+  liveBanner: {
+    marginHorizontal: 16, marginBottom: 12,
+    flexDirection: "row", alignItems: "center", gap: 8,
+    backgroundColor: "#110e1e", borderWidth: 1, borderColor: "#221d3a",
+    borderRadius: 14, paddingHorizontal: 14, paddingVertical: 11,
+  },
+  liveBannerDot: {
+    width: 7, height: 7, borderRadius: 3.5,
+    backgroundColor: "#ef4444", flexShrink: 0,
+  },
+  liveBannerText: { flex: 1, fontSize: 12, color: "#9490c0" },
+  liveBannerBtn: {
+    backgroundColor: "#1e1840", borderWidth: 1, borderColor: "#3a2f70",
+    borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4,
+  },
+  liveBannerBtnText: { color: "#a78bfa", fontSize: 11, fontWeight: "600" },
 
   // Welcome card
   welcomeCard: {

@@ -115,6 +115,54 @@ const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
 
 type Tab = "controls" | "queue" | "guests" | "history" | "recs" | "settings" | "demo";
 
+const GAME_META: Record<string, { tagline: string; players: string; time: string; age: string; steps: string[]; rules: string[] }> = {
+  trivia: { tagline: "Test your knowledge against the crowd", players: "2–20", time: "10–20 min", age: "All ages",
+    steps: ["Host reads the question aloud", "Everyone submits their answer on their phone", "Points awarded for correct + fast answers", "Most points after all rounds wins"],
+    rules: ["No googling allowed", "15 seconds per question", "Fastest correct answer gets bonus points"] },
+  unpopular_opinions: { tagline: "Guess who said what — can you read the room?", players: "3–20", time: "15–25 min", age: "13+",
+    steps: ["Everyone submits an unpopular opinion", "Players guess who wrote each opinion", "Points for correct guesses and fooling others", "Most points wins"],
+    rules: ["Keep it fun, not mean", "Opinions must be your own", "No hinting about your submission"] },
+  scrapbook_sabotage: { tagline: "Write a story — then sabotage it", players: "3–16", time: "15–20 min", age: "13+",
+    steps: ["Each player writes story snippets", "Others secretly sabotage with silly words", "Group reads the final story together", "Vote for the funniest saboteur"],
+    rules: ["Keep it appropriate", "Sabotages must fit grammatically", "No revealing who did what until the vote"] },
+  the_glitch: { tagline: "Describe what you watched — without giving it away", players: "3–16", time: "10–20 min", age: "All ages",
+    steps: ["A short video clip is shown", "Players describe what they saw — poorly", "Others guess what the clip actually showed", "Points for best descriptions and guesses"],
+    rules: ["No spoilers in your description", "Keep descriptions under 20 words", "Vote for the most misleading description"] },
+  copyright_infringement: { tagline: "Recreate famous images — badly on purpose", players: "3–20", time: "10–15 min", age: "All ages",
+    steps: ["Host names a famous image or logo", "Everyone draws it from memory on their phone", "Gallery of all drawings revealed", "Vote for the best (worst) recreation"],
+    rules: ["No tracing or looking it up", "Draw as fast as you can", "Funnier is better"] },
+  drawback: { tagline: "Draw what the prompt says — no peeking", players: "3–20", time: "10–20 min", age: "All ages",
+    steps: ["Each player gets a secret prompt", "Draw it on your phone screen", "Others guess what you drew", "Points for guessing right and fooling others"],
+    rules: ["No letters or numbers in your drawing", "30 seconds to draw", "No hints beyond the drawing"] },
+  scavenger_snap: { tagline: "Find it, snap it, win it", players: "2–20", time: "15–30 min", age: "All ages",
+    steps: ["Host sends a photo challenge item", "Players race to find and photograph it", "First valid photo in wins the round", "Most rounds won takes the prize"],
+    rules: ["Items must be physically found, not image searched", "Photo must be taken in real time", "Host judges validity"] },
+  geo_guesser: { tagline: "Where in the world is this landmark?", players: "2–20", time: "10–15 min", age: "All ages",
+    steps: ["A mystery location clue is shown", "Drop your pin or pick your region on the map", "Closest guess wins the round", "5 rounds — highest score wins"],
+    rules: ["No Googling the location", "30 seconds to guess", "Points based on accuracy"] },
+  would_you_rather: { tagline: "Two options. No escape. Choose wisely.", players: "2–30", time: "10–20 min", age: "13+",
+    steps: ["A 'would you rather' question appears on screen", "Everyone votes on their phone", "Results revealed — minorities defend their choice", "Most crowd-pleasing answers earn bonus points"],
+    rules: ["You MUST pick one option", "No 'neither' allowed", "Explain your choice if you're in the minority"] },
+  never_have_i_ever: { tagline: "Raise a finger if you've done it", players: "3–20", time: "15–30 min", age: "18+",
+    steps: ["A statement appears on screen", "Everyone who has done it puts a finger down", "Last player with fingers up wins", "Elimination style — runs until one remains"],
+    rules: ["You must be honest", "No judgement zone", "Custom statements can be added by host"] },
+  truth_or_dare: { tagline: "Pick your fate — truth or dare?", players: "3–16", time: "20–40 min", age: "13+",
+    steps: ["Player picks truth or dare", "The app generates the prompt", "Complete the challenge to stay in", "Refuse and lose a life"],
+    rules: ["You must attempt every prompt", "Keep it fun and consensual", "Host can skip inappropriate prompts"] },
+  two_truths_one_lie: { tagline: "Spot the liar in the room", players: "3–20", time: "10–20 min", age: "All ages",
+    steps: ["Each player submits 2 truths and 1 lie", "Others vote on which statement is the lie", "Points for guessing right and fooling others", "Most points wins"],
+    rules: ["Keep truths real but interesting", "Lies must be plausible", "No changing answers after submission"] },
+};
+
+function getGameMeta(type: string) {
+  return GAME_META[type] ?? {
+    tagline: "A fun party game for everyone",
+    players: "2–20", time: "10–20 min", age: "All ages",
+    steps: ["Host launches the game", "Everyone plays on their phone", "Compete and score points", "Winner takes the crown"],
+    rules: ["Play fair", "Have fun", "No cheating"],
+  };
+}
+
 const GAME_CHIPS = EXPERIENCES.filter(e => e.type !== "dj");
 
 export default function HostScreen() {
@@ -125,6 +173,8 @@ export default function HostScreen() {
   const [unreadCount,   setUnreadCount]   = useState(0);
   const [djExpanded,    setDjExpanded]    = useState(false);
   const [showAllOptions, setShowAllOptions] = useState(false);
+  const [showAllGames, setShowAllGames] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const router = useRouter();
   const controlsFade = useRef(new Animated.Value(1)).current;
 
@@ -283,40 +333,33 @@ export default function HostScreen() {
       {/* ─── GAMES SECTION ─── */}
       <View style={styles.gamesSectionHead}>
         <Text style={styles.gamesSectionLabel}>🎮  GAMES</Text>
-        {activeGame ? (
-          <View style={styles.activeGamePill}>
-            <View style={styles.activeGameDot} />
-            <Text style={styles.activeGameText}>{activeGame.label} active</Text>
-          </View>
-        ) : (
-          <Text style={styles.pickHint}>pick a game below</Text>
-        )}
+        <TouchableOpacity onPress={() => setShowAllGames(v => !v)} style={styles.viewAllBtn}>
+          <Text style={styles.viewAllBtnText}>{showAllGames ? "Show Less ↑" : "View All ↓"}</Text>
+        </TouchableOpacity>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipRow}
-        style={styles.chipScroll}
-      >
-        {GAME_CHIPS.map(({ type, label, emoji }) => {
+      {activeGame && (
+        <View style={styles.activeGameBanner}>
+          <View style={styles.activeGameDot} />
+          <Text style={styles.activeGameText}>{activeGame.emoji}  {activeGame.label} — active</Text>
+        </View>
+      )}
+      <View style={styles.gamesGrid}>
+        {(showAllGames ? GAME_CHIPS : GAME_CHIPS.slice(0, 9)).map(({ type, label, emoji }) => {
           const active = state.activeExperience === type;
           return (
             <TouchableOpacity
               key={type}
-              style={[styles.chip, active && styles.chipActive]}
-              onPress={() => {
-                setTab("controls");
-                setGameViewMode("host");
-                switchExperienceAnimated(type);
-              }}
-              activeOpacity={0.7}
+              style={[styles.gameGridCard, active && styles.gameGridCardActive]}
+              onPress={() => setSelectedGame(type)}
+              activeOpacity={0.75}
             >
-              <Text style={styles.chipEmoji}>{emoji}</Text>
-              <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>{label}</Text>
+              <Text style={styles.gameGridEmoji}>{emoji}</Text>
+              <Text style={[styles.gameGridLabel, active && styles.gameGridLabelActive]} numberOfLines={2}>{label}</Text>
+              {active && <View style={styles.gameGridActiveDot} />}
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </View>
 
       {/* ─── HOST VIEW RETURN BAR ─── */}
       {tab === "controls" && gameViewMode === "player" && (
@@ -412,6 +455,82 @@ export default function HostScreen() {
         unreadCount={unreadCount}
         onRead={() => setUnreadCount(0)}
       />
+
+      {/* ─── GAME INFO SHEET ─── */}
+      <Modal
+        visible={selectedGame !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedGame(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setSelectedGame(null)} />
+          {selectedGame && (() => {
+            const chip = GAME_CHIPS.find(g => g.type === selectedGame);
+            const meta = getGameMeta(selectedGame);
+            if (!chip) return null;
+            return (
+              <View style={styles.gameSheet}>
+                <View style={styles.sheetHandle} />
+                <TouchableOpacity style={styles.gameSheetClose} onPress={() => setSelectedGame(null)}>
+                  <Text style={styles.gameSheetCloseText}>✕</Text>
+                </TouchableOpacity>
+
+                {/* Icon + name */}
+                <View style={styles.gameSheetHero}>
+                  <Text style={styles.gameSheetEmoji}>{chip.emoji}</Text>
+                  <Text style={styles.gameSheetName}>{chip.label}</Text>
+                  <Text style={styles.gameSheetTagline}>{meta.tagline}</Text>
+                </View>
+
+                {/* Pills */}
+                <View style={styles.gameSheetPills}>
+                  <View style={styles.gameSheetPill}><Text style={styles.gameSheetPillText}>👥 {meta.players}</Text></View>
+                  <View style={styles.gameSheetPill}><Text style={styles.gameSheetPillText}>⏱ {meta.time}</Text></View>
+                  <View style={styles.gameSheetPill}><Text style={styles.gameSheetPillText}>🔞 {meta.age}</Text></View>
+                </View>
+
+                <ScrollView style={styles.gameSheetScroll} showsVerticalScrollIndicator={false}>
+                  {/* How to play */}
+                  <Text style={styles.gameSheetSectionLabel}>HOW TO PLAY</Text>
+                  {meta.steps.map((step, i) => (
+                    <View key={i} style={styles.gameSheetStep}>
+                      <View style={styles.gameSheetStepNum}><Text style={styles.gameSheetStepNumText}>{i + 1}</Text></View>
+                      <Text style={styles.gameSheetStepText}>{step}</Text>
+                    </View>
+                  ))}
+
+                  {/* Rules */}
+                  <Text style={[styles.gameSheetSectionLabel, { marginTop: 16 }]}>RULES</Text>
+                  {meta.rules.map((rule, i) => (
+                    <View key={i} style={styles.gameSheetRule}>
+                      <View style={styles.gameSheetRuleDot} />
+                      <Text style={styles.gameSheetRuleText}>{rule}</Text>
+                    </View>
+                  ))}
+                  <View style={{ height: 24 }} />
+                </ScrollView>
+
+                {/* Launch button */}
+                <TouchableOpacity
+                  style={styles.gameSheetLaunch}
+                  onPress={() => {
+                    switchExperienceAnimated(selectedGame as any);
+                    setTab("controls");
+                    setGameViewMode("host");
+                    setSelectedGame(null);
+                  }}
+                  activeOpacity={0.85}
+                >
+                  <LinearGradient colors={["#7c3aed", "#6d28d9"]} style={styles.gameSheetLaunchGrad}>
+                    <Text style={styles.gameSheetLaunchText}>Launch {chip.label} →</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            );
+          })()}
+        </View>
+      </Modal>
 
       {/* ─── ALL OPTIONS SHEET ─── */}
       <Modal
@@ -729,6 +848,72 @@ const styles = StyleSheet.create({
   chipEmoji: { fontSize: 15 },
   chipLabel: { color: "#6b7280", fontSize: 12, fontWeight: "700" },
   chipLabelActive: { color: "#fcd34d" },
+
+  viewAllBtn:  { borderWidth: 1, borderColor: "#3a2f70", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+  viewAllBtnText: { color: "#a78bfa", fontSize: 11, fontWeight: "700" },
+
+  activeGameBanner: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    paddingHorizontal: 14, paddingVertical: 6,
+    backgroundColor: "rgba(251,191,36,0.07)",
+    borderBottomWidth: 1, borderBottomColor: "rgba(251,191,36,0.15)",
+  },
+
+  gamesGrid: {
+    flexDirection: "row", flexWrap: "wrap",
+    paddingHorizontal: 10, paddingVertical: 10, gap: 8,
+    backgroundColor: "rgba(5,5,18,0.98)",
+    borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)",
+  },
+  gameGridCard: {
+    width: "31%", aspectRatio: 1,
+    backgroundColor: "rgba(255,255,255,0.04)",
+    borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,255,255,0.08)",
+    alignItems: "center", justifyContent: "center", gap: 4,
+    position: "relative", overflow: "hidden",
+  },
+  gameGridCardActive: {
+    backgroundColor: "rgba(251,191,36,0.12)",
+    borderColor: "rgba(251,191,36,0.45)",
+  },
+  gameGridEmoji:  { fontSize: 24 },
+  gameGridLabel:  { color: "#6b7280", fontSize: 9, fontWeight: "700", textAlign: "center", paddingHorizontal: 4 },
+  gameGridLabelActive: { color: "#fcd34d" },
+  gameGridActiveDot: { position: "absolute", top: 6, right: 6, width: 6, height: 6, borderRadius: 3, backgroundColor: "#fbbf24" },
+
+  gameSheet: {
+    backgroundColor: "#0d0d22",
+    borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    maxHeight: "85%",
+    borderTopWidth: 1, borderColor: "rgba(255,255,255,0.08)",
+    paddingTop: 10,
+  },
+  gameSheetClose: {
+    position: "absolute", top: 18, right: 18,
+    width: 30, height: 30, borderRadius: 15,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    alignItems: "center", justifyContent: "center", zIndex: 10,
+  },
+  gameSheetCloseText: { color: "#9ca3af", fontSize: 13, fontWeight: "700" },
+  gameSheetHero:    { alignItems: "center", paddingTop: 8, paddingBottom: 16, paddingHorizontal: 24 },
+  gameSheetEmoji:   { fontSize: 56, marginBottom: 8 },
+  gameSheetName:    { color: "#fff", fontSize: 24, fontWeight: "900", marginBottom: 4 },
+  gameSheetTagline: { color: "#6b63a0", fontSize: 13, textAlign: "center", lineHeight: 19 },
+  gameSheetPills:   { flexDirection: "row", gap: 8, paddingHorizontal: 20, paddingBottom: 16, justifyContent: "center" },
+  gameSheetPill:    { backgroundColor: "rgba(255,255,255,0.07)", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: "rgba(255,255,255,0.10)" },
+  gameSheetPillText:{ color: "#d1d5db", fontSize: 11, fontWeight: "700" },
+  gameSheetScroll:  { maxHeight: 280, paddingHorizontal: 20 },
+  gameSheetSectionLabel: { color: "#374151", fontSize: 10, fontWeight: "800", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 10 },
+  gameSheetStep: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginBottom: 10 },
+  gameSheetStepNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: "rgba(108,71,255,0.25)", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 },
+  gameSheetStepNumText: { color: "#a78bfa", fontSize: 10, fontWeight: "900" },
+  gameSheetStepText: { color: "#d1d5db", fontSize: 13, lineHeight: 19, flex: 1 },
+  gameSheetRule: { flexDirection: "row", alignItems: "flex-start", gap: 8, marginBottom: 8 },
+  gameSheetRuleDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: "#4b5563", marginTop: 7, flexShrink: 0 },
+  gameSheetRuleText: { color: "#9ca3af", fontSize: 12, lineHeight: 18, flex: 1 },
+  gameSheetLaunch: { margin: 16, borderRadius: 16, overflow: "hidden" },
+  gameSheetLaunchGrad: { paddingVertical: 16, alignItems: "center" },
+  gameSheetLaunchText: { color: "#fff", fontSize: 16, fontWeight: "900", letterSpacing: 0.5 },
 
   // ── Host view return bar ───────────────────────────────────────────────────
   hostViewBar: {

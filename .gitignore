@@ -17,3 +17,4 @@ venv/
 .expo/
 .next/
 out/
+apps/mobile/google-services.json
