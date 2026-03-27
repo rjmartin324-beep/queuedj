@@ -1253,9 +1253,6 @@ function HomeTab({
       {/* ── Live Now ─────────────────────────────────────────────────── */}
       <LiveNowSection onJoinRoom={onJoinRoom} activeRoom={roomState.room} isConnected={roomState.isConnected} />
 
-      {/* ── DJ Card ──────────────────────────────────────────────────── */}
-      <DJCard onPress={onStartRoom} />
-
       {/* ── Spotify Connect ──────────────────────────────────────────── */}
       <SpotifyConnectButton />
 
