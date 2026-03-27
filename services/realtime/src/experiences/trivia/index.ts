@@ -120,6 +120,8 @@ export class TriviaExperience implements ExperienceModule {
     if (!state) return;
     state.roundNumber = 1;
     state.phase = "waiting";
+    state.scores = {};
+    (state as any).usedQuestionIds = [];
     await this._saveState(roomId, state);
     await this._nextQuestion(roomId, io);
   }

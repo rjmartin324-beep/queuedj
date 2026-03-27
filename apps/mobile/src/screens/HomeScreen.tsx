@@ -824,11 +824,11 @@ export default function HomeScreen() {
       // Kick off socket connect immediately — runs in parallel with API call
       const socketPromise = Promise.race([
         socketManager.connect(guestId, displayName),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000)),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 12000)),
       ]).catch(() => null); // silently absorb — offline is fine
 
       const controller = new AbortController();
-      const fetchTimeout = setTimeout(() => controller.abort(), 4000);
+      const fetchTimeout = setTimeout(() => controller.abort(), 10000);
       try {
         const res = await fetch(`${API_URL}/rooms`, {
           method: "POST",

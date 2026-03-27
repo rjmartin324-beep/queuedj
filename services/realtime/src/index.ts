@@ -141,12 +141,12 @@ async function main() {
 
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
     cors: {
-      origin: process.env.ALLOWED_ORIGINS?.split(",") ?? ["http://localhost:8081"],
+      origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : "*",
       methods: ["GET", "POST"],
     },
-    // Tune for mobile clients: longer ping intervals, more aggressive reconnect
-    pingInterval: 10_000,
-    pingTimeout: 5_000,
+    // Tune for mobile clients: longer ping intervals, generous timeout for cold starts
+    pingInterval: 25_000,
+    pingTimeout: 20_000,
     transports: ["websocket", "polling"],
   });
 

@@ -131,7 +131,7 @@ class SocketManager {
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10000,
       reconnectionAttempts: Infinity,
-      timeout: 5000,
+      timeout: 15000,
     }) as QueueDJSocket;
 
     this.bindCoreEvents(resolvedGuestId);
@@ -158,7 +158,7 @@ class SocketManager {
         { roomId, guestId, lastSequenceId: lastSeq },
         (ack) => resolve(ack),
       );
-      setTimeout(() => reject(new Error("Join timeout")), 5000);
+      setTimeout(() => reject(new Error("Join timeout")), 15000);
     });
   }
 

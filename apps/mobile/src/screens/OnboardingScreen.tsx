@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity, TextInput,
+  View, Text, StyleSheet, TouchableOpacity, TextInput, Image,
   Animated, Dimensions, Platform, KeyboardAvoidingView, SafeAreaView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -177,8 +177,8 @@ export function OnboardingScreen({ onComplete }: Props) {
         <Animated.View style={[styles.welcomeContent, { opacity: fadeAnim }]}>
           {/* Logo */}
           <View style={styles.logoWrap}>
-            <LinearGradient colors={["#2a0060", "#1a0040"]} style={styles.logoGlow} />
-            <Text style={styles.logoEmoji}>🎉</Text>
+            <LinearGradient colors={["#3b1f7a", "#6c47ff"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logoGlow} />
+            <Image source={require("../../assets/logo.png")} style={styles.logoImg} resizeMode="contain" />
           </View>
 
           <Text style={styles.wordmark}>
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: "rgba(167,139,250,0.3)",
   },
   logoGlow:  { ...StyleSheet.absoluteFillObject },
-  logoEmoji: { fontSize: 52 },
+  logoImg:   { width: 64, height: 64 },
   wordmark:  { fontSize: 42, fontWeight: "900", letterSpacing: -1, marginBottom: 10 },
   tagline:   { color: "#6b7fa0", fontSize: 15, textAlign: "center", fontWeight: "500", marginBottom: 48, lineHeight: 22 },
   noAccount: { color: "#4a5568", fontSize: 12, fontWeight: "600", marginTop: 16, letterSpacing: 0.3 },

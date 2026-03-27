@@ -389,46 +389,76 @@ export default function HostScreen() {
         })}
       </View>
 
-      {/* GAMES SECTION */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionLabel}>Games & Activities</Text>
-          <TouchableOpacity style={styles.viewAllBtn} onPress={() => setShowAllGames(v => !v)}>
-            <Text style={styles.viewAllBtnText}>{showAllGames ? "Show Less ↑" : "View All ↓"}</Text>
-          </TouchableOpacity>
-        </View>
-        {activeGame && (
-          <View style={styles.activeGameBanner}>
-            <View style={styles.activeGameDot} />
-            <Text style={styles.activeGameText}>{activeGame.emoji}  {activeGame.label} — active</Text>
-          </View>
-        )}
-        <View style={styles.appsGrid}>
-          {(showAllGames ? GAME_CHIPS : GAME_CHIPS.slice(0, 6)).map(({ type, label, emoji }) => {
-            const active = state.activeExperience === type;
-            return (
-              <TouchableOpacity key={type} style={[styles.appCard, active && styles.appCardActive]} onPress={() => setSelectedGame(type)} activeOpacity={0.75}>
-                <Text style={styles.appIcon}>{emoji}</Text>
-                <Text style={[styles.appName, active && styles.appNameActive]} numberOfLines={2}>{label}</Text>
-                {active && <View style={styles.appActiveDot} />}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
-      {/* HOST VIEW RETURN BAR */}
-      {tab === "controls" && gameViewMode === "player" && (
-        <TouchableOpacity style={styles.hostViewBar} onPress={() => setGameViewMode("host")} activeOpacity={0.85}>
-          <Text style={styles.hostViewBarText}>🎛️  Back to Host Controls</Text>
-        </TouchableOpacity>
-      )}
-
       {/* CONTENT AREA */}
       <View style={{ flex: 1 }}>
         <Animated.View style={{ flex: 1, opacity: controlsFade }}>
           {tab === "controls" ? (
-            renderControls()
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              {/* Games section */}
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionLabel}>Games & Activities</Text>
+                  <TouchableOpacity style={styles.viewAllBtn} onPress={() => setShowAllGames(v => !v)}>
+                    <Text style={styles.viewAllBtnText}>{showAllGames ? "Show Less ↑" : "View All ↓"}</Text>
+                  </TouchableOpacity>
+                </View>
+                {activeGame && (
+                  <View style={styles.activeGameBanner}>
+                    <View style={styles.activeGameDot} />
+                    <Text style={styles.activeGameText}>{activeGame.emoji}  {activeGame.label} — active</Text>
+                  </View>
+                )}
+                <View style={styles.appsGrid}>
+                  {(showAllGames ? GAME_CHIPS : GAME_CHIPS.slice(0, 6)).map(({ type, label, emoji }) => {
+                    const active = state.activeExperience === type;
+                    return (
+                      <TouchableOpacity key={type} style={[styles.appCard, active && styles.appCardActive]} onPress={() => setSelectedGame(type)} activeOpacity={0.75}>
+                        <Text style={styles.appIcon}>{emoji}</Text>
+                        <Text style={[styles.appName, active && styles.appNameActive]} numberOfLines={2}>{label}</Text>
+                        {active && <View style={styles.appActiveDot} />}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Host view return bar */}
+              {gameViewMode === "player" && (
+                <TouchableOpacity style={styles.hostViewBar} onPress={() => setGameViewMode("host")} activeOpacity={0.85}>
+                  <Text style={styles.hostViewBarText}>🎛️  Back to Host Controls</Text>
+                </TouchableOpacity>
+              )}
+
+              {/* Game controls */}
+              <View style={styles.controlsWrap}>
+                {renderControls()}
+              </View>
+
+              {/* DJ Section — inline, below game controls */}
+              <View style={styles.djSection}>
+                <TouchableOpacity style={styles.djToggleRow} onPress={() => setDjExpanded(v => !v)} activeOpacity={0.85}>
+                  <View style={styles.djToggleLeft}>
+                    <Text style={styles.djToggleIcon}>🤖</Text>
+                    <View>
+                      <Text style={styles.djToggleName}>DJ Mode</Text>
+                      <Text style={styles.djToggleSub}>Spotify + Decks + AI DJ</Text>
+                    </View>
+                  </View>
+                  <View style={[styles.toggleTrack, djExpanded && styles.toggleTrackOn]}>
+                    <View style={[styles.toggleThumb, djExpanded && styles.toggleThumbOn]} />
+                  </View>
+                </TouchableOpacity>
+                {djExpanded && (
+                  <View style={{ paddingHorizontal: 16, paddingBottom: 24 }}>
+                    <DJControls />
+                    <View style={styles.djQueueDivider}>
+                      <Text style={styles.djQueueLabel}>QUEUE</Text>
+                    </View>
+                    <HostQueueView />
+                  </View>
+                )}
+              </View>
+            </ScrollView>
           ) : tab === "guests" ? (
             <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
               <GuestList />
@@ -449,31 +479,6 @@ export default function HostScreen() {
             <DevTestPanel />
           ) : null}
         </Animated.View>
-      </View>
-
-      {/* DJ SECTION - toggle at bottom */}
-      <View style={styles.djSection}>
-        <TouchableOpacity style={styles.djToggleRow} onPress={() => setDjExpanded(v => !v)} activeOpacity={0.85}>
-          <View style={styles.djToggleLeft}>
-            <Text style={styles.djToggleIcon}>🤖</Text>
-            <View>
-              <Text style={styles.djToggleName}>DJ Mode</Text>
-              <Text style={styles.djToggleSub}>Spotify + Decks + AI DJ</Text>
-            </View>
-          </View>
-          <View style={[styles.toggleTrack, djExpanded && styles.toggleTrackOn]}>
-            <View style={[styles.toggleThumb, djExpanded && styles.toggleThumbOn]} />
-          </View>
-        </TouchableOpacity>
-        {djExpanded && (
-          <ScrollView style={styles.djPanel} contentContainerStyle={{ padding: 16, paddingBottom: 24 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            <DJControls />
-            <View style={styles.djQueueDivider}>
-              <Text style={styles.djQueueLabel}>QUEUE</Text>
-            </View>
-            <HostQueueView />
-          </ScrollView>
-        )}
       </View>
 
       <ChatTicker roomId={state.room?.id ?? ""} />
@@ -886,13 +891,14 @@ const styles = StyleSheet.create({
 
   // CONTENT
   content: { padding: 16, gap: 12 },
-  pickGamePrompt: { flex: 1, alignItems: "center", justifyContent: "center", gap: 10, padding: 40 },
+  pickGamePrompt: { alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 36, paddingHorizontal: 24 },
+  controlsWrap: {},
   pickGameEmoji: { fontSize: 52 },
   pickGameTitle: { color: "#e8e6ff", fontSize: 22, fontWeight: "900", textAlign: "center" },
   pickGameSub: { color: "#6a64a0", fontSize: 14, textAlign: "center", lineHeight: 21 },
 
   // DJ SECTION
-  djSection: { backgroundColor: "#0a0a0f", borderTopWidth: 1, borderTopColor: "#2a2450" },
+  djSection: { marginHorizontal: 16, marginTop: 12, backgroundColor: "#12101e", borderWidth: 1, borderColor: "#2a2450", borderRadius: 12, overflow: "hidden" },
   djToggleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 14 },
   djToggleLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
   djToggleIcon: { fontSize: 20 },
@@ -907,7 +913,7 @@ const styles = StyleSheet.create({
   djQueueLabel: { color: "#6a64a0", fontSize: 10, fontWeight: "800", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 },
 
   // CHAT FAB
-  chatFab: { position: "absolute", bottom: 72, right: 16, zIndex: 20 },
+  chatFab: { position: "absolute", bottom: 24, right: 16, zIndex: 20 },
 
   // MODAL OVERLAY
   modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(5,4,15,0.85)" },
