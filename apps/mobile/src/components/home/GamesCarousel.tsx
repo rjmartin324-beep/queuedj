@@ -72,14 +72,6 @@ const GAME_ROUTES: Record<string, string> = {
 
 const GAMES: Game[] = [
   {
-    id: "dj",
-    title: "DJ Mode", tagline: "Drop the beat",
-    label: "Party", labelColor: "#f97316",
-    bgColors: ["#1a0a4a", "#0a0530"], accent: "#a78bfa",
-    bodyColor: "#7ec8e3", blushColor: "#f9a8d4",
-    floatProps: [{ e: "🎧", top: 8, right: 8, size: 22 }, { e: "🎵", top: 38, left: 6, size: 14 }, { e: "🎶", bottom: 52, right: 10, size: 12 }],
-  },
-  {
     id: "trivia",
     title: "Trivia", tagline: "Test your knowledge",
     label: "Think Fast", labelColor: "#f59e0b",
@@ -460,7 +452,7 @@ function GameCard({ game, img, isTrending, onPress }: {
                 top: p.top, bottom: p.bottom, left: p.left, right: p.right, fontSize: p.size ?? 16,
               }]}>{p.e}</Text>
             ))}
-            <MascotCharacter bodyColor={game.bodyColor} blushColor={game.blushColor} size={CHAR_SIZE} />
+            <Text style={{ fontSize: 52 }}>{game.floatProps[0]?.e ?? "🎮"}</Text>
           </LinearGradient>
         )}
         {/* Press glow overlay */}

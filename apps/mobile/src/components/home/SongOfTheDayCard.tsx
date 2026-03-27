@@ -160,17 +160,7 @@ export function SongOfTheDayCard() {
     );
   }
 
-  if (error) {
-    return (
-      <View style={styles.loadingCard}>
-        <Text style={{ fontSize: 20 }}>📡</Text>
-        <Text style={styles.loadingText}>Couldn't load today's track</Text>
-        <TouchableOpacity onPress={() => loadSotd(true)} style={styles.retryBtn}>
-          <Text style={styles.retryText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  if (error) return null;
 
   if (!sotd) return null;
 

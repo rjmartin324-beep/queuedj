@@ -1132,30 +1132,6 @@ function HomeTab({
           <View style={styles.emoteBubble}>
             <Text style={styles.emoteBubbleText}>✨ Feeling fresh</Text>
           </View>
-          {/* Stage rings behind avatar */}
-          <View style={styles.stageWrap} pointerEvents="none">
-            {(isStudio ? [
-              { w: SW * 1.1,  h: 70, color: "#0a4d22", opacity: 0.30 },
-              { w: SW * 0.65, h: 40, color: "#1DB954", opacity: 0.45 },
-              { w: SW * 0.28, h: 18, color: "#34d399", opacity: 0.70 },
-            ] : theme === "space" ? [
-              { w: SW * 1.1,  h: 70, color: "#3b0764", opacity: 0.06 },
-              { w: SW * 0.65, h: 40, color: "#7c3aed", opacity: 0.10 },
-              { w: SW * 0.28, h: 18, color: "#c4b5fd", opacity: 0.22 },
-            ] : [
-              { w: SW * 1.1, h: 70, color: "#7c1fa2", opacity: 0.22 },
-              { w: SW * 0.65, h: 40, color: "#c026d3", opacity: 0.38 },
-              { w: SW * 0.28, h: 18, color: "#f0abfc", opacity: 0.70 },
-            ]).map((r, i) => (
-              <View key={i} style={{
-                position: "absolute",
-                width: r.w, height: r.h,
-                borderRadius: r.h / 2,
-                backgroundColor: r.color,
-                opacity: r.opacity,
-              }} />
-            ))}
-          </View>
           <Avatar3D
             size={avatarSize}
             bodyColor={bodyColor}
@@ -1175,12 +1151,6 @@ function HomeTab({
             </View>
           </View>
           {guestId && <VibeCreditsBar guestId={guestId} compact />}
-        </View>
-        <View style={styles.xpRow}>
-          <View style={styles.xpTrack}>
-            <View style={[styles.xpFill, isStudio && { backgroundColor: "#1DB954" }]} />
-          </View>
-          <Text style={styles.xpLabel}>180 XP to Level 2</Text>
         </View>
 
         {/* Stats row */}
