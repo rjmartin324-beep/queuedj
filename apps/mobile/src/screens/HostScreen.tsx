@@ -100,7 +100,7 @@ type Tab = "controls" | "queue" | "guests" | "history" | "recs" | "settings" | "
 
 const GAME_META: Record<string, { tagline: string; players: string; time: string; age: string; steps: string[]; rules: string[] }> = {
   trivia: { tagline: "Test your knowledge against the crowd", players: "2–20", time: "10–20 min", age: "All ages",
-    steps: ["Host reads the question aloud", "Everyone submits their answer on their phone", "Points awarded for correct + fast answers", "Most points after all rounds wins"],
+    steps: ["Questions appear on every phone at the same time", "Everyone submits their answer on their phone", "Points awarded for correct + fast answers", "Most points after all rounds wins"],
     rules: ["No googling allowed", "15 seconds per question", "Fastest correct answer gets bonus points"] },
   unpopular_opinions: { tagline: "Guess who said what — can you read the room?", players: "3–20", time: "15–25 min", age: "13+",
     steps: ["Everyone submits an unpopular opinion", "Players guess who wrote each opinion", "Points for correct guesses and fooling others", "Most points wins"],
@@ -618,7 +618,7 @@ export default function HostScreen() {
                 { id: "recs"     as Tab, label: "AI Picks",      icon: "✨", sub: "Smart recommendations" },
                 { id: "history"  as Tab, label: "History",       icon: "📋", sub: "Played tracks" },
                 { id: "settings" as Tab, label: "Room Settings", icon: "⚙️", sub: "Vibe, rules & access" },
-                { id: "demo"     as Tab, label: "Dev Panel",     icon: "🧪", sub: "Test events" },
+                ...(__DEV__ ? [{ id: "demo" as Tab, label: "Dev Panel", icon: "🧪", sub: "Test events" }] : []),
               ]).map(({ id, label, icon, sub }) => {
                 const active = tab === id;
                 return (

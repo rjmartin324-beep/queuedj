@@ -110,7 +110,7 @@ interface ViewModeProps {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function UnpopularOpinionsControls({ viewMode, onViewModeChange: setViewMode }: ViewModeProps) {
-  const { dispatch } = useRoom();
+  const { dispatch, sendAction } = useRoom();
   const [game, setGame]         = useState<OpState>(IDLE_STATE);
 
   const isActive = game.phase !== "idle";
@@ -327,7 +327,13 @@ export function UnpopularOpinionsControls({ viewMode, onViewModeChange: setViewM
             <HostActionButton label="📊  Reveal Scores" onPress={revealRound} />
           )}
           {game.phase === "reveal" && (
-            <HostActionButton label={`▶  Next Round (${game.idx + 2}/${TOTAL_ROUNDS})`} onPress={nextRound} />
+            <>
+              <HostActionButton label="📊  Show Scores to All" onPress={() => {
+                sendAction("show_scores", {});
+                dispatch({ type: "SET_EXPERIENCE", experience: "unpopular_opinions", view: "leaderboard", viewData: game.scores, expState: { phase: "scores", scores: game.scores } });
+              }} />
+              <HostActionButton label={`▶  Next Round (${game.idx + 2}/${TOTAL_ROUNDS})`} onPress={nextRound} />
+            </>
           )}
           {game.phase === "final" && (
             <HostActionButton label="🔄  Play Again" onPress={startGame} />

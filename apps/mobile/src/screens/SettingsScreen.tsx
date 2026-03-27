@@ -286,24 +286,6 @@ export function SettingsScreen({ guestId, onClose }: Props) {
         )}
       </Section>
 
-      {/* Appearance */}
-      <Section title="APPEARANCE">
-        <View style={styles.themeRow}>
-          {THEME_OPTIONS.map((opt) => (
-            <TouchableOpacity
-              key={opt.value}
-              style={[styles.themeChip, pref === opt.value && styles.themeChipActive]}
-              onPress={() => { selectionTick(); setTheme(opt.value); }}
-            >
-              <Text style={styles.themeChipEmoji}>{opt.emoji}</Text>
-              <Text style={[styles.themeChipLabel, pref === opt.value && styles.themeChipLabelActive]}>
-                {opt.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Section>
-
       {/* Background */}
       <Section title="BACKGROUND">
         <View style={styles.themeRow}>

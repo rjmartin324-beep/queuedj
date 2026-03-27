@@ -93,7 +93,7 @@ interface ViewModeProps {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function DrawbackControls({ viewMode, onViewModeChange: setViewMode }: ViewModeProps) {
-  const { dispatch } = useRoom();
+  const { dispatch, sendAction } = useRoom();
   const [game, setGame]         = useState<DrawState>(IDLE_STATE);
 
   const isActive      = game.phase !== "idle";
@@ -288,7 +288,13 @@ export function DrawbackControls({ viewMode, onViewModeChange: setViewMode }: Vi
             <HostActionButton label="🏆  Reveal Winner" onPress={revealRound} />
           )}
           {game.phase === "reveal" && (
-            <HostActionButton label={`▶  Next Round (${game.idx + 2}/${TOTAL_ROUNDS})`} onPress={nextRound} />
+            <>
+              <HostActionButton label="🏆  Show Leaderboard" onPress={() => {
+                sendAction("show_leaderboard", {});
+                dispatch({ type: "SET_EXPERIENCE", experience: "drawback", view: "leaderboard", viewData: game.scores, expState: { phase: "leaderboard", scores: game.scores } });
+              }} />
+              <HostActionButton label={`▶  Next Round (${game.idx + 2}/${TOTAL_ROUNDS})`} onPress={nextRound} />
+            </>
           )}
           {game.phase === "final" && (
             <HostActionButton label="🔄  Play Again" onPress={startGame} />

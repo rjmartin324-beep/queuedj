@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.queuedj.app",
+      "bundleIdentifier": "com.partyglue.app",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -22,7 +22,7 @@
       }
     },
     "android": {
-      "package": "com.queuedj.app",
+      "package": "com.partyglue.app",
       "adaptiveIcon": {
         "backgroundColor": "#0a0a0a"
       },

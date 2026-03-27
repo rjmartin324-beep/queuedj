@@ -231,9 +231,9 @@ const AI_PLAYERS = [
 type TriviaMode = "standard" | "competitive" | "server";
 
 const MODES: { id: TriviaMode; label: string; subtitle: string; emoji: string; rounds: number }[] = [
-  { id: "standard",    label: "Standard",    subtitle: "10 rounds · Mixed categories · Offline", emoji: "🎮", rounds: 10 },
-  { id: "competitive", label: "Competitive", subtitle: "5 rounds · Balanced difficulty · Offline", emoji: "🏆", rounds: 5  },
-  { id: "server",      label: "Live Server", subtitle: "Real-time · Requires connection",          emoji: "🌐", rounds: 0  },
+  { id: "standard",    label: "Standard",    subtitle: "10 rounds · Mixed categories",  emoji: "🎮", rounds: 10 },
+  { id: "competitive", label: "Competitive", subtitle: "5 rounds · Balanced difficulty", emoji: "🏆", rounds: 5  },
+  { id: "server",      label: "Live Server", subtitle: "Real-time · All phones",         emoji: "🌐", rounds: 0  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -652,7 +652,7 @@ export function TriviaControls({ viewMode, onViewModeChange: setViewMode }: View
               <Text style={styles.launchEmoji}>{MODES.find(m => m.id === mode)!.emoji}</Text>
               <View>
                 <Text style={styles.launchLabel}>Start {MODES.find(m => m.id === mode)!.label}</Text>
-                <Text style={styles.launchSub}>Offline · Leaderboard between rounds · {mode === "competitive" ? "5" : "10"} questions</Text>
+                <Text style={styles.launchSub}>Leaderboard between rounds · {mode === "competitive" ? "5" : "10"} questions</Text>
               </View>
             </LinearGradient>
           </TouchableOpacity>

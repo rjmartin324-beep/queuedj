@@ -7,6 +7,7 @@ import {
 } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { awardGameWin } from "../../lib/credits";
 
 const KEY = (roomId: string) => `experience:opinions:${roomId}`;
 const REVEAL_DELAY_MS = 3000; // 3s after last guess before auto-reveal
@@ -177,6 +178,7 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
     state.phase = "scores";
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
+    await awardGameWin(io, state.scores, roomId);
   }
 
   private async _broadcast(roomId: string, state: UnpopularOpinionsState, io: Server): Promise<void> {

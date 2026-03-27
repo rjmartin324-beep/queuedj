@@ -1230,9 +1230,6 @@ function HomeTab({
       {/* ── Song of the Day ──────────────────────────────────────────── */}
       <SongOfTheDayCard />
 
-      {/* ── Streak Badge ─────────────────────────────────────────────── */}
-      <StreakBadge />
-
       {/* ── Games Carousel ───────────────────────────────────────────── */}
       <GamesCarousel onSelectGame={(_gameId) => onStartRoom()} />
 

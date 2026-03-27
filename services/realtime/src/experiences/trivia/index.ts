@@ -8,6 +8,7 @@ import type {
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { SAMPLE_QUESTIONS } from "./questions";
+import { awardGameWin } from "../../lib/credits";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Trivia Experience
@@ -229,6 +230,10 @@ export class TriviaExperience implements ExperienceModule {
       view: { type: "leaderboard", data: state.scores },
       sequenceId: seq,
     });
+
+    if (state.phase === "finished") {
+      await awardGameWin(io, state.scores, roomId);
+    }
   }
 
   private async _getState(roomId: string): Promise<TriviaRoundState | null> {

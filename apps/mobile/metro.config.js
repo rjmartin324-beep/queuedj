@@ -15,4 +15,7 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, "node_modules"),
 ];
 
+// Support 3D model assets
+config.resolver.assetExts = [...(config.resolver.assetExts ?? []), "glb", "gltf", "bin"];
+
 module.exports = config;

@@ -102,6 +102,27 @@ export function fingerprintGuest(guestId: string): string {
   return createHash("sha256").update(guestId).digest("hex");
 }
 
+/**
+ * Award game_win credits to the top scorer(s) in a scores map.
+ * Call this when a game reaches its finished state.
+ */
+export async function awardGameWin(
+  io: import("socket.io").Server,
+  scores: Record<string, number>,
+  roomId: string,
+): Promise<void> {
+  const entries = Object.entries(scores);
+  if (entries.length === 0) return;
+  const maxScore = Math.max(...entries.map(([, v]) => v));
+  if (maxScore <= 0) return;
+  for (const [guestId, score] of entries) {
+    if (score === maxScore) {
+      await awardCreditsAndNotify(io, guestId, "game_win", undefined);
+      await incrementSessionStat(roomId, guestId, "game_wins").catch(() => {});
+    }
+  }
+}
+
 // ─── Per-session leaderboard stats (stored in Redis, ephemeral) ───────────────
 
 export type SessionStat = "votes" | "requests" | "game_wins";

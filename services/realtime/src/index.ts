@@ -53,6 +53,7 @@ import { handleQueueRequest, handleQueueReorder, handleQueueRemove, handleVoteCa
 import { handleChatMessage, getChatHistory } from "./handlers/chat";
 import { logTrackComplete } from "./lib/rlhf";
 import { handleVibeCast, handleTapBeat, handlePollRespond } from "./handlers/vibe";
+import { awardCreditsAndNotify, incrementSessionStat } from "./lib/credits";
 import { setCrowdState } from "./experiences/dj/vibe";
 import { getExperience, isValidExperience } from "./experiences";
 import { redisClient, redisSub, connectRedis } from "./redis";
@@ -309,6 +310,10 @@ async function main() {
 
       const result = await handleQueueRequest(payload, io);
       ack(result);
+      if (result.accepted) {
+        awardCreditsAndNotify(io, payload.guestId, "track_request", payload.roomId).catch(() => {});
+        incrementSessionStat(payload.roomId, payload.guestId, "requests").catch(() => {});
+      }
     });
 
     // ─── queue:reorder ───────────────────────────────────────────────────────
@@ -339,6 +344,8 @@ async function main() {
       const { allowed } = await requirePermission(payload.roomId, payload.guestId, "canVote");
       if (!allowed) return;
       await handleVoteCast(payload.roomId, payload.targetItemId, payload.vote, io, payload.guestId);
+      awardCreditsAndNotify(io, payload.guestId, "vote_cast", payload.roomId).catch(() => {});
+      incrementSessionStat(payload.roomId, payload.guestId, "votes").catch(() => {});
     });
 
     // ─── poll:respond ────────────────────────────────────────────────────────

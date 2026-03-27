@@ -3,6 +3,7 @@ import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-type
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { DRAWBACK_PROMPTS } from "./prompts";
+import { awardGameWin } from "../../lib/credits";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Drawback Experience
@@ -72,6 +73,11 @@ export class DrawbackExperience implements ExperienceModule {
       case "next_round":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._startRound(roomId, io);
+        break;
+
+      case "show_leaderboard":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._showLeaderboard(roomId, io);
         break;
 
       case "end_game":
@@ -186,6 +192,22 @@ export class DrawbackExperience implements ExperienceModule {
       experienceType: "drawback",
       state,
       view: { type: "drawback_reveal", data: state },
+      sequenceId: seq,
+    });
+
+    if (state.phase === "finished") {
+      await awardGameWin(io, state.scores, roomId);
+    }
+  }
+
+  private async _showLeaderboard(roomId: string, io: Server): Promise<void> {
+    const state = await this._getState(roomId);
+    if (!state) return;
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "drawback",
+      state,
+      view: { type: "leaderboard", data: state.scores },
       sequenceId: seq,
     });
   }
