@@ -719,7 +719,11 @@ export default function HomeScreen() {
   const [roomCode, setRoomCode]       = useState(params.code ?? "");
   const [loading, setLoading]         = useState(false);
   const [pendingAction, setPending]   = useState<PendingAction>(null);
-  const [joinModalVisible, setJoinModal]   = useState(false);
+  const [joinModalVisible, setJoinModal]       = useState(false);
+  const [nameModalVisible, setNameModal]       = useState(false);
+  const [roomNameInput,    setRoomNameInput]   = useState("");
+  const [pendingGuestId,   setPendingGuestId]  = useState<string | null>(null);
+  const [pendingHostName,  setPendingHostName] = useState<string | null>(null);
   const [browseVisible,   setBrowseVisible] = useState(false);
   const [errorMsg, setErrorMsg]            = useState("");
   const errorOpacity = useRef(new Animated.Value(0)).current;
@@ -819,26 +823,41 @@ export default function HomeScreen() {
   async function onNameConfirmed(name: string) {
     await socketManager.saveDisplayName(name);
     setPending(null);
-    if (pendingAction?.type === "create") await doCreateRoom(name);
-    if (pendingAction?.type === "join")   await doJoinRoom(pendingAction.code, name);
+    if (pendingAction?.type === "create") {
+      const guestId = await socketManager.getOrCreateGuestId();
+      setPendingHostName(name);
+      setPendingGuestId(guestId);
+      setRoomNameInput("");
+      setNameModal(true);
+    }
+    if (pendingAction?.type === "join") await doJoinRoom(pendingAction.code, name);
   }
 
   // ─── Create Room (Host) ───────────────────────────────────────────────────
   async function handleStartRoom() {
     try {
-      // Fetch both in parallel — with prewarm cache both resolve instantly
       const [saved, guestId] = await Promise.all([
         socketManager.getDisplayName(),
         socketManager.getOrCreateGuestId(),
       ]);
       if (!saved) { setPending({ type: "create" }); return; }
-      await doCreateRoom(saved, guestId);
+      // Show room name modal before creating
+      setPendingHostName(saved);
+      setPendingGuestId(guestId);
+      setRoomNameInput("");
+      setNameModal(true);
     } catch (e: any) {
       showError(e?.message ?? "Could not start room");
     }
   }
 
-  async function doCreateRoom(displayName: string, prefetchedGuestId?: string) {
+  async function handleConfirmRoomName() {
+    setNameModal(false);
+    const name = roomNameInput.trim() || "My Party";
+    await doCreateRoom(pendingHostName!, pendingGuestId!, name);
+  }
+
+  async function doCreateRoom(displayName: string, prefetchedGuestId?: string, roomName?: string) {
     setLoading(true);
     try {
       const guestId = prefetchedGuestId ?? await socketManager.getOrCreateGuestId();
@@ -859,7 +878,7 @@ export default function HomeScreen() {
         const res = await fetch(`${API_URL}/rooms`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ hostGuestId: guestId, name: "My Party", vibePreset: "open" }),
+          body: JSON.stringify({ hostGuestId: guestId, name: roomName ?? "My Party", vibePreset: "open" }),
           signal: controller.signal,
         });
         clearTimeout(fetchTimeout);
@@ -1046,6 +1065,46 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.safe}>
       {theme === "festival" ? <LavaLampBg /> : theme === "studio" ? <StudioBg /> : <SpaceBg />}
       <NamePromptModal visible={pendingAction !== null} onConfirm={onNameConfirmed} />
+
+      {/* Room Name Modal */}
+      <Modal visible={nameModalVisible} transparent animationType="slide" onRequestClose={() => setNameModal(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.modalOuter}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={() => setNameModal(false)} />
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHandle} />
+            <View style={styles.modalHead}>
+              <View style={styles.modalIconWrap}>
+                <Text style={{ fontSize: 28 }}>🎛️</Text>
+              </View>
+              <Text style={styles.modalTitle}>Name Your Party</Text>
+              <Text style={styles.modalSub}>Give your room a name guests will see</Text>
+            </View>
+            <TextInput
+              style={styles.nameInput}
+              placeholder="My Party"
+              placeholderTextColor="#555"
+              value={roomNameInput}
+              onChangeText={setRoomNameInput}
+              maxLength={32}
+              autoFocus
+              returnKeyType="go"
+              onSubmitEditing={handleConfirmRoomName}
+            />
+            <TouchableOpacity onPress={handleConfirmRoomName} disabled={loading} activeOpacity={0.85}>
+              <LinearGradient
+                colors={["#7c3aed", "#6d28d9"]}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                style={styles.joinBtn}
+              >
+                <Text style={styles.joinBtnText}>{loading ? "Creating..." : "Create Party"}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelRow} onPress={() => setNameModal(false)}>
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* Join Room Modal */}
       <Modal visible={joinModalVisible} transparent animationType="slide" onRequestClose={() => { setJoinModal(false); setRoomCode(""); }}>
@@ -2252,6 +2311,19 @@ const styles = StyleSheet.create({
   qrText:     { color: "#555", fontSize: 14 },
   cancelRow:  { alignItems: "center", marginTop: 14 },
   cancelText: { color: "#444", fontSize: 15, fontWeight: "600" },
+  nameInput: {
+    backgroundColor: "#1a1a1a",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#333",
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    marginBottom: 20,
+    textAlign: "center",
+  },
   // legacy — kept so other refs don't break
   codeInput:  { height: 0, overflow: "hidden" },
   modalRow:   { flexDirection: "row", gap: 12 },
