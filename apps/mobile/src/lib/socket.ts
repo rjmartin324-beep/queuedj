@@ -117,7 +117,7 @@ class SocketManager {
 
     this.socket = io(REALTIME_URL, {
       auth: { guestId: resolvedGuestId, displayName: resolvedName },
-      transports: ["polling", "websocket"],
+      transports: ["websocket"],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10000,
