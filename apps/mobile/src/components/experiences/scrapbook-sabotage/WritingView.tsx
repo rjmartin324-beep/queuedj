@@ -49,9 +49,11 @@ export function WritingView() {
       <WaitingForPlayersView
         emoji="📖"
         accent="#6c47ff"
+        gameName="Scrapbook Sabotage"
         title="Chapter Submitted!"
         subtitle="Waiting for all writers to finish their chapter..."
-        submittedCount={(state.guestViewData as any)?.submittedCount}
+        submittedGuestIds={(state.experienceState as any)?.submittedGuestIds}
+        iSubmitted
         tips={[
           "Great authors know when to stop writing ✍️",
           "Saboteurs are watching every word 👀",

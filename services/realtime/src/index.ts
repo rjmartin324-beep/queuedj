@@ -268,7 +268,24 @@ async function main() {
         // All of this is available from Redis — no PostgreSQL required.
         // Bundling it into the ack eliminates the join-time race condition where
         // room:state_snapshot and experience:state arrive before React commits.
-        const bootstrapMembers = await getAllMembers(roomId).catch(() => [] as any[]);
+        let bootstrapMembers = await getAllMembers(roomId).catch(() => [] as any[]);
+
+        // Seed the host into the realtime members set if they haven't joined via
+        // socket yet (e.g. the API created the room but the host's socket is still
+        // connecting). Without this, guests see memberCount = 0 on first join.
+        if (bootstrapMembers.length === 0 || !bootstrapMembers.find((m: any) => m.role === "HOST")) {
+          const roomMeta = await redisClient.get(`room:${roomId}:meta`);
+          if (roomMeta) {
+            try {
+              const roomObj = JSON.parse(roomMeta);
+              if (roomObj.hostGuestId && !bootstrapMembers.find((m: any) => m.guestId === roomObj.hostGuestId)) {
+                const hostSeed = { guestId: roomObj.hostGuestId, role: "HOST" as const, joinedAt: roomObj.createdAt ?? Date.now(), isWorkerNode: false };
+                await setMember(roomId, hostSeed);
+                bootstrapMembers = await getAllMembers(roomId).catch(() => bootstrapMembers);
+              }
+            } catch { /* non-critical */ }
+          }
+        }
         let bootstrapExpType = "dj";
         let bootstrapView: any = null;
         let bootstrapAwaitingReady = false;
@@ -310,11 +327,15 @@ async function main() {
         }
         // strategy === "already_current": no sync needed
 
-        // Still emit experience:state so reconnecting guests get the full view descriptor
+        // Still emit experience:state so reconnecting guests get the full view + state
         try {
+          const experience = getExperience(bootstrapExpType);
+          const bootstrapState = experience.getBootstrapState
+            ? await experience.getBootstrapState(roomId)
+            : null;
           socket.emit("experience:state" as any, {
             experienceType: bootstrapExpType,
-            state: null,
+            state: bootstrapState,
             view: bootstrapView,
             awaitingReady: bootstrapAwaitingReady,
             readyCount: bootstrapReadyCount,
@@ -389,7 +410,7 @@ async function main() {
 
     // ─── queue:request ───────────────────────────────────────────────────────
     socket.on("queue:request", async (payload: QueueRequestPayload, ack) => {
-      if (!checkRate(socket, "queue:request")) return ack({ accepted: false });
+      if (!checkRate(socket, "queue:request")) return ack({ accepted: false, error: "RATE_LIMITED" });
 
       const remainingMs = guestRequestCooldownMs(payload.roomId, payload.guestId);
       if (remainingMs > 0) {
@@ -397,7 +418,7 @@ async function main() {
       }
 
       const { allowed } = await requirePermission(payload.roomId, payload.guestId, "canRequestTrack");
-      if (!allowed) return ack({ accepted: false });
+      if (!allowed) return ack({ accepted: false, error: "UNAUTHORIZED" });
 
       const result = await handleQueueRequest(payload, io);
       ack(result);
@@ -684,6 +705,44 @@ async function main() {
       } catch (err) { console.error("[ready_up] error", err); }
     });
 
+    // ─── room:force_start (HOST only) ────────────────────────────────────
+    // Host skips the ready-up wait and starts the experience immediately.
+    socket.on("room:force_start" as any, async ({ roomId }: { roomId: string }) => {
+      try {
+        const role = await getMemberRole(roomId, socketGuestId ?? "");
+        if (!role || (role !== "HOST" && role !== "CO_HOST")) return;
+
+        const experienceType = await redisClient.get(`room:${roomId}:experience`) ?? "dj";
+        if (experienceType === "dj" || !isValidExperience(experienceType)) return;
+
+        await redisClient.del(`room:${roomId}:ready_set`);
+        io.to(roomId).emit("room:all_ready" as any, {});
+
+        const allMembers = await getAllMembers(roomId);
+        const guestMembers = allMembers.filter(m => m.role === "GUEST");
+        const experience = getExperience(experienceType);
+        let action = "start";
+        let payload: Record<string, unknown> = {};
+
+        if (experienceType === "trivia") {
+          action = "start_round";
+        } else if (experienceType === "mimic_me") {
+          payload = { guestIds: guestMembers.map(m => m.guestId) };
+        } else if (experienceType === "mind_mole") {
+          action = "start_game";
+          payload = {
+            playerIds: guestMembers.map(m => m.guestId),
+            playerNames: Object.fromEntries(
+              guestMembers.map(m => [m.guestId, m.displayName ?? m.guestId.slice(0, 8)])
+            ),
+          };
+        }
+
+        console.log("[force_start]", experienceType, action, "for room", roomId);
+        await experience.handleAction({ action, payload, roomId, guestId: socketGuestId ?? "", role: "HOST", io });
+      } catch (err) { console.error("[force_start] error", err); }
+    });
+
     // ─── experience:action (any member) ─────────────────────────────────
     // Single event handles all actions for all experiences.
     // The experience module routes by action name.
@@ -698,6 +757,8 @@ async function main() {
 
       const experience = getExperience(experienceType);
       await experience.handleAction({ action, payload, roomId, guestId: guestId ?? socketGuestId!, role, io });
+      // ACK the submitting guest so they know the action was received
+      socket.emit("experience:action_ack" as any, { action, ok: true });
     });
 
     // ─── guest:kick (HOST only) ──────────────────────────────────────────────

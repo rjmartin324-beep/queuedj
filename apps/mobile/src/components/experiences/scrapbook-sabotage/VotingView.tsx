@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VotingView — anonymized responses shown, guests vote for funniest
@@ -17,6 +18,28 @@ export function VotingView() {
     if (voted || targetId === myId) return;
     setVoted(targetId);
     sendAction("submit_vote", { targetGuestId: targetId });
+  }
+
+  if (voted) {
+    return (
+      <WaitingForPlayersView
+        emoji="📖"
+        accent="#6c47ff"
+        gameName="Scrapbook Sabotage"
+        title="Vote Cast!"
+        subtitle="Waiting for everyone to vote..."
+        waitReason="votes"
+        votedGuestIds={(state.experienceState as any)?.votedGuestIds}
+        iSubmitted
+        tips={[
+          "Someone is definitely regretting their answer 😬",
+          "The funniest response wins 🏆",
+          "Votes are anonymous... or are they? 👀",
+          "May the best saboteur win! ✂️",
+          "Results incoming — brace yourself 📖",
+        ]}
+      />
+    );
   }
 
   return (

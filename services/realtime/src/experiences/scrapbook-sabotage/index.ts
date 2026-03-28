@@ -9,12 +9,17 @@ import {
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 
-const KEY = (roomId: string) => `experience:scrapbook:${roomId}`;
+const KEY           = (roomId: string) => `experience:scrapbook:${roomId}`;
+const WRITING_MS    = 60000; // 60s to write before auto-advancing to voting
+const VOTING_MS     = 30000; // 30s to vote before auto-reveal
 
 export class ScrapbookSabotageExperience implements ExperienceModule {
   readonly type = "scrapbook_sabotage" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
+    const existing = await this._load(roomId);
+    if (existing && existing.phase !== "waiting") return; // mid-game — don't reset
     const state: ScrapbookSabotageState = {
       phase: "waiting",
       roundNumber: 0,
@@ -29,7 +34,10 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(roomId: string): Promise<void> {
+    const t = this.timers.get(roomId);
+    if (t) { clearTimeout(t); this.timers.delete(roomId); }
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -87,6 +95,11 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._nextRound(roomId, io);
         break;
+
+      case "skip_round":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._skipPhase(roomId, io);
+        break;
     }
   }
 
@@ -121,11 +134,11 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
     state.wordBankSubmissions[guestId] = text.slice(0, 300); // Cap at 300 chars
     await this._save(roomId, state);
 
-    // Broadcast count update only (don't show other submissions yet)
+    // Broadcast IDs only (don't show other submissions yet)
     const seq = await getNextSequenceId(roomId);
     io.to(roomId).emit("experience:state" as any, {
       experienceType: "scrapbook_sabotage",
-      state: { submittedCount: Object.keys(state.wordBankSubmissions).length },
+      partial: true, state: { submittedGuestIds: Object.keys(state.wordBankSubmissions) },
       view: { type: "scrapbook_word_input", data: { prompt: state.wordBankPrompt } },
       sequenceId: seq,
     });
@@ -147,6 +160,7 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
     state.responses = {};
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
+    this._setTimer(roomId, WRITING_MS, () => this._startVoting(roomId, io));
   }
 
   private async _submitResponse(roomId: string, guestId: string, text: string, io: Server): Promise<void> {
@@ -165,15 +179,23 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
 
     state.responses[guestId] = text.slice(0, 500);
     await this._save(roomId, state);
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "scrapbook_sabotage",
+      partial: true, state: { submittedGuestIds: Object.keys(state.responses) },
+      view: { type: "scrapbook_writing", data: { prompt: state.writingPrompt, wordBank: state.wordBank } },
+      sequenceId: seq,
+    });
   }
 
   private async _startVoting(roomId: string, io: Server): Promise<void> {
     const state = await this._load(roomId);
-    if (!state) return;
+    if (!state || state.phase === "voting") return;
     state.phase = "voting";
     state.votes = {};
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
+    this._setTimer(roomId, VOTING_MS, () => this._reveal(roomId, io));
   }
 
   private async _submitVote(roomId: string, guestId: string, targetGuestId: string, io: Server): Promise<void> {
@@ -184,6 +206,13 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
 
     state.votes[guestId] = targetGuestId;
     await this._save(roomId, state);
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "scrapbook_sabotage",
+      partial: true, state: { votedGuestIds: Object.keys(state.votes) },
+      view: { type: "scrapbook_voting" },
+      sequenceId: seq,
+    });
   }
 
   private async _reveal(roomId: string, io: Server): Promise<void> {
@@ -226,6 +255,14 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
     await this._broadcast(roomId, state, io);
   }
 
+  private async _skipPhase(roomId: string, io: Server): Promise<void> {
+    const state = await this._load(roomId);
+    if (!state) return;
+    if (state.phase === "word_bank_input") await this._closeWordBank(roomId, io);
+    else if (state.phase === "writing") await this._startVoting(roomId, io);
+    else if (state.phase === "voting") await this._reveal(roomId, io);
+  }
+
   /** During voting, responses are shown but authorship is hidden */
   private _anonymizeResponses(state: ScrapbookSabotageState): Array<{ id: string; text: string }> {
     return Object.entries(state.responses)
@@ -250,6 +287,12 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
 
   private async _save(roomId: string, state: ScrapbookSabotageState): Promise<void> {
     await redisClient.set(KEY(roomId), JSON.stringify(state));
+  }
+
+  private _setTimer(roomId: string, ms: number, fn: () => void) {
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    this.timers.set(roomId, setTimeout(fn, ms));
   }
 }
 

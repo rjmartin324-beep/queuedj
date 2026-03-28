@@ -15,6 +15,7 @@ import { getIdentity } from "../lib/identity";
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface RoomState {
+  lastAckedAction: string | null;  // most recently ACKed action from server
   room: Room | null;
   queue: QueueItem[];
   members: Omit<RoomMember, "pushToken">[];
@@ -43,7 +44,7 @@ type Action =
   | { type: "SET_CROWD_STATE"; crowdState: CrowdState }
   | { type: "SET_CONNECTED"; isConnected: boolean }
   | { type: "SET_OFFLINE"; isOffline: boolean }
-  | { type: "SET_EXPERIENCE"; experience: ExperienceType; view: GuestViewType; viewData?: unknown; expState?: unknown }
+  | { type: "SET_EXPERIENCE"; experience: ExperienceType; view: GuestViewType; viewData?: unknown; expState?: unknown; partial?: boolean }
   | { type: "UPDATE_EXPERIENCE_STATE"; viewData: unknown; expState?: unknown }
   | { type: "SET_DJ_STATE"; djState: DJExperienceState }
   | { type: "SET_POLL"; pollId: string | null }
@@ -52,9 +53,11 @@ type Action =
   | { type: "LEAVE_ROOM" }
   | { type: "SET_READY_UP"; active: boolean; readyCount: number; totalCount: number }
   | { type: "READY_COUNT_UPDATE"; readyCount: number; totalCount: number }
-  | { type: "MARK_ME_READY" };
+  | { type: "MARK_ME_READY" }
+  | { type: "ACTION_ACK"; action: string };
 
 const initialState: RoomState = {
+  lastAckedAction: null,
   room: null,
   queue: [],
   members: [],
@@ -96,15 +99,25 @@ function reducer(state: RoomState, action: Action): RoomState {
       return { ...state, isConnected: action.isConnected };
     case "SET_OFFLINE":
       return { ...state, isOffline: action.isOffline };
-    case "SET_EXPERIENCE":
+    case "SET_EXPERIENCE": {
+      // Partial updates (e.g. submittedGuestIds count broadcasts) merge into
+      // existing experienceState rather than replacing it entirely, so that
+      // phase/prompt fields set by earlier full-state broadcasts are preserved.
+      const mergedExpState = (() => {
+        if (action.expState === undefined) return state.experienceState;
+        if (action.partial && typeof state.experienceState === "object" && state.experienceState !== null) {
+          return { ...(state.experienceState as object), ...(action.expState as object) };
+        }
+        return action.expState;
+      })();
       return {
         ...state,
         activeExperience: action.experience,
         guestView: action.view,
-        // Only overwrite guestViewData if the incoming event actually has data
         guestViewData: action.viewData !== undefined ? action.viewData : state.guestViewData,
-        experienceState: action.expState ?? state.experienceState,
+        experienceState: mergedExpState,
       };
+    }
     case "UPDATE_EXPERIENCE_STATE":
       // Used by experience:state_updated — updates data without changing the view type
       return {
@@ -126,6 +139,8 @@ function reducer(state: RoomState, action: Action): RoomState {
       return { ...state, readyUp: { ...state.readyUp, readyCount: action.readyCount, totalCount: action.totalCount } };
     case "MARK_ME_READY":
       return { ...state, readyUp: { ...state.readyUp, iHaveReadied: true } };
+    case "ACTION_ACK":
+      return { ...state, lastAckedAction: action.action };
     default:
       return state;
   }
@@ -233,12 +248,12 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     const onAllReady = () => {
       dispatch({ type: "SET_READY_UP", active: false, readyCount: 0, totalCount: 0 });
     };
-    const onExperienceState = ({ experienceType, state: expState, view, awaitingReady, readyCount, readyTotalCount }: any) => {
+    const onExperienceState = ({ experienceType, state: expState, view, awaitingReady, readyCount, readyTotalCount, partial }: any) => {
       if (experienceType === "dj") {
         dispatch({ type: "SET_DJ_STATE", djState: expState });
       }
       if (view?.type) {
-        dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data, expState });
+        dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data, expState, partial: !!partial });
       }
       // Handle ready-up state from join-time snapshots (awaitingReady explicitly set)
       if (awaitingReady === true) {
@@ -283,6 +298,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     };
     const onRolePromoted = ({ newRole }: { newRole: "CO_HOST" | "HOST" }) => dispatch({ type: "SET_ROLE", role: newRole });
     const onRoleDemoted  = () => dispatch({ type: "SET_ROLE", role: "GUEST" });
+    const onActionAck    = ({ action }: { action: string }) => dispatch({ type: "ACTION_ACK", action });
 
     socket.on("room:state_snapshot",      onStateSnapshot);
     socket.on("room:event_replay" as any, onEventReplay);
@@ -306,6 +322,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     socket.on("room:setting_changed" as any,    onSettingChanged);
     socket.on("role:promoted" as any,           onRolePromoted);
     socket.on("role:demoted" as any,            onRoleDemoted);
+    socket.on("experience:action_ack" as any,   onActionAck);
 
     return () => {
       // Remove only RoomContext handlers — bindCoreEvents handlers stay intact
@@ -331,6 +348,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       socket.off("room:setting_changed" as any,    onSettingChanged);
       socket.off("role:promoted" as any,           onRolePromoted);
       socket.off("role:demoted" as any,            onRoleDemoted);
+      socket.off("experience:action_ack" as any,   onActionAck);
     };
   // Re-run when guestId changes (guest joins with session ID) OR when a room
   // is first created (state.room?.id goes null → roomId), which handles the

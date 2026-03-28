@@ -4,7 +4,7 @@ import {
   TextInput, Switch, Alert, ActivityIndicator, Modal, Linking, Share,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { CreditsWalletView } from "../components/shared/CreditsWalletView";
+import { CreditsStoreScreen } from "./CreditsStoreScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme, type ThemePref, type BgTheme } from "../contexts/ThemeContext";
 import { selectionTick, tapLight } from "../lib/haptics";
@@ -366,42 +366,48 @@ export function SettingsScreen({ guestId, onClose }: Props) {
         )}
       </Section>
 
-      {/* Credits wallet */}
+      {/* Credits store modal */}
       {guestId && (
         <Modal visible={walletOpen} animationType="slide" onRequestClose={() => setWalletOpen(false)}>
-          <View style={{ flex: 1, backgroundColor: "#03001c" }}>
-            <View style={{ flexDirection: "row", alignItems: "center", padding: 16, paddingTop: 52 }}>
-              <TouchableOpacity onPress={() => setWalletOpen(false)}>
-                <Text style={{ color: "#a78bfa", fontSize: 15, fontWeight: "700" }}>← Back</Text>
-              </TouchableOpacity>
-              <Text style={{ color: "#fff", fontWeight: "800", fontSize: 18, marginLeft: 16 }}>Vibe Wallet</Text>
-            </View>
-            <CreditsWalletView guestId={guestId} />
-          </View>
+          <CreditsStoreScreen guestId={guestId} onClose={() => setWalletOpen(false)} />
         </Modal>
       )}
 
-      {/* Credits history */}
-      {credits.length > 0 && (
-        <Section title="VIBE CREDITS HISTORY">
-          {credits.map((entry, i) => (
-            <View key={i} style={styles.creditRow}>
-              <Text style={[styles.creditDelta, entry.delta > 0 ? styles.creditPos : styles.creditNeg]}>
-                {entry.delta > 0 ? `+${entry.delta}` : entry.delta}
-              </Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.creditReason}>{REASON_LABELS[entry.reason] ?? entry.reason}</Text>
-                <Text style={styles.creditDate}>
-                  {new Date(entry.created_at).toLocaleDateString()} · Balance: {entry.balance_after}
-                </Text>
-              </View>
+      {/* Vibe Credits — always visible entry point */}
+      <Section title="VIBE CREDITS">
+        <TouchableOpacity style={styles.creditsRow} onPress={() => setWalletOpen(true)} activeOpacity={0.75}>
+          <View style={styles.creditsRowLeft}>
+            <Text style={styles.creditsEmoji}>⚡</Text>
+            <View>
+              <Text style={styles.creditsRowTitle}>Credits Store</Text>
+              <Text style={styles.creditsRowSub}>Buy outfits &amp; emotes · View history</Text>
             </View>
-          ))}
-          <TouchableOpacity style={styles.walletBtn} onPress={() => setWalletOpen(true)}>
-            <Text style={styles.walletBtnText}>View Full Wallet →</Text>
-          </TouchableOpacity>
-        </Section>
-      )}
+          </View>
+          <Text style={styles.creditsArrow}>→</Text>
+        </TouchableOpacity>
+        {credits.length > 0 && (
+          <View style={{ marginTop: 8 }}>
+            {credits.slice(0, 3).map((entry, i) => (
+              <View key={i} style={styles.creditRow}>
+                <Text style={[styles.creditDelta, entry.delta > 0 ? styles.creditPos : styles.creditNeg]}>
+                  {entry.delta > 0 ? `+${entry.delta}` : entry.delta}
+                </Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.creditReason}>{REASON_LABELS[entry.reason] ?? entry.reason}</Text>
+                  <Text style={styles.creditDate}>
+                    {new Date(entry.created_at).toLocaleDateString()} · Balance: {entry.balance_after}
+                  </Text>
+                </View>
+              </View>
+            ))}
+            {credits.length > 3 && (
+              <TouchableOpacity style={styles.walletBtn} onPress={() => setWalletOpen(true)}>
+                <Text style={styles.walletBtnText}>View all {credits.length} transactions →</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+      </Section>
 
       {/* Danger zone */}
       <Section title="DATA">
@@ -511,6 +517,13 @@ const styles = StyleSheet.create({
 
   walletBtn:     { marginTop: 12, padding: 12, alignItems: "center", borderRadius: 12, backgroundColor: "rgba(124,58,237,0.15)", borderWidth: 1, borderColor: "rgba(124,58,237,0.3)" },
   walletBtnText: { color: "#a78bfa", fontWeight: "700", fontSize: 13 },
+
+  creditsRow:      { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 16, paddingVertical: 14 },
+  creditsRowLeft:  { flexDirection: "row", alignItems: "center", gap: 12 },
+  creditsEmoji:    { fontSize: 28 },
+  creditsRowTitle: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  creditsRowSub:   { color: "#6b7280", fontSize: 12, marginTop: 2 },
+  creditsArrow:    { color: "#a78bfa", fontSize: 18, fontWeight: "700" },
 
   version: { color: "#374151", fontSize: 12, textAlign: "center", marginTop: 8 },
 

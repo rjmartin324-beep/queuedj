@@ -5,6 +5,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 import type { DrawingData, DrawingPath } from "@queuedj/shared-types";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -121,6 +122,19 @@ export function DrawingCanvas() {
   }
 
   const urgency = timeLeft <= 10;
+
+  if (done) {
+    return (
+      <WaitingForPlayersView
+        emoji="🖌️"
+        accent="#6366f1"
+        gameName="Copyright Infringement"
+        title="Pencils Down!"
+        subtitle="Time's up — waiting for everyone to finish drawing..."
+        iSubmitted
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>

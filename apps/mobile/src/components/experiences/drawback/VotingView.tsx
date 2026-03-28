@@ -3,6 +3,7 @@ import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
 } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 const ACCENT = "#3b82f6";
 
@@ -66,6 +67,28 @@ export function VotingView() {
 
   const [voted, setVoted] = useState<string | null>(null);
   const hasVoted = voted !== null;
+
+  if (hasVoted) {
+    return (
+      <WaitingForPlayersView
+        emoji="🗳️"
+        accent={ACCENT}
+        gameName="Drawback"
+        title="Vote Locked In!"
+        subtitle="Waiting for everyone to cast their vote..."
+        waitReason="votes"
+        votedGuestIds={(state.experienceState as any)?.votedGuestIds}
+        iSubmitted
+        tips={[
+          "Your vote is safe with us 🤫",
+          "Someone is definitely voting strategically 🤔",
+          "The winner is already nervous 😅",
+          "Democracy at its finest 🗳️",
+          "May the best drawing win! 🎨",
+        ]}
+      />
+    );
+  }
 
   function vote(guestId: string) {
     if (voted || guestId === myId) return;

@@ -3,6 +3,17 @@ import type { CrowdState, VibePreset } from "@queuedj/shared-types";
 import { CROWD_STATE_BPM_RANGES, DEFAULT_CROWD_STATE, COLD_START_ENERGY_TARGET } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { logCrowdDrop } from "../../lib/rlhf";
+
+// Energy rank for detecting crowd drops (higher = more energetic)
+const ENERGY_RANK: Partial<Record<string, number>> = {
+  COLDSTART: 0,
+  WARMUP:    1,
+  COOLDOWN:  1,
+  RISING:    2,
+  RECOVERY:  2,
+  PEAK:      3,
+};
 
 const DJ_STATE_KEY = (roomId: string) => `experience:dj:${roomId}`;
 
@@ -17,8 +28,17 @@ export async function setCrowdState(roomId: string, state: CrowdState, io: Serve
   const raw = await redisClient.get(DJ_STATE_KEY(roomId));
   if (!raw) return;
   const djState = JSON.parse(raw);
+  const prevState: string = djState.crowdState ?? DEFAULT_CROWD_STATE;
   djState.crowdState = state;
   await redisClient.set(DJ_STATE_KEY(roomId), JSON.stringify(djState));
+
+  // Log RLHF signal when crowd energy drops
+  const prevRank = ENERGY_RANK[prevState] ?? 1;
+  const newRank  = ENERGY_RANK[state]     ?? 1;
+  if (newRank < prevRank) {
+    const isrc = djState.nowPlaying ?? djState.currentIsrc ?? "";
+    if (isrc) logCrowdDrop(roomId, isrc, prevState, state);
+  }
 
   const seq = await getNextSequenceId(roomId);
   io.to(roomId).emit("room:crowd_state_changed" as any, { crowdState: state, sequenceId: seq });

@@ -10,10 +10,12 @@ import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { awardGameWin } from "../../lib/credits";
 
 const KEY = (roomId: string) => `experience:opinions:${roomId}`;
-const REVEAL_DELAY_MS = 3000; // 3s after last guess before auto-reveal
+const REVEAL_DELAY_MS  = 3000;  // 3s after last guess before auto-reveal
+const JUDGE_TIMEOUT_MS = 30000; // 30s — auto-skip if judge never submits
 
 export class UnpopularOpinionsExperience implements ExperienceModule {
   readonly type = "unpopular_opinions" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, hostGuestId: string): Promise<void> {
     // Build judge rotation from current members
@@ -35,7 +37,10 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(roomId: string): Promise<void> {
+    const t = this.timers.get(roomId);
+    if (t) { clearTimeout(t); this.timers.delete(roomId); }
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -115,11 +120,25 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
 
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
+
+    // Safety net: if judge goes AFK, auto-submit a neutral score after 30s
+    const t = setTimeout(async () => {
+      const s = await this._load(roomId);
+      if (s && s.phase === "judging" && s.currentJudgeId === state.currentJudgeId) {
+        await this._submitJudgeScore(roomId, state.currentJudgeId!, 5, io);
+      }
+    }, JUDGE_TIMEOUT_MS);
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    this.timers.set(roomId, t);
   }
 
   private async _submitJudgeScore(roomId: string, guestId: string, score: number, io: Server): Promise<void> {
     const state = await this._load(roomId);
     if (!state || state.phase !== "judging" || state.currentJudgeId !== guestId) return;
+
+    const t = this.timers.get(roomId);
+    if (t) { clearTimeout(t); this.timers.delete(roomId); }
 
     state.judgeScore = Math.max(1, Math.min(10, Math.round(score)));
     state.phase = "guessing";

@@ -44,6 +44,11 @@ import { HumItControls }             from "../components/host/controls/HumItCont
 import { MimicMeControls }           from "../components/host/controls/MimicMeControls";
 import { LyricsDropControls }        from "../components/host/controls/LyricsDropControls";
 import { PartyDiceControls }         from "../components/host/controls/PartyDiceControls";
+import { NightShiftControls }        from "../components/host/controls/NightShiftControls";
+import { MindMoleControls }          from "../components/host/controls/MindMoleControls";
+import { GuessSongControls }         from "../components/host/controls/GuessSongControls";
+import { NameGenreControls }         from "../components/host/controls/NameGenreControls";
+import { VibeCheckControls }         from "../components/host/controls/VibeCheckControls";
 import { RoomQRCode }                from "../components/host/RoomQRCode";
 import { HostQueueView }             from "../components/host/HostQueueView";
 import { DevTestPanel }             from "../components/host/DevTestPanel";
@@ -57,6 +62,7 @@ import { registerForPushNotifications, registerTokenWithServer } from "../lib/no
 import { socketManager } from "../lib/socket";
 import { ChatTicker } from "../components/host/ChatTicker";
 import { PartyChatPanel, ChatFloatingButton } from "../components/shared/PartyChatPanel";
+import { ExperiencePlayerView } from "../components/experiences/shared/ExperiencePlayerView";
 
 const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
   { type: "dj",                     label: "DJ",              emoji: "🎛️" },
@@ -94,6 +100,11 @@ const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
   { type: "mimic_me",               label: "Mimic Me",         emoji: "🪞" },
   { type: "lyrics_drop",            label: "Lyrics Drop",      emoji: "🎤" },
   { type: "party_dice",             label: "Party Dice",       emoji: "🎲" },
+  { type: "night_shift",            label: "Night Shift",      emoji: "🌙" },
+  { type: "mind_mole",              label: "Mind Mole",        emoji: "🦔" },
+  { type: "guess_the_song",         label: "Guess the Song",   emoji: "🎵" },
+  { type: "name_that_genre",        label: "Name the Genre",   emoji: "🎼" },
+  { type: "vibe_check",             label: "Vibe Check",       emoji: "✨" },
 ];
 
 type Tab = "controls" | "queue" | "guests" | "history" | "recs" | "settings" | "demo";
@@ -333,6 +344,11 @@ export default function HostScreen() {
       case "mimic_me":               return <MimicMeControls {...vmProps} />;
       case "lyrics_drop":            return <LyricsDropControls {...vmProps} />;
       case "party_dice":             return <PartyDiceControls {...vmProps} />;
+      case "night_shift":            return <NightShiftControls {...vmProps} />;
+      case "mind_mole":              return <MindMoleControls {...vmProps} />;
+      case "guess_the_song":         return <GuessSongControls {...vmProps} />;
+      case "name_that_genre":        return <NameGenreControls {...vmProps} />;
+      case "vibe_check":             return <VibeCheckControls {...vmProps} />;
       default:                       return null;
     }
   }
@@ -410,9 +426,21 @@ export default function HostScreen() {
                 )}
                 {state.readyUp?.active && (
                   <View style={styles.readyBanner}>
-                    <Text style={styles.readyBannerText}>
-                      ✋ Waiting for guests to ready up — {state.readyUp.readyCount} / {state.readyUp.totalCount} ready
-                    </Text>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                      <Text style={styles.readyBannerText}>
+                        ✋ {state.readyUp.readyCount} / {state.readyUp.totalCount} ready
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          const socket = socketManager.get();
+                          if (socket && state.room?.id) socket.emit("room:force_start" as any, { roomId: state.room.id });
+                        }}
+                        style={{ backgroundColor: "#7c3aed", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 5 }}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={{ color: "#fff", fontSize: 12, fontWeight: "700" }}>Start Now</Text>
+                      </TouchableOpacity>
+                    </View>
                     <View style={styles.readyBarTrack}>
                       <View style={[styles.readyBarFill, { width: `${state.readyUp.totalCount > 0 ? Math.round((state.readyUp.readyCount / state.readyUp.totalCount) * 100) : 0}%` as any }]} />
                     </View>
@@ -432,10 +460,14 @@ export default function HostScreen() {
                 </View>
               </View>
 
-              {/* Host view return bar */}
-              {gameViewMode === "player" && (
-                <TouchableOpacity style={styles.hostViewBar} onPress={() => setGameViewMode("host")} activeOpacity={0.85}>
-                  <Text style={styles.hostViewBarText}>🎛️  Back to Host Controls</Text>
+              {/* Play as player button — only shown when a game is active */}
+              {state.activeExperience && state.activeExperience !== "dj" && gameViewMode === "host" && (
+                <TouchableOpacity
+                  style={styles.playAsPlayerBtn}
+                  onPress={() => setGameViewMode("player")}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.playAsPlayerText}>🎮  Play as Player</Text>
                 </TouchableOpacity>
               )}
 
@@ -490,6 +522,21 @@ export default function HostScreen() {
           ) : null}
         </Animated.View>
       </View>
+
+      {/* Player mode overlay — full screen, sits above everything */}
+      {gameViewMode === "player" && state.activeExperience && state.activeExperience !== "dj" && (
+        <View style={StyleSheet.absoluteFillObject}>
+          <LinearGradient colors={["#03001c", "#07001a", "#0a0018"]} style={StyleSheet.absoluteFill} />
+          <ExperiencePlayerView />
+          <TouchableOpacity
+            style={styles.hostViewBar}
+            onPress={() => setGameViewMode("host")}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.hostViewBarText}>🎛️  Back to Host Controls</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <ChatTicker roomId={state.room?.id ?? ""} />
 
@@ -905,6 +952,8 @@ const styles = StyleSheet.create({
   // HOST VIEW RETURN BAR
   hostViewBar: { alignItems: "center", paddingVertical: 8, backgroundColor: "rgba(124,58,237,0.10)", borderBottomWidth: 1, borderBottomColor: "rgba(124,58,237,0.20)" },
   hostViewBarText: { color: "#a78bfa", fontSize: 12, fontWeight: "700" },
+  playAsPlayerBtn: { marginHorizontal: 16, marginBottom: 8, alignItems: "center", paddingVertical: 8, borderRadius: 10, backgroundColor: "rgba(124,58,237,0.15)", borderWidth: 1, borderColor: "rgba(124,58,237,0.30)" },
+  playAsPlayerText: { color: "#a78bfa", fontSize: 13, fontWeight: "700" },
 
   // CONTENT
   content: { padding: 16, gap: 12 },

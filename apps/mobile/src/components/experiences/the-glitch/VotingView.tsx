@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VotingView — all descriptions shown, vote for who you think is The Glitch
@@ -20,6 +21,28 @@ export function GlitchVotingView() {
   }
 
   const entries = Object.entries(descriptions ?? {});
+
+  if (voted) {
+    return (
+      <WaitingForPlayersView
+        emoji="🕵️"
+        accent="#ef4444"
+        gameName="The Glitch"
+        title="Accused!"
+        subtitle="Waiting for everyone to cast their accusation..."
+        waitReason="votes"
+        votedGuestIds={(state.experienceState as any)?.votedGuestIds}
+        iSubmitted
+        tips={[
+          "The Glitch is sweating right now 😰",
+          "Trust no one. Not even yourself. 👀",
+          "Majority rules in this game 🗳️",
+          "Justice will be served... probably 🔍",
+          "May the real Glitch be found! 📺",
+        ]}
+      />
+    );
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

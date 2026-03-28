@@ -456,6 +456,11 @@ export function ScrapbookControls({ viewMode, onViewModeChange: setViewMode }: V
           {game.phase === "final" && (
             <HostActionButton label="🔄  Play Again" onPress={startGame} />
           )}
+          {(game.phase === "word_bank" || game.phase === "writing" || game.phase === "voting") && (
+            <TouchableOpacity style={s.skipBtn} onPress={() => sendAction("skip_round", {})}>
+              <Text style={s.skipBtnText}>⏭  Skip Phase (server)</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={s.stopBtn} onPress={resetGame}>
             <Text style={s.stopBtnText}>⏹  Stop Game</Text>
           </TouchableOpacity>
@@ -532,6 +537,8 @@ const s = StyleSheet.create({
   lbScore:          { color: "#888", fontSize: 16, fontWeight: "900" },
 
   controls:         { gap: 8, borderTopWidth: 1, borderTopColor: "#1a1a1a", paddingTop: 12, marginTop: 4 },
+  skipBtn:          { alignItems: "center", paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: "#f59e0b44", backgroundColor: "#f59e0b11" },
+  skipBtnText:      { color: "#f59e0b", fontSize: 12, fontWeight: "700" },
   stopBtn:          { alignItems: "center", paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: "#1e1e1e" },
   stopBtnText:      { color: "#444", fontSize: 13, fontWeight: "700" },
 

@@ -117,12 +117,14 @@ class SocketManager {
 
     this.socket = io(REALTIME_URL, {
       auth: { guestId: resolvedGuestId, displayName: resolvedName },
-      transports: ["websocket"],
+      // polling first so the HTTP upgrade handshake works through Railway's CDN;
+      // socket.io automatically upgrades to WebSocket after the handshake succeeds.
+      transports: ["polling", "websocket"],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10000,
       reconnectionAttempts: Infinity,
-      timeout: 15000,
+      timeout: 20000,
     }) as QueueDJSocket;
 
     this.bindCoreEvents(resolvedGuestId);
@@ -143,13 +145,32 @@ class SocketManager {
 
     this.currentRoomId = roomId;
 
+    // Wait for the socket to physically connect before emitting room:join.
+    // connect() returns the socket immediately but the TCP/WebSocket handshake
+    // is async — emitting before connected works via socket.io buffering but
+    // if the connection fails (e.g. CDN drops the upgrade) the buffer is silently
+    // dropped and the 45s promise would time out with no feedback.
+    if (!this.socket.connected) {
+      await new Promise<void>((res, rej) => {
+        const connectTimeout = setTimeout(() => {
+          this.socket?.off("connect", onConnect);
+          this.socket?.off("connect_error", onError);
+          rej(new Error("Could not connect to server. Check your internet connection."));
+        }, 12000);
+        const onConnect = () => { clearTimeout(connectTimeout); this.socket?.off("connect_error", onError); res(); };
+        const onError   = (err: Error) => { clearTimeout(connectTimeout); this.socket?.off("connect", onConnect); rej(new Error(err.message ?? "Connection failed")); };
+        this.socket!.once("connect", onConnect);
+        this.socket!.once("connect_error", onError);
+      });
+    }
+
     return new Promise((resolve, reject) => {
       this.socket!.emit(
         "room:join",
         { roomId, guestId, lastSequenceId: lastSeq },
         (ack) => resolve(ack),
       );
-      setTimeout(() => reject(new Error("Join timeout")), 45000);
+      setTimeout(() => reject(new Error("Server did not respond. Try again.")), 20000);
     });
   }
 
@@ -191,9 +212,22 @@ class SocketManager {
       // On initial connect, doJoinRoom handles the explicit join — re-joining here
       // would cause a duplicate room:join before handlers are registered.
       if (hasConnectedOnce && this.currentRoomId) {
-        await this.joinRoom(this.currentRoomId).catch((err) => {
-          console.warn("[socket] reconnect joinRoom failed:", err);
-        });
+        const roomId = this.currentRoomId;
+        let attempt = 0;
+        const tryRejoin = async () => {
+          attempt++;
+          try {
+            await this.joinRoom(roomId);
+          } catch (err) {
+            console.warn(`[socket] reconnect joinRoom failed (attempt ${attempt}/3):`, err);
+            if (attempt < 3 && this.currentRoomId === roomId) {
+              setTimeout(tryRejoin, 2000 * attempt);
+            } else {
+              console.error("[socket] reconnect joinRoom gave up — guest may need to rejoin manually");
+            }
+          }
+        };
+        tryRejoin();
       }
       hasConnectedOnce = true;
 
@@ -234,6 +268,14 @@ class SocketManager {
     // mid-game reconnects with the right cursor (otherwise they'd send a stale
     // queue-only seq and miss the game phase change events in the replay window).
     this.socket.on("experience:changed" as any, ({ sequenceId }: any) => {
+      if (this.currentRoomId && sequenceId) {
+        this.saveLastSequenceId(this.currentRoomId, sequenceId);
+      }
+    });
+
+    // Track experience:state sequenceIds so reconnects send an accurate cursor
+    // and don't re-replay events that were already processed mid-game.
+    this.socket.on("experience:state" as any, ({ sequenceId }: any) => {
       if (this.currentRoomId && sequenceId) {
         this.saveLastSequenceId(this.currentRoomId, sequenceId);
       }

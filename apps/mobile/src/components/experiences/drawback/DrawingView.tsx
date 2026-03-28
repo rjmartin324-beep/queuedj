@@ -144,14 +144,15 @@ export function DrawingView() {
   }
 
   if (submitted) {
-    const d = state.guestViewData as any;
     return (
       <WaitingForPlayersView
         emoji="✏️"
         accent={ACCENT}
+        gameName="Drawback"
         title="Drawing Locked!"
         subtitle="Waiting for everyone to finish their masterpiece..."
-        submittedCount={d?.submittedCount}
+        submittedGuestIds={(state.experienceState as any)?.submittedGuestIds}
+        iSubmitted
         tips={[
           "Picasso didn't draw in 60 seconds either 🎨",
           "Your abstract art is being judged as we speak 👀",

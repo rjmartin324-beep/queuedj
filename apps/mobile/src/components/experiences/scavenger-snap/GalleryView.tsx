@@ -3,6 +3,7 @@ import {
   View, Text, TouchableOpacity, Image, ScrollView, StyleSheet,
 } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Scavenger Snap — GalleryView
@@ -43,6 +44,28 @@ export function GalleryView() {
   }
 
   const hasVoted = voted !== null;
+
+  if (hasVoted) {
+    return (
+      <WaitingForPlayersView
+        emoji="📷"
+        accent={ACCENT}
+        gameName="Scavenger Snap"
+        title="Vote Locked In!"
+        subtitle="Waiting for everyone to cast their vote..."
+        waitReason="votes"
+        votedGuestIds={(state.experienceState as any)?.votedGuestIds}
+        iSubmitted
+        tips={[
+          "That photo was definitely taken in someone's bathroom 🚿",
+          "The judges are deliberating... 🧑‍⚖️",
+          "Speed bonus goes to the fastest snapper 📸",
+          "May the sharpest eye win! 🏆",
+          "Results incoming — hope your snap was good! 🤞",
+        ]}
+      />
+    );
+  }
 
   return (
     <View style={styles.root}>

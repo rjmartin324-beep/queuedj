@@ -25,9 +25,11 @@ export function DescribingView() {
       <WaitingForPlayersView
         emoji="📺"
         accent="#818cf8"
+        gameName="The Glitch"
         title="Description Sent!"
         subtitle="Waiting for all players to submit their description..."
-        submittedCount={(state.guestViewData as any)?.submittedCount}
+        submittedGuestIds={(state.experienceState as any)?.submittedGuestIds}
+        iSubmitted
         tips={[
           "The Glitch is hiding in plain sight 🕵️",
           "Everyone thinks their description is unique 😅",

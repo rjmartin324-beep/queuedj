@@ -13,7 +13,8 @@ import { showAchievementToast } from "../shared/AchievementToast";
 // Progress-based achievements read their own counters from AsyncStorage.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const UNLOCKED_KEY = "partyglue_achievements_unlocked";
+const UNLOCKED_KEY    = "partyglue_achievements_unlocked";
+const UNLOCKED_AT_KEY = "partyglue_achievements_unlocked_at"; // id → unix ms
 
 export async function unlockAchievement(id: string): Promise<boolean> {
   try {
@@ -21,7 +22,16 @@ export async function unlockAchievement(id: string): Promise<boolean> {
     const unlocked: string[] = raw ? JSON.parse(raw) : [];
     if (unlocked.includes(id)) return false; // already unlocked
     unlocked.push(id);
-    await AsyncStorage.setItem(UNLOCKED_KEY, JSON.stringify(unlocked));
+
+    // Record the unlock timestamp for the activity feed
+    const atRaw = await AsyncStorage.getItem(UNLOCKED_AT_KEY);
+    const atMap: Record<string, number> = atRaw ? JSON.parse(atRaw) : {};
+    atMap[id] = Date.now();
+
+    await AsyncStorage.multiSet([
+      [UNLOCKED_KEY,    JSON.stringify(unlocked)],
+      [UNLOCKED_AT_KEY, JSON.stringify(atMap)],
+    ]);
 
     // Show toast for the newly unlocked achievement.
     const match = ACHIEVEMENTS.find(a => a.id === id);

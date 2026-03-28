@@ -1,109 +1,61 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform, Clipboard } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform, Clipboard, Animated } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../contexts/RoomContext";
 import { SessionRecapScreen, type SessionRecapData } from "./SessionRecapScreen";
 import { useRouter } from "expo-router";
 
-// Shared
-import { DJQueueView }           from "../components/experiences/dj/DJQueueView";
-import { TriviaQuestionView }    from "../components/experiences/trivia/TriviaQuestionView";
-import { TriviaWaitingView }     from "../components/experiences/trivia/TriviaWaitingView";
-import { TriviaCountdownView }   from "../components/experiences/trivia/TriviaCountdownView";
-import { LeaderboardView }       from "../components/experiences/trivia/LeaderboardView";
-import { PollView }              from "../components/experiences/shared/PollView";
-import { IntermissionView }      from "../components/experiences/shared/IntermissionView";
-import { WaitingForPlayersView } from "../components/experiences/shared/WaitingForPlayersView";
 import { ConnectionBar }      from "../components/shared/ConnectionBar";
 import { VibeCreditsBar }     from "../components/shared/VibeCreditsBar";
 import { GuestAvatarRow, type GuestPresence } from "../components/shared/GuestAvatarRow";
 import { OfflineBanner } from "../components/shared/OfflineBanner";
-import { ReadyUpOverlay } from "../components/shared/ReadyUpOverlay";
 import { registerForPushNotifications, registerTokenWithServer } from "../lib/notifications";
-import { tapLight } from "../lib/haptics";
+import { tapLight, tapMedium } from "../lib/haptics";
 import { PartyChatPanel, ChatFloatingButton } from "../components/shared/PartyChatPanel";
 import { socketManager } from "../lib/socket";
 
-// Unpopular Opinions
-import { JudgeView }    from "../components/experiences/unpopular-opinions/JudgeView";
-import { GuessingView } from "../components/experiences/unpopular-opinions/GuessingView";
-import { RevealView as OpinionsRevealView } from "../components/experiences/unpopular-opinions/RevealView";
-
-// Scrapbook Sabotage
-import { WordInputView }           from "../components/experiences/scrapbook-sabotage/WordInputView";
-import { WordBankView }            from "../components/experiences/scrapbook-sabotage/WordBankView";
-import { WritingView }             from "../components/experiences/scrapbook-sabotage/WritingView";
-import { VotingView as ScrapbookVotingView } from "../components/experiences/scrapbook-sabotage/VotingView";
-import { ScrapbookRevealView }     from "../components/experiences/scrapbook-sabotage/RevealView";
-
-// The Glitch
-import { WatchingView }           from "../components/experiences/the-glitch/WatchingView";
-import { DescribingView }         from "../components/experiences/the-glitch/DescribingView";
-import { GlitchVotingView }       from "../components/experiences/the-glitch/VotingView";
-import { GlitchRevealView }       from "../components/experiences/the-glitch/RevealView";
-
-// Copyright Infringement
-import { ViewingView }            from "../components/experiences/copyright-infringement/ViewingView";
-import { DrawingCanvas }          from "../components/experiences/copyright-infringement/DrawingCanvas";
-import { GalleryView }            from "../components/experiences/copyright-infringement/GalleryView";
-import { CopyrightResultsView }   from "../components/experiences/copyright-infringement/ResultsView";
-
-// GeoGuesser
-import { GuessingView as GeoGuessingView } from "../components/experiences/geo-guesser/GuessingView";
-import { RegionGuessView as GeoRegionGuessView } from "../components/experiences/geo-guesser/RegionGuessView";
-import { RevealView as GeoRevealView } from "../components/experiences/geo-guesser/RevealView";
-
-// Drawback
-import { DrawingView }            from "../components/experiences/drawback/DrawingView";
-import { VotingView as DrawbackVotingView } from "../components/experiences/drawback/VotingView";
-import { RevealView as DrawbackRevealView } from "../components/experiences/drawback/RevealView";
-
-// Scavenger Snap
-import { ChallengeView }          from "../components/experiences/scavenger-snap/ChallengeView";
-import { GalleryView as SnapGalleryView } from "../components/experiences/scavenger-snap/GalleryView";
-import { ResultsView as SnapResultsView } from "../components/experiences/scavenger-snap/ResultsView";
-
-// Phase 2 games (phase-based, single-component views)
-import { NightShiftView }    from "../components/experiences/night-shift/NightShiftView";
-import { MindMoleView }      from "../components/experiences/mind-mole/MindMoleView";
-import { CroppedLookView }   from "../components/experiences/cropped-look/CroppedLookView";
-import { GuessSongView }     from "../components/experiences/guess-the-song/GuessSongView";
-import { NameGenreView }     from "../components/experiences/name-that-genre/NameGenreView";
-import { VibeCheckView }     from "../components/experiences/vibe-check/VibeCheckView";
-
-// 32 standalone card games
-import { GenericGameView }        from "../components/experiences/shared/GenericGameView";
-import { ImprovChallengeView }    from "../components/experiences/improv-challenge/ImprovChallengeView";
-import { HumItView }              from "../components/experiences/hum-it/HumItView";
-import { AccentChallengeView }    from "../components/experiences/accent-challenge/AccentChallengeView";
+import { ExperiencePlayerView }   from "../components/experiences/shared/ExperiencePlayerView";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Guest Screen — The View Router
+// Guest Screen
 //
 // This screen never manually navigates. The server tells it what to show
 // via the "experience:state" socket event → RoomContext → guestView.
 //
-// To add a new experience: create a component, add one case here.
+// To add a new experience: create a component and add a case to
+// ExperiencePlayerView (components/experiences/shared/ExperiencePlayerView.tsx).
 // ─────────────────────────────────────────────────────────────────────────────
 
 const API_GUEST_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export default function GuestScreen() {
-  const { state, dispatch } = useRoom();
+  const { state, dispatch, sendReadyUp } = useRoom();
 
-  // DEBUG — remove after diagnosing 0-connected bug
-  console.log("[GuestScreen] render members:", state.members.length, "readyUp:", JSON.stringify(state.readyUp), "role:", state.role);
   const router = useRouter();
   const [recap,       setRecap]       = useState<SessionRecapData | null>(null);
   const [chatOpen,    setChatOpen]    = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Pulse animation for the ready-up button when it first activates
+  const readyPulse = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (!state.readyUp.active || state.readyUp.iHaveReadied) return;
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(readyPulse, { toValue: 1.06, duration: 600, useNativeDriver: true }),
+        Animated.timing(readyPulse, { toValue: 1,    duration: 600, useNativeDriver: true }),
+      ]),
+    );
+    anim.start();
+    return () => anim.stop();
+  }, [state.readyUp.active, state.readyUp.iHaveReadied]);
 
   const buildRecap = useCallback(async () => {
     if (!state.room || !state.guestId) return;
     const roomId = state.room.id;
     const guestId = state.guestId;
 
-    // Try to fetch leaderboard stats for this guest
     let myVotes = 0, myRequests = 0, myGameWins = 0;
     try {
       const res = await fetch(`${API_GUEST_URL}/rooms/${encodeURIComponent(roomId)}/leaderboard`);
@@ -158,7 +110,6 @@ export default function GuestScreen() {
       if (token) {
         await registerTokenWithServer(API_GUEST_URL, roomId, token, "guest");
       } else {
-        // Only show once per session — check flag
         const shown = await import("@react-native-async-storage/async-storage")
           .then(m => m.default.getItem("push_denied_shown"));
         if (!shown) {
@@ -186,170 +137,6 @@ export default function GuestScreen() {
     );
   }
 
-  function renderView() {
-    switch (state.guestView) {
-      // ── DJ ──────────────────────────────────────────────────────────────
-      case "dj_queue":          return <DJQueueView />;
-
-      // ── Trivia ──────────────────────────────────────────────────────────
-      case "trivia_question":   return <TriviaQuestionView />;
-      case "trivia_waiting":    return <TriviaWaitingView />;
-      case "trivia_countdown":  return <TriviaCountdownView />;
-      case "trivia_result":     return <TriviaQuestionView showResult />;
-
-      // ── Shared ──────────────────────────────────────────────────────────
-      case "leaderboard":       return <LeaderboardView />;
-      case "poll_active":       return <PollView />;
-      case "poll_result":       return <PollView />;
-
-      // ── Unpopular Opinions ───────────────────────────────────────────────
-      case "opinions_judging":  return <JudgeView />;
-      case "opinions_guessing": return <GuessingView />;
-      case "opinions_reveal":   return <OpinionsRevealView />;
-
-      // ── Scrapbook Sabotage ───────────────────────────────────────────────
-      case "scrapbook_word_input": return <WordInputView />;
-      case "scrapbook_word_bank":  return <WordBankView />;
-      case "scrapbook_writing":    return <WritingView />;
-      case "scrapbook_voting":     return <ScrapbookVotingView />;
-      case "scrapbook_reveal":     return <ScrapbookRevealView />;
-      case "scrapbook_waiting":    return (
-        <WaitingForPlayersView
-          emoji="📖" accent="#6c47ff"
-          title="Chapter Received!"
-          subtitle="Waiting for all writers to finish..."
-          submittedCount={(state.guestViewData as any)?.submittedCount}
-          totalCount={state.members.length}
-        />
-      );
-
-      // ── The Glitch ───────────────────────────────────────────────────────
-      case "glitch_watching":   return <WatchingView />;
-      case "glitch_describing": return <DescribingView />;
-      case "glitch_voting":     return <GlitchVotingView />;
-      case "glitch_reveal":     return <GlitchRevealView />;
-      case "glitch_waiting":    return (
-        <WaitingForPlayersView
-          emoji="📺" accent="#818cf8"
-          title="Round Finished!"
-          subtitle="Waiting for the next clip..."
-          submittedCount={(state.guestViewData as any)?.submittedCount}
-          totalCount={state.members.length}
-        />
-      );
-
-      // ── Copyright Infringement ───────────────────────────────────────────
-      case "copyright_viewing":  return <ViewingView />;
-      case "copyright_drawing":  return <DrawingCanvas />;
-      case "copyright_gallery":  return <GalleryView />;
-      case "copyright_results":  return <CopyrightResultsView />;
-
-      // ── GeoGuesser ───────────────────────────────────────────────────────
-      case "geo_guessing":      return <GeoGuessingView />;
-      case "geo_region_guess":  return <GeoRegionGuessView />;
-      case "geo_reveal":        return <GeoRevealView />;
-      case "geo_waiting":       return (
-        <WaitingForPlayersView
-          emoji="🌍" accent="#22c55e"
-          title="Round Complete!"
-          subtitle="Waiting for the next location..."
-          submittedCount={(state.guestViewData as any)?.submittedCount}
-          totalCount={state.members.length}
-        />
-      );
-
-      // ── Drawback ─────────────────────────────────────────────────────────
-      case "drawback_drawing":  return <DrawingView />;
-      case "drawback_voting":   return <DrawbackVotingView />;
-      case "drawback_reveal":   return <DrawbackRevealView />;
-      case "drawback_waiting":  return (
-        <WaitingForPlayersView
-          emoji="🎨" accent="#3b82f6"
-          title="Round Over!"
-          subtitle="Waiting for the next drawing prompt..."
-          submittedCount={(state.guestViewData as any)?.submittedCount}
-          totalCount={state.members.length}
-        />
-      );
-
-      // ── Scavenger Snap ───────────────────────────────────────────────────
-      case "snap_challenge":    return <ChallengeView />;
-      case "snap_gallery":      return <SnapGalleryView />;
-      case "snap_results":      return <SnapResultsView />;
-      case "snap_waiting":      return (
-        <WaitingForPlayersView
-          emoji="📸" accent="#10b981"
-          title="All Snaps In!"
-          subtitle="Get ready for the next challenge..."
-          submittedCount={(state.guestViewData as any)?.submittedCount}
-          totalCount={state.members.length}
-        />
-      );
-
-      // ── NightShift ───────────────────────────────────────────────────────
-      case "night_shift":       return <NightShiftView />;
-
-      // ── MindMole ─────────────────────────────────────────────────────────
-      case "mind_mole":         return <MindMoleView />;
-
-      // ── Cropped Look ─────────────────────────────────────────────────────
-      case "cropped_look":      return <CroppedLookView />;
-
-      // ── Music Games ──────────────────────────────────────────────────────
-      case "guess_the_song":    return <GuessSongView />;
-      case "name_that_genre":   return <NameGenreView />;
-      case "vibe_check":        return <VibeCheckView />;
-
-      // ── Improv Challenge ─────────────────────────────────────────────────
-      case "improv_challenge_performing":
-      case "improv_challenge_rating":
-      case "improv_challenge_reveal":
-      case "improv_challenge_finished":
-        return <ImprovChallengeView />;
-
-      // ── Hum It ───────────────────────────────────────────────────────────
-      case "hum_it_humming":
-      case "hum_it_guessing":
-      case "hum_it_reveal":
-      case "hum_it_finished":
-        return <HumItView />;
-
-      // ── Accent Challenge ─────────────────────────────────────────────────
-      case "accent_challenge_performing":
-      case "accent_challenge_rating":
-      case "accent_challenge_finished":
-        return <AccentChallengeView />;
-
-      // ── 21 Card / Voting Games ────────────────────────────────────────────
-      case "would_you_rather":
-      case "never_have_i_ever":
-      case "truth_or_dare":
-      case "two_truths_one_lie":
-      case "rank_it":
-      case "emoji_story":
-      case "celebrity_head":
-      case "word_association":
-      case "who_knows_who":
-      case "fake_news":
-      case "pop_culture_quiz":
-      case "alibi":
-      case "mind_reading":
-      case "speed_round":
-      case "mimic_me":
-      case "chain_reaction":
-      case "party_dice":
-      case "connections":
-      case "lyrics_drop":
-      case "musical_chairs":
-      case "thumb_war":
-        return <GenericGameView />;
-
-      // ── Fallback ─────────────────────────────────────────────────────────
-      case "intermission":
-      default:                  return <IntermissionView />;
-    }
-  }
-
   const guestPresences: GuestPresence[] = state.members
     .filter(m => !m.isWorkerNode)
     .map(m => ({
@@ -373,10 +160,17 @@ export default function GuestScreen() {
     }
   }
 
+  function handleReadyUp() {
+    tapMedium();
+    sendReadyUp();
+  }
+
   const roomCode    = state.room?.code ?? "";
   const gameLabel   = state.guestView && state.guestView !== "intermission"
     ? state.guestView.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
     : null;
+
+  const { active: readyActive, iHaveReadied, readyCount, totalCount } = state.readyUp;
 
   return (
     <View style={styles.container}>
@@ -411,7 +205,7 @@ export default function GuestScreen() {
           ) : null}
         </View>
 
-        {/* Right: co-host badge + credits */}
+        {/* Right: co-host badge + credits + ready-up button */}
         <View style={styles.topRight}>
           {state.role === "CO_HOST" && (
             <View style={styles.coHostBadge}>
@@ -419,6 +213,33 @@ export default function GuestScreen() {
             </View>
           )}
           {state.guestId && <VibeCreditsBar guestId={state.guestId} compact />}
+
+          {/* Ready-up button — always rendered, disabled until a game is active */}
+          {iHaveReadied ? (
+            // After tapping: show waiting state with live count
+            <View style={styles.readyWaiting}>
+              <Text style={styles.readyWaitingText}>
+                {readyCount}/{totalCount} ✓
+              </Text>
+            </View>
+          ) : (
+            <Animated.View style={{ transform: [{ scale: readyActive ? readyPulse : 1 }] }}>
+              <TouchableOpacity
+                onPress={readyActive ? handleReadyUp : undefined}
+                style={[styles.readyBtn, !readyActive && styles.readyBtnDisabled]}
+                activeOpacity={readyActive ? 0.75 : 1}
+              >
+                <LinearGradient
+                  colors={readyActive ? ["#7c3aed", "#a855f7"] : ["#1a1a1a", "#1a1a1a"]}
+                  style={styles.readyBtnInner}
+                >
+                  <Text style={[styles.readyBtnText, !readyActive && styles.readyBtnTextDisabled]}>
+                    {readyActive ? "Ready!" : "Ready"}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
         </View>
       </View>
 
@@ -428,9 +249,7 @@ export default function GuestScreen() {
         <GuestAvatarRow guests={guestPresences} maxVisible={12} />
       )}
 
-      {renderView()}
-
-      <ReadyUpOverlay />
+      <ExperiencePlayerView />
 
       {/* Floating chat button — always visible regardless of active game */}
       <View style={styles.chatFab}>
@@ -486,6 +305,22 @@ const styles = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
   },
   coHostText: { fontSize: 14 },
+
+  // Ready-up button
+  readyBtn: { borderRadius: 16, overflow: "hidden" },
+  readyBtnDisabled: { opacity: 0.4 },
+  readyBtnInner: { paddingHorizontal: 12, paddingVertical: 7, alignItems: "center" },
+  readyBtnText: { color: "#fff", fontSize: 12, fontWeight: "900", letterSpacing: 0.3 },
+  readyBtnTextDisabled: { color: "#555" },
+
+  // After ready tapped
+  readyWaiting: {
+    borderRadius: 16, paddingHorizontal: 10, paddingVertical: 7,
+    backgroundColor: "rgba(34,197,94,0.15)",
+    borderWidth: 1, borderColor: "rgba(34,197,94,0.35)",
+    alignItems: "center",
+  },
+  readyWaitingText: { color: "#4ade80", fontSize: 11, fontWeight: "800" },
 
   chatFab: {
     position: "absolute",

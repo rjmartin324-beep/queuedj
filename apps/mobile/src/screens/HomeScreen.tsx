@@ -28,6 +28,7 @@ import { FriendsSection }      from "../components/home/FriendsSection";
 import { SongOfTheDayCard }    from "../components/home/SongOfTheDayCard";
 import { StreakBadge }         from "../components/home/StreakBadge";
 import { WeeklyTasteReport }   from "../components/home/WeeklyTasteReport";
+import { ActivityFeed }        from "../components/home/ActivityFeed";
 import { recordActivity }      from "../lib/streak";
 import { computeXP, XPInfo }  from "../lib/xp";
 import { LavaLampBg }          from "../components/shared/LavaLampBg";
@@ -866,29 +867,23 @@ export default function HomeScreen() {
 
         // Socket should already be connected (or connecting) — join room
         await socketPromise;
-        await socketManager.joinRoom(roomId).catch((err) => {
+        const hostAck = await socketManager.joinRoom(roomId).catch((err) => {
           console.warn("[host] joinRoom failed after room creation:", err);
           dispatch({ type: "SET_OFFLINE", isOffline: true });
+          return null;
         });
-      } catch {
+        if (hostAck?.members && hostAck.members.length > 0) {
+          dispatch({ type: "SET_MEMBERS", members: hostAck.members as any });
+        }
+      } catch (err: any) {
         clearTimeout(fetchTimeout);
-        // Offline / demo mode — no server needed
-        const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
-        roomId   = `demo_${rand}`;
-        roomData = {
-          id:                    roomId,
-          code:                  rand.slice(0, 4),
-          hostGuestId:           guestId,
-          name:                  "My Party",
-          vibePreset:            "open",
-          crowdState:            "WARMUP",
-          isLive:                true,
-          isBathroomBreakActive: false,
-          createdAt:             Date.now(),
-          memberCount:           1,
-          sequenceId:            0,
-        };
-        dispatch({ type: "SET_OFFLINE", isOffline: true });
+        // Surface the actual error so the host knows why room creation failed.
+        // Demo/offline mode was silently hiding connection issues — removed.
+        throw new Error(
+          err?.name === "AbortError"
+            ? "Server took too long to respond. Check your connection."
+            : (err?.message ?? "Could not create room. Check your connection."),
+        );
       }
 
       dispatch({ type: "SET_ROOM",     room: roomData });
@@ -1012,7 +1007,12 @@ export default function HomeScreen() {
               <Text style={styles.tabHeaderTitle}>Social</Text>
             </View>
 
-            <Text style={{ color: "#6b7280", fontSize: 10, fontWeight: "800", letterSpacing: 2, paddingHorizontal: 16, marginBottom: 8 }}>
+            <Text style={{ color: "#6b7280", fontSize: 10, fontWeight: "800", letterSpacing: 2, paddingHorizontal: 16, marginBottom: 4 }}>
+              ACTIVITY
+            </Text>
+            <ActivityFeed guestId={myGuestId} />
+
+            <Text style={{ color: "#6b7280", fontSize: 10, fontWeight: "800", letterSpacing: 2, paddingHorizontal: 16, marginTop: 24, marginBottom: 8 }}>
               GLOBAL LEADERBOARD
             </Text>
             <HostLeaderboard limit={20} />

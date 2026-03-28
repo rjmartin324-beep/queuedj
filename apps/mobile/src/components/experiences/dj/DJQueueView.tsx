@@ -182,12 +182,20 @@ export function DJQueueView() {
               return c - 1;
             });
           }, 1000);
+        } else if (ack.error === "RATE_LIMITED") {
+          Alert.alert("Slow down", "You're sending requests too fast. Wait a moment.");
+        } else if (ack.error === "UNAUTHORIZED") {
+          Alert.alert("Not allowed", "You don't have permission to request tracks right now.");
+        } else if (ack.guardrailResult?.rejected) {
+          const suggestion = ack.guardrailResult.alternativePositionSuggestion;
+          Alert.alert(
+            "Vibe mismatch 🎚️",
+            suggestion
+              ? `That track clashes with the current vibe.\n${suggestion}`
+              : "That track doesn't fit the current vibe. Try something closer to the energy on the floor.",
+          );
         } else {
-          const score = ack.guardrailResult?.vibeDistanceScore ?? 0;
-          const msg = score > 0.7
-            ? `That track doesn't fit the vibe right now.\n${ack.guardrailResult?.alternativePositionSuggestion ?? ""}`
-            : "Could not add track";
-          Alert.alert("Not added", msg);
+          Alert.alert("Not added", ack.error ?? "Could not add track. Try again.");
         }
       } else {
         notifySuccess();
@@ -256,9 +264,14 @@ export function DJQueueView() {
               return c - 1;
             });
           }, 1000);
+        } else if (ack.error === "RATE_LIMITED") {
+          Alert.alert("Slow down", "You're sending requests too fast. Wait a moment.");
+        } else if (ack.error === "UNAUTHORIZED") {
+          Alert.alert("Not allowed", "You don't have permission to request tracks right now.");
+        } else if (ack.guardrailResult?.rejected) {
+          Alert.alert("Vibe mismatch 🎚️", ack.guardrailResult.alternativePositionSuggestion ?? "That track doesn't fit the current vibe.");
         } else {
-          const score = ack.guardrailResult?.vibeDistanceScore ?? 0;
-          Alert.alert("Not added", score > 0.7 ? "Doesn't fit the vibe right now." : "Could not add track");
+          Alert.alert("Not added", ack.error ?? "Could not add track. Try again.");
         }
       }
       setRequesting(false);

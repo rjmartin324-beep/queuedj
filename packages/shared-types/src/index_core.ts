@@ -293,7 +293,8 @@ export interface ClientToServerEvents {
   "role:promote":    (payload: { roomId: string; targetGuestId: string; newRole: "CO_HOST" }) => void;
   "role:demote":     (payload: { roomId: string; targetGuestId: string }) => void;
   "room:setting":    (payload: { roomId: string; key: string; value: unknown }) => void;
-  "guest:set_anthem": (payload: { roomId: string; isrc: string | null }) => void;
+  "guest:set_anthem":   (payload: { roomId: string; isrc: string | null }) => void;
+  "room:request_sync":  (payload: { roomId: string }) => void;
 }
 
 export interface ServerToClientEvents {

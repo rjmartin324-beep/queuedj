@@ -195,6 +195,12 @@ export interface ExperienceModule {
 
   /** What guest phones should currently show */
   getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor>;
+
+  /** Current experience state for bootstrap sync (sent on join/reconnect).
+   *  Return null for stateless experiences (e.g. DJ).
+   *  Implementations should strip sensitive server-only fields (e.g. correct answers
+   *  during active question phases) before returning. */
+  getBootstrapState?(roomId: string): Promise<unknown>;
 }
 
 // ─── Socket Events (experience layer) ────────────────────────────────────────

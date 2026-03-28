@@ -134,6 +134,11 @@ export class ScavengerSnapExperience implements ExperienceModule {
   private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
+    const existing = await redisClient.get(STATE_KEY(roomId));
+    if (existing) {
+      const s: SnapState = JSON.parse(existing);
+      if (s.phase !== "waiting") return; // mid-game — don't reset
+    }
     const state: SnapState = {
       phase: "waiting",
       challenge: "",
@@ -174,6 +179,11 @@ export class ScavengerSnapExperience implements ExperienceModule {
       case "next_round":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._startRound(roomId, io);
+        break;
+
+      case "skip_round":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._skipPhase(roomId, io);
         break;
 
       case "end_game":
@@ -237,7 +247,13 @@ export class ScavengerSnapExperience implements ExperienceModule {
     if (!state || state.phase !== "snapping") return;
     state.photos[guestId] = photo;
     await this._saveState(roomId, state);
-    // No broadcast — let timer handle gallery phase
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "scavenger_snap",
+      partial: true, state: { submittedGuestIds: Object.keys(state.photos) },
+      view: { type: "snap_challenge", data: { challenge: state.challenge, timeLimit: SNAP_SECS } },
+      sequenceId: seq,
+    });
   }
 
   private async _startGallery(roomId: string, io: Server): Promise<void> {
@@ -272,6 +288,13 @@ export class ScavengerSnapExperience implements ExperienceModule {
 
     state.votes[guestId] = targetGuestId;
     await this._saveState(roomId, state);
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "scavenger_snap",
+      partial: true, state: { votedGuestIds: Object.keys(state.votes) },
+      view: { type: "snap_gallery", data: { photos: state.photos, challenge: state.challenge } },
+      sequenceId: seq,
+    });
   }
 
   private async _showResults(roomId: string, io: Server): Promise<void> {
@@ -298,6 +321,13 @@ export class ScavengerSnapExperience implements ExperienceModule {
       view: { type: "snap_results", data: state },
       sequenceId: seq,
     });
+  }
+
+  private async _skipPhase(roomId: string, io: Server): Promise<void> {
+    const state = await this._getState(roomId);
+    if (!state) return;
+    if (state.phase === "snapping") await this._startGallery(roomId, io);
+    else if (state.phase === "gallery") await this._showResults(roomId, io);
   }
 
   private _setTimer(roomId: string, ms: number, fn: () => void) {

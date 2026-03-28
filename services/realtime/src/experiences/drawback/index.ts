@@ -33,6 +33,11 @@ export class DrawbackExperience implements ExperienceModule {
   private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
+    const existing = await redisClient.get(STATE_KEY(roomId));
+    if (existing) {
+      const s: DrawbackState = JSON.parse(existing);
+      if (s.phase !== "waiting" && s.phase !== "finished") return; // mid-game — don't reset
+    }
     const state: DrawbackState = {
       phase: "waiting",
       prompt: "",
@@ -79,6 +84,11 @@ export class DrawbackExperience implements ExperienceModule {
       case "show_leaderboard":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._showLeaderboard(roomId, io);
+        break;
+
+      case "skip_round":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._skipPhase(roomId, io);
         break;
 
       case "end_game":
@@ -145,7 +155,13 @@ export class DrawbackExperience implements ExperienceModule {
     if (!state || state.phase !== "drawing") return;
     state.drawings[guestId] = strokes;
     await this._saveState(roomId, state);
-    // No broadcast — let timer handle phase transition
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "drawback",
+      partial: true, state: { submittedGuestIds: Object.keys(state.drawings) },
+      view: { type: "drawback_drawing", data: { prompt: state.prompt, timeLimit: DRAW_SECS } },
+      sequenceId: seq,
+    });
   }
 
   private async _startVoting(roomId: string, io: Server): Promise<void> {
@@ -174,6 +190,13 @@ export class DrawbackExperience implements ExperienceModule {
 
     state.votes[guestId] = targetGuestId;
     await this._saveState(roomId, state);
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "drawback",
+      partial: true, state: { votedGuestIds: Object.keys(state.votes) },
+      view: { type: "drawback_voting", data: { drawings: state.drawings, prompt: state.prompt } },
+      sequenceId: seq,
+    });
   }
 
   private async _reveal(roomId: string, io: Server): Promise<void> {
@@ -199,6 +222,13 @@ export class DrawbackExperience implements ExperienceModule {
     if (state.phase === "finished") {
       await awardGameWin(io, state.scores, roomId);
     }
+  }
+
+  private async _skipPhase(roomId: string, io: Server): Promise<void> {
+    const state = await this._getState(roomId);
+    if (!state) return;
+    if (state.phase === "drawing") await this._startVoting(roomId, io);
+    else if (state.phase === "voting") await this._reveal(roomId, io);
   }
 
   private async _showLeaderboard(roomId: string, io: Server): Promise<void> {

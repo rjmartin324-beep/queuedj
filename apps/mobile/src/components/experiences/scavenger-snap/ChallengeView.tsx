@@ -104,14 +104,15 @@ export function ChallengeView() {
 
   // Submitted screen
   if (submitted) {
-    const d = state.guestViewData as any;
     return (
       <WaitingForPlayersView
         emoji="📸"
         accent={ACCENT}
+        gameName="Scavenger Snap"
         title="Snap Submitted!"
         subtitle="Waiting for everyone else to find theirs..."
-        submittedCount={d?.submittedCount}
+        submittedGuestIds={(state.experienceState as any)?.submittedGuestIds}
+        iSubmitted
         tips={[
           "Your photo is already a work of art 🎨",
           "Someone is sprinting around the room right now 🏃",

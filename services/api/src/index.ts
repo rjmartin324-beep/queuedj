@@ -17,6 +17,7 @@ import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import { redisReady, redisClient } from "./redis";
 import { db } from "./db/client";
+import { runMigrations } from "./db/migrate";
 import { roomRoutes } from "./routes/rooms";
 import { trackRoutes } from "./routes/tracks";
 import { spotifyRoutes } from "./routes/spotify";
@@ -48,6 +49,9 @@ const fastify = Fastify({
 });
 
 async function start() {
+  // ─── Run DB migrations (idempotent — safe on every boot) ───────────────────
+  await runMigrations();
+
   // ─── Wait for Redis before accepting traffic ────────────────────────────────
   await redisReady;
 

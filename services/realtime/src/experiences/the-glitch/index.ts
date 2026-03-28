@@ -15,6 +15,8 @@ export class TheGlitchExperience implements ExperienceModule {
   readonly type = "the_glitch" as const;
 
   async onActivate(roomId: string): Promise<void> {
+    const existing = await this._load(roomId);
+    if (existing && existing.phase !== "waiting" && existing.phase !== "scores") return; // mid-game — don't reset
     const state: TheGlitchState = {
       phase: "waiting",
       roundNumber: 0,
@@ -64,6 +66,11 @@ export class TheGlitchExperience implements ExperienceModule {
       case "next_round":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._startRound(roomId, io);
+        break;
+
+      case "skip_round":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._skipPhase(roomId, io);
         break;
     }
   }
@@ -145,7 +152,13 @@ export class TheGlitchExperience implements ExperienceModule {
     if (!state || state.phase !== "describing") return;
     state.descriptions[guestId] = text.slice(0, 200);
     await this._save(roomId, state);
-    // No broadcast — descriptions are revealed all at once during voting
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "the_glitch",
+      partial: true, state: { submittedGuestIds: Object.keys(state.descriptions) },
+      view: { type: "glitch_describing" },
+      sequenceId: seq,
+    });
   }
 
   private async _startVoting(roomId: string, io: Server): Promise<void> {
@@ -164,6 +177,13 @@ export class TheGlitchExperience implements ExperienceModule {
 
     state.votes[guestId] = accusedGuestId;
     await this._save(roomId, state);
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "the_glitch",
+      partial: true, state: { votedGuestIds: Object.keys(state.votes) },
+      view: { type: "glitch_voting" },
+      sequenceId: seq,
+    });
   }
 
   private async _reveal(roomId: string, io: Server): Promise<void> {
@@ -199,6 +219,13 @@ export class TheGlitchExperience implements ExperienceModule {
       view: { type: "glitch_reveal", data: { state, realPrompt, glitchPrompt } },
       sequenceId: seq,
     });
+  }
+
+  private async _skipPhase(roomId: string, io: Server): Promise<void> {
+    const state = await this._load(roomId);
+    if (!state) return;
+    if (state.phase === "describing") await this._startVoting(roomId, io);
+    else if (state.phase === "voting") await this._reveal(roomId, io);
   }
 
   private async _broadcast(roomId: string, state: TheGlitchState, io: Server): Promise<void> {

@@ -201,6 +201,11 @@ export function CopyrightControls({ viewMode, onViewModeChange: setViewMode }: V
           {local.phase === "gallery"  && <HostActionButton label="🏆  Reveal Results" onPress={revealResults} />}
           {local.phase === "results"  && <HostActionButton label={`▶  Next Round (${local.idx + 2}/${local.artworks.length})`} onPress={nextRound} />}
           {local.phase === "final"    && <HostActionButton label="🔄  Play Again"     onPress={startGame} />}
+          {(local.phase === "viewing" || local.phase === "drawing" || local.phase === "gallery") && (
+            <TouchableOpacity style={ls.skipBtn} onPress={() => sendAction("skip_round", {})}>
+              <Text style={ls.skipBtnText}>⏭  Skip Phase (server)</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={ls.stopBtn} onPress={stopGame}><Text style={ls.stopBtnText}>⏹  Stop Game</Text></TouchableOpacity>
         </View>
       </ScrollView>
@@ -240,6 +245,8 @@ const ls = StyleSheet.create({
   lbName:      { flex: 1, color: "#ccc", fontSize: 14, fontWeight: "600" },
   lbScore:     { color: "#888", fontSize: 16, fontWeight: "900" },
   controls:    { gap: 8, borderTopWidth: 1, borderTopColor: "#1a1a1a", paddingTop: 12 },
+  skipBtn:     { alignItems: "center", paddingVertical: 10, borderRadius: 10, borderWidth: 1, borderColor: "#f59e0b44", backgroundColor: "#f59e0b11" },
+  skipBtnText: { color: "#f59e0b", fontSize: 12, fontWeight: "700" },
   stopBtn:     { alignItems: "center", paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: "#1e1e1e" },
   stopBtnText: { color: "#444", fontSize: 13, fontWeight: "700" },
 });

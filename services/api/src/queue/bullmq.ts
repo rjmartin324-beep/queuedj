@@ -22,9 +22,11 @@ type BullMQQueue = "critical" | "high" | "normal" | "low";
 
 const REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 
+const _redisUrl = new URL(REDIS_URL);
 const redisConnection = {
-  host: new URL(REDIS_URL).hostname,
-  port: parseInt(new URL(REDIS_URL).port || "6379"),
+  host: _redisUrl.hostname,
+  port: parseInt(_redisUrl.port || "6379"),
+  ...(_redisUrl.password ? { password: decodeURIComponent(_redisUrl.password) } : {}),
 };
 
 export type MLJobPayload =
@@ -36,10 +38,10 @@ export type MLJobPayload =
 // ─── Queue Definitions ────────────────────────────────────────────────────────
 
 const QUEUE_NAMES: Record<BullMQQueue, string> = {
-  critical: "ml:critical",
-  high:     "ml:high",
-  normal:   "ml:normal",
-  low:      "ml:low",
+  critical: "ml-critical",
+  high:     "ml-high",
+  normal:   "ml-normal",
+  low:      "ml-low",
 };
 
 // Default job options per queue

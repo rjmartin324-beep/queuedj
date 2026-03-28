@@ -297,6 +297,16 @@ export class TriviaExperience implements ExperienceModule {
     });
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const state = await this._getState(roomId);
+    if (!state) return null;
+    // Strip the correct answer during active question phase — guests shouldn't see it
+    if (state.phase === "question") {
+      return { ...state, answers: undefined };
+    }
+    return state;
+  }
+
   private async _getState(roomId: string): Promise<TriviaRoundState | null> {
     const raw = await redisClient.get(TRIVIA_STATE_KEY(roomId));
     return raw ? JSON.parse(raw) : null;

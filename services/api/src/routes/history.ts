@@ -2,8 +2,6 @@ import type { FastifyInstance } from "fastify";
 import { createHash } from "crypto";
 import { db } from "../db/client";
 
-const ML_URL = process.env.ML_URL ?? "http://localhost:8000";
-
 function hashGuestId(raw: string): string {
   return createHash("sha256").update(raw).digest("hex");
 }
@@ -126,34 +124,4 @@ export async function historyRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // ─── GET /recommendations/:hostGuestId ────────────────────────────────────
-  // Proxy to ML service — hashes guestId server-side so mobile never sees it
-  fastify.get<{
-    Params: { hostGuestId: string };
-    Querystring: { crowd_state?: string; hour_of_day?: string; limit?: string };
-  }>("/recommendations/:hostGuestId", async (request, reply) => {
-    const { hostGuestId } = request.params;
-    const { crowd_state = "PEAK", hour_of_day = "22", limit = "10" } = request.query;
-
-    try {
-      const res = await fetch(`${ML_URL}/recommendations`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          host_fingerprint: hashGuestId(hostGuestId),
-          crowd_state,
-          hour_of_day: parseInt(hour_of_day),
-          limit: parseInt(limit),
-        }),
-        signal: AbortSignal.timeout(5000),
-      });
-
-      if (!res.ok) return reply.send({ recommendations: [], profile_updated_at: null });
-      const data = await res.json();
-      return reply.send(data);
-    } catch {
-      // ML unavailable — return empty list, don't 500
-      return reply.send({ recommendations: [], profile_updated_at: null });
-    }
-  });
 }

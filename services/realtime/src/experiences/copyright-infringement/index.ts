@@ -16,6 +16,8 @@ export class CopyrightInfringementExperience implements ExperienceModule {
   readonly type = "copyright_infringement" as const;
 
   async onActivate(roomId: string): Promise<void> {
+    const existing = await this._load(roomId);
+    if (existing && existing.phase !== "waiting" && existing.phase !== "scores") return; // mid-game — don't reset
     const state: CopyrightState = {
       phase: "waiting",
       roundNumber: 0,
@@ -68,6 +70,11 @@ export class CopyrightInfringementExperience implements ExperienceModule {
       case "next_round":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._startRound(roomId, io);
+        break;
+
+      case "skip_round":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._skipPhase(roomId, io);
         break;
     }
   }
@@ -158,6 +165,13 @@ export class CopyrightInfringementExperience implements ExperienceModule {
 
     state.votes[guestId] = targetGuestId;
     await this._save(roomId, state);
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "copyright_infringement",
+      partial: true, state: { votedGuestIds: Object.keys(state.votes) },
+      view: { type: "copyright_gallery" },
+      sequenceId: seq,
+    });
   }
 
   private async _revealResults(roomId: string, io: Server): Promise<void> {
@@ -183,6 +197,14 @@ export class CopyrightInfringementExperience implements ExperienceModule {
     state.phase = "results";
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
+  }
+
+  private async _skipPhase(roomId: string, io: Server): Promise<void> {
+    const state = await this._load(roomId);
+    if (!state) return;
+    if (state.phase === "viewing") await this._startDrawing(roomId, io);
+    else if (state.phase === "drawing") await this._openGallery(roomId, io);
+    else if (state.phase === "gallery") await this._revealResults(roomId, io);
   }
 
   private async _broadcast(roomId: string, state: CopyrightState, io: Server): Promise<void> {
