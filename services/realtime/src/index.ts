@@ -876,7 +876,7 @@ async function main() {
   httpServer.on("request", (req, res) => {
     if (req.url === "/health") {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ status: "ok", timestamp: Date.now(), version: "v2-ack-bootstrap" }));
+      res.end(JSON.stringify({ status: "ok", timestamp: Date.now(), version: "v3-ready-member-fix" }));
     }
   });
 
