@@ -254,6 +254,10 @@ class SocketManager {
     return this.socket;
   }
 
+  getSocket(): QueueDJSocket | null {
+    return this.socket;
+  }
+
   isConnected(): boolean {
     return this.socket?.connected ?? false;
   }
