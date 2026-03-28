@@ -1,6 +1,7 @@
 import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
+import { getNextSequenceId } from "../../rooms/stateReconciliation";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Finish The Lyric Experience
@@ -178,7 +179,22 @@ export class FinishLyricExperience implements ExperienceModule {
       submissions: state.submissionNames,
       scores: state.scores,
     });
-    setTimeout(() => this._nextRound(roomId, io).catch(() => {}), 5000);
+    setTimeout(async () => {
+      try {
+        const raw2 = await redisClient.get(KEY(roomId));
+        const st: FinishLyricState | null = raw2 ? JSON.parse(raw2) : null;
+        if (st?.phase === "revealed") {
+          const seqLb = await getNextSequenceId(roomId);
+          io.to(roomId).emit("experience:state" as any, {
+            experienceType: "finish_the_lyric",
+            state: st,
+            view: { type: "leaderboard", data: st.scores },
+            sequenceId: seqLb,
+          });
+        }
+      } catch {}
+      setTimeout(() => this._nextRound(roomId, io).catch(() => {}), 3000);
+    }, 5000);
   }
 
   private async _awardBonus(roomId: string, targetGuestId: string, io: Server): Promise<void> {

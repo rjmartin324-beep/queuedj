@@ -369,7 +369,22 @@ export class CelebrityHeadExperience implements ExperienceModule {
           view: { type: "celebrity_head", data: state },
           sequenceId: seq,
         });
-        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
+        setTimeout(async () => {
+          try {
+            const raw2 = await redisClient.get(KEY(roomId));
+            const st: CelebrityHeadState | null = raw2 ? JSON.parse(raw2) : null;
+            if (st?.phase === "reveal") {
+              const seqLb = await getNextSequenceId(roomId);
+              io.to(roomId).emit("experience:state" as any, {
+                experienceType: "celebrity_head",
+                state: st,
+                view: { type: "leaderboard", data: st.scores },
+                sequenceId: seqLb,
+              });
+            }
+          } catch {}
+          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
+        }, 4000);
         break;
       }
 
@@ -386,7 +401,22 @@ export class CelebrityHeadExperience implements ExperienceModule {
           view: { type: "celebrity_head", data: state },
           sequenceId: seq2,
         });
-        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
+        setTimeout(async () => {
+          try {
+            const raw2 = await redisClient.get(KEY(roomId));
+            const st: CelebrityHeadState | null = raw2 ? JSON.parse(raw2) : null;
+            if (st?.phase === "reveal") {
+              const seqLb = await getNextSequenceId(roomId);
+              io.to(roomId).emit("experience:state" as any, {
+                experienceType: "celebrity_head",
+                state: st,
+                view: { type: "leaderboard", data: st.scores },
+                sequenceId: seqLb,
+              });
+            }
+          } catch {}
+          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
+        }, 4000);
         break;
       }
 

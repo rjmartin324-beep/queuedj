@@ -249,11 +249,26 @@ export class TriviaExperience implements ExperienceModule {
     // Auto-advance to next question after 4s — no host tap needed
     const existing2 = this.timers.get(roomId);
     if (existing2) clearTimeout(existing2);
-    const t2 = setTimeout(() => {
-      this.timers.delete(roomId);
-      this._nextQuestion(roomId, io).catch((err) => {
-        console.error("[trivia] auto-next failed", { roomId, err });
-      });
+    const t2 = setTimeout(async () => {
+      try {
+        const raw2 = await redisClient.get(TRIVIA_STATE_KEY(roomId));
+        const st: TriviaRoundState | null = raw2 ? JSON.parse(raw2) : null;
+        if (st?.phase === "reveal") {
+          const seqLb = await getNextSequenceId(roomId);
+          io.to(roomId).emit("experience:state" as any, {
+            experienceType: "trivia",
+            state: st,
+            view: { type: "leaderboard", data: st.scores },
+            sequenceId: seqLb,
+          });
+        }
+      } catch {}
+      setTimeout(() => {
+        this.timers.delete(roomId);
+        this._nextQuestion(roomId, io).catch((err) => {
+          console.error("[trivia] auto-next failed", { roomId, err });
+        });
+      }, 3000);
     }, 4000);
     this.timers.set(roomId, t2);
   }

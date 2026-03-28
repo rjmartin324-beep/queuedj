@@ -213,7 +213,21 @@ export class FakeNewsExperience implements ExperienceModule {
         state.phase = "reveal";
         await this._save(roomId, state);
         await this._broadcast(roomId, state, io);
-        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
+        setTimeout(async () => {
+          try {
+            const st = await this._load(roomId);
+            if (st?.phase === "reveal") {
+              const seqLb = await getNextSequenceId(roomId);
+              io.to(roomId).emit("experience:state" as any, {
+                experienceType: "fake_news",
+                state: this._safeState(st),
+                view: { type: "leaderboard", data: st.scores },
+                sequenceId: seqLb,
+              });
+            }
+          } catch {}
+          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
+        }, 4000);
         break;
       }
 
@@ -221,7 +235,7 @@ export class FakeNewsExperience implements ExperienceModule {
       case "next": {
         if (role !== "HOST" && role !== "CO_HOST") return;
         const state = await this._load(roomId);
-        if (!state) return;
+        if (!state || state.phase !== "reveal") return;
 
         state.round += 1;
 

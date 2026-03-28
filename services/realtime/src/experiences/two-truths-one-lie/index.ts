@@ -167,7 +167,22 @@ export class TwoTruthsOneLieExperience implements ExperienceModule {
           view: { type: "two_truths_one_lie", data: state },
           sequenceId: seq,
         });
-        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 5000);
+        setTimeout(async () => {
+          try {
+            const raw2 = await redisClient.get(KEY(roomId));
+            const st: TwoTruthsOneLieState | null = raw2 ? JSON.parse(raw2) : null;
+            if (st?.phase === "reveal") {
+              const seqLb = await getNextSequenceId(roomId);
+              io.to(roomId).emit("experience:state" as any, {
+                experienceType: "two_truths_one_lie",
+                state: st,
+                view: { type: "leaderboard", data: st.scores },
+                sequenceId: seqLb,
+              });
+            }
+          } catch {}
+          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
+        }, 5000);
         break;
       }
 

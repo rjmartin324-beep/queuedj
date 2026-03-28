@@ -167,11 +167,27 @@ export class LyricsDropExperience implements ExperienceModule {
           experienceType: "lyrics_drop", state,
           view: { type: "lyrics_drop" as any, data: state }, sequenceId: seq,
         });
-        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
+        setTimeout(async () => {
+          try {
+            const raw2 = await redisClient.get(KEY(roomId));
+            const st: LyricsDropState | null = raw2 ? JSON.parse(raw2) : null;
+            if (st?.phase === "reveal") {
+              const seqLb = await getNextSequenceId(roomId);
+              io.to(roomId).emit("experience:state" as any, {
+                experienceType: "lyrics_drop",
+                state: st,
+                view: { type: "leaderboard", data: st.scores },
+                sequenceId: seqLb,
+              });
+            }
+          } catch {}
+          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
+        }, 4000);
         break;
       }
       case "next": {
         if (role !== "HOST" && role !== "CO_HOST") return;
+        if (state.phase !== "reveal") return;
         state.round += 1;
         if (state.round > state.totalRounds) {
           state.phase = "finished";

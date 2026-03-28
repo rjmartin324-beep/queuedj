@@ -299,7 +299,22 @@ export class HumItExperience implements ExperienceModule {
       view: { type: "hum_it_reveal" as any, data: state },
       sequenceId: seq,
     });
-    setTimeout(() => this._next(roomId, io).catch(() => {}), 5000);
+    setTimeout(async () => {
+      try {
+        const raw2 = await redisClient.get(KEY(roomId));
+        const st: HumItState | null = raw2 ? JSON.parse(raw2) : null;
+        if (st?.phase === "reveal") {
+          const seqLb = await getNextSequenceId(roomId);
+          io.to(roomId).emit("experience:state" as any, {
+            experienceType: "hum_it",
+            state: st,
+            view: { type: "leaderboard", data: st.scores },
+            sequenceId: seqLb,
+          });
+        }
+      } catch {}
+      setTimeout(() => this._next(roomId, io).catch(() => {}), 3000);
+    }, 5000);
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {

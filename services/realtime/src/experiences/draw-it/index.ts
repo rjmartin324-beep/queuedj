@@ -119,11 +119,27 @@ export class DrawItExperience implements ExperienceModule {
           experienceType: "draw_it", state,
           view: { type: "draw_it" as any, data: state }, sequenceId: seq,
         });
-        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 5000);
+        setTimeout(async () => {
+          try {
+            const raw2 = await redisClient.get(KEY(roomId));
+            const st: DrawItState | null = raw2 ? JSON.parse(raw2) : null;
+            if (st?.phase === "reveal") {
+              const seqLb = await getNextSequenceId(roomId);
+              io.to(roomId).emit("experience:state" as any, {
+                experienceType: "draw_it",
+                state: st,
+                view: { type: "leaderboard", data: st.scores },
+                sequenceId: seqLb,
+              });
+            }
+          } catch {}
+          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
+        }, 5000);
         break;
       }
       case "next": {
         if (role !== "HOST" && role !== "CO_HOST") return;
+        if (state.phase !== "reveal") return;
         state.round += 1;
         if (state.round > state.totalRounds) {
           state.phase = "finished";

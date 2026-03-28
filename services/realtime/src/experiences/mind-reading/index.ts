@@ -710,7 +710,22 @@ export class MindReadingExperience implements ExperienceModule {
       view: { type: "mind_reading" as any, data: state },
       sequenceId: seq,
     });
-    setTimeout(() => this._next(roomId, io).catch(() => {}), 4000);
+    setTimeout(async () => {
+      try {
+        const raw2 = await redisClient.get(KEY(roomId));
+        const st: MindReadingState | null = raw2 ? JSON.parse(raw2) : null;
+        if (st?.phase === "reveal") {
+          const seqLb = await getNextSequenceId(roomId);
+          io.to(roomId).emit("experience:state" as any, {
+            experienceType: "mind_reading",
+            state: st,
+            view: { type: "leaderboard", data: st.scores },
+            sequenceId: seqLb,
+          });
+        }
+      } catch {}
+      setTimeout(() => this._next(roomId, io).catch(() => {}), 3000);
+    }, 4000);
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {
