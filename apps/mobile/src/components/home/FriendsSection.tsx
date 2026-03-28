@@ -239,7 +239,14 @@ export function FriendsSection() {
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={() => setAddOpen(false)} />
         <Animated.View style={[styles.sheet, { transform: [{ translateY: slideY }] }]}>
           <View style={styles.sheetHandle} />
-          <Text style={styles.sheetTitle}>Add a Friend</Text>
+          <View style={styles.sheetTitleRow}>
+            <Text style={styles.sheetTitle}>Add a Friend</Text>
+            {state.room?.code && (
+              <View style={styles.roomCodePill}>
+                <Text style={styles.roomCodePillText}>Room {state.room.code}</Text>
+              </View>
+            )}
+          </View>
           <Text style={styles.sheetBody}>Enter their friend code (8 characters, shown on their profile)</Text>
 
           <TextInput
@@ -422,9 +429,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: "#1a1a1a",
     padding: 24, gap: 14,
   },
-  sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: "#333", alignSelf: "center", marginBottom: 4 },
-  sheetTitle:  { color: "#fff", fontSize: 20, fontWeight: "800" },
-  sheetBody:   { color: "#6b7280", fontSize: 13, lineHeight: 18 },
+  sheetHandle:    { width: 40, height: 4, borderRadius: 2, backgroundColor: "#333", alignSelf: "center", marginBottom: 4 },
+  sheetTitleRow:  { flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap" },
+  sheetTitle:     { color: "#fff", fontSize: 20, fontWeight: "800" },
+  roomCodePill:   { backgroundColor: "rgba(124,58,237,0.25)", borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: "rgba(167,139,250,0.4)" },
+  roomCodePillText: { color: "#a78bfa", fontSize: 12, fontWeight: "800", letterSpacing: 1.5 },
+  sheetBody:      { color: "#6b7280", fontSize: 13, lineHeight: 18 },
 
   input: {
     backgroundColor: "rgba(255,255,255,0.07)", borderRadius: 14,
