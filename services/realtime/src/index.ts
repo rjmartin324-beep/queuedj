@@ -162,8 +162,11 @@ async function main() {
 
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
     cors: {
-      origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : true,
+      origin: process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(",")
+        : (_origin: string | undefined, cb: (err: Error | null, allow?: boolean) => void) => cb(null, true),
       methods: ["GET", "POST"],
+      credentials: true,
     },
     // Tune for mobile clients: longer ping intervals, generous timeout for cold starts
     pingInterval: 25_000,
