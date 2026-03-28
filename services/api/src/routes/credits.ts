@@ -21,12 +21,16 @@ export async function creditRoutes(fastify: FastifyInstance) {
   fastify.get<{ Params: { guestId: string } }>("/credits/:guestId", {
     config: { rateLimit: { max: 60, timeWindow: "1 minute" } },
   }, async (request, reply) => {
-    const fp = fingerprint(request.params.guestId);
-    const result = await db.query<{ get_vibe_balance: number }>(
-      "SELECT get_vibe_balance($1)", [fp],
-    );
-    const balance = result.rows[0]?.get_vibe_balance ?? 0;
-    return reply.send({ balance });
+    try {
+      const fp = fingerprint(request.params.guestId);
+      const result = await db.query<{ get_vibe_balance: number }>(
+        "SELECT get_vibe_balance($1)", [fp],
+      );
+      const balance = result.rows[0]?.get_vibe_balance ?? 0;
+      return reply.send({ balance });
+    } catch {
+      return reply.send({ balance: 0 });
+    }
   });
 
   // ─── GET /credits/:guestId/history ────────────────────────────────────────
