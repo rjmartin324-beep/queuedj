@@ -1486,6 +1486,7 @@ function ModeCards({
   }
 
   return (
+    <>
     <View style={modeStyles.row}>
       {/* ── Start a Party ── */}
       <Animated.View style={[modeStyles.cardWrap, modeStyles.hostShadow, { transform: [{ scale: hostScale }] }]}>
@@ -1540,6 +1541,7 @@ function ModeCards({
         <Text style={modeStyles.browseBtnArrow}>›</Text>
       </View>
     </TouchableOpacity>
+    </>
   );
 }
 
