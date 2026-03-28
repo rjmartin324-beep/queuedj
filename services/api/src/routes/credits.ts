@@ -37,17 +37,21 @@ export async function creditRoutes(fastify: FastifyInstance) {
   fastify.get<{ Params: { guestId: string }; Querystring: { limit?: string } }>(
     "/credits/:guestId/history",
     async (request, reply) => {
-      const fp  = fingerprint(request.params.guestId);
-      const lim = Math.min(parseInt(request.query.limit ?? "20"), 50);
-      const result = await db.query(
-        `SELECT delta, balance_after, reason, created_at
-         FROM vibe_credits
-         WHERE guest_fingerprint = $1
-         ORDER BY created_at DESC
-         LIMIT $2`,
-        [fp, lim],
-      );
-      return reply.send({ history: result.rows });
+      try {
+        const fp  = fingerprint(request.params.guestId);
+        const lim = Math.min(parseInt(request.query.limit ?? "20"), 50);
+        const result = await db.query(
+          `SELECT delta, balance_after, reason, created_at
+           FROM vibe_credits
+           WHERE guest_fingerprint = $1
+           ORDER BY created_at DESC
+           LIMIT $2`,
+          [fp, lim],
+        );
+        return reply.send({ history: result.rows });
+      } catch {
+        return reply.send({ history: [] });
+      }
     },
   );
 
