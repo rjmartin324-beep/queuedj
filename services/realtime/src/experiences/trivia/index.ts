@@ -140,7 +140,18 @@ export class TriviaExperience implements ExperienceModule {
     (state as any).questionQueue = shuffle(SAMPLE_QUESTIONS.map(q => q.id));
     (state as any).questionQueueIdx = 0;
     await this._saveState(roomId, state);
-    await this._nextQuestion(roomId, io);
+
+    // Broadcast 3-2-1 countdown to all guests before first question
+    const countdownEndsAt = Date.now() + 3500;
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "trivia",
+      state: null,
+      view: { type: "trivia_countdown", data: { endsAt: countdownEndsAt } },
+    });
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    const t = setTimeout(() => this._nextQuestion(roomId, io), 3500);
+    this.timers.set(roomId, t);
   }
 
   private async _nextQuestion(roomId: string, io: Server): Promise<void> {

@@ -9,6 +9,7 @@ import { useRouter } from "expo-router";
 import { DJQueueView }           from "../components/experiences/dj/DJQueueView";
 import { TriviaQuestionView }    from "../components/experiences/trivia/TriviaQuestionView";
 import { TriviaWaitingView }     from "../components/experiences/trivia/TriviaWaitingView";
+import { TriviaCountdownView }   from "../components/experiences/trivia/TriviaCountdownView";
 import { LeaderboardView }       from "../components/experiences/trivia/LeaderboardView";
 import { PollView }              from "../components/experiences/shared/PollView";
 import { IntermissionView }      from "../components/experiences/shared/IntermissionView";
@@ -189,6 +190,7 @@ export default function GuestScreen() {
       // ── Trivia ──────────────────────────────────────────────────────────
       case "trivia_question":   return <TriviaQuestionView />;
       case "trivia_waiting":    return <TriviaWaitingView />;
+      case "trivia_countdown":  return <TriviaCountdownView />;
       case "trivia_result":     return <TriviaQuestionView showResult />;
 
       // ── Shared ──────────────────────────────────────────────────────────
