@@ -291,10 +291,25 @@ async function main() {
           const activeExp = await redisClient.get(`room:${roomId}:experience`);
           const expType   = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
           const view      = await getExperience(expType).getGuestViewDescriptor(roomId);
+          // Include ready-up state so a guest who joins after host picked a game
+          // still sees the ready-up overlay instead of the raw waiting view.
+          const isGame = expType !== "dj";
+          let awaitingReady = false;
+          let readyCount = 0;
+          let readyTotalCount = 0;
+          if (isGame) {
+            const allM = await getAllMembers(roomId);
+            readyTotalCount = allM.filter(m => m.role === "GUEST").length;
+            readyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
+            awaitingReady = readyTotalCount > 0 && readyCount < readyTotalCount;
+          }
           socket.emit("experience:state" as any, {
             experienceType: expType,
-            state: null,   // view.data carries the phase; full state only needed by host controls
+            state: null,
             view,
+            awaitingReady,
+            readyCount,
+            readyTotalCount,
           });
         } catch { /* non-critical — best effort; client will sync on next state push */ }
 
@@ -575,11 +590,15 @@ async function main() {
 
     // ─── room:ready_up (GUEST only) ──────────────────────────────────────────
     socket.on("room:ready_up" as any, async ({ roomId }: { roomId: string }) => {
+      try {
       const guestId = socketGuestId;
-      if (!guestId) return;
+      if (!guestId) { console.warn("[ready_up] no guestId on socket"); return; }
 
       const role = await getMemberRole(roomId, guestId);
-      if (!role || role === "HOST" || role === "CO_HOST") return;
+      if (!role || role === "HOST" || role === "CO_HOST") {
+        console.warn("[ready_up] blocked: role =", role, "guestId =", guestId, "roomId =", roomId);
+        return;
+      }
 
       const experienceType = await redisClient.get(`room:${roomId}:experience`) ?? "dj";
       if (experienceType === "dj" || !isValidExperience(experienceType)) return;
@@ -620,8 +639,10 @@ async function main() {
 
         const hostMember = allMembers.find(m => m.role === "HOST");
         const hostGuestId = hostMember?.guestId ?? guestId;
+        console.log("[ready_up] auto-starting", experienceType, action, "for room", roomId);
         await experience.handleAction({ action, payload, roomId, guestId: hostGuestId, role: "HOST", io });
       }
+      } catch (err) { console.error("[ready_up] error", err); }
     });
 
     // ─── experience:action (any member) ─────────────────────────────────

@@ -230,17 +230,21 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     const onAllReady = () => {
       dispatch({ type: "SET_READY_UP", active: false, readyCount: 0, totalCount: 0 });
     };
-    const onExperienceState = ({ experienceType, state: expState, view }: any) => {
+    const onExperienceState = ({ experienceType, state: expState, view, awaitingReady, readyCount, readyTotalCount }: any) => {
       if (experienceType === "dj") {
         dispatch({ type: "SET_DJ_STATE", djState: expState });
       }
       if (view?.type) {
         dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data, expState });
-        // Dismiss ready-up overlay the moment the game actually starts
-        if (view.type !== "trivia_countdown" && view.type !== "intermission") {
-          dispatch({ type: "SET_READY_UP", active: false, readyCount: 0, totalCount: 0 });
-        }
       }
+      // Handle ready-up state from join-time snapshots (awaitingReady explicitly set)
+      if (awaitingReady === true) {
+        dispatch({ type: "SET_READY_UP", active: true, readyCount: readyCount ?? 0, totalCount: readyTotalCount ?? 0 });
+      } else if (awaitingReady === false) {
+        dispatch({ type: "SET_READY_UP", active: false, readyCount: 0, totalCount: 0 });
+      }
+      // If awaitingReady is undefined (normal in-game state pushes), don't touch readyUp —
+      // only onAllReady dismisses the overlay.
     };
     const onExperienceStateUpdated = (payload: any) => {
       dispatch({ type: "UPDATE_EXPERIENCE_STATE", viewData: payload, expState: payload });
