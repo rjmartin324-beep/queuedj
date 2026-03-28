@@ -215,8 +215,10 @@ async function main() {
         const existing = await getMember(roomId, resolvedGuestId);
 
         if (existing) {
-          // Reconnecting member — keep their role
+          // Reconnecting member — keep their role, refresh joinedAt so the
+          // disconnect cleanup timer can detect the reconnect via timestamp comparison.
           role = existing.role;
+          await setMember(roomId, { ...existing, joinedAt: Date.now() });
         } else {
           // New member — check if room exists
           const snapshot = await getRoomSnapshot(roomId);
@@ -312,7 +314,14 @@ async function main() {
 
       } catch (err) {
         console.error("[room:join] error", err);
-        socket.emit("error", { code: "ROOM_NOT_FOUND", message: "Failed to join room" });
+        ack(buildJoinAck({
+          success: false,
+          role: "GUEST",
+          guestId: socketGuestId ?? guestId ?? "unknown",
+          currentSequenceId: 0,
+          guestLastSequenceId: lastSequenceId,
+          error: "SERVER_ERROR",
+        }));
       }
     });
 
@@ -667,13 +676,14 @@ async function main() {
     const member = await getMember(roomId, guestId);
     if (member) {
       // Keep member record in Redis for reconnect — don't delete immediately
-      // If they don't reconnect within 30s, clean up
+      // If they don't reconnect within 30s, clean up.
+      // Use disconnectedAt timestamp: if joinedAt is newer they reconnected.
+      const disconnectedAt = Date.now();
       setTimeout(async () => {
-        const stillConnected = await redisClient.exists(`socket:${socket.id}`);
-        if (!stillConnected) {
-          await removeMember(roomId, guestId);
-          io.to(roomId).emit("room:member_left", { guestId, roomId });
-        }
+        const current = await getMember(roomId, guestId);
+        if (current && current.joinedAt > disconnectedAt) return; // reconnected
+        await removeMember(roomId, guestId);
+        io.to(roomId).emit("room:member_left", { guestId, roomId });
       }, 30_000);
     }
   }

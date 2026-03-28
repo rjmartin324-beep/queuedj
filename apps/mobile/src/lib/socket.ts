@@ -184,7 +184,9 @@ class SocketManager {
 
       // On every reconnect: rejoin current room and trigger reconciliation
       if (this.currentRoomId) {
-        await this.joinRoom(this.currentRoomId);
+        await this.joinRoom(this.currentRoomId).catch((err) => {
+          console.warn("[socket] reconnect joinRoom failed:", err);
+        });
       }
 
       // Replay any buffered requests
