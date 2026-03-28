@@ -132,6 +132,7 @@ class AnalyzeTrackResponse(BaseModel):
     analysis_confidence: float
     analysis_source: str
     downbeat_offset_ms: int | None = None
+    phrase_boundaries_ms: list[int] | None = None  # 4-bar phrase start times in ms
 
 class CompatibilityRequest(BaseModel):
     isrc_a: str

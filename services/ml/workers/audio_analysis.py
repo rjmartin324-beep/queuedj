@@ -153,6 +153,18 @@ class AudioAnalysisWorker:
         # Normalize to 0–1 (empirical range: 0.01–0.25 for most music)
         energy_normalized = float(np.clip(energy / 0.15, 0.0, 1.0))
 
+        # ─── Phrase Boundaries ────────────────────────────────────────────────
+        # Group beat frames into 4-bar phrases (16 beats in 4/4 time).
+        # Each boundary marks the start of a new phrase — safe transition point.
+        BEATS_PER_PHRASE = 16  # 4 bars × 4 beats
+        if len(beat_times) >= BEATS_PER_PHRASE:
+            phrase_boundaries_ms = [
+                int(beat_times[i] * 1000)
+                for i in range(0, len(beat_times), BEATS_PER_PHRASE)
+            ]
+        else:
+            phrase_boundaries_ms = []
+
         result = {
             "bpm": round(bpm, 2),
             "camelot_key": camelot_key,
@@ -160,6 +172,7 @@ class AudioAnalysisWorker:
             "energy": round(energy_normalized, 3),
             "analysis_confidence": round(min(bpm_confidence, key_confidence), 3),
             "downbeat_offset_ms": downbeat_offset_ms,
+            "phrase_boundaries_ms": phrase_boundaries_ms,
         }
 
         # ─── Full analysis (Phase 3+) ──────────────────────────────────────────
@@ -221,7 +234,8 @@ class AudioAnalysisWorker:
         try:
             pool = await self._get_db()
             row = await pool.fetchrow(
-                "SELECT bpm, camelot_key, camelot_type, energy, analysis_confidence, analysis_source, downbeat_offset_ms "
+                "SELECT bpm, camelot_key, camelot_type, energy, analysis_confidence, analysis_source, "
+                "downbeat_offset_ms, phrase_boundaries_ms "
                 "FROM tracks WHERE isrc = $1",
                 isrc,
             )
@@ -237,8 +251,9 @@ class AudioAnalysisWorker:
             pool = await self._get_db()
             await pool.execute(
                 """
-                INSERT INTO tracks (isrc, title, artist, bpm, camelot_key, camelot_type, energy, analysis_confidence, analysis_source, downbeat_offset_ms)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                INSERT INTO tracks (isrc, title, artist, bpm, camelot_key, camelot_type, energy,
+                                    analysis_confidence, analysis_source, downbeat_offset_ms, phrase_boundaries_ms)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
                 ON CONFLICT (isrc) DO UPDATE SET
                   bpm = EXCLUDED.bpm,
                   camelot_key = EXCLUDED.camelot_key,
@@ -247,6 +262,7 @@ class AudioAnalysisWorker:
                   analysis_confidence = EXCLUDED.analysis_confidence,
                   analysis_source = EXCLUDED.analysis_source,
                   downbeat_offset_ms = EXCLUDED.downbeat_offset_ms,
+                  phrase_boundaries_ms = EXCLUDED.phrase_boundaries_ms,
                   updated_at = NOW()
                 WHERE tracks.analysis_confidence < EXCLUDED.analysis_confidence
                 """,
@@ -260,6 +276,7 @@ class AudioAnalysisWorker:
                 result.get("analysis_confidence"),
                 result.get("analysis_source", "librosa"),
                 result.get("downbeat_offset_ms"),
+                result.get("phrase_boundaries_ms") or None,
             )
         except Exception as e:
             log.error("upsert_track_failed", error=str(e))
@@ -274,4 +291,5 @@ class AudioAnalysisWorker:
             "analysis_confidence": 0.0,
             "analysis_source": "unknown",
             "downbeat_offset_ms": None,
+            "phrase_boundaries_ms": None,
         }

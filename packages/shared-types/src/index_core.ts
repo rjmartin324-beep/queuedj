@@ -103,6 +103,7 @@ export interface Track {
   artworkUrl?:   string;
   previewUrl?:   string;
   noDerivative?: boolean;         // licensing kill-switch
+  phraseBoundariesMs?: number[];  // 4-bar phrase start timestamps (ms); populated by ML Librosa pass
 }
 
 // ─── Queue ────────────────────────────────────────────────────────────────────

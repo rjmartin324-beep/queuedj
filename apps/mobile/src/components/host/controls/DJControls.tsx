@@ -629,19 +629,22 @@ interface DeckPanelProps {
   siblingIsrc: string | null;          // ISRC loaded on the other deck — skip it
   onLoaded: (isrc: string | null) => void;
   onBpm?: (bpm: number) => void;       // Called after Librosa analysis — feeds BPM Sync
+  onQuantizedSkip?: () => void;        // Fire when phrase boundary is reached
 }
 
-function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded, onBpm }: DeckPanelProps) {
+function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded, onBpm, onQuantizedSkip }: DeckPanelProps) {
   const { state } = useRoom();
   const [isPlaying, setIsPlaying]     = useState(false);
   const [positionMs, setPositionMs]   = useState(0);
   const [durationMs, setDurationMs]   = useState(0);
-  const [loadedTrack, setLoadedTrack] = useState<{ isrc: string; title: string; artist: string; uri?: string } | null>(null);
+  const [loadedTrack, setLoadedTrack] = useState<{ isrc: string; title: string; artist: string; uri?: string; phraseBoundariesMs?: number[] } | null>(null);
   const [loading, setLoading]         = useState(false);
   const [volume, setVolume]           = useState(1);
   const [analyzingBpm, setAnalyzingBpm] = useState(false);
   const [detectedBpm,  setDetectedBpm]  = useState<number | null>(null);
+  const [phraseCountdown, setPhraseCountdown] = useState<number | null>(null); // ms until transition fires
   const positionInterval              = useRef<ReturnType<typeof setInterval> | null>(null);
+  const phraseSkipTimer               = useRef<ReturnType<typeof setTimeout> | null>(null);
   const volumeRef                     = useRef(1);
   const volTrackWidthRef              = useRef(0);
 
@@ -720,7 +723,7 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded, onBpm }: De
       }
 
       await audioEngine.loadTrack(deckId, uri);
-      const t = { isrc: track.track.isrc, title: track.track.title, artist: track.track.artist, uri };
+      const t = { isrc: track.track.isrc, title: track.track.title, artist: track.track.artist, uri, phraseBoundariesMs: (track.track as any).phraseBoundariesMs };
       setLoadedTrack(t);
       onLoaded(track.track.isrc);
       setDurationMs(track.track.durationMs ?? 0);
@@ -759,6 +762,45 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded, onBpm }: De
       setIsPlaying(true);
       emitDeckCommand("play");
     }
+  }
+
+  function handleQuantizedSkip() {
+    if (!onQuantizedSkip) return;
+
+    // Cancel any pending phrase skip
+    if (phraseSkipTimer.current) {
+      clearTimeout(phraseSkipTimer.current);
+      phraseSkipTimer.current = null;
+      setPhraseCountdown(null);
+      return; // second tap cancels the pending skip
+    }
+
+    const boundaries = loadedTrack?.phraseBoundariesMs;
+    const MAX_WAIT_MS = 8000;
+
+    if (!boundaries || boundaries.length === 0) {
+      // No beatgrid — skip immediately
+      onQuantizedSkip();
+      return;
+    }
+
+    // Find the next phrase boundary after current position
+    const nextBoundary = boundaries.find(b => b > positionMs);
+    const waitMs = nextBoundary !== undefined ? nextBoundary - positionMs : 0;
+
+    if (waitMs <= 0 || waitMs > MAX_WAIT_MS) {
+      // Either past all boundaries or too far away — skip immediately
+      onQuantizedSkip();
+      return;
+    }
+
+    // Wait for the phrase boundary
+    setPhraseCountdown(waitMs);
+    phraseSkipTimer.current = setTimeout(() => {
+      phraseSkipTimer.current = null;
+      setPhraseCountdown(null);
+      onQuantizedSkip();
+    }, waitMs);
   }
 
   function emitDeckCommand(command: "play" | "pause" | "cue") {
@@ -845,6 +887,27 @@ function DeckPanel({ deckId, roomId, guestId, siblingIsrc, onLoaded, onBpm }: De
             {isPlaying ? "⏸" : "▶"}
           </Text>
         </TouchableOpacity>
+
+        {/* Phrase Skip — waits for next 4-bar boundary (tap again to cancel) */}
+        {onQuantizedSkip && (
+          <TouchableOpacity
+            style={[
+              styles.deckBtn,
+              { backgroundColor: phraseCountdown !== null ? "#f59e0b22" : "transparent",
+                borderWidth: 1,
+                borderColor: phraseCountdown !== null ? "#f59e0b" : accentColor + "66" },
+              !loadedTrack && styles.deckBtnDisabled,
+            ]}
+            onPress={handleQuantizedSkip}
+            disabled={!loadedTrack}
+          >
+            <Text style={[styles.deckBtnText, { color: phraseCountdown !== null ? "#f59e0b" : accentColor }]}>
+              {phraseCountdown !== null
+                ? `⏱ ${(phraseCountdown / 1000).toFixed(1)}s`
+                : "⏭ Phrase"}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Volume slider */}
@@ -1716,11 +1779,13 @@ export function DJControls() {
       <View style={styles.decksRow}>
         <View style={styles.deckWrap}>
           <DeckPanel deckId="A" roomId={roomId} guestId={guestId}
-            siblingIsrc={deckBIsrc} onLoaded={setDeckAIsrc} onBpm={setDeckABpm} />
+            siblingIsrc={deckBIsrc} onLoaded={setDeckAIsrc} onBpm={setDeckABpm}
+            onQuantizedSkip={skipCurrentTrack} />
         </View>
         <View style={styles.deckWrap}>
           <DeckPanel deckId="B" roomId={roomId} guestId={guestId}
-            siblingIsrc={deckAIsrc} onLoaded={setDeckBIsrc} onBpm={setDeckBBpm} />
+            siblingIsrc={deckAIsrc} onLoaded={setDeckBIsrc} onBpm={setDeckBBpm}
+            onQuantizedSkip={skipCurrentTrack} />
         </View>
       </View>
 
