@@ -245,6 +245,17 @@ export class TriviaExperience implements ExperienceModule {
       view: { type: "trivia_result", data: state },
       sequenceId: seq,
     });
+
+    // Auto-advance to next question after 4s — no host tap needed
+    const existing2 = this.timers.get(roomId);
+    if (existing2) clearTimeout(existing2);
+    const t2 = setTimeout(() => {
+      this.timers.delete(roomId);
+      this._nextQuestion(roomId, io).catch((err) => {
+        console.error("[trivia] auto-next failed", { roomId, err });
+      });
+    }, 4000);
+    this.timers.set(roomId, t2);
   }
 
   private async _showLeaderboard(roomId: string, io: Server): Promise<void> {
