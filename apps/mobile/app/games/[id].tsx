@@ -1,6 +1,5 @@
 import React from "react";
 import { useLocalSearchParams } from "expo-router";
-import PartyTriviaScreen from "../../src/screens/games/PartyTriviaScreen";
 import WouldYouRatherScreen from "../../src/screens/games/WouldYouRatherScreen";
 import NeverHaveIEverScreen from "../../src/screens/games/NeverHaveIEverScreen";
 import TruthOrDareScreen from "../../src/screens/games/TruthOrDareScreen";
@@ -36,7 +35,6 @@ import CopyrightScreen from "../../src/screens/games/CopyrightScreen";
 
 const GAME_MAP: Record<string, React.ComponentType> = {
   // Full IDs
-  party_trivia: PartyTriviaScreen,
   would_you_rather: WouldYouRatherScreen,
   never_have_i_ever: NeverHaveIEverScreen,
   truth_or_dare: TruthOrDareScreen,
@@ -70,7 +68,6 @@ const GAME_MAP: Record<string, React.ComponentType> = {
   scavenger_snap: ScavengerSnapScreen,
   copyright: CopyrightScreen,
   // Short-ID aliases used by GamesScreen CATEGORIES
-  trivia: PartyTriviaScreen,
   two_truths: TwoTruthsOneLieScreen,
   pop_culture: PopCultureQuizScreen,
   improv: ImprovChallengeScreen,
