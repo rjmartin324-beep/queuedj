@@ -862,12 +862,34 @@ async function main() {
       // Keep member record in Redis for reconnect — don't delete immediately
       // If they don't reconnect within 30s, clean up.
       // Use disconnectedAt timestamp: if joinedAt is newer they reconnected.
+      const wasHost = member.role === "HOST";
       const disconnectedAt = Date.now();
       setTimeout(async () => {
         const current = await getMember(roomId, guestId);
         if (current && current.joinedAt > disconnectedAt) return; // reconnected
         await removeMember(roomId, guestId);
         io.to(roomId).emit("room:member_left", { guestId, roomId });
+
+        // Host left — auto-close room after 5-minute grace period if no one took over
+        if (wasHost) {
+          setTimeout(async () => {
+            const remaining = await getAllMembers(roomId);
+            const hasHost = remaining.some(m => m.role === "HOST" || m.role === "CO_HOST");
+            if (!hasHost) {
+              // Remove from public discovery feed and notify any remaining guests
+              await redisClient.zRem("public_rooms", roomId).catch(() => {});
+              // Mark isLive false so room:join is rejected
+              const metaRaw = await redisClient.get(`room:${roomId}:meta`).catch(() => null);
+              if (metaRaw) {
+                const meta = JSON.parse(metaRaw);
+                meta.isLive = false;
+                await redisClient.set(`room:${roomId}:meta`, JSON.stringify(meta), { KEEPTTL: true }).catch(() => {});
+              }
+              io.to(roomId).emit("room:closed" as any, { roomId });
+              console.log(`[realtime] Auto-closed room ${roomId} — host disconnected and did not return`);
+            }
+          }, 5 * 60 * 1000); // 5 minutes
+        }
       }, 30_000);
     }
   }
