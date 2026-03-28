@@ -85,16 +85,19 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
 
     // Real-time: listen for credit award events from socket
     const socket = socketManager.get();
-    const handler = (data: { guestId: string; delta: number; balance: number }) => {
+    const handler = (data: { guestId: string; delta: number; balance: number; reason?: string }) => {
       if (data.guestId !== guestId) return;
       const newBal = data.balance;
-      if (prevBalance.current !== null && newBal > prevBalance.current) {
-        const earned = newBal - prevBalance.current;
+      if (data.delta > 0) {
+        // Pulse the balance badge
         Animated.sequence([
           Animated.timing(scaleAnim, { toValue: 1.3, duration: 180, useNativeDriver: true }),
           Animated.timing(scaleAnim, { toValue: 1,   duration: 200, useNativeDriver: true }),
         ]).start();
-        localNotifyCreditsEarned(earned, "credits_earned");
+        // Show floating toast
+        const id = ++_toastId;
+        setToasts(prev => [...prev, { id, reason: data.reason ?? "credits_earned", amount: data.delta }]);
+        localNotifyCreditsEarned(data.delta, "credits_earned");
       }
       prevBalance.current = newBal;
       setBalance(newBal);

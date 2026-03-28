@@ -75,7 +75,7 @@ export async function awardCreditsAndNotify(
   const balance     = await awardCredits(fingerprint, reason, sessionId, customAmount);
   if (balance === null) return;
   // Emit directly to the guest's personal socket room (guests join `guest:<guestId>`)
-  io.to(`guest:${guestId}`).emit("credits:awarded" as any, { guestId, delta: amount, balance });
+  io.to(`guest:${guestId}`).emit("credits:awarded" as any, { guestId, delta: amount, balance, reason });
 }
 
 /**
