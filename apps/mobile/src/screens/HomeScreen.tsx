@@ -9,6 +9,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import type { Room } from "@queuedj/shared-types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { socketManager } from "../lib/socket";
+import { storage } from "../lib/storage";
 import { useRoom } from "../contexts/RoomContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { NamePromptModal } from "../components/shared/NamePromptModal";
@@ -740,7 +741,7 @@ export default function HomeScreen() {
   const [exprIdx, setExprIdx]               = useState(0);
   const [avatarLoaded, setAvatarLoaded]     = useState(false);
   const [welcomeDismissed, setWelcomeDismissed] = useState(true);
-  const [myGuestId, setMyGuestId] = useState<string | null>(null);
+  const [myGuestId, setMyGuestId] = useState<string | null>(() => storage.getString("queuedj:guestId") ?? null);
   const [myXP, setMyXP] = useState<XPInfo | null>(null);
   const [heroStats, setHeroStats] = useState<{ parties: number; tracks: number; guests: number } | null>(null);
 
