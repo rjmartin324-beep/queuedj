@@ -913,7 +913,9 @@ export default function HomeScreen() {
   async function doJoinRoom(code: string, displayName: string) {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/rooms/${code.toUpperCase()}`);
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), 10000);
+      const res = await fetch(`${API_URL}/rooms/${code.toUpperCase()}`, { signal: controller.signal }).finally(() => clearTimeout(fetchTimeout));
       const data = await res.json();
       if (!res.ok) throw new Error("Room not found");
 
