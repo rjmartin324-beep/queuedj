@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
+    "noEmitOnError": false,
     "paths": {
       "@queuedj/shared-types": ["../../packages/shared-types/src/index.ts"]
     }
