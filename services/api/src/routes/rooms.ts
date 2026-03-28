@@ -243,11 +243,20 @@ export async function roomRoutes(fastify: FastifyInstance) {
     if (!ids.length) return reply.send({ rooms: [] });
 
     const raws = await Promise.all(ids.map((id) => redisClient.get(ROOM_KEY(id))));
+
+    const MAX_AGE_MS = 4 * 60 * 60 * 1000; // 4 hours — matches Redis TTL
+    const now = Date.now();
+
+    const deadIds: string[] = [];
     const rooms = raws
       .map((raw, i) => {
-        if (!raw) return null;
+        // Key expired from Redis — clean from sorted set
+        if (!raw) { deadIds.push(ids[i]); return null; }
         const r: Room = JSON.parse(raw);
-        if (!r.isLive) return null;
+        // Not live (host left, manually deleted, or auto-closed)
+        if (!r.isLive) { deadIds.push(ids[i]); return null; }
+        // Older than TTL — orphaned entry
+        if (r.createdAt && (now - r.createdAt) > MAX_AGE_MS) { deadIds.push(ids[i]); return null; }
         return {
           id:           r.id,
           code:         r.code,
@@ -260,10 +269,9 @@ export async function roomRoutes(fastify: FastifyInstance) {
       })
       .filter(Boolean);
 
-    // Clean up stale entries that expired from Redis
-    const staleIds = ids.filter((_, i) => !raws[i]);
-    if (staleIds.length) {
-      redisClient.zRem("public_rooms", staleIds).catch(() => {});
+    // Remove all dead entries from discovery feed in one call
+    if (deadIds.length) {
+      redisClient.zRem("public_rooms", deadIds).catch(() => {});
     }
 
     return reply.send({ rooms });
