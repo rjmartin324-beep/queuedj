@@ -728,7 +728,7 @@ export function TriviaControls({ viewMode, onViewModeChange: setViewMode }: View
               </View>
             )}
             {(!serverPhase || serverPhase === "waiting") && (
-              state.readyUp?.active
+              state.readyUp?.active && (state.readyUp?.totalCount ?? 0) > 0
                 ? <View style={styles.waitingReady}><Text style={styles.waitingReadyText}>⏳  Waiting for guests to ready up — game will auto-start</Text></View>
                 : <HostActionButton label="▶  Start Round" onPress={() => sendAction("start_round")} />
             )}
