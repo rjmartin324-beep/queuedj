@@ -217,7 +217,9 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
 
     // ─── Experience System ────────────────────────────────────────────────────
     const onExperienceChanged = ({ experienceType, view, awaitingReady, readyCount, readyTotalCount }: any) => {
-      dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data });
+      if (view?.type) {
+        dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data });
+      }
       if (awaitingReady) {
         dispatch({ type: "SET_READY_UP", active: true, readyCount: readyCount ?? 0, totalCount: readyTotalCount ?? 0 });
       } else {
