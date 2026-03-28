@@ -928,6 +928,8 @@ export default function HomeScreen() {
 
       if (!ack.success) throw new Error(ack.error ?? "Could not join room");
 
+      console.log("[doJoinRoom] ack received", JSON.stringify({ members: ack.members?.length, experienceType: ack.experienceType, awaitingReady: ack.awaitingReady }));
+
       const safeRole = (["HOST", "CO_HOST", "GUEST"] as const).includes(ack.role as any) ? ack.role : "GUEST";
       dispatch({ type: "SET_ROOM", room: { ...data, sequenceId: ack.currentSequenceId } as any });
       dispatch({ type: "SET_GUEST_ID", guestId, role: safeRole });
@@ -936,6 +938,7 @@ export default function HomeScreen() {
       if (ack.members && ack.members.length > 0) {
         dispatch({ type: "SET_MEMBERS", members: ack.members as any });
       }
+      console.log("[doJoinRoom] dispatched, members count:", ack.members?.length ?? 0);
       if (ack.experienceType && ack.guestView) {
         dispatch({ type: "SET_EXPERIENCE", experience: ack.experienceType as any, view: ack.guestView as any });
       }

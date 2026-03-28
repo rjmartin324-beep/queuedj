@@ -90,6 +90,9 @@ const API_GUEST_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001"
 
 export default function GuestScreen() {
   const { state, dispatch } = useRoom();
+
+  // DEBUG — remove after diagnosing 0-connected bug
+  console.log("[GuestScreen] render members:", state.members.length, "readyUp:", JSON.stringify(state.readyUp), "role:", state.role);
   const router = useRouter();
   const [recap,       setRecap]       = useState<SessionRecapData | null>(null);
   const [chatOpen,    setChatOpen]    = useState(false);

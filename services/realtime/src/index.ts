@@ -299,6 +299,7 @@ async function main() {
           readyTotalCount: bootstrapReadyTotalCount,
         });
 
+        console.log(`[room:join] ack for ${resolvedGuestId}: members=${bootstrapMembers.length} exp=${bootstrapExpType} awaitingReady=${bootstrapAwaitingReady}`);
         ack(joinAck);
 
         // Send sync data after ack (still sent as belt-and-suspenders for reconnects)
