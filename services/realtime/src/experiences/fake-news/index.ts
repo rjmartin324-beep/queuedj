@@ -213,6 +213,7 @@ export class FakeNewsExperience implements ExperienceModule {
         state.phase = "reveal";
         await this._save(roomId, state);
         await this._broadcast(roomId, state, io);
+        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
         break;
       }
 

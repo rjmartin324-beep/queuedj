@@ -178,6 +178,7 @@ export class FinishLyricExperience implements ExperienceModule {
       submissions: state.submissionNames,
       scores: state.scores,
     });
+    setTimeout(() => this._nextRound(roomId, io).catch(() => {}), 5000);
   }
 
   private async _awardBonus(roomId: string, targetGuestId: string, io: Server): Promise<void> {

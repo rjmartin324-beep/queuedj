@@ -369,6 +369,7 @@ export class CelebrityHeadExperience implements ExperienceModule {
           view: { type: "celebrity_head", data: state },
           sequenceId: seq,
         });
+        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
         break;
       }
 
@@ -378,13 +379,14 @@ export class CelebrityHeadExperience implements ExperienceModule {
         state.phase = "reveal";
         state.gotIt = false;
         await redisClient.set(KEY(roomId), JSON.stringify(state));
-        const seq = await getNextSequenceId(roomId);
+        const seq2 = await getNextSequenceId(roomId);
         io.to(roomId).emit("experience:state" as any, {
           experienceType: "celebrity_head",
           state,
           view: { type: "celebrity_head", data: state },
-          sequenceId: seq,
+          sequenceId: seq2,
         });
+        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
         break;
       }
 

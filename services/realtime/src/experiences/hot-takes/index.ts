@@ -188,6 +188,7 @@ export class HotTakesExperience implements ExperienceModule {
           view: { type: "hot_takes", data: state },
           sequenceId: seq,
         });
+        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 5000);
         break;
       }
 

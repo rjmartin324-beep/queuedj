@@ -710,6 +710,7 @@ export class MindReadingExperience implements ExperienceModule {
       view: { type: "mind_reading" as any, data: state },
       sequenceId: seq,
     });
+    setTimeout(() => this._next(roomId, io).catch(() => {}), 4000);
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {

@@ -167,6 +167,7 @@ export class LyricsDropExperience implements ExperienceModule {
           experienceType: "lyrics_drop", state,
           view: { type: "lyrics_drop" as any, data: state }, sequenceId: seq,
         });
+        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 4000);
         break;
       }
       case "next": {

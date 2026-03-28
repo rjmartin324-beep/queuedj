@@ -407,6 +407,7 @@ export class FightOrFlightExperience implements ExperienceModule {
     state.phase = "reveal";
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
+    setTimeout(() => this._next(roomId, io).catch(() => {}), 4000);
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {

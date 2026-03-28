@@ -167,6 +167,7 @@ export class TwoTruthsOneLieExperience implements ExperienceModule {
           view: { type: "two_truths_one_lie", data: state },
           sequenceId: seq,
         });
+        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 5000);
         break;
       }
 

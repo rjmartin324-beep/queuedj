@@ -299,6 +299,7 @@ export class HumItExperience implements ExperienceModule {
       view: { type: "hum_it_reveal" as any, data: state },
       sequenceId: seq,
     });
+    setTimeout(() => this._next(roomId, io).catch(() => {}), 5000);
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {
