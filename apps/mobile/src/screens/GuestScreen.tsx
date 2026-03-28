@@ -18,6 +18,7 @@ import { ConnectionBar }      from "../components/shared/ConnectionBar";
 import { VibeCreditsBar }     from "../components/shared/VibeCreditsBar";
 import { GuestAvatarRow, type GuestPresence } from "../components/shared/GuestAvatarRow";
 import { OfflineBanner } from "../components/shared/OfflineBanner";
+import { ReadyUpOverlay } from "../components/shared/ReadyUpOverlay";
 import { registerForPushNotifications, registerTokenWithServer } from "../lib/notifications";
 import { tapLight } from "../lib/haptics";
 import { PartyChatPanel, ChatFloatingButton } from "../components/shared/PartyChatPanel";
@@ -425,6 +426,8 @@ export default function GuestScreen() {
       )}
 
       {renderView()}
+
+      <ReadyUpOverlay />
 
       {/* Floating chat button — always visible regardless of active game */}
       <View style={styles.chatFab}>

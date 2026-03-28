@@ -554,6 +554,12 @@ async function main() {
       await newExperience.onActivate(roomId, guestId, options);
       await redisClient.set(`room:${roomId}:experience`, toExperience);
 
+      // Reset ready-up state whenever experience changes
+      await redisClient.del(`room:${roomId}:ready_set`);
+      const isGame = toExperience !== "dj";
+      const allMembersForReady = isGame ? await getAllMembers(roomId) : [];
+      const readyTotalCount = allMembersForReady.filter(m => m.role === "GUEST").length;
+
       const view = await newExperience.getGuestViewDescriptor(roomId);
       const seq = await getNextSequenceId(roomId);
 
@@ -561,7 +567,61 @@ async function main() {
         experienceType: toExperience,
         view,
         sequenceId: seq,
+        awaitingReady: isGame,
+        readyCount: 0,
+        readyTotalCount,
       });
+    });
+
+    // ─── room:ready_up (GUEST only) ──────────────────────────────────────────
+    socket.on("room:ready_up" as any, async ({ roomId }: { roomId: string }) => {
+      const guestId = socketGuestId;
+      if (!guestId) return;
+
+      const role = await getMemberRole(roomId, guestId);
+      if (!role || role === "HOST" || role === "CO_HOST") return;
+
+      const experienceType = await redisClient.get(`room:${roomId}:experience`) ?? "dj";
+      if (experienceType === "dj" || !isValidExperience(experienceType)) return;
+
+      const READY_KEY = `room:${roomId}:ready_set`;
+      await redisClient.sAdd(READY_KEY, guestId);
+      await redisClient.expire(READY_KEY, 3600);
+
+      const allMembers = await getAllMembers(roomId);
+      const guestMembers = allMembers.filter(m => m.role === "GUEST");
+      const readyCount = await redisClient.sCard(READY_KEY);
+      const totalCount = guestMembers.length;
+
+      io.to(roomId).emit("room:ready_update" as any, { readyCount, totalCount });
+
+      // Auto-start when all guests are ready
+      if (readyCount >= totalCount && totalCount > 0) {
+        await redisClient.del(READY_KEY);
+        io.to(roomId).emit("room:all_ready" as any, {});
+
+        const experience = getExperience(experienceType);
+        let action = "start";
+        let payload: Record<string, unknown> = {};
+
+        if (experienceType === "trivia") {
+          action = "start_round";
+        } else if (experienceType === "mimic_me") {
+          payload = { guestIds: guestMembers.map(m => m.guestId) };
+        } else if (experienceType === "mind_mole") {
+          action = "start_game";
+          payload = {
+            playerIds: guestMembers.map(m => m.guestId),
+            playerNames: Object.fromEntries(
+              guestMembers.map(m => [m.guestId, m.displayName ?? m.guestId.slice(0, 8)])
+            ),
+          };
+        }
+
+        const hostMember = allMembers.find(m => m.role === "HOST");
+        const hostGuestId = hostMember?.guestId ?? guestId;
+        await experience.handleAction({ action, payload, roomId, guestId: hostGuestId, role: "HOST", io });
+      }
     });
 
     // ─── experience:action (any member) ─────────────────────────────────

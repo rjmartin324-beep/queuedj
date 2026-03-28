@@ -408,6 +408,16 @@ export default function HostScreen() {
                     <Text style={styles.activeGameText}>{activeGame.emoji}  {activeGame.label} — active</Text>
                   </View>
                 )}
+                {state.readyUp?.active && (
+                  <View style={styles.readyBanner}>
+                    <Text style={styles.readyBannerText}>
+                      ✋ Waiting for guests to ready up — {state.readyUp.readyCount} / {state.readyUp.totalCount} ready
+                    </Text>
+                    <View style={styles.readyBarTrack}>
+                      <View style={[styles.readyBarFill, { width: `${state.readyUp.totalCount > 0 ? Math.round((state.readyUp.readyCount / state.readyUp.totalCount) * 100) : 0}%` as any }]} />
+                    </View>
+                  </View>
+                )}
                 <View style={styles.appsGrid}>
                   {(showAllGames ? GAME_CHIPS : GAME_CHIPS.slice(0, 6)).map(({ type, label, emoji }) => {
                     const active = state.activeExperience === type;
@@ -870,6 +880,13 @@ const styles = StyleSheet.create({
   },
   activeGameDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#a78bfa" },
   activeGameText: { color: "#a78bfa", fontSize: 11, fontWeight: "700" },
+  readyBanner: {
+    marginTop: 6, padding: 10, borderRadius: 10,
+    backgroundColor: "rgba(168,85,247,0.12)", borderWidth: 1, borderColor: "rgba(168,85,247,0.3)", gap: 6,
+  },
+  readyBannerText: { color: "#c4b5fd", fontSize: 12, fontWeight: "700" },
+  readyBarTrack: { height: 4, borderRadius: 2, backgroundColor: "rgba(255,255,255,0.08)", overflow: "hidden" },
+  readyBarFill: { height: "100%" as any, borderRadius: 2, backgroundColor: "#a855f7" },
 
   // APPS GRID
   appsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },

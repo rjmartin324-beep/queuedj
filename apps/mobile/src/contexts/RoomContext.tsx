@@ -29,6 +29,7 @@ interface RoomState {
   djState: DJExperienceState | null;
   activePollId: string | null;
   roomClosed: boolean;
+  readyUp: { active: boolean; readyCount: number; totalCount: number; iHaveReadied: boolean };
 }
 
 type Action =
@@ -48,7 +49,10 @@ type Action =
   | { type: "SET_POLL"; pollId: string | null }
   | { type: "SET_ROLE"; role: "HOST" | "CO_HOST" | "GUEST" }
   | { type: "ROOM_CLOSED" }
-  | { type: "LEAVE_ROOM" };
+  | { type: "LEAVE_ROOM" }
+  | { type: "SET_READY_UP"; active: boolean; readyCount: number; totalCount: number }
+  | { type: "READY_COUNT_UPDATE"; readyCount: number; totalCount: number }
+  | { type: "MARK_ME_READY" };
 
 const initialState: RoomState = {
   room: null,
@@ -65,6 +69,7 @@ const initialState: RoomState = {
   djState: null,
   activePollId: null,
   roomClosed: false,
+  readyUp: { active: false, readyCount: 0, totalCount: 0, iHaveReadied: false },
 };
 
 function reducer(state: RoomState, action: Action): RoomState {
@@ -115,6 +120,12 @@ function reducer(state: RoomState, action: Action): RoomState {
       return { ...state, roomClosed: true };
     case "LEAVE_ROOM":
       return { ...initialState };
+    case "SET_READY_UP":
+      return { ...state, readyUp: { active: action.active, readyCount: action.readyCount, totalCount: action.totalCount, iHaveReadied: false } };
+    case "READY_COUNT_UPDATE":
+      return { ...state, readyUp: { ...state.readyUp, readyCount: action.readyCount, totalCount: action.totalCount } };
+    case "MARK_ME_READY":
+      return { ...state, readyUp: { ...state.readyUp, iHaveReadied: true } };
     default:
       return state;
   }
@@ -127,6 +138,7 @@ interface RoomContextValue {
   dispatch: React.Dispatch<Action>;
   sendAction: (action: string, payload?: unknown) => void;
   switchExperience: (toExperience: ExperienceType) => void;
+  sendReadyUp: () => void;
 }
 
 const RoomContext = createContext<RoomContextValue | null>(null);
@@ -204,8 +216,19 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     };
 
     // ─── Experience System ────────────────────────────────────────────────────
-    const onExperienceChanged = ({ experienceType, view }: any) => {
+    const onExperienceChanged = ({ experienceType, view, awaitingReady, readyCount, readyTotalCount }: any) => {
       dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data });
+      if (awaitingReady) {
+        dispatch({ type: "SET_READY_UP", active: true, readyCount: readyCount ?? 0, totalCount: readyTotalCount ?? 0 });
+      } else {
+        dispatch({ type: "SET_READY_UP", active: false, readyCount: 0, totalCount: 0 });
+      }
+    };
+    const onReadyUpdate = ({ readyCount, totalCount }: any) => {
+      dispatch({ type: "READY_COUNT_UPDATE", readyCount, totalCount });
+    };
+    const onAllReady = () => {
+      dispatch({ type: "SET_READY_UP", active: false, readyCount: 0, totalCount: 0 });
     };
     const onExperienceState = ({ experienceType, state: expState, view }: any) => {
       if (experienceType === "dj") {
@@ -262,6 +285,8 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     socket.on("experience:changed" as any,      onExperienceChanged);
     socket.on("experience:state" as any,        onExperienceState);
     socket.on("experience:state_updated" as any, onExperienceStateUpdated);
+    socket.on("room:ready_update" as any,       onReadyUpdate);
+    socket.on("room:all_ready" as any,          onAllReady);
     socket.on("deck:state_updated" as any,      onDeckStateUpdated);
     socket.on("poll:started" as any,            onPollStarted);
     socket.on("poll:result"  as any,            onPollResult);
@@ -284,6 +309,8 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       socket.off("experience:changed" as any,      onExperienceChanged);
       socket.off("experience:state" as any,        onExperienceState);
       socket.off("experience:state_updated" as any, onExperienceStateUpdated);
+      socket.off("room:ready_update" as any,       onReadyUpdate);
+      socket.off("room:all_ready" as any,          onAllReady);
       socket.off("deck:state_updated" as any,      onDeckStateUpdated);
       socket.off("poll:started" as any,            onPollStarted);
       socket.off("poll:result"  as any,            onPollResult);
@@ -320,8 +347,15 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
+  function sendReadyUp() {
+    const socket = socketManager.get();
+    if (!socket || !state.room) return;
+    socket.emit("room:ready_up" as any, { roomId: state.room.id });
+    dispatch({ type: "MARK_ME_READY" });
+  }
+
   return (
-    <RoomContext.Provider value={{ state, dispatch, sendAction, switchExperience }}>
+    <RoomContext.Provider value={{ state, dispatch, sendAction, switchExperience, sendReadyUp }}>
       {children}
     </RoomContext.Provider>
   );
