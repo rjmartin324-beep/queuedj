@@ -727,7 +727,11 @@ export function TriviaControls({ viewMode, onViewModeChange: setViewMode }: View
                 {serverSelected && serverPhase === "question" && <Text style={styles.lockedText}>⏳  Locked in</Text>}
               </View>
             )}
-            {(!serverPhase || serverPhase === "waiting") && <HostActionButton label="▶  Start Round" onPress={() => sendAction("start_round")} />}
+            {(!serverPhase || serverPhase === "waiting") && (
+              state.readyUp?.active
+                ? <View style={styles.waitingReady}><Text style={styles.waitingReadyText}>⏳  Waiting for guests to ready up — game will auto-start</Text></View>
+                : <HostActionButton label="▶  Start Round" onPress={() => sendAction("start_round")} />
+            )}
             {serverPhase === "leaderboard" && <HostActionButton label={`▶  Next Question (${(serverState?.roundNumber ?? 1)}/${serverState?.totalRounds ?? 10})`} onPress={() => sendAction("next_question")} />}
             {serverPhase === "question" && <><HostActionButton label="⏭  Reveal Answer" onPress={() => sendAction("reveal_answer")} variant="secondary" /><HostActionButton label="🔄  Resume (if stuck)" onPress={() => sendAction("resume")} variant="secondary" /><HostActionButton label="⏹  End Game" onPress={() => sendAction("end_trivia")} variant="secondary" /></>}
             {serverPhase === "reveal"   && <><HostActionButton label="▶  Next Question" onPress={() => sendAction("next_question")} /><HostActionButton label="🏆  Show Leaderboard" onPress={() => sendAction("show_leaderboard")} variant="secondary" /><HostActionButton label="⏹  End Game" onPress={() => sendAction("end_trivia")} variant="secondary" /></>}
@@ -794,6 +798,11 @@ const localStyles = StyleSheet.create({
 // ─── Mode picker styles ───────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+  waitingReady: {
+    padding: 16, borderRadius: 12, backgroundColor: "rgba(168,85,247,0.12)",
+    borderWidth: 1, borderColor: "rgba(168,85,247,0.3)", alignItems: "center",
+  },
+  waitingReadyText: { color: "#c4b5fd", fontSize: 13, fontWeight: "700", textAlign: "center" },
   container:      { gap: 16, paddingBottom: 20 },
   modeSection:    { gap: 10 },
   modeSectionLabel: { color: "#444", fontSize: 10, fontWeight: "800", letterSpacing: 2 },

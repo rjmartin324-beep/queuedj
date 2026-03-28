@@ -236,6 +236,10 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       }
       if (view?.type) {
         dispatch({ type: "SET_EXPERIENCE", experience: experienceType, view: view.type, viewData: view.data, expState });
+        // Dismiss ready-up overlay the moment the game actually starts
+        if (view.type !== "trivia_countdown" && view.type !== "intermission") {
+          dispatch({ type: "SET_READY_UP", active: false, readyCount: 0, totalCount: 0 });
+        }
       }
     };
     const onExperienceStateUpdated = (payload: any) => {
