@@ -1118,6 +1118,7 @@ export default function HomeScreen() {
         visible={browseVisible}
         onClose={() => setBrowseVisible(false)}
         onJoin={handleBrowseJoin}
+        myGuestId={myGuestId}
       />
     </SafeAreaView>
   );

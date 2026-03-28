@@ -177,10 +177,10 @@ export class MindMoleExperience implements ExperienceModule {
     state.roundNumber = 0;
     state.phase = "waiting";
 
-    // Send each player their word privately
+    // Send each player their word privately (guests join `guest:<guestId>` room)
     for (const pid of playerIds) {
       const word = pid === state.moleId ? pair.mole : pair.crew;
-      io.to(pid).emit("mind_mole:your_word", {
+      io.to(`guest:${pid}`).emit("mind_mole:your_word", {
         word,
         isMole: pid === state.moleId,
         moleHint: pid === state.moleId ? `Everyone else has: ${pair.crew}` : null,

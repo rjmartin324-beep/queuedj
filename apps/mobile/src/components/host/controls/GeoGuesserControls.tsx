@@ -223,7 +223,7 @@ interface ViewModeProps {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function GeoGuesserControls({ viewMode, onViewModeChange: setViewMode }: ViewModeProps) {
-  const { dispatch } = useRoom();
+  const { dispatch, sendAction } = useRoom();
   const [game, setGame]         = useState<GeoState>(IDLE_STATE);
   const [gameMode, setGameMode] = useState<GeoMode>("pin");
 
@@ -247,6 +247,9 @@ export function GeoGuesserControls({ viewMode, onViewModeChange: setViewMode }: 
 
     setGame({ phase: "guessing", locations, idx: 0, scores });
     setViewMode("player");
+
+    // Push to guests via server
+    sendAction("start_round", {});
 
     dispatch({
       type: "SET_EXPERIENCE",
@@ -318,6 +321,9 @@ export function GeoGuesserControls({ viewMode, onViewModeChange: setViewMode }: 
     if (!next) return;
 
     setGame(prev => ({ ...prev, phase: "guessing", idx: nextIdx }));
+
+    // Push to guests via server
+    sendAction("next_round", {});
 
     dispatch({
       type: "SET_EXPERIENCE",

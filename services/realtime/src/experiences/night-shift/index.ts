@@ -359,10 +359,10 @@ export class NightShiftExperience implements ExperienceModule {
 
     await this._save(roomId, state);
 
-    // Send private role to each player
+    // Send private role to each player (guests join `guest:<guestId>` room)
     for (const pid of playerIds) {
       const playerRole = state.playerRoles[pid];
-      io.to(pid).emit("night_shift:your_role", {
+      io.to(`guest:${pid}`).emit("night_shift:your_role", {
         role: playerRole,
         description: ROLE_DESCRIPTIONS[playerRole],
         isKiller: playerRole === "Killer",

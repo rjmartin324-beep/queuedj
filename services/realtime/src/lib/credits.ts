@@ -73,7 +73,11 @@ export async function awardCreditsAndNotify(
   const fingerprint = fingerprintGuest(guestId);
   const amount      = customAmount ?? EARN_AMOUNTS[reason] ?? 0;
   const balance     = await awardCredits(fingerprint, reason, sessionId, customAmount);
-  if (balance === null) return;
+  if (balance === null) {
+    // Let the guest know the award failed so the UI can show feedback
+    io.to(`guest:${guestId}`).emit("credits:award_failed" as any, { reason });
+    return;
+  }
   // Emit directly to the guest's personal socket room (guests join `guest:<guestId>`)
   io.to(`guest:${guestId}`).emit("credits:awarded" as any, { guestId, delta: amount, balance, reason });
 }

@@ -28,18 +28,21 @@ interface PublicRoom {
   vibePreset: string;
   memberCount: number;
   createdAt: number;
+  hostGuestId: string;
 }
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   onJoin: (code: string) => void;
+  myGuestId?: string | null;
 }
 
-export function PublicRoomsSheet({ visible, onClose, onJoin }: Props) {
+export function PublicRoomsSheet({ visible, onClose, onJoin, myGuestId }: Props) {
   const [rooms, setRooms]     = useState<PublicRoom[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const fetchRooms = useCallback(async () => {
     setLoading(true);
@@ -55,6 +58,23 @@ export function PublicRoomsSheet({ visible, onClose, onJoin }: Props) {
       setLoading(false);
     }
   }, []);
+
+  const deleteRoom = useCallback(async (room: PublicRoom) => {
+    if (!myGuestId) return;
+    setDeleting(room.id);
+    try {
+      const res = await fetch(`${API_URL}/rooms/${room.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hostGuestId: myGuestId }),
+      });
+      if (res.ok) {
+        setRooms((prev) => prev.filter((r) => r.id !== room.id));
+      }
+    } catch { /* silent */ } finally {
+      setDeleting(null);
+    }
+  }, [myGuestId]);
 
   useEffect(() => {
     if (visible) fetchRooms();
@@ -133,13 +153,23 @@ export function PublicRoomsSheet({ visible, onClose, onJoin }: Props) {
                         </View>
                       </View>
 
-                      {/* Right: join button */}
-                      <LinearGradient
-                        colors={["#7c3aed", "#a855f7"]}
-                        style={styles.joinBtn}
-                      >
-                        <Text style={styles.joinText}>Join</Text>
-                      </LinearGradient>
+                      {/* Right: join or close (if host) */}
+                      {myGuestId && item.hostGuestId === myGuestId ? (
+                        <TouchableOpacity
+                          style={styles.closeBtn}
+                          onPress={() => deleteRoom(item)}
+                          disabled={deleting === item.id}
+                        >
+                          <Text style={styles.closeText}>{deleting === item.id ? "..." : "✕"}</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <LinearGradient
+                          colors={["#7c3aed", "#a855f7"]}
+                          style={styles.joinBtn}
+                        >
+                          <Text style={styles.joinText}>Join</Text>
+                        </LinearGradient>
+                      )}
                     </LinearGradient>
                   </TouchableOpacity>
                 );
@@ -205,4 +235,7 @@ const styles = StyleSheet.create({
   memberCount:{ color: "rgba(255,255,255,0.5)", fontSize: 12 },
   joinBtn:    { borderRadius: 12, paddingHorizontal: 16, paddingVertical: 8 },
   joinText:   { color: "#fff", fontWeight: "800", fontSize: 13 },
+
+  closeBtn:   { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(220,38,38,0.2)", borderWidth: 1, borderColor: "rgba(220,38,38,0.4)", alignItems: "center", justifyContent: "center" },
+  closeText:  { color: "#f87171", fontWeight: "900", fontSize: 15 },
 });

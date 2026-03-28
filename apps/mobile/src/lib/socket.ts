@@ -36,6 +36,16 @@ class SocketManager {
     lastKnownSequenceId: 0,
   };
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private reconnectStatusListeners: Set<(status: "retrying" | "failed") => void> = new Set();
+
+  addReconnectStatusListener(cb: (status: "retrying" | "failed") => void): () => void {
+    this.reconnectStatusListeners.add(cb);
+    return () => this.reconnectStatusListeners.delete(cb);
+  }
+
+  private _emitReconnectStatus(status: "retrying" | "failed") {
+    this.reconnectStatusListeners.forEach(cb => cb(status));
+  }
 
   // In-memory cache — avoids repeated AsyncStorage hits on every button press
   private _guestId:      string | null = null;
@@ -216,14 +226,21 @@ class SocketManager {
         let attempt = 0;
         const tryRejoin = async () => {
           attempt++;
+          this._emitReconnectStatus("retrying");
           try {
             await this.joinRoom(roomId);
+            // Success — clear any failed state
+            this._emitReconnectStatus("retrying"); // cleared on next connect event
           } catch (err) {
-            console.warn(`[socket] reconnect joinRoom failed (attempt ${attempt}/3):`, err);
-            if (attempt < 3 && this.currentRoomId === roomId) {
-              setTimeout(tryRejoin, 2000 * attempt);
-            } else {
-              console.error("[socket] reconnect joinRoom gave up — guest may need to rejoin manually");
+            console.warn(`[socket] reconnect joinRoom failed (attempt ${attempt}):`, err);
+            if (attempt === 3) {
+              // Signal UI after 3 failed attempts — but keep trying
+              this._emitReconnectStatus("failed");
+            }
+            if (this.currentRoomId === roomId) {
+              // Exponential backoff capped at 30s
+              const delay = Math.min(2000 * attempt, 30000);
+              setTimeout(tryRejoin, delay);
             }
           }
         };

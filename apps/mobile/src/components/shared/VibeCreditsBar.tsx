@@ -49,6 +49,7 @@ interface Props {
 export function VibeCreditsBar({ guestId, compact = false }: Props) {
   const [balance, setBalance] = useState<number | null>(null);
   const [toasts, setToasts] = useState<EarnToast[]>([]);
+  const [fetchFailed, setFetchFailed] = useState(false);
   const prevBalance = useRef<number | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -59,6 +60,7 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
       const res = await fetch(`${API_URL}/credits/${encodeURIComponent(guestId)}`);
       if (res.ok) {
         const data = await res.json();
+        setFetchFailed(false);
         const newBal: number = data.balance ?? 0;
 
         if (prevBalance.current !== null && newBal > prevBalance.current) {
@@ -75,7 +77,9 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
         prevBalance.current = newBal;
         setBalance(newBal);
       }
-    } catch { /* offline */ }
+    } catch {
+      setFetchFailed(true);
+    }
   }
 
   useEffect(() => {
@@ -104,9 +108,13 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
     };
     socket?.on("credits:awarded" as any, handler);
 
+    const failHandler = () => setFetchFailed(true);
+    socket?.on("credits:award_failed" as any, failHandler);
+
     return () => {
       clearInterval(interval);
       socket?.off("credits:awarded" as any, handler);
+      socket?.off("credits:award_failed" as any, failHandler);
     };
   }, [guestId]);
 
@@ -115,9 +123,11 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
       return <SkeletonShimmer width={60} height={28} borderRadius={16} />;
     }
     return (
-      <Animated.View style={[styles.compactBadge, { transform: [{ scale: scaleAnim }] }]}>
+      <Animated.View style={[styles.compactBadge, fetchFailed && styles.compactBadgeOffline, { transform: [{ scale: scaleAnim }] }]}>
         <Text style={styles.compactEmoji}>⚡</Text>
-        <Text style={styles.compactBalance}>{balance}</Text>
+        <Text style={[styles.compactBalance, fetchFailed && { opacity: 0.4 }]}>
+          {fetchFailed ? "?" : balance}
+        </Text>
       </Animated.View>
     );
   }
@@ -133,10 +143,12 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
           onDone={() => setToasts((p) => p.filter((x) => x.id !== t.id))}
         />
       ))}
-      <Animated.View style={[styles.bar, { transform: [{ scale: scaleAnim }] }]}>
+      <Animated.View style={[styles.bar, fetchFailed && styles.barOffline, { transform: [{ scale: scaleAnim }] }]}>
         <Text style={styles.emoji}>⚡</Text>
         <Text style={styles.label}>VIBE CREDITS</Text>
-        <Text style={styles.balance}>{balance.toLocaleString()}</Text>
+        <Text style={[styles.balance, fetchFailed && { opacity: 0.4 }]}>
+          {fetchFailed ? "—" : balance!.toLocaleString()}
+        </Text>
       </Animated.View>
     </View>
   );
@@ -162,6 +174,7 @@ const styles = StyleSheet.create({
   label:   { color: "#a78bfa", fontSize: 10, fontWeight: "800", letterSpacing: 1.5 },
   balance: { color: "#fff", fontSize: 18, fontWeight: "900" },
 
+  barOffline:   { borderColor: "rgba(100,100,100,0.3)", backgroundColor: "rgba(40,40,40,0.3)" },
   compactBadge: {
     flexDirection:  "row",
     alignItems:     "center",
@@ -173,6 +186,7 @@ const styles = StyleSheet.create({
     borderWidth:    1,
     borderColor:    "rgba(167,139,250,0.3)",
   },
+  compactBadgeOffline: { backgroundColor: "rgba(40,40,40,0.5)", borderColor: "rgba(100,100,100,0.2)" },
   compactEmoji:   { fontSize: 13 },
   compactBalance: { color: "#a78bfa", fontWeight: "900", fontSize: 13 },
 

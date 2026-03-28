@@ -23,6 +23,7 @@ interface RoomState {
   role: "HOST" | "CO_HOST" | "GUEST" | null;
   isConnected: boolean;
   isOffline: boolean;
+  reconnectFailed: boolean;
   activeExperience: ExperienceType;
   guestView: GuestViewType;
   guestViewData: unknown;       // Payload from GuestViewDescriptor.data
@@ -54,7 +55,9 @@ type Action =
   | { type: "SET_READY_UP"; active: boolean; readyCount: number; totalCount: number }
   | { type: "READY_COUNT_UPDATE"; readyCount: number; totalCount: number }
   | { type: "MARK_ME_READY" }
-  | { type: "ACTION_ACK"; action: string };
+  | { type: "ACTION_ACK"; action: string }
+  | { type: "MERGE_EXPERIENCE_STATE"; expState: Record<string, unknown> }
+  | { type: "SET_RECONNECT_FAILED"; failed: boolean };
 
 const initialState: RoomState = {
   lastAckedAction: null,
@@ -65,6 +68,7 @@ const initialState: RoomState = {
   role: null,
   isConnected: false,
   isOffline: false,
+  reconnectFailed: false,
   activeExperience: "dj",
   guestView: "dj_queue",
   guestViewData: null,
@@ -98,7 +102,16 @@ function reducer(state: RoomState, action: Action): RoomState {
     case "SET_CONNECTED":
       return { ...state, isConnected: action.isConnected };
     case "SET_OFFLINE":
-      return { ...state, isOffline: action.isOffline };
+      return { ...state, isOffline: action.isOffline, reconnectFailed: action.isOffline ? state.reconnectFailed : false };
+    case "SET_RECONNECT_FAILED":
+      return { ...state, reconnectFailed: action.failed };
+    case "MERGE_EXPERIENCE_STATE":
+      return {
+        ...state,
+        experienceState: typeof state.experienceState === "object" && state.experienceState !== null
+          ? { ...(state.experienceState as object), ...action.expState }
+          : action.expState,
+      };
     case "SET_EXPERIENCE": {
       // Partial updates (e.g. submittedGuestIds count broadcasts) merge into
       // existing experienceState rather than replacing it entirely, so that
@@ -300,6 +313,22 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     const onRoleDemoted  = () => dispatch({ type: "SET_ROLE", role: "GUEST" });
     const onActionAck    = ({ action }: { action: string }) => dispatch({ type: "ACTION_ACK", action });
 
+    // ─── Private per-player events ────────────────────────────────────────────
+    // Merge into experienceState without disturbing guestView or guestViewData
+    const onNightShiftRole = (payload: any) => dispatch({
+      type: "MERGE_EXPERIENCE_STATE",
+      expState: { role: payload.role, description: payload.description, isKiller: payload.isKiller, killerSuspectId: payload.killerSuspectId },
+    });
+    const onMindMoleWord = (payload: any) => dispatch({
+      type: "MERGE_EXPERIENCE_STATE",
+      expState: { myWord: payload.word, isMole: payload.isMole, moleHint: payload.moleHint },
+    });
+
+    // ─── Reconnect failure notification ──────────────────────────────────────
+    const unsubReconnect = socketManager.addReconnectStatusListener((status) => {
+      dispatch({ type: "SET_RECONNECT_FAILED", failed: status === "failed" });
+    });
+
     socket.on("room:state_snapshot",      onStateSnapshot);
     socket.on("room:event_replay" as any, onEventReplay);
     socket.on("queue:updated",            onQueueUpdated as any);
@@ -323,6 +352,8 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     socket.on("role:promoted" as any,           onRolePromoted);
     socket.on("role:demoted" as any,            onRoleDemoted);
     socket.on("experience:action_ack" as any,   onActionAck);
+    socket.on("night_shift:your_role" as any,   onNightShiftRole);
+    socket.on("mind_mole:your_word" as any,     onMindMoleWord);
 
     return () => {
       // Remove only RoomContext handlers — bindCoreEvents handlers stay intact
@@ -349,6 +380,9 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       socket.off("role:promoted" as any,           onRolePromoted);
       socket.off("role:demoted" as any,            onRoleDemoted);
       socket.off("experience:action_ack" as any,   onActionAck);
+      socket.off("night_shift:your_role" as any,   onNightShiftRole);
+      socket.off("mind_mole:your_word" as any,     onMindMoleWord);
+      unsubReconnect();
     };
   // Re-run when guestId changes (guest joins with session ID) OR when a room
   // is first created (state.room?.id goes null → roomId), which handles the

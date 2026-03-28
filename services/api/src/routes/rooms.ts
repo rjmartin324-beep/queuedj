@@ -173,10 +173,8 @@ export async function roomRoutes(fastify: FastifyInstance) {
     return reply.send({ leaderboard: entries });
   });
 
-  // ─── DELETE /rooms/:id — End a room (HOST only, requires x-api-key in prod) ─
-  fastify.delete<{ Params: { id: string }; Body: { hostGuestId: string } }>("/rooms/:id", {
-    preHandler: requireApiKey,
-  }, async (request, reply) => {
+  // ─── DELETE /rooms/:id — End a room (HOST only, ownership verified by hostGuestId) ─
+  fastify.delete<{ Params: { id: string }; Body: { hostGuestId: string } }>("/rooms/:id", async (request, reply) => {
     const { id } = request.params;
     const { hostGuestId } = request.body;
 
@@ -251,12 +249,13 @@ export async function roomRoutes(fastify: FastifyInstance) {
         const r: Room = JSON.parse(raw);
         if (!r.isLive) return null;
         return {
-          id:          r.id,
-          code:        r.code,
-          name:        r.name,
-          vibePreset:  r.vibePreset,
-          memberCount: r.memberCount,
-          createdAt:   r.createdAt,
+          id:           r.id,
+          code:         r.code,
+          name:         r.name,
+          vibePreset:   r.vibePreset,
+          memberCount:  r.memberCount,
+          createdAt:    r.createdAt,
+          hostGuestId:  r.hostGuestId,
         };
       })
       .filter(Boolean);
