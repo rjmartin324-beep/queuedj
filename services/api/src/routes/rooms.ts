@@ -78,6 +78,9 @@ export async function roomRoutes(fastify: FastifyInstance) {
       redisClient.set(`room:code:${code}`, roomId, { EX: ROOM_TTL }),
     ]);
 
+    // Add to public discovery feed
+    redisClient.zAdd("public_rooms", [{ score: room.createdAt, value: roomId }]).catch(() => {});
+
     // Store session in PostgreSQL for analytics — optional, don't block room creation
     db.query(
       `INSERT INTO sessions (id, room_code, host_fingerprint, vibe_preset, feature_flags)
@@ -198,11 +201,12 @@ export async function roomRoutes(fastify: FastifyInstance) {
       });
     } catch { /* non-critical */ }
 
-    // Expire Redis keys immediately
+    // Expire Redis keys immediately + remove from discovery feed
     await Promise.all([
       redisClient.del(ROOM_KEY(id)),
       redisClient.del(`room:${id}:state`),
       redisClient.del(`room:code:${room.code}`),
+      redisClient.zRem("public_rooms", id),
     ]);
 
     // Mark session as ended in PostgreSQL with final stats
@@ -230,6 +234,40 @@ export async function roomRoutes(fastify: FastifyInstance) {
     }).catch(() => {});
 
     return reply.send({ success: true });
+  });
+
+  // ─── GET /rooms/public — Discovery feed ──────────────────────────────────
+  fastify.get<{ Querystring: { limit?: string } }>("/rooms/public", async (request, reply) => {
+    const limit = Math.min(parseInt(request.query.limit ?? "20"), 50);
+
+    // Newest rooms first (ZREVRANGE by score)
+    const ids = await redisClient.zRange("public_rooms", 0, limit - 1, { REV: true });
+    if (!ids.length) return reply.send({ rooms: [] });
+
+    const raws = await Promise.all(ids.map((id) => redisClient.get(ROOM_KEY(id))));
+    const rooms = raws
+      .map((raw, i) => {
+        if (!raw) return null;
+        const r: Room = JSON.parse(raw);
+        if (!r.isLive) return null;
+        return {
+          id:          r.id,
+          code:        r.code,
+          name:        r.name,
+          vibePreset:  r.vibePreset,
+          memberCount: r.memberCount,
+          createdAt:   r.createdAt,
+        };
+      })
+      .filter(Boolean);
+
+    // Clean up stale entries that expired from Redis
+    const staleIds = ids.filter((_, i) => !raws[i]);
+    if (staleIds.length) {
+      redisClient.zRem("public_rooms", staleIds).catch(() => {});
+    }
+
+    return reply.send({ rooms });
   });
 }
 

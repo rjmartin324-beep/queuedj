@@ -33,6 +33,7 @@ import { recordActivity }      from "../lib/streak";
 import { computeXP, XPInfo }  from "../lib/xp";
 import { LavaLampBg }          from "../components/shared/LavaLampBg";
 import { SpotifyConnectButton } from "../components/shared/SpotifyConnectButton";
+import { PublicRoomsSheet }    from "../components/home/PublicRoomsSheet";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -717,8 +718,9 @@ export default function HomeScreen() {
   const [roomCode, setRoomCode]       = useState(params.code ?? "");
   const [loading, setLoading]         = useState(false);
   const [pendingAction, setPending]   = useState<PendingAction>(null);
-  const [joinModalVisible, setJoinModal] = useState(false);
-  const [errorMsg, setErrorMsg]       = useState("");
+  const [joinModalVisible, setJoinModal]   = useState(false);
+  const [browseVisible,   setBrowseVisible] = useState(false);
+  const [errorMsg, setErrorMsg]            = useState("");
   const errorOpacity = useRef(new Animated.Value(0)).current;
 
   function showError(msg: string) {
@@ -958,6 +960,14 @@ export default function HomeScreen() {
     }
   }
 
+  // ─── Browse join (from public room discovery) ────────────────────────────
+  async function handleBrowseJoin(code: string) {
+    setBrowseVisible(false);
+    const saved = await AsyncStorage.getItem("displayName");
+    if (!saved) { setPending({ type: "join", code }); return; }
+    await doJoinRoom(code, saved);
+  }
+
   // ─── Tab content ─────────────────────────────────────────────────────────
   function renderTabContent() {
     switch (activeTab) {
@@ -966,6 +976,7 @@ export default function HomeScreen() {
           <HomeTab
             onStartRoom={handleStartRoom}
             onJoinRoom={() => setJoinModal(true)}
+            onBrowseRooms={() => setBrowseVisible(true)}
             loading={loading}
             bodyColor={BODY_COLORS[bodyIdx]}
             hpColor={HP_COLORS[hpIdx]}
@@ -1102,6 +1113,12 @@ export default function HomeScreen() {
           <Text style={styles.errorToastText}>⚠️  {errorMsg}</Text>
         </Animated.View>
       )}
+
+      <PublicRoomsSheet
+        visible={browseVisible}
+        onClose={() => setBrowseVisible(false)}
+        onJoin={handleBrowseJoin}
+      />
     </SafeAreaView>
   );
 }
@@ -1113,6 +1130,7 @@ export default function HomeScreen() {
 function HomeTab({
   onStartRoom,
   onJoinRoom,
+  onBrowseRooms,
   loading,
   bodyColor,
   hpColor,
@@ -1129,6 +1147,7 @@ function HomeTab({
 }: {
   onStartRoom: () => void;
   onJoinRoom: () => void;
+  onBrowseRooms: () => void;
   loading: boolean;
   bodyColor: string;
   hpColor: string;
@@ -1281,7 +1300,7 @@ function HomeTab({
       </Modal>
 
       {/* ── Mode Cards ───────────────────────────────────────────────── */}
-      <ModeCards onStartRoom={onStartRoom} onJoinRoom={onJoinRoom} loading={loading} />
+      <ModeCards onStartRoom={onStartRoom} onJoinRoom={onJoinRoom} onBrowseRooms={onBrowseRooms} loading={loading} />
 
       {/* ── Live Now ─────────────────────────────────────────────────── */}
       <LiveNowSection onJoinRoom={onJoinRoom} activeRoom={roomState.room} isConnected={roomState.isConnected} />
@@ -1453,8 +1472,8 @@ function ModeMascot({ variant }: { variant: "dj" | "guest" }) {
 }
 
 function ModeCards({
-  onStartRoom, onJoinRoom, loading,
-}: { onStartRoom: () => void; onJoinRoom: () => void; loading: boolean }) {
+  onStartRoom, onJoinRoom, onBrowseRooms, loading,
+}: { onStartRoom: () => void; onJoinRoom: () => void; onBrowseRooms: () => void; loading: boolean }) {
   const hostScale  = useRef(new Animated.Value(1)).current;
   const guestScale = useRef(new Animated.Value(1)).current;
 
@@ -1512,6 +1531,15 @@ function ModeCards({
         </TouchableOpacity>
       </Animated.View>
     </View>
+
+    {/* ── Browse Live Rooms ── */}
+    <TouchableOpacity style={modeStyles.browseBtn} onPress={onBrowseRooms} activeOpacity={0.8}>
+      <View style={modeStyles.browseBtnInner}>
+        <Text style={modeStyles.browseBtnEmoji}>🌐</Text>
+        <Text style={modeStyles.browseBtnText}>Browse Live Rooms</Text>
+        <Text style={modeStyles.browseBtnArrow}>›</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -1535,6 +1563,17 @@ const modeStyles = StyleSheet.create({
   cardCta:      { alignSelf: "flex-start", backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: "rgba(255,255,255,0.2)" },
   cardCtaGuest: { backgroundColor: "rgba(255,255,255,0.1)" },
   cardCtaText:  { color: "#fff", fontSize: 12, fontWeight: "800" },
+
+  browseBtn: { marginHorizontal: 16, marginTop: -10, marginBottom: 10 },
+  browseBtnInner: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 14, paddingVertical: 11, paddingHorizontal: 18,
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.10)",
+  },
+  browseBtnEmoji: { fontSize: 15 },
+  browseBtnText:  { color: "rgba(255,255,255,0.65)", fontSize: 13, fontWeight: "700", flex: 1, textAlign: "center" },
+  browseBtnArrow: { color: "rgba(255,255,255,0.4)", fontSize: 16, fontWeight: "700" },
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
