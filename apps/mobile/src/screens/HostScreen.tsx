@@ -61,50 +61,50 @@ import type { ExperienceType } from "@queuedj/shared-types";
 import { registerForPushNotifications, registerTokenWithServer } from "../lib/notifications";
 import { socketManager } from "../lib/socket";
 import { ChatTicker } from "../components/host/ChatTicker";
-import { PartyChatPanel, ChatFloatingButton } from "../components/shared/PartyChatPanel";
+import { PartyChatPanel } from "../components/shared/PartyChatPanel";
 import { ExperiencePlayerView } from "../components/experiences/shared/ExperiencePlayerView";
 
-const EXPERIENCES: { type: ExperienceType; label: string; emoji: string }[] = [
-  { type: "dj",                     label: "DJ",              emoji: "🎛️" },
-  { type: "trivia",                 label: "Trivia",           emoji: "🧠" },
-  { type: "unpopular_opinions",     label: "Opinions",         emoji: "🌶️" },
-  { type: "scrapbook_sabotage",     label: "Scrapbook",        emoji: "📋" },
-  { type: "the_glitch",             label: "The Glitch",       emoji: "👾" },
-  { type: "copyright_infringement", label: "Copyright",        emoji: "⚖️" },
-  { type: "drawback",               label: "Drawback",         emoji: "🎨" },
-  { type: "scavenger_snap",         label: "Snap",             emoji: "📷" },
-  { type: "geo_guesser",            label: "GeoGuesser",       emoji: "🌍" },
+const EXPERIENCES: { type: ExperienceType; label: string; emoji: string; color: string }[] = [
+  { type: "dj",                     label: "DJ",              emoji: "🎛️", color: "#7c3aed" },
+  { type: "trivia",                 label: "Trivia",           emoji: "🧠", color: "#3b82f6" },
+  { type: "unpopular_opinions",     label: "Opinions",         emoji: "🌶️", color: "#ef4444" },
+  { type: "scrapbook_sabotage",     label: "Scrapbook",        emoji: "📋", color: "#f97316" },
+  { type: "the_glitch",             label: "The Glitch",       emoji: "👾", color: "#6366f1" },
+  { type: "copyright_infringement", label: "Copyright",        emoji: "⚖️", color: "#f59e0b" },
+  { type: "drawback",               label: "Drawback",         emoji: "🎨", color: "#ec4899" },
+  { type: "scavenger_snap",         label: "Snap",             emoji: "📷", color: "#22c55e" },
+  { type: "geo_guesser",            label: "GeoGuesser",       emoji: "🌍", color: "#14b8a6" },
   // Party games
-  { type: "would_you_rather",       label: "Would You Rather", emoji: "🤔" },
-  { type: "never_have_i_ever",      label: "Never Have I",     emoji: "🤫" },
-  { type: "truth_or_dare",          label: "Truth or Dare",    emoji: "💀" },
-  { type: "two_truths_one_lie",     label: "Two Truths",       emoji: "🤥" },
-  { type: "celebrity_head",         label: "Celebrity Head",   emoji: "👑" },
-  { type: "connections",            label: "Connections",      emoji: "🔗" },
-  { type: "word_association",       label: "Word Chain",       emoji: "💭" },
-  { type: "chain_reaction",         label: "Chain Reaction",   emoji: "⚡" },
-  { type: "fake_news",              label: "Fake News",        emoji: "📰" },
-  { type: "emoji_story",            label: "Emoji Story",      emoji: "😂" },
-  { type: "rank_it",                label: "Rank It",          emoji: "🏆" },
-  { type: "speed_round",            label: "Speed Round",      emoji: "⏱️" },
-  { type: "thumb_war",              label: "Thumb War",        emoji: "👍" },
-  { type: "musical_chairs",         label: "Musical Chairs",   emoji: "🪑" },
-  { type: "pop_culture_quiz",       label: "Pop Culture",      emoji: "🎬" },
-  { type: "who_knows_who",          label: "Who Knows Who",    emoji: "👥" },
-  { type: "alibi",                  label: "Alibi",            emoji: "🔍" },
-  { type: "cropped_look",           label: "Cropped Look",     emoji: "🔎" },
-  { type: "mind_reading",           label: "Mind Reading",     emoji: "🔮" },
-  { type: "improv_challenge",       label: "Improv",           emoji: "🎭" },
-  { type: "accent_challenge",       label: "Accents",          emoji: "🗣️" },
-  { type: "hum_it",                 label: "Hum It",           emoji: "🎵" },
-  { type: "mimic_me",               label: "Mimic Me",         emoji: "🪞" },
-  { type: "lyrics_drop",            label: "Lyrics Drop",      emoji: "🎤" },
-  { type: "party_dice",             label: "Party Dice",       emoji: "🎲" },
-  { type: "night_shift",            label: "Night Shift",      emoji: "🌙" },
-  { type: "mind_mole",              label: "Mind Mole",        emoji: "🦔" },
-  { type: "guess_the_song",         label: "Guess the Song",   emoji: "🎵" },
-  { type: "name_that_genre",        label: "Name the Genre",   emoji: "🎼" },
-  { type: "vibe_check",             label: "Vibe Check",       emoji: "✨" },
+  { type: "would_you_rather",       label: "Would You Rather", emoji: "🤔", color: "#a855f7" },
+  { type: "never_have_i_ever",      label: "Never Have I",     emoji: "🤫", color: "#f43f5e" },
+  { type: "truth_or_dare",          label: "Truth or Dare",    emoji: "💀", color: "#dc2626" },
+  { type: "two_truths_one_lie",     label: "Two Truths",       emoji: "🤥", color: "#8b5cf6" },
+  { type: "celebrity_head",         label: "Celebrity Head",   emoji: "👑", color: "#fbbf24" },
+  { type: "connections",            label: "Connections",      emoji: "🔗", color: "#2563eb" },
+  { type: "word_association",       label: "Word Chain",       emoji: "💭", color: "#10b981" },
+  { type: "chain_reaction",         label: "Chain Reaction",   emoji: "⚡", color: "#f59e0b" },
+  { type: "fake_news",              label: "Fake News",        emoji: "📰", color: "#64748b" },
+  { type: "emoji_story",            label: "Emoji Story",      emoji: "😂", color: "#f97316" },
+  { type: "rank_it",                label: "Rank It",          emoji: "🏆", color: "#eab308" },
+  { type: "speed_round",            label: "Speed Round",      emoji: "⏱️", color: "#ef4444" },
+  { type: "thumb_war",              label: "Thumb War",        emoji: "👍", color: "#7c3aed" },
+  { type: "musical_chairs",         label: "Musical Chairs",   emoji: "🪑", color: "#ec4899" },
+  { type: "pop_culture_quiz",       label: "Pop Culture",      emoji: "🎬", color: "#6366f1" },
+  { type: "who_knows_who",          label: "Who Knows Who",    emoji: "👥", color: "#14b8a6" },
+  { type: "alibi",                  label: "Alibi",            emoji: "🔍", color: "#475569" },
+  { type: "cropped_look",           label: "Cropped Look",     emoji: "🔎", color: "#8b5cf6" },
+  { type: "mind_reading",           label: "Mind Reading",     emoji: "🔮", color: "#7c3aed" },
+  { type: "improv_challenge",       label: "Improv",           emoji: "🎭", color: "#f97316" },
+  { type: "accent_challenge",       label: "Accents",          emoji: "🗣️", color: "#3b82f6" },
+  { type: "hum_it",                 label: "Hum It",           emoji: "🎵", color: "#10b981" },
+  { type: "mimic_me",               label: "Mimic Me",         emoji: "🪞", color: "#ec4899" },
+  { type: "lyrics_drop",            label: "Lyrics Drop",      emoji: "🎤", color: "#f43f5e" },
+  { type: "party_dice",             label: "Party Dice",       emoji: "🎲", color: "#ef4444" },
+  { type: "night_shift",            label: "Night Shift",      emoji: "🌙", color: "#1d4ed8" },
+  { type: "mind_mole",              label: "Mind Mole",        emoji: "🦔", color: "#7c3aed" },
+  { type: "guess_the_song",         label: "Guess the Song",   emoji: "🎵", color: "#10b981" },
+  { type: "name_that_genre",        label: "Name the Genre",   emoji: "🎼", color: "#6366f1" },
+  { type: "vibe_check",             label: "Vibe Check",       emoji: "✨", color: "#f59e0b" },
 ];
 
 type Tab = "controls" | "queue" | "guests" | "history" | "recs" | "settings" | "demo";
@@ -379,6 +379,14 @@ export default function HostScreen() {
         </View>
         <View style={styles.topRight}>
           <RoomQRCode roomCode={roomCode} />
+          <TouchableOpacity onPress={() => { setChatOpen(true); setUnreadCount(0); }} style={styles.menuBtn}>
+            <Text style={styles.menuBtnText}>💬</Text>
+            {unreadCount > 0 && (
+              <View style={styles.chatHeaderBadge}>
+                <Text style={styles.chatHeaderBadgeText}>{unreadCount > 9 ? "9+" : unreadCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowAllOptions(true)} style={styles.menuBtn}>
             <Text style={styles.menuBtnText}>⋯</Text>
           </TouchableOpacity>
@@ -447,13 +455,15 @@ export default function HostScreen() {
                   </View>
                 )}
                 <View style={styles.appsGrid}>
-                  {(showAllGames ? GAME_CHIPS : GAME_CHIPS.slice(0, 6)).map(({ type, label, emoji }) => {
+                  {(showAllGames ? GAME_CHIPS : GAME_CHIPS.slice(0, 6)).map(({ type, label, emoji, color }) => {
                     const active = state.activeExperience === type;
                     return (
-                      <TouchableOpacity key={type} style={[styles.appCard, active && styles.appCardActive]} onPress={() => setSelectedGame(type)} activeOpacity={0.75}>
-                        <Text style={styles.appIcon}>{emoji}</Text>
-                        <Text style={[styles.appName, active && styles.appNameActive]} numberOfLines={2}>{label}</Text>
-                        {active && <View style={styles.appActiveDot} />}
+                      <TouchableOpacity key={type} style={[styles.appCard, active && { borderColor: color, backgroundColor: `${color}18` }]} onPress={() => setSelectedGame(type)} activeOpacity={0.75}>
+                        <View style={[styles.appIconWrap, { backgroundColor: `${color}28`, borderColor: `${color}50` }]}>
+                          <Text style={styles.appIcon}>{emoji}</Text>
+                        </View>
+                        <Text style={[styles.appName, active && { color: color }]} numberOfLines={2}>{label}</Text>
+                        {active && <View style={[styles.appActiveDot, { backgroundColor: color }]} />}
                       </TouchableOpacity>
                     );
                   })}
@@ -539,10 +549,6 @@ export default function HostScreen() {
       )}
 
       <ChatTicker roomId={state.room?.id ?? ""} />
-
-      <View style={styles.chatFab}>
-        <ChatFloatingButton onPress={() => { setChatOpen(true); setUnreadCount(0); }} unreadCount={unreadCount} />
-      </View>
 
       <PartyChatPanel visible={chatOpen} onClose={() => setChatOpen(false)} unreadCount={unreadCount} onRead={() => setUnreadCount(0)} />
 
@@ -940,14 +946,24 @@ const styles = StyleSheet.create({
   appCard: {
     width: "31%", aspectRatio: 1,
     backgroundColor: "#12101e", borderWidth: 1, borderColor: "#1e1b30",
-    borderRadius: 12, alignItems: "center", justifyContent: "center", gap: 8,
+    borderRadius: 12, alignItems: "center", justifyContent: "center", gap: 6,
     position: "relative", overflow: "hidden",
   },
-  appCardActive: { backgroundColor: "rgba(167,139,250,0.1)", borderColor: "#a78bfa" },
-  appIcon: { fontSize: 24, lineHeight: 28 },
-  appName: { color: "#9990cc", fontSize: 11, fontWeight: "500", textAlign: "center", lineHeight: 14, paddingHorizontal: 4 },
-  appNameActive: { color: "#c4b5fd" },
-  appActiveDot: { position: "absolute", top: 6, right: 6, width: 6, height: 6, borderRadius: 3, backgroundColor: "#a78bfa" },
+  appIconWrap: {
+    width: 44, height: 44, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 1,
+  },
+  appIcon: { fontSize: 26, lineHeight: 30 },
+  appName: { color: "#9990cc", fontSize: 10, fontWeight: "600", textAlign: "center", lineHeight: 13, paddingHorizontal: 4 },
+  appActiveDot: { position: "absolute", top: 6, right: 6, width: 6, height: 6, borderRadius: 3 },
+  chatHeaderBadge: {
+    position: "absolute", top: -4, right: -4,
+    backgroundColor: "#ef4444", borderRadius: 8,
+    minWidth: 16, height: 16, alignItems: "center", justifyContent: "center",
+    paddingHorizontal: 3,
+  },
+  chatHeaderBadgeText: { color: "#fff", fontSize: 9, fontWeight: "900" },
 
   // HOST VIEW RETURN BAR
   hostViewBar: { alignItems: "center", paddingVertical: 8, backgroundColor: "rgba(124,58,237,0.10)", borderBottomWidth: 1, borderBottomColor: "rgba(124,58,237,0.20)" },
@@ -979,7 +995,6 @@ const styles = StyleSheet.create({
   djQueueLabel: { color: "#6a64a0", fontSize: 10, fontWeight: "800", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 },
 
   // CHAT FAB
-  chatFab: { position: "absolute", bottom: 24, right: 16, zIndex: 20 },
 
   // MODAL OVERLAY
   modalOverlay: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(5,4,15,0.85)" },
