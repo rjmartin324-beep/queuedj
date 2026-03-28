@@ -264,17 +264,44 @@ async function main() {
         // Determine what sync is needed
         const { strategy, snapshot, events, currentSequenceId } = await reconcile(roomId, lastSequenceId);
 
+        // ── Fetch bootstrap data BEFORE ack so it arrives in-band ────────────
+        // All of this is available from Redis — no PostgreSQL required.
+        // Bundling it into the ack eliminates the join-time race condition where
+        // room:state_snapshot and experience:state arrive before React commits.
+        const bootstrapMembers = await getAllMembers(roomId).catch(() => [] as any[]);
+        let bootstrapExpType = "dj";
+        let bootstrapView: any = null;
+        let bootstrapAwaitingReady = false;
+        let bootstrapReadyCount = 0;
+        let bootstrapReadyTotalCount = 0;
+        try {
+          const activeExp = await redisClient.get(`room:${roomId}:experience`);
+          bootstrapExpType = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
+          bootstrapView = await getExperience(bootstrapExpType).getGuestViewDescriptor(roomId);
+          if (bootstrapExpType !== "dj") {
+            bootstrapReadyTotalCount = bootstrapMembers.filter((m: any) => m.role === "GUEST").length;
+            bootstrapReadyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
+            bootstrapAwaitingReady = bootstrapReadyTotalCount > 0 && bootstrapReadyCount < bootstrapReadyTotalCount;
+          }
+        } catch { /* non-critical */ }
+
         const joinAck = buildJoinAck({
           success: true,
           role,
           guestId: resolvedGuestId,
           currentSequenceId,
           guestLastSequenceId: lastSequenceId,
+          members: bootstrapMembers.map(({ pushToken: _pt, ...m }: any) => m),
+          experienceType: bootstrapExpType,
+          guestView: bootstrapView?.type ?? "dj_queue",
+          awaitingReady: bootstrapAwaitingReady,
+          readyCount: bootstrapReadyCount,
+          readyTotalCount: bootstrapReadyTotalCount,
         });
 
         ack(joinAck);
 
-        // Send sync data after ack
+        // Send sync data after ack (still sent as belt-and-suspenders for reconnects)
         if (strategy === "full_snapshot" && snapshot) {
           socket.emit("room:state_snapshot", snapshot);
         } else if (strategy === "event_replay" && events) {
@@ -282,36 +309,17 @@ async function main() {
         }
         // strategy === "already_current": no sync needed
 
-        // ── Restore active experience state for reconnecting guests ──────────
-        // The snapshot/event_replay covers queue + members, but NOT which game
-        // is active or what phase it's in. Without this, a guest who drops
-        // mid-game rejoins to the wrong screen and must wait for the next
-        // server-pushed state event (which may never come).
+        // Still emit experience:state so reconnecting guests get the full view descriptor
         try {
-          const activeExp = await redisClient.get(`room:${roomId}:experience`);
-          const expType   = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
-          const view      = await getExperience(expType).getGuestViewDescriptor(roomId);
-          // Include ready-up state so a guest who joins after host picked a game
-          // still sees the ready-up overlay instead of the raw waiting view.
-          const isGame = expType !== "dj";
-          let awaitingReady = false;
-          let readyCount = 0;
-          let readyTotalCount = 0;
-          if (isGame) {
-            const allM = await getAllMembers(roomId);
-            readyTotalCount = allM.filter(m => m.role === "GUEST").length;
-            readyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
-            awaitingReady = readyTotalCount > 0 && readyCount < readyTotalCount;
-          }
           socket.emit("experience:state" as any, {
-            experienceType: expType,
+            experienceType: bootstrapExpType,
             state: null,
-            view,
-            awaitingReady,
-            readyCount,
-            readyTotalCount,
+            view: bootstrapView,
+            awaitingReady: bootstrapAwaitingReady,
+            readyCount: bootstrapReadyCount,
+            readyTotalCount: bootstrapReadyTotalCount,
           });
-        } catch { /* non-critical — best effort; client will sync on next state push */ }
+        } catch { /* non-critical */ }
 
         // Notify room of new member (excluding push token — private)
         const { pushToken, ...publicMember } = { ...existing, role, guestId: resolvedGuestId, joinedAt: Date.now(), isWorkerNode: false, pushToken: existing?.pushToken };

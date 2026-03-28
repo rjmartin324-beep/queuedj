@@ -123,6 +123,12 @@ export function buildJoinAck(params: {
   currentSequenceId: number;
   guestLastSequenceId: number;
   error?: string;
+  members?: RoomJoinAck["members"];
+  experienceType?: string;
+  guestView?: string;
+  awaitingReady?: boolean;
+  readyCount?: number;
+  readyTotalCount?: number;
 }): RoomJoinAck {
   const gap = params.currentSequenceId - params.guestLastSequenceId;
   return {
@@ -132,5 +138,11 @@ export function buildJoinAck(params: {
     needsFullSync: gap > MAX_EVENT_REPLAY_COUNT || params.guestLastSequenceId === 0,
     currentSequenceId: params.currentSequenceId,
     error: params.error,
+    members: params.members,
+    experienceType: params.experienceType,
+    guestView: params.guestView,
+    awaitingReady: params.awaitingReady,
+    readyCount: params.readyCount,
+    readyTotalCount: params.readyTotalCount,
   };
 }

@@ -252,6 +252,13 @@ export interface RoomJoinAck {
   needsFullSync:      boolean;
   currentSequenceId:  number;
   error?:             string;
+  // Bootstrap data — eliminates race between ack and follow-up socket events
+  members?:           Omit<RoomMember, "pushToken">[];
+  experienceType?:    string;
+  guestView?:         string;
+  awaitingReady?:     boolean;
+  readyCount?:        number;
+  readyTotalCount?:   number;
 }
 
 export const MAX_EVENT_REPLAY_COUNT = 100;

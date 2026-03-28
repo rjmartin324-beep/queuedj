@@ -932,6 +932,25 @@ export default function HomeScreen() {
       dispatch({ type: "SET_ROOM", room: { ...data, sequenceId: ack.currentSequenceId } as any });
       dispatch({ type: "SET_GUEST_ID", guestId, role: safeRole });
 
+      // Apply bootstrap data from ack — arrives in-band, no socket race possible
+      if (ack.members && ack.members.length > 0) {
+        dispatch({ type: "SET_MEMBERS", members: ack.members as any });
+      }
+      if (ack.experienceType && ack.guestView) {
+        dispatch({ type: "SET_EXPERIENCE", experience: ack.experienceType as any, view: ack.guestView as any });
+      }
+      if (ack.awaitingReady === true) {
+        dispatch({ type: "SET_READY_UP", active: true, readyCount: ack.readyCount ?? 0, totalCount: ack.readyTotalCount ?? 0 });
+      }
+
+      // Belt-and-suspenders: emit room:request_sync directly (bypasses React useEffect timing)
+      // This runs synchronously after ack, before any re-render, so handlers may not be
+      // registered yet — but the useEffect + fallback timer below will also fire.
+      const syncSocket = socketManager.get();
+      if (syncSocket) {
+        syncSocket.emit("room:request_sync" as any, { roomId: data.id });
+      }
+
       router.push(`/guest/${data.id}`);
       recordActivity().catch(() => {});
     } catch (e: any) {

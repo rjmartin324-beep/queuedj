@@ -362,11 +362,18 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
 
   // After React commits with a room set (handlers now registered), request a
   // fresh state snapshot so events dropped during the join race are recovered.
+  // The 3-second fallback timer fires even if the first sync was silently dropped.
   useEffect(() => {
     if (!state.room?.id) return;
+    const roomId = state.room.id;
     const socket = socketManager.get();
     if (!socket) return;
-    socket.emit("room:request_sync" as any, { roomId: state.room.id });
+    socket.emit("room:request_sync" as any, { roomId });
+    const fallback = setTimeout(() => {
+      const s = socketManager.get();
+      if (s) s.emit("room:request_sync" as any, { roomId });
+    }, 3000);
+    return () => clearTimeout(fallback);
   }, [state.room?.id]);
 
   function sendReadyUp() {
