@@ -347,24 +347,29 @@ async function main() {
     // Client emits this after React has committed and handlers are registered,
     // guaranteeing the snapshot and experience state are received.
     socket.on("room:request_sync" as any, async ({ roomId }: { roomId: string }) => {
+      // Step 1: members — fetch from Redis directly (never null, no PostgreSQL dependency)
       try {
-        const { snapshot } = await reconcile(roomId, 0);
-        if (snapshot) socket.emit("room:state_snapshot", snapshot);
-
+        const allMembers = await getAllMembers(roomId);
+        socket.emit("room:members_sync" as any, { members: allMembers });
+      } catch (err) {
+        console.warn("[room:request_sync] members error", err);
+      }
+      // Step 2: experience state — separate try so members always arrive even if this fails
+      try {
+        const allMembers = await getAllMembers(roomId);
         const activeExp = await redisClient.get(`room:${roomId}:experience`);
         const expType = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
         const view = await getExperience(expType).getGuestViewDescriptor(roomId);
         const isGame = expType !== "dj";
         let awaitingReady = false, readyCount = 0, readyTotalCount = 0;
         if (isGame) {
-          const allM = await getAllMembers(roomId);
-          readyTotalCount = allM.filter(m => m.role === "GUEST").length;
+          readyTotalCount = allMembers.filter(m => m.role === "GUEST").length;
           readyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
           awaitingReady = readyTotalCount > 0 && readyCount < readyTotalCount;
         }
         socket.emit("experience:state" as any, { experienceType: expType, state: null, view, awaitingReady, readyCount, readyTotalCount });
       } catch (err) {
-        console.warn("[room:request_sync] error", err);
+        console.warn("[room:request_sync] experience error", err);
       }
     });
 

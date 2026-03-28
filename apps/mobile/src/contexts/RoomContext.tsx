@@ -201,6 +201,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     // ─── Members ─────────────────────────────────────────────────────────────
     const onMemberJoined   = (member: Omit<RoomMember, "pushToken">) => dispatch({ type: "MEMBER_JOINED", member });
     const onMemberLeft     = ({ guestId }: { guestId: string }) => dispatch({ type: "MEMBER_LEFT", guestId });
+    const onMembersSync    = ({ members }: { members: Omit<RoomMember, "pushToken">[] }) => dispatch({ type: "SET_MEMBERS", members });
 
     // ─── Crowd State ──────────────────────────────────────────────────────────
     const onCrowdState     = ({ crowdState }: { crowdState: CrowdState }) => dispatch({ type: "SET_CROWD_STATE", crowdState });
@@ -289,6 +290,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     socket.on("queue:item_added" as any,  onItemAdded as any);
     socket.on("room:member_joined",       onMemberJoined as any);
     socket.on("room:member_left",         onMemberLeft as any);
+    socket.on("room:members_sync" as any, onMembersSync as any);
     socket.on("room:crowd_state_changed", onCrowdState as any);
     socket.on("connect",                  onConnect);
     socket.on("disconnect",               onDisconnect);
@@ -313,6 +315,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       socket.off("queue:item_added" as any,  onItemAdded as any);
       socket.off("room:member_joined",       onMemberJoined as any);
       socket.off("room:member_left",         onMemberLeft as any);
+      socket.off("room:members_sync" as any, onMembersSync as any);
       socket.off("room:crowd_state_changed", onCrowdState as any);
       socket.off("connect",                  onConnect);
       socket.off("disconnect",               onDisconnect);
