@@ -343,6 +343,31 @@ async function main() {
       }
     });
 
+    // ─── room:request_sync ───────────────────────────────────────────────────
+    // Client emits this after React has committed and handlers are registered,
+    // guaranteeing the snapshot and experience state are received.
+    socket.on("room:request_sync" as any, async ({ roomId }: { roomId: string }) => {
+      try {
+        const { snapshot } = await reconcile(roomId, 0);
+        if (snapshot) socket.emit("room:state_snapshot", snapshot);
+
+        const activeExp = await redisClient.get(`room:${roomId}:experience`);
+        const expType = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
+        const view = await getExperience(expType).getGuestViewDescriptor(roomId);
+        const isGame = expType !== "dj";
+        let awaitingReady = false, readyCount = 0, readyTotalCount = 0;
+        if (isGame) {
+          const allM = await getAllMembers(roomId);
+          readyTotalCount = allM.filter(m => m.role === "GUEST").length;
+          readyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
+          awaitingReady = readyTotalCount > 0 && readyCount < readyTotalCount;
+        }
+        socket.emit("experience:state" as any, { experienceType: expType, state: null, view, awaitingReady, readyCount, readyTotalCount });
+      } catch (err) {
+        console.warn("[room:request_sync] error", err);
+      }
+    });
+
     // ─── room:leave ──────────────────────────────────────────────────────────
     socket.on("room:leave", async ({ roomId, guestId }) => {
       await handleDisconnect(socket, io, roomId, guestId);

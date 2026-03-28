@@ -357,6 +357,15 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
+  // After React commits with a room set (handlers now registered), request a
+  // fresh state snapshot so events dropped during the join race are recovered.
+  useEffect(() => {
+    if (!state.room?.id) return;
+    const socket = socketManager.get();
+    if (!socket) return;
+    socket.emit("room:request_sync" as any, { roomId: state.room.id });
+  }, [state.room?.id]);
+
   function sendReadyUp() {
     const socket = socketManager.get();
     if (!socket || !state.room) return;
