@@ -36,6 +36,9 @@ class SocketManager {
     lastKnownSequenceId: 0,
   };
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  // Tracks whether a connection has ever been established — used to distinguish
+  // initial connect (skip re-join, doJoinRoom handles it) from reconnect (re-join needed).
+  private _everConnected = false;
 
   // In-memory cache — avoids repeated AsyncStorage hits on every button press
   private _guestId:      string | null = null;
@@ -182,12 +185,15 @@ class SocketManager {
       console.log("[socket] connected");
       this.offlineState.isOffline = false;
 
-      // On every reconnect: rejoin current room and trigger reconciliation
-      if (this.currentRoomId) {
+      // On reconnect only (not the initial connection): rejoin to resync state.
+      // On initial connect, doJoinRoom handles the explicit join — re-joining here
+      // would cause a duplicate room:join before handlers are registered.
+      if (this._everConnected && this.currentRoomId) {
         await this.joinRoom(this.currentRoomId).catch((err) => {
           console.warn("[socket] reconnect joinRoom failed:", err);
         });
       }
+      this._everConnected = true;
 
       // Replay any buffered requests
       if (this.offlineState.pendingRequests.length > 0) {

@@ -141,7 +141,7 @@ export function TriviaWaitingView() {
         >
           <Text style={styles.badgeEmoji}>👥</Text>
           <Text style={styles.badgeText}>
-            {state.members.length} {state.members.length === 1 ? "player" : "players"} ready
+            {state.members.filter(m => !m.isWorkerNode).length} {state.members.filter(m => !m.isWorkerNode).length === 1 ? "player" : "players"} in lobby
           </Text>
         </LinearGradient>
       </View>
