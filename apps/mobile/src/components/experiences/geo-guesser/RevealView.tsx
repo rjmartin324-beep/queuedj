@@ -1,7 +1,10 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { WebView } from "react-native-webview";
+import { View, Text, ScrollView, StyleSheet, Platform } from "react-native";
 import { useRoom } from "../../../contexts/RoomContext";
+
+const WebView: any = Platform.OS !== "web"
+  ? require("react-native-webview").WebView
+  : null;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Geo Guesser — RevealView
@@ -208,16 +211,24 @@ export function RevealView() {
 
       {/* Mini map — correct (green) vs my guess (red) */}
       <View style={styles.mapContainer}>
-        <WebView
-          style={styles.miniMap}
-          originWhitelist={["*"]}
-          source={{ html: mapHtml }}
-          javaScriptEnabled
-          scrollEnabled={false}
-          bounces={false}
-          overScrollMode="never"
-          pointerEvents="none"
-        />
+        {Platform.OS === "web" ? (
+          <iframe
+            style={{ width: "100%", height: "100%", border: "none" } as any}
+            srcDoc={mapHtml}
+            sandbox="allow-scripts allow-same-origin"
+          />
+        ) : (
+          <WebView
+            style={styles.miniMap}
+            originWhitelist={["*"]}
+            source={{ html: mapHtml }}
+            javaScriptEnabled
+            scrollEnabled={false}
+            bounces={false}
+            overScrollMode="never"
+            pointerEvents="none"
+          />
+        )}
         <View style={styles.mapLegend}>
           <View style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: ACCENT }]} />

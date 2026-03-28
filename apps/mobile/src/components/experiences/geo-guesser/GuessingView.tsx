@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  View, Text, StyleSheet, Image,
+  View, Text, StyleSheet, Image, Platform,
 } from "react-native";
-import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../../../contexts/RoomContext";
 import { WaitingForPlayersView } from "../shared/WaitingForPlayersView";
+
+// Only import WebView on native — avoids the web crash
+const WebView: any = Platform.OS !== "web"
+  ? require("react-native-webview").WebView
+  : null;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Geo Guesser — GuessingView
@@ -101,6 +105,8 @@ const LEAFLET_HTML = `
       var msg = JSON.stringify({ lat: pendingLat, lng: pendingLng });
       if (window.ReactNativeWebView) {
         window.ReactNativeWebView.postMessage(msg);
+      } else {
+        window.parent.postMessage(msg, '*');
       }
     }
   </script>
@@ -136,16 +142,25 @@ export function GuessingView() {
     timerPct > 0.5 ? ACCENT : timerPct > 0.2 ? "#f59e0b" : "#ef4444";
   const isUrgent   = timeLeft <= 8;
 
-  function handleMessage(event: WebViewMessageEvent) {
+  function handleMessage(event: any) {
     if (submitted) return;
     try {
-      const { lat, lng } = JSON.parse(event.nativeEvent.data);
+      const raw = Platform.OS === "web" ? event.data : event.nativeEvent.data;
+      const { lat, lng } = JSON.parse(raw);
+      if (typeof lat !== "number" || typeof lng !== "number") return;
       setSubmitted(true);
       sendAction("submit_guess", { lat, lng });
     } catch (_) {
       // ignore malformed messages
     }
   }
+
+  // Web: listen for postMessage from the Leaflet iframe
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [submitted]);
 
   if (submitted) {
     return (
@@ -212,18 +227,26 @@ export function GuessingView() {
         <Text style={styles.instruction}>Tap the map to drop your pin, then lock in.</Text>
       </View>
 
-      {/* Leaflet map WebView */}
-      <WebView
-        style={styles.map}
-        originWhitelist={["*"]}
-        source={{ html: LEAFLET_HTML }}
-        onMessage={handleMessage}
-        javaScriptEnabled
-        domStorageEnabled
-        scrollEnabled={false}
-        bounces={false}
-        overScrollMode="never"
-      />
+      {/* Leaflet map — WebView on native, iframe on web */}
+      {Platform.OS === "web" ? (
+        <iframe
+          style={{ flex: 1, border: "none", width: "100%", height: "100%" } as any}
+          srcDoc={LEAFLET_HTML}
+          sandbox="allow-scripts allow-same-origin"
+        />
+      ) : (
+        <WebView
+          style={styles.map}
+          originWhitelist={["*"]}
+          source={{ html: LEAFLET_HTML }}
+          onMessage={handleMessage}
+          javaScriptEnabled
+          domStorageEnabled
+          scrollEnabled={false}
+          bounces={false}
+          overScrollMode="never"
+        />
+      )}
     </View>
   );
 }
