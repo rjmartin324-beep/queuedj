@@ -866,7 +866,10 @@ export default function HomeScreen() {
 
         // Socket should already be connected (or connecting) — join room
         await socketPromise;
-        await socketManager.joinRoom(roomId).catch(() => {});
+        await socketManager.joinRoom(roomId).catch((err) => {
+          console.warn("[host] joinRoom failed after room creation:", err);
+          dispatch({ type: "SET_OFFLINE", isOffline: true });
+        });
       } catch {
         clearTimeout(fetchTimeout);
         // Offline / demo mode — no server needed
@@ -925,8 +928,9 @@ export default function HomeScreen() {
 
       if (!ack.success) throw new Error(ack.error ?? "Could not join room");
 
+      const safeRole = (["HOST", "CO_HOST", "GUEST"] as const).includes(ack.role as any) ? ack.role : "GUEST";
       dispatch({ type: "SET_ROOM", room: { ...data, sequenceId: ack.currentSequenceId } as any });
-      dispatch({ type: "SET_GUEST_ID", guestId, role: ack.role });
+      dispatch({ type: "SET_GUEST_ID", guestId, role: safeRole });
 
       router.push(`/guest/${data.id}`);
       recordActivity().catch(() => {});
