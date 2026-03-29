@@ -1,5 +1,5 @@
 FROM node:20-alpine
-# cache bust
+LABEL build="2"
 
 WORKDIR /app
 
