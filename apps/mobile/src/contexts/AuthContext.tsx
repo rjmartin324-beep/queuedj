@@ -154,17 +154,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     try {
-      const { makeRedirectUri, useAuthRequest, ResponseType } = await import("expo-auth-session");
-      const Discovery = await import("expo-auth-session/providers/google");
+      if (Platform.OS === "web") {
+        // Use Google Identity Services (GIS) on web — no redirect URI needed,
+        // delivers id_token directly via popup callback.
+        const clientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+        if (!clientId) {
+          dispatch({ type: "SET_ERROR", error: "Google sign-in is not configured" });
+          return;
+        }
 
-      // expo-auth-session Google sign-in needs to be used as a hook, so we trigger
-      // it via a one-time modal component. Here we use the manual flow instead.
+        await new Promise<void>((resolve, reject) => {
+          const initAndPrompt = () => {
+            const g = (window as any).google;
+            g.accounts.id.initialize({
+              client_id: clientId,
+              callback: async (response: { credential: string }) => {
+                try {
+                  const identity = await getIdentity();
+                  const apiResponse = await authApi.signInGoogle(response.credential, identity.guestId);
+                  await handleSignInResponse(apiResponse.jwt, apiResponse.account, apiResponse.guestId, identity.guestId);
+                  resolve();
+                } catch (err) {
+                  reject(err);
+                }
+              },
+              auto_select: false,
+              cancel_on_tap_outside: true,
+            });
+            g.accounts.id.prompt((notification: any) => {
+              if (notification.isNotDisplayed()) {
+                reject(new Error("Google sign-in could not be displayed. Try a different browser or clear cookies."));
+              } else if (notification.isSkippedMoment()) {
+                reject(new Error("cancel"));
+              }
+            });
+          };
+
+          if ((window as any).google?.accounts) {
+            initAndPrompt();
+          } else {
+            const script = document.createElement("script");
+            script.src = "https://accounts.google.com/gsi/client";
+            script.onload = initAndPrompt;
+            script.onerror = () => reject(new Error("Failed to load Google sign-in"));
+            document.head.appendChild(script);
+          }
+        });
+        return;
+      }
+
+      // ── Native (iOS / Android) ───────────────────────────────────────────────
+      const { makeRedirectUri } = await import("expo-auth-session");
       const redirectUri = makeRedirectUri({ scheme: "com.partyglue.app" });
 
       const clientId = Platform.select({
         ios:     process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
         android: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
-        default: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
       });
 
       if (!clientId) {
@@ -172,7 +217,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Use AuthSession to get the ID token directly
       const { AuthRequest } = await import("expo-auth-session");
       const request = new AuthRequest({
         clientId,
