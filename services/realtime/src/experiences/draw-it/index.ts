@@ -248,25 +248,34 @@ export class DrawItExperience implements ExperienceModule {
     const raw = await redisClient.get(KEY(roomId));
     if (!raw) return;
     const state: DrawItState = JSON.parse(raw);
-    if (state.phase !== "drawing") return;
     if (this.timers.has(roomId)) return;
-    // Re-arm with a 20s grace window
-    const GRACE_MS = 20_000;
-    const t = setTimeout(() => {
-      this.timers.delete(roomId);
-      redisClient.get(KEY(roomId)).then((r) => {
-        if (!r) return;
-        const st: DrawItState = JSON.parse(r);
-        if (st.phase === "drawing") this._reveal(roomId, io, st).catch(() => {});
-      }).catch(() => {});
-    }, GRACE_MS);
-    this.timers.set(roomId, t);
-    // Re-broadcast current state
-    const seq = await getNextSequenceId(roomId);
-    io.to(roomId).emit("experience:state" as any, {
-      experienceType: "draw_it", state,
-      view: { type: "draw_it" as any, data: state }, sequenceId: seq,
-    });
+
+    if (state.phase === "drawing") {
+      // Re-arm with a 20s grace window
+      const t = setTimeout(() => {
+        this.timers.delete(roomId);
+        redisClient.get(KEY(roomId)).then((r) => {
+          if (!r) return;
+          const st: DrawItState = JSON.parse(r);
+          if (st.phase === "drawing") this._reveal(roomId, io, st).catch(() => {});
+        }).catch(() => {});
+      }, 20_000);
+      this.timers.set(roomId, t);
+      // Re-broadcast current state
+      const seq = await getNextSequenceId(roomId);
+      io.to(roomId).emit("experience:state" as any, {
+        experienceType: "draw_it", state,
+        view: { type: "draw_it" as any, data: state }, sequenceId: seq,
+      });
+    } else if (state.phase === "reveal") {
+      console.log("[draw_it] resuming from reveal phase for", roomId);
+      // Re-arm auto-next with a 3s grace
+      const t = setTimeout(() => {
+        this.timers.delete(roomId);
+        this._next(roomId, io).catch(() => {});
+      }, 3_000);
+      this.timers.set(roomId, t);
+    }
   }
 
   async getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor> {

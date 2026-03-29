@@ -40,7 +40,7 @@ export default function GuestScreen() {
   const readyPulse = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (!state.readyUp.active || state.readyUp.iHaveReadied) return;
+    if (!state.readyUp.active || state.readyUp.iHaveReadied || state.role !== "GUEST") return;
     const anim = Animated.loop(
       Animated.sequence([
         Animated.timing(readyPulse, { toValue: 1.06, duration: 600, useNativeDriver: true }),
@@ -171,6 +171,8 @@ export default function GuestScreen() {
     : null;
 
   const { active: readyActive, iHaveReadied, readyCount, totalCount } = state.readyUp;
+  // CO_HOSTs are excluded from the ready_set on the server — don't let them interact with the button
+  const canReadyUp = readyActive && state.role === "GUEST";
 
   return (
     <View style={styles.container}>
@@ -223,18 +225,18 @@ export default function GuestScreen() {
               </Text>
             </View>
           ) : (
-            <Animated.View style={{ transform: [{ scale: readyActive ? readyPulse : 1 }] }}>
+            <Animated.View style={{ transform: [{ scale: canReadyUp ? readyPulse : 1 }] }}>
               <TouchableOpacity
-                onPress={readyActive ? handleReadyUp : undefined}
-                style={[styles.readyBtn, !readyActive && styles.readyBtnDisabled]}
-                activeOpacity={readyActive ? 0.75 : 1}
+                onPress={canReadyUp ? handleReadyUp : undefined}
+                style={[styles.readyBtn, !canReadyUp && styles.readyBtnDisabled]}
+                activeOpacity={canReadyUp ? 0.75 : 1}
               >
                 <LinearGradient
-                  colors={readyActive ? ["#7c3aed", "#a855f7"] : ["#1a1a1a", "#1a1a1a"]}
+                  colors={canReadyUp ? ["#7c3aed", "#a855f7"] : ["#1a1a1a", "#1a1a1a"]}
                   style={styles.readyBtnInner}
                 >
-                  <Text style={[styles.readyBtnText, !readyActive && styles.readyBtnTextDisabled]}>
-                    {readyActive ? "Ready!" : "Ready"}
+                  <Text style={[styles.readyBtnText, !canReadyUp && styles.readyBtnTextDisabled]}>
+                    {canReadyUp ? "Ready!" : "Ready"}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>

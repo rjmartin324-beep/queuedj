@@ -251,6 +251,11 @@ async function main() {
         await socket.join(roomId);
         // Also join a personal room so credits:awarded reaches this guest directly
         await socket.join(`guest:${resolvedGuestId}`);
+        // Host joins a host-specific room so deck:state_updated, walk_in_anthem,
+        // and guest:reported events (targeted at host:${roomId}) are received
+        if (role === "HOST") {
+          await socket.join(`host:${roomId}`);
+        }
         await registerActiveRoom(roomId);
 
         // Record daily activity for streak-at-risk push reminders (49h TTL covers today + tomorrow job run)
@@ -292,14 +297,26 @@ async function main() {
         let bootstrapAwaitingReady = false;
         let bootstrapReadyCount = 0;
         let bootstrapReadyTotalCount = 0;
+        let bootstrapState: unknown = null;
         try {
           const activeExp = await redisClient.get(`room:${roomId}:experience`);
           bootstrapExpType = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
-          bootstrapView = await getExperience(bootstrapExpType).getGuestViewDescriptor(roomId);
+          const bootstrapExp = getExperience(bootstrapExpType);
+          bootstrapView = await bootstrapExp.getGuestViewDescriptor(roomId);
+          // Get bootstrap state first so we can check if the game is actively running.
+          // ready_set is deleted when the game starts, so sCard returns 0 for running games —
+          // without this check every reconnecting guest would see awaitingReady=true mid-game.
+          bootstrapState = bootstrapExp.getBootstrapState
+            ? await bootstrapExp.getBootstrapState(roomId)
+            : null;
           if (bootstrapExpType !== "dj") {
-            bootstrapReadyTotalCount = bootstrapMembers.filter((m: any) => m.role === "GUEST").length;
-            bootstrapReadyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
-            bootstrapAwaitingReady = bootstrapReadyTotalCount > 0 && bootstrapReadyCount < bootstrapReadyTotalCount;
+            const bs = bootstrapState as any;
+            const gameIsRunning = bs?.phase && bs.phase !== "waiting";
+            if (!gameIsRunning) {
+              bootstrapReadyTotalCount = bootstrapMembers.filter((m: any) => m.role === "GUEST").length;
+              bootstrapReadyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
+              bootstrapAwaitingReady = bootstrapReadyTotalCount > 0 && bootstrapReadyCount < bootstrapReadyTotalCount;
+            }
           }
         } catch { /* non-critical */ }
 
@@ -330,10 +347,6 @@ async function main() {
 
         // Still emit experience:state so reconnecting guests get the full view + state
         try {
-          const experience = getExperience(bootstrapExpType);
-          const bootstrapState = experience.getBootstrapState
-            ? await experience.getBootstrapState(roomId)
-            : null;
           socket.emit("experience:state" as any, {
             experienceType: bootstrapExpType,
             state: bootstrapState,
@@ -345,17 +358,20 @@ async function main() {
 
           // Auto-resume timer-based games if the server restarted mid-round.
           // Only the host triggers this to avoid multiple timers from multiple reconnects.
-          if (role === "HOST" && experience.handleAction) {
-            const bs = bootstrapState as any;
-            if (bs?.phase === "question" || bs?.phase === "reveal" || bs?.phase === "drawing") {
-              experience.handleAction({
-                action: "resume",
-                payload: {},
-                roomId,
-                guestId: resolvedGuestId,
-                role: "HOST",
-                io,
-              }).catch(() => {});
+          if (role === "HOST") {
+            const experience = getExperience(bootstrapExpType);
+            if (experience.handleAction) {
+              const bs = bootstrapState as any;
+              if (bs?.phase === "question" || bs?.phase === "reveal" || bs?.phase === "drawing") {
+                experience.handleAction({
+                  action: "resume",
+                  payload: {},
+                  roomId,
+                  guestId: resolvedGuestId,
+                  role: "HOST",
+                  io,
+                }).catch(() => {});
+              }
             }
           }
         } catch { /* non-critical */ }
@@ -406,15 +422,21 @@ async function main() {
         const allMembers = await getAllMembers(roomId);
         const activeExp = await redisClient.get(`room:${roomId}:experience`);
         const expType = (activeExp && isValidExperience(activeExp)) ? activeExp : "dj";
-        const view = await getExperience(expType).getGuestViewDescriptor(roomId);
+        const expModule = getExperience(expType);
+        const view = await expModule.getGuestViewDescriptor(roomId);
         const isGame = expType !== "dj";
         let awaitingReady = false, readyCount = 0, readyTotalCount = 0;
+        const syncState = expModule.getBootstrapState ? await expModule.getBootstrapState(roomId) : null;
         if (isGame) {
-          readyTotalCount = allMembers.filter(m => m.role === "GUEST").length;
-          readyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
-          awaitingReady = readyTotalCount > 0 && readyCount < readyTotalCount;
+          const phase = (syncState as any)?.phase;
+          const gameIsRunning = phase && phase !== "waiting";
+          if (!gameIsRunning) {
+            readyTotalCount = allMembers.filter(m => m.role === "GUEST").length;
+            readyCount = await redisClient.sCard(`room:${roomId}:ready_set`);
+            awaitingReady = readyTotalCount > 0 && readyCount < readyTotalCount;
+          }
         }
-        socket.emit("experience:state" as any, { experienceType: expType, state: null, view, awaitingReady, readyCount, readyTotalCount });
+        socket.emit("experience:state" as any, { experienceType: expType, state: syncState, view, awaitingReady, readyCount, readyTotalCount });
       } catch (err) {
         console.warn("[room:request_sync] experience error", err);
       }
@@ -749,7 +771,8 @@ async function main() {
 
         if (experienceType === "trivia") {
           action = "start_round";
-        } else if (experienceType === "mimic_me") {
+        } else if (experienceType === "draw_it" || experienceType === "mimic_me" ||
+                   experienceType === "would_you_rather" || experienceType === "never_have_i_ever") {
           payload = { guestIds: guestMembers.map(m => m.guestId) };
         } else if (experienceType === "mind_mole") {
           action = "start_game";

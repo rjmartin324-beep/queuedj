@@ -403,7 +403,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
   function switchExperience(toExperience: ExperienceType) {
     // Optimistic local update — controls switch immediately without waiting for server ack.
     // Server will confirm (or correct) via experience:changed.
-    dispatch({ type: "SET_EXPERIENCE", experience: toExperience, view: state.guestView });
+    dispatch({ type: "SET_EXPERIENCE", experience: toExperience, view: "intermission" });
     const socket = socketManager.get();
     if (!socket || !state.room) return;
     socket.emit("experience:switch" as any, {

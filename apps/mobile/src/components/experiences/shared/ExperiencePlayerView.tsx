@@ -56,6 +56,20 @@ import { AccentChallengeView } from "../accent-challenge/AccentChallengeView";
 export function ExperiencePlayerView() {
   const { state } = useRoom();
 
+  // During ready-up, show a universal waiting screen so every game has a clean pre-start state.
+  // This fires for any game that doesn't resolve ready-up before emitting its first state event.
+  if (state.readyUp.active) {
+    return (
+      <WaitingForPlayersView
+        emoji="🎮" accent="#7c3aed"
+        title="Game Starting Soon!"
+        subtitle="Tap Ready when you're set to play"
+        submittedCount={state.readyUp.readyCount}
+        totalCount={state.readyUp.totalCount}
+      />
+    );
+  }
+
   switch (state.guestView) {
     case "dj_queue":          return <DJQueueView />;
 
