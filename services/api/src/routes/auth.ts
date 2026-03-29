@@ -102,7 +102,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   // ─── POST /auth/apple ─────────────────────────────────────────────────────
   fastify.post<{
     Body: { identityToken: string; deviceGuestId: string; displayName?: string }
-  }>("/auth/apple", {
+  }>("/apple", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
     schema: {
       body: {
@@ -155,7 +155,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   // ─── POST /auth/google ────────────────────────────────────────────────────
   fastify.post<{
     Body: { idToken: string; deviceGuestId: string }
-  }>("/auth/google", {
+  }>("/google", {
     config: { rateLimit: { max: 10, timeWindow: "1 minute" } },
     schema: {
       body: {
@@ -206,7 +206,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   });
 
   // ─── GET /auth/me ─────────────────────────────────────────────────────────
-  fastify.get("/auth/me", {
+  fastify.get("/me", {
     preHandler: requireJWT,
   }, async (request, reply) => {
     const user = request.user!;
@@ -238,7 +238,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   // just gets recognized as "also belongs to this account".
   fastify.post<{
     Body: { anonGuestId: string }
-  }>("/auth/link", {
+  }>("/link", {
     preHandler: requireJWT,
     schema: {
       body: {
@@ -267,7 +267,7 @@ export async function authRoutes(fastify: FastifyInstance) {
   });
 
   // ─── DELETE /auth/signout ──────────────────────────────────────────────────
-  fastify.delete("/auth/signout", {
+  fastify.delete("/signout", {
     preHandler: requireJWT,
   }, async (request, reply) => {
     const user = request.user!;
