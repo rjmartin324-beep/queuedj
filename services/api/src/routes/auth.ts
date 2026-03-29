@@ -175,9 +175,16 @@ export async function authRoutes(fastify: FastifyInstance) {
     let displayName: string | null = null;
 
     try {
+      // Accept any of the three platform client IDs as valid audience
+      const googleAudiences = [
+        process.env.GOOGLE_WEB_CLIENT_ID,
+        process.env.GOOGLE_IOS_CLIENT_ID,
+        process.env.GOOGLE_ANDROID_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_ID, // legacy single-value fallback
+      ].filter(Boolean) as string[];
       const { payload } = await jwtVerify(idToken, GOOGLE_JWKS, {
         issuer:   ["accounts.google.com", "https://accounts.google.com"],
-        audience: process.env.GOOGLE_CLIENT_ID ?? "",
+        audience: googleAudiences.length > 0 ? googleAudiences : undefined,
       });
       sub         = payload.sub as string;
       email       = (payload.email as string | undefined) ?? null;

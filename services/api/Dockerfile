@@ -1,14 +1,18 @@
 FROM node:20-alpine
-LABEL build="2"
+LABEL build="3"
 
 WORKDIR /app
 
-# Install dependencies from monorepo root so workspace packages resolve
-COPY package.json ./
+# Copy workspace manifests + lock file first so npm ci layer is cached
+COPY package.json package-lock.json ./
 COPY packages/ ./packages/
-COPY services/api/ ./services/api/
+COPY services/api/package.json ./services/api/package.json
 
-RUN npm install --workspace=services/api --include-workspace-root
+# Deterministic install — uses lock file, much faster than npm install
+RUN npm ci --workspace=services/api --include-workspace-root
+
+# Copy source after install so code changes don't bust the npm layer
+COPY services/api/ ./services/api/
 
 WORKDIR /app/services/api
 
