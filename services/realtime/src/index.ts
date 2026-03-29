@@ -343,11 +343,11 @@ async function main() {
             readyTotalCount: bootstrapReadyTotalCount,
           });
 
-          // Auto-resume timer-based games if the server restarted mid-question.
+          // Auto-resume timer-based games if the server restarted mid-round.
           // Only the host triggers this to avoid multiple timers from multiple reconnects.
           if (role === "HOST" && experience.handleAction) {
             const bs = bootstrapState as any;
-            if (bs?.phase === "question") {
+            if (bs?.phase === "question" || bs?.phase === "reveal" || bs?.phase === "drawing") {
               experience.handleAction({
                 action: "resume",
                 payload: {},

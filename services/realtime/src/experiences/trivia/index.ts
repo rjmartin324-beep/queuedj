@@ -251,10 +251,11 @@ export class TriviaExperience implements ExperienceModule {
       sequenceId: seq,
     });
 
-    // Auto-advance to next question after 4s — no host tap needed
+    // Auto-advance to next question after 7s (4s leaderboard show + 3s buffer)
     const existing2 = this.timers.get(roomId);
     if (existing2) clearTimeout(existing2);
-    const t2 = setTimeout(async () => {
+    // Show leaderboard at 4s mark
+    const lbTimer = setTimeout(async () => {
       try {
         const raw2 = await redisClient.get(TRIVIA_STATE_KEY(roomId));
         const st: TriviaRoundState | null = raw2 ? JSON.parse(raw2) : null;
@@ -268,13 +269,16 @@ export class TriviaExperience implements ExperienceModule {
           });
         }
       } catch {}
-      setTimeout(() => {
-        this.timers.delete(roomId);
-        this._nextQuestion(roomId, io).catch((err) => {
-          console.error("[trivia] auto-next failed", { roomId, err });
-        });
-      }, 3000);
     }, 4000);
+    // Advance to next question at 7s mark — stored so it survives cleanup checks
+    const t2 = setTimeout(() => {
+      clearTimeout(lbTimer);
+      this.timers.delete(roomId);
+      console.log("[trivia] auto-next firing for", roomId);
+      this._nextQuestion(roomId, io).catch((err) => {
+        console.error("[trivia] auto-next failed", { roomId, err });
+      });
+    }, 7000);
     this.timers.set(roomId, t2);
   }
 
@@ -298,34 +302,44 @@ export class TriviaExperience implements ExperienceModule {
     }
   }
 
-  // Re-arm the auto-reveal timer if the server restarted mid-question.
-  // Safe to call any time — only acts when phase is "question" and no timer is running.
+  // Re-arm the auto-advance timer if the server restarted mid-round.
+  // Safe to call any time — only acts when phase is "question" or "reveal" and no timer is running.
   private async _resumeIfStuck(roomId: string, io: Server): Promise<void> {
     const state = await this._getState(roomId);
-    if (!state || state.phase !== "question") return;
+    if (!state) return;
     if (this.timers.has(roomId)) return; // Timer already running
 
-    const question = state.currentQuestion;
-    if (!question) return;
-
-    // Re-arm with a short grace window so guests aren't waiting the full duration again
-    const GRACE_MS = 10_000;
-    const timer = setTimeout(() => {
-      this.timers.delete(roomId);
-      this._revealAnswer(roomId, io).catch((err) => {
-        console.error("[trivia] resume auto-reveal failed", { roomId, err });
+    if (state.phase === "question") {
+      const question = state.currentQuestion;
+      if (!question) return;
+      console.log("[trivia] resuming from question phase for", roomId);
+      // Re-arm with a short grace window
+      const timer = setTimeout(() => {
+        this.timers.delete(roomId);
+        this._revealAnswer(roomId, io).catch((err) => {
+          console.error("[trivia] resume auto-reveal failed", { roomId, err });
+        });
+      }, 10_000);
+      this.timers.set(roomId, timer);
+      // Re-broadcast current question
+      const seq = await getNextSequenceId(roomId);
+      io.to(roomId).emit("experience:state" as any, {
+        experienceType: "trivia",
+        state: { ...state, answers: undefined },
+        view: { type: "trivia_question", data: this._safeQuestion(question) },
+        sequenceId: seq,
       });
-    }, GRACE_MS);
-    this.timers.set(roomId, timer);
-
-    // Re-broadcast current question so any reconnected guests see it
-    const seq = await getNextSequenceId(roomId);
-    io.to(roomId).emit("experience:state" as any, {
-      experienceType: "trivia",
-      state: { ...state, answers: undefined },
-      view: { type: "trivia_question", data: this._safeQuestion(question) },
-      sequenceId: seq,
-    });
+    } else if (state.phase === "reveal") {
+      console.log("[trivia] resuming from reveal phase for", roomId);
+      // Re-arm next question with a 3s grace
+      const timer = setTimeout(() => {
+        this.timers.delete(roomId);
+        this._nextQuestion(roomId, io).catch((err) => {
+          console.error("[trivia] resume next-question failed", { roomId, err });
+        });
+      }, 3_000);
+      this.timers.set(roomId, timer);
+    }
   }
 
   async getBootstrapState(roomId: string): Promise<unknown> {
