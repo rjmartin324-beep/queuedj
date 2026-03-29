@@ -2,6 +2,7 @@ import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
+import { awardGameWin } from "../../lib/credits";
 
 const KEY = (roomId: string) => `experience:draw_it:${roomId}`;
 
@@ -9,7 +10,6 @@ const PROMPTS = [
   "pizza", "spaceship", "dinosaur", "rainbow", "castle",
   "mermaid", "volcano", "robot", "sunflower", "tornado",
   "penguin", "submarine", "cactus", "lighthouse", "dragon",
-  // ── Added words to reach 100 total ─────────────────────────────────────────
   // Easy
   "banana", "house", "car", "tree", "cat", "dog", "fish", "bird", "hat", "chair",
   "apple", "moon", "star", "sun", "rain", "cloud", "book", "cup", "shoe", "door",
@@ -27,6 +27,8 @@ const PROMPTS = [
   "sarcasm", "paradox", "momentum", "epidemic", "revolution", "bandwidth", "irony",
 ];
 
+const DRAWING_TIME_MS = 60_000; // 60s per round
+
 interface DrawItState {
   phase: "waiting" | "drawing" | "reveal" | "finished";
   round: number;
@@ -42,8 +44,14 @@ interface DrawItState {
 
 export class DrawItExperience implements ExperienceModule {
   readonly type = "draw_it" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
+    const existing = await redisClient.get(KEY(roomId));
+    if (existing) {
+      const s: DrawItState = JSON.parse(existing);
+      if (s.phase !== "waiting" && s.phase !== "finished") return;
+    }
     const state: DrawItState = {
       phase: "waiting", round: 0, totalRounds: 5,
       scores: {}, currentDrawer: null, currentPrompt: null,
@@ -53,6 +61,8 @@ export class DrawItExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    const timer = this.timers.get(roomId);
+    if (timer) { clearTimeout(timer); this.timers.delete(roomId); }
     await redisClient.del(KEY(roomId));
   }
 
@@ -77,16 +87,25 @@ export class DrawItExperience implements ExperienceModule {
         state.usedPrompts = [state.currentPrompt];
         state.guesses = {};
         state.correctGuessers = [];
+        state.scores = {};
         state.phase = "drawing";
         await redisClient.set(KEY(roomId), JSON.stringify(state));
         const seq = await getNextSequenceId(roomId);
-        // Send state without the prompt to non-drawers (handled client-side based on guestId)
         io.to(roomId).emit("experience:state" as any, {
           experienceType: "draw_it", state,
           view: { type: "draw_it" as any, data: state }, sequenceId: seq,
         });
+        // Auto-reveal after drawing time
+        this._armDrawingTimer(roomId, io);
         break;
       }
+
+      case "resume": {
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._resumeIfStuck(roomId, io);
+        break;
+      }
+
       case "guess": {
         if (state.phase !== "drawing") return;
         if (guestId === state.currentDrawer) return;
@@ -107,67 +126,19 @@ export class DrawItExperience implements ExperienceModule {
         });
         break;
       }
+
       case "reveal": {
         if (role !== "HOST" && role !== "CO_HOST") return;
-        if (state.currentDrawer && state.correctGuessers.length > 0) {
-          state.scores[state.currentDrawer] = (state.scores[state.currentDrawer] ?? 0) + 200;
-        }
-        state.phase = "reveal";
-        await redisClient.set(KEY(roomId), JSON.stringify(state));
-        const seq = await getNextSequenceId(roomId);
-        io.to(roomId).emit("experience:state" as any, {
-          experienceType: "draw_it", state,
-          view: { type: "draw_it" as any, data: state }, sequenceId: seq,
-        });
-        setTimeout(async () => {
-          try {
-            const raw2 = await redisClient.get(KEY(roomId));
-            const st: DrawItState | null = raw2 ? JSON.parse(raw2) : null;
-            if (st?.phase === "reveal") {
-              const seqLb = await getNextSequenceId(roomId);
-              io.to(roomId).emit("experience:state" as any, {
-                experienceType: "draw_it",
-                state: st,
-                view: { type: "leaderboard", data: st.scores },
-                sequenceId: seqLb,
-              });
-            }
-          } catch {}
-          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
-        }, 5000);
+        await this._reveal(roomId, io, state);
         break;
       }
+
       case "next": {
         if (role !== "HOST" && role !== "CO_HOST") return;
-        if (state.phase !== "reveal") return;
-        state.round += 1;
-        if (state.round > state.totalRounds) {
-          state.phase = "finished";
-          await redisClient.set(KEY(roomId), JSON.stringify(state));
-          const seq = await getNextSequenceId(roomId);
-          io.to(roomId).emit("experience:state" as any, {
-            experienceType: "draw_it", state,
-            view: { type: "leaderboard", data: state.scores }, sequenceId: seq,
-          });
-        } else {
-          state.currentDrawer = state.drawerQueue[(state.round - 1) % state.drawerQueue.length];
-          const available = PROMPTS.filter(p => !state.usedPrompts.includes(p));
-          const pool = available.length > 0 ? available : PROMPTS;
-          const p = pool[Math.floor(Math.random() * pool.length)];
-          state.currentPrompt = p;
-          state.usedPrompts.push(p);
-          state.guesses = {};
-          state.correctGuessers = [];
-          state.phase = "drawing";
-          await redisClient.set(KEY(roomId), JSON.stringify(state));
-          const seq = await getNextSequenceId(roomId);
-          io.to(roomId).emit("experience:state" as any, {
-            experienceType: "draw_it", state,
-            view: { type: "draw_it" as any, data: state }, sequenceId: seq,
-          });
-        }
+        await this._next(roomId, io);
         break;
       }
+
       case "end": {
         if (role !== "HOST") return;
         await this.onDeactivate(roomId);
@@ -181,11 +152,133 @@ export class DrawItExperience implements ExperienceModule {
     }
   }
 
+  private _armDrawingTimer(roomId: string, io: Server): void {
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    const t = setTimeout(() => {
+      this.timers.delete(roomId);
+      redisClient.get(KEY(roomId)).then((raw) => {
+        if (!raw) return;
+        const st: DrawItState = JSON.parse(raw);
+        if (st.phase === "drawing") {
+          this._reveal(roomId, io, st).catch(() => {});
+        }
+      }).catch(() => {});
+    }, DRAWING_TIME_MS);
+    this.timers.set(roomId, t);
+  }
+
+  private async _reveal(roomId: string, io: Server, state: DrawItState): Promise<void> {
+    const existing = this.timers.get(roomId);
+    if (existing) { clearTimeout(existing); this.timers.delete(roomId); }
+
+    if (state.phase !== "drawing") return;
+    if (state.currentDrawer && state.correctGuessers.length > 0) {
+      state.scores[state.currentDrawer] = (state.scores[state.currentDrawer] ?? 0) + 200;
+    }
+    state.phase = "reveal";
+    await redisClient.set(KEY(roomId), JSON.stringify(state));
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "draw_it", state,
+      view: { type: "draw_it" as any, data: state }, sequenceId: seq,
+    });
+
+    // Show leaderboard after 5s, then auto-next after 3s more
+    const t = setTimeout(async () => {
+      try {
+        const raw2 = await redisClient.get(KEY(roomId));
+        const st: DrawItState | null = raw2 ? JSON.parse(raw2) : null;
+        if (st?.phase === "reveal") {
+          const seqLb = await getNextSequenceId(roomId);
+          io.to(roomId).emit("experience:state" as any, {
+            experienceType: "draw_it",
+            state: st,
+            view: { type: "leaderboard", data: st.scores },
+            sequenceId: seqLb,
+          });
+        }
+      } catch {}
+      const t2 = setTimeout(() => {
+        this.timers.delete(roomId);
+        this._next(roomId, io).catch(() => {});
+      }, 3000);
+      this.timers.set(roomId, t2);
+    }, 5000);
+    this.timers.set(roomId, t);
+  }
+
+  private async _next(roomId: string, io: Server): Promise<void> {
+    const raw = await redisClient.get(KEY(roomId));
+    if (!raw) return;
+    const state: DrawItState = JSON.parse(raw);
+    if (state.phase !== "reveal") return;
+
+    state.round += 1;
+    if (state.round > state.totalRounds) {
+      state.phase = "finished";
+      await redisClient.set(KEY(roomId), JSON.stringify(state));
+      const seq = await getNextSequenceId(roomId);
+      io.to(roomId).emit("experience:state" as any, {
+        experienceType: "draw_it", state,
+        view: { type: "leaderboard", data: state.scores }, sequenceId: seq,
+      });
+      await awardGameWin(io, state.scores, roomId).catch(() => {});
+    } else {
+      state.currentDrawer = state.drawerQueue[(state.round - 1) % state.drawerQueue.length];
+      const available = PROMPTS.filter(p => !state.usedPrompts.includes(p));
+      const pool = available.length > 0 ? available : PROMPTS;
+      const p = pool[Math.floor(Math.random() * pool.length)];
+      state.currentPrompt = p;
+      state.usedPrompts.push(p);
+      state.guesses = {};
+      state.correctGuessers = [];
+      state.phase = "drawing";
+      await redisClient.set(KEY(roomId), JSON.stringify(state));
+      const seq = await getNextSequenceId(roomId);
+      io.to(roomId).emit("experience:state" as any, {
+        experienceType: "draw_it", state,
+        view: { type: "draw_it" as any, data: state }, sequenceId: seq,
+      });
+      this._armDrawingTimer(roomId, io);
+    }
+  }
+
+  private async _resumeIfStuck(roomId: string, io: Server): Promise<void> {
+    const raw = await redisClient.get(KEY(roomId));
+    if (!raw) return;
+    const state: DrawItState = JSON.parse(raw);
+    if (state.phase !== "drawing") return;
+    if (this.timers.has(roomId)) return;
+    // Re-arm with a 20s grace window
+    const GRACE_MS = 20_000;
+    const t = setTimeout(() => {
+      this.timers.delete(roomId);
+      redisClient.get(KEY(roomId)).then((r) => {
+        if (!r) return;
+        const st: DrawItState = JSON.parse(r);
+        if (st.phase === "drawing") this._reveal(roomId, io, st).catch(() => {});
+      }).catch(() => {});
+    }, GRACE_MS);
+    this.timers.set(roomId, t);
+    // Re-broadcast current state
+    const seq = await getNextSequenceId(roomId);
+    io.to(roomId).emit("experience:state" as any, {
+      experienceType: "draw_it", state,
+      view: { type: "draw_it" as any, data: state }, sequenceId: seq,
+    });
+  }
+
   async getGuestViewDescriptor(roomId: string): Promise<GuestViewDescriptor> {
     const raw = await redisClient.get(KEY(roomId));
     if (!raw) return { type: "intermission" };
     const state: DrawItState = JSON.parse(raw);
     if (state.phase === "finished") return { type: "leaderboard", data: state.scores };
     return { type: "draw_it" as any, data: state };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
   }
 }

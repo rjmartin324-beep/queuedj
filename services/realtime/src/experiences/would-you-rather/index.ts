@@ -3,6 +3,7 @@ import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-type
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { shuffledIndices } from "../../lib/shuffle";
+import { awardGameWin } from "../../lib/credits";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Would You Rather Experience
@@ -184,10 +185,19 @@ interface WouldYouRatherState {
 
 const KEY = (roomId: string) => `experience:would_you_rather:${roomId}`;
 
+const VOTE_TIMEOUT_MS  = 30_000; // 30s voting window
+const REVEAL_TIMEOUT_MS = 5_000; // 5s on reveal before auto-next
+
 export class WouldYouRatherExperience implements ExperienceModule {
   readonly type = "would_you_rather" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, _hostGuestId: string): Promise<void> {
+    const existing = await redisClient.get(KEY(roomId));
+    if (existing) {
+      const s: WouldYouRatherState = JSON.parse(existing);
+      if (s.phase !== "waiting" && s.phase !== "finished") return;
+    }
     const state: WouldYouRatherState = {
       phase: "waiting",
       round: 0,
@@ -203,6 +213,8 @@ export class WouldYouRatherExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    const timer = this.timers.get(roomId);
+    if (timer) { clearTimeout(timer); this.timers.delete(roomId); }
     await redisClient.del(KEY(roomId));
   }
 
@@ -236,6 +248,7 @@ export class WouldYouRatherExperience implements ExperienceModule {
           view: { type: "would_you_rather", data: state },
           sequenceId: seq,
         });
+        this._armVoteTimer(roomId, io);
         break;
       }
 
@@ -265,6 +278,8 @@ export class WouldYouRatherExperience implements ExperienceModule {
       case "reveal": {
         if (role !== "HOST" && role !== "CO_HOST") return;
         if (state.phase !== "question") return;
+        const revTimer = this.timers.get(roomId);
+        if (revTimer) { clearTimeout(revTimer); this.timers.delete(roomId); }
         // Tally: majority choice gets +200, minority gets +50
         const majority: "a" | "b" = state.aCount >= state.bCount ? "a" : "b";
         const minority: "a" | "b" = majority === "a" ? "b" : "a";
@@ -284,12 +299,15 @@ export class WouldYouRatherExperience implements ExperienceModule {
           },
           sequenceId: seq,
         });
+        this._armRevealTimer(roomId, io);
         break;
       }
 
       case "next": {
         if (role !== "HOST" && role !== "CO_HOST") return;
         if (state.phase !== "reveal") return;
+        const nextTimer = this.timers.get(roomId);
+        if (nextTimer) { clearTimeout(nextTimer); this.timers.delete(roomId); }
         state.round += 1;
         if (state.round > state.totalRounds) {
           state.phase = "finished";
@@ -302,6 +320,7 @@ export class WouldYouRatherExperience implements ExperienceModule {
             view: { type: "leaderboard", data: state.scores },
             sequenceId: seq,
           });
+          await awardGameWin(io, state.scores, roomId).catch(() => {});
         } else {
           state.phase = "question";
           state.currentQ = DILEMMAS[state.queue[(state.round - 1) % state.queue.length]];
@@ -316,6 +335,7 @@ export class WouldYouRatherExperience implements ExperienceModule {
             view: { type: "would_you_rather", data: state },
             sequenceId: seq,
           });
+          this._armVoteTimer(roomId, io);
         }
         break;
       }
@@ -341,5 +361,84 @@ export class WouldYouRatherExperience implements ExperienceModule {
     const state: WouldYouRatherState = JSON.parse(raw);
     if (state.phase === "finished") return { type: "leaderboard", data: state.scores };
     return { type: "would_you_rather" as any, data: state };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  private _armVoteTimer(roomId: string, io: Server): void {
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    const t = setTimeout(() => {
+      this.timers.delete(roomId);
+      redisClient.get(KEY(roomId)).then(async (raw) => {
+        if (!raw) return;
+        const st: WouldYouRatherState = JSON.parse(raw);
+        if (st.phase !== "question") return;
+        // Auto-reveal: tally scores
+        const majority: "a" | "b" = st.aCount >= st.bCount ? "a" : "b";
+        const minority: "a" | "b" = majority === "a" ? "b" : "a";
+        for (const [voter, choice] of Object.entries(st.votes)) {
+          const pts = choice === majority ? 200 : 50;
+          st.scores[voter] = (st.scores[voter] ?? 0) + pts;
+        }
+        st.phase = "reveal";
+        await redisClient.set(KEY(roomId), JSON.stringify(st));
+        const seq = await getNextSequenceId(roomId);
+        io.to(roomId).emit("experience:state" as any, {
+          experienceType: "would_you_rather",
+          state: st,
+          view: { type: "would_you_rather", data: { ...st, majority, minority } },
+          sequenceId: seq,
+        });
+        this._armRevealTimer(roomId, io);
+      }).catch(() => {});
+    }, VOTE_TIMEOUT_MS);
+    this.timers.set(roomId, t);
+  }
+
+  private _armRevealTimer(roomId: string, io: Server): void {
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    const t = setTimeout(() => {
+      this.timers.delete(roomId);
+      redisClient.get(KEY(roomId)).then(async (raw) => {
+        if (!raw) return;
+        const st: WouldYouRatherState = JSON.parse(raw);
+        if (st.phase !== "reveal") return;
+        st.round += 1;
+        if (st.round > st.totalRounds) {
+          st.phase = "finished";
+          st.currentQ = null;
+          await redisClient.set(KEY(roomId), JSON.stringify(st));
+          const seq = await getNextSequenceId(roomId);
+          io.to(roomId).emit("experience:state" as any, {
+            experienceType: "would_you_rather",
+            state: st,
+            view: { type: "leaderboard", data: st.scores },
+            sequenceId: seq,
+          });
+          await awardGameWin(io, st.scores, roomId).catch(() => {});
+        } else {
+          st.phase = "question";
+          st.currentQ = DILEMMAS[st.queue[(st.round - 1) % st.queue.length]];
+          st.votes = {};
+          st.aCount = 0;
+          st.bCount = 0;
+          await redisClient.set(KEY(roomId), JSON.stringify(st));
+          const seq = await getNextSequenceId(roomId);
+          io.to(roomId).emit("experience:state" as any, {
+            experienceType: "would_you_rather",
+            state: st,
+            view: { type: "would_you_rather", data: st },
+            sequenceId: seq,
+          });
+          this._armVoteTimer(roomId, io);
+        }
+      }).catch(() => {});
+    }, REVEAL_TIMEOUT_MS);
+    this.timers.set(roomId, t);
   }
 }

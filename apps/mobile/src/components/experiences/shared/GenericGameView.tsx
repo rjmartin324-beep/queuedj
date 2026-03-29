@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,
+  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../../../contexts/RoomContext";
@@ -16,6 +16,7 @@ import { useRoom } from "../../../contexts/RoomContext";
 type GameMeta = { emoji: string; title: string; accent: string };
 
 const GAME_META: Record<string, GameMeta> = {
+  draw_it:            { emoji: "🎨", title: "Draw It", accent: "#ec4899" },
   would_you_rather:   { emoji: "🤔", title: "Would You Rather", accent: "#8b5cf6" },
   never_have_i_ever:  { emoji: "🤞", title: "Never Have I Ever", accent: "#06b6d4" },
   truth_or_dare:      { emoji: "🎯", title: "Truth or Dare", accent: "#ef4444" },
@@ -49,6 +50,11 @@ export function GenericGameView() {
   const phase  = data.phase ?? "waiting";
   const round  = data.round ?? 0;
   const total  = data.totalRounds ?? 0;
+
+  // ── Draw It ───────────────────────────────────────────────────────────────
+  if (gameType === "draw_it") {
+    return <DrawItView meta={meta} data={data} guestId={guestId} sendAction={sendAction} />;
+  }
 
   // ── Would You Rather ──────────────────────────────────────────────────────
   if (gameType === "would_you_rather") {
@@ -251,6 +257,90 @@ function GameCard({ data, meta, guestId, sendAction }: any) {
         </View>
       )}
     </View>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Draw It
+// ─────────────────────────────────────────────────────────────────────────────
+function DrawItView({ meta, data, guestId, sendAction }: any) {
+  const [guess, setGuess] = useState("");
+  const phase = data.phase ?? "waiting";
+  const isDrawer = data.currentDrawer === guestId;
+  const correctGuessers: string[] = data.correctGuessers ?? [];
+  const alreadyGuessed = correctGuessers.includes(guestId);
+
+  if (phase === "waiting") return <WaitingCard meta={meta} />;
+  if (phase === "finished") return <FinishedCard meta={meta} />;
+
+  return (
+    <LinearGradient colors={["#0e0024", "#08081a"]} style={s.flex}>
+      <View style={[s.header, { borderBottomColor: meta.accent + "33" }]}>
+        <Text style={s.headerEmoji}>{meta.emoji}</Text>
+        <Text style={[s.headerTitle, { color: meta.accent }]}>{meta.title}</Text>
+        <Text style={s.roundPill}>Round {data.round} / {data.totalRounds}</Text>
+      </View>
+      <ScrollView contentContainerStyle={s.body}>
+        {phase === "drawing" && isDrawer && (
+          <>
+            <Text style={s.eyebrow}>YOUR WORD TO DRAW</Text>
+            <View style={[s.card, { borderColor: meta.accent + "66" }]}>
+              <Text style={[s.cardText, { fontSize: 28, textAlign: "center", color: meta.accent }]}>
+                {data.currentPrompt}
+              </Text>
+            </View>
+            <Text style={s.sub}>Draw this on paper or a whiteboard — others are guessing!</Text>
+            <Text style={s.sub}>{data.correctGuessers?.length ?? 0} correct so far</Text>
+          </>
+        )}
+
+        {phase === "drawing" && !isDrawer && !alreadyGuessed && (
+          <>
+            <Text style={s.eyebrow}>GUESS THE DRAWING</Text>
+            <View style={s.rowButtons}>
+              <View style={[s.halfBtn, { flex: 1, borderColor: meta.accent + "44" }]}>
+                <TextInput
+                  style={[s.cardText, { width: "100%", color: "#e5e7eb" }]}
+                  placeholder="Type your guess..."
+                  placeholderTextColor="#555"
+                  value={guess}
+                  onChangeText={setGuess}
+                  onSubmitEditing={() => {
+                    if (guess.trim()) {
+                      sendAction("guess", { text: guess.trim() });
+                      setGuess("");
+                    }
+                  }}
+                  returnKeyType="send"
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
+            <Text style={s.sub}>{data.correctGuessers?.length ?? 0} correct so far</Text>
+          </>
+        )}
+
+        {phase === "drawing" && !isDrawer && alreadyGuessed && (
+          <View style={s.center}>
+            <Text style={{ fontSize: 48 }}>✅</Text>
+            <Text style={[s.title, { color: "#22c55e" }]}>Correct!</Text>
+            <Text style={s.sub}>Waiting for others…</Text>
+          </View>
+        )}
+
+        {phase === "reveal" && (
+          <>
+            <Text style={s.eyebrow}>THE WORD WAS</Text>
+            <View style={[s.card, { borderColor: meta.accent + "66" }]}>
+              <Text style={[s.cardText, { fontSize: 28, textAlign: "center", color: meta.accent }]}>
+                {data.currentPrompt}
+              </Text>
+            </View>
+            <Text style={s.sub}>{data.correctGuessers?.length ?? 0} / {(data.guesses ? Object.keys(data.guesses).length : 0)} guessed correctly</Text>
+          </>
+        )}
+      </ScrollView>
+    </LinearGradient>
   );
 }
 

@@ -169,6 +169,7 @@ export function ExperiencePlayerView() {
     case "accent_challenge_finished":
       return <AccentChallengeView />;
 
+    case "draw_it":
     case "would_you_rather":
     case "never_have_i_ever":
     case "truth_or_dare":
