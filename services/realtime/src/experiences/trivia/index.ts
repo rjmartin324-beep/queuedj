@@ -156,8 +156,9 @@ export class TriviaExperience implements ExperienceModule {
 
   private async _nextQuestion(roomId: string, io: Server): Promise<void> {
     const state = await this._getState(roomId);
-    if (!state) return;
+    if (!state) { console.warn("[trivia] _nextQuestion: no state for", roomId); return; }
 
+    console.log("[trivia] _nextQuestion round", state.roundNumber, "/", state.totalRounds, "for", roomId);
     if (state.roundNumber > state.totalRounds) {
       await this._showLeaderboard(roomId, io);
       return;
@@ -190,12 +191,15 @@ export class TriviaExperience implements ExperienceModule {
     // Auto-reveal after time limit — cancel any previous timer first
     const existing = this.timers.get(roomId);
     if (existing) clearTimeout(existing);
+    const limitMs = question.timeLimitSeconds * 1000;
+    console.log("[trivia] arming auto-reveal in", limitMs, "ms for", roomId);
     const timer = setTimeout(() => {
       this.timers.delete(roomId);
+      console.log("[trivia] auto-reveal firing for", roomId);
       this._revealAnswer(roomId, io).catch((err) => {
         console.error("[trivia] auto-reveal failed", { roomId, err });
       });
-    }, question.timeLimitSeconds * 1000);
+    }, limitMs);
     this.timers.set(roomId, timer);
   }
 
@@ -222,6 +226,7 @@ export class TriviaExperience implements ExperienceModule {
     if (existing) { clearTimeout(existing); this.timers.delete(roomId); }
 
     const state = await this._getState(roomId);
+    console.log("[trivia] _revealAnswer phase=", state?.phase, "room=", roomId);
     if (!state || !state.currentQuestion || state.phase !== "question") return;
 
     const correctId = state.currentQuestion.correctOptionId;
