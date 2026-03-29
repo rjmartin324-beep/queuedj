@@ -59,6 +59,17 @@ import { getExperience, isValidExperience } from "./experiences";
 import { redisClient, redisSub, connectRedis } from "./redis";
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+
+/** Resolves to null instead of rejecting if the promise takes longer than `ms`. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
+  return Promise.race([
+    p,
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
+  ]);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Realtime Service — Socket.io with Redis Adapter
 //
 // Redis Adapter: Required from Day 1, even on single server.
@@ -224,8 +235,8 @@ async function main() {
           role = existing.role;
           await setMember(roomId, { ...existing, joinedAt: Date.now() });
         } else {
-          // New member — check if room exists
-          const snapshot = await getRoomSnapshot(roomId);
+          // New member — check if room exists (3s timeout guards against Redis hangs)
+          const snapshot = await withTimeout(getRoomSnapshot(roomId), 3000);
           if (!snapshot) {
             return ack(buildJoinAck({
               success: false,
@@ -632,7 +643,12 @@ async function main() {
       const seq = await getNextSequenceId(roomId);
       const event = { sequenceId: seq, type: "bathroom_toggle", payload: { active }, timestamp: Date.now() };
       await storeEvent(roomId, event);
-      io.to(roomId).emit("room:crowd_state_changed", { crowdState: active ? "RECOVERY" : "RISING", sequenceId: seq });
+      // Route through the current experience so it can update its own state
+      // (e.g. isBathroomBreak in DJ state) and emit experience:state in one place.
+      const expType = (await redisClient.get(`room:${roomId}:experience`)) ?? "dj";
+      if (isValidExperience(expType)) {
+        await getExperience(expType).handleAction({ action: "bathroom:toggle", payload: { active }, roomId, guestId, role: "HOST", io });
+      }
     });
 
     // ─── guest:promote (HOST only) ───────────────────────────────────────────
@@ -663,7 +679,8 @@ async function main() {
         await getExperience(currentRaw).onDeactivate(roomId);
       }
 
-      // Activate new experience
+      // Activate new experience — clear any pending play-again votes from the previous game
+      await redisClient.del(`vote_play_again:${roomId}`);
       const newExperience = getExperience(toExperience);
       await newExperience.onActivate(roomId, guestId, options);
       await redisClient.set(`room:${roomId}:experience`, toExperience);

@@ -93,6 +93,7 @@ const KEY = (roomId: string) => `experience:hot_takes:${roomId}`;
 
 export class HotTakesExperience implements ExperienceModule {
   readonly type = "hot_takes" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, _hostGuestId: string): Promise<void> {
     const state: HotTakesState = {
@@ -108,6 +109,8 @@ export class HotTakesExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
     await redisClient.del(KEY(roomId));
   }
 
@@ -188,7 +191,8 @@ export class HotTakesExperience implements ExperienceModule {
           view: { type: "hot_takes", data: state },
           sequenceId: seq,
         });
-        setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 5000);
+        clearTimeout(this.timers.get(`${roomId}:advance`));
+        this.timers.set(`${roomId}:advance`, setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 5000));
         break;
       }
 
@@ -248,5 +252,13 @@ export class HotTakesExperience implements ExperienceModule {
       return { type: "hot_takes" as any, data: { ...state, sliderValues: {} } };
     }
     return { type: "hot_takes" as any, data: state };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    if (!raw) return null;
+    const state = JSON.parse(raw);
+    if (state.phase !== "reveal") return { ...state, sliderValues: {} };
+    return state;
   }
 }

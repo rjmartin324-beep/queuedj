@@ -25,8 +25,13 @@ let snapshotTimer: NodeJS.Timer | null = null;
 
 // ─── Track active rooms ───────────────────────────────────────────────────────
 
+const ACTIVE_ROOMS_TTL_S = 12 * 3600; // 12h — refreshed on every room activation
+
 export async function registerActiveRoom(roomId: string): Promise<void> {
   await redisClient.sAdd(ACTIVE_ROOMS_KEY, roomId);
+  // Refresh TTL on every activation so the set survives as long as rooms are active.
+  // If no room registers for 12h straight, the key expires and self-cleans.
+  await redisClient.expire(ACTIVE_ROOMS_KEY, ACTIVE_ROOMS_TTL_S);
 }
 
 export async function unregisterActiveRoom(roomId: string): Promise<void> {
@@ -42,7 +47,11 @@ async function getActiveRoomIds(): Promise<string[]> {
 export async function snapshotRoom(roomId: string): Promise<void> {
   try {
     const snapshot = await getRoomSnapshot(roomId);
-    if (!snapshot) return; // Room already gone from Redis — nothing to save
+    if (!snapshot) {
+      // Room gone from Redis (expired or cleaned up) — remove stale active_rooms entry
+      await unregisterActiveRoom(roomId);
+      return;
+    }
 
     await db.query(
       `UPDATE sessions

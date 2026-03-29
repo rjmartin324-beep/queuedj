@@ -588,6 +588,7 @@ const PUZZLES: NumberPuzzle[] = [
 
 export class MindReadingExperience implements ExperienceModule {
   readonly type = "mind_reading" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, _hostGuestId: string): Promise<void> {
     const state: MindReadingState = {
@@ -604,6 +605,8 @@ export class MindReadingExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
     await redisClient.del(KEY(roomId));
   }
 
@@ -654,6 +657,11 @@ export class MindReadingExperience implements ExperienceModule {
     const state = await this._load(roomId);
     if (!state) return { type: "intermission" };
     return { type: "mind_reading" as any, data: this._safeState(state) };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
   }
 
   // ─── Private ────────────────────────────────────────────────────────────────
@@ -710,7 +718,8 @@ export class MindReadingExperience implements ExperienceModule {
       view: { type: "mind_reading" as any, data: state },
       sequenceId: seq,
     });
-    setTimeout(async () => {
+    clearTimeout(this.timers.get(`${roomId}:reveal`));
+    this.timers.set(`${roomId}:reveal`, setTimeout(async () => {
       try {
         const raw2 = await redisClient.get(KEY(roomId));
         const st: MindReadingState | null = raw2 ? JSON.parse(raw2) : null;
@@ -724,8 +733,8 @@ export class MindReadingExperience implements ExperienceModule {
           });
         }
       } catch {}
-      setTimeout(() => this._next(roomId, io).catch(() => {}), 3000);
-    }, 4000);
+      this.timers.set(`${roomId}:advance`, setTimeout(() => this._next(roomId, io).catch(() => {}), 3000));
+    }, 4000));
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {

@@ -683,4 +683,9 @@ export class ConnectionsExperience implements ExperienceModule {
     const puzzle = PUZZLES[state.puzzleOrder?.[state.puzzleIndex] ?? state.puzzleIndex] ?? null;
     return { type: "connections" as any, data: { ...state, puzzle } };
   }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
 }

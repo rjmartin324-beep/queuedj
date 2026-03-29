@@ -45,10 +45,19 @@ function AnswerCard({ option, index, onPress, isSelected, isCorrect, isWrong, sh
   isSelected: boolean; isCorrect: boolean; isWrong: boolean;
   showResult: boolean; disabled: boolean;
 }) {
-  const flip  = useRef(new Animated.Value(0)).current;
-  const scale = useRef(new Animated.Value(1)).current;
-  const shake = useRef(new Animated.Value(0)).current;
-  const flash = useRef(new Animated.Value(0)).current;
+  const flip    = useRef(new Animated.Value(0)).current;
+  const scale   = useRef(new Animated.Value(1)).current;
+  const shake   = useRef(new Animated.Value(0)).current;
+  const flash   = useRef(new Animated.Value(0)).current;
+  const fadeOut = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (showResult && !isCorrect && !isSelected) {
+      Animated.timing(fadeOut, { toValue: 0.3, duration: 400, useNativeDriver: true }).start();
+    } else if (!showResult) {
+      fadeOut.setValue(1);
+    }
+  }, [showResult, isCorrect, isSelected]);
 
   useEffect(() => {
     flip.setValue(0);
@@ -89,6 +98,7 @@ function AnswerCard({ option, index, onPress, isSelected, isCorrect, isWrong, sh
   return (
     <Animated.View style={[styles.cardWrap, {
       transform: [{ perspective: 1200 }, { rotateY: rotY }, { translateX: shake }, { scale }],
+      opacity: fadeOut,
     }]}>
       <TouchableOpacity
         onPress={onPress} disabled={disabled} activeOpacity={1}
@@ -146,8 +156,34 @@ export function TriviaQuestionView({ showResult = false }: { showResult?: boolea
 
   const [selected, setSelected] = useState<string | null>(null);
   const [floats,   setFloats]   = useState<FloatEmoji[]>([]);
-  const timerAnim = useRef(new Animated.Value(1)).current;
-  const lockedAnim = useRef(new Animated.Value(0)).current;
+  const timerAnim   = useRef(new Animated.Value(1)).current;
+  const lockedAnim  = useRef(new Animated.Value(0)).current;
+  const revealTimer = useRef(new Animated.Value(1)).current;
+
+  // Score delta animation
+  const prevScoreRef = useRef(score);
+  const [scoreDelta, setScoreDelta] = useState(0);
+  const deltaAnim = useRef(new Animated.Value(0)).current;
+  const deltaOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (score !== prevScoreRef.current) {
+      const delta = score - prevScoreRef.current;
+      prevScoreRef.current = score;
+      if (delta > 0) {
+        setScoreDelta(delta);
+        deltaAnim.setValue(-20);
+        deltaOpacity.setValue(1);
+        Animated.parallel([
+          Animated.timing(deltaAnim, { toValue: -60, duration: 1200, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+          Animated.sequence([
+            Animated.delay(600),
+            Animated.timing(deltaOpacity, { toValue: 0, duration: 600, useNativeDriver: true }),
+          ]),
+        ]).start();
+      }
+    }
+  }, [score]);
 
   useEffect(() => {
     if (showResult) { timerAnim.stopAnimation(); return; }
@@ -158,6 +194,16 @@ export function TriviaQuestionView({ showResult = false }: { showResult?: boolea
     }).start();
     return () => timerAnim.stopAnimation();
   }, [question?.id, showResult]);
+
+  useEffect(() => {
+    if (!showResult) { revealTimer.setValue(1); return; }
+    revealTimer.setValue(1);
+    Animated.timing(revealTimer, {
+      toValue: 0, duration: 7000,
+      easing: Easing.linear, useNativeDriver: false,
+    }).start();
+    return () => revealTimer.stopAnimation();
+  }, [showResult, question?.id]);
 
   useEffect(() => { setSelected(null); }, [question?.id]);
 
@@ -210,10 +256,17 @@ export function TriviaQuestionView({ showResult = false }: { showResult?: boolea
       {/* ── TOP BAR ──────────────────────────────────────────────── */}
       <LinearGradient colors={["#0d0820","#0d0820"]} style={styles.topBar}>
         {/* Score */}
-        <LinearGradient colors={["rgba(99,102,241,0.3)","rgba(139,92,246,0.2)"]} style={styles.chip}>
-          <Text style={styles.chipEmoji}>⭐</Text>
-          <Text style={styles.chipVal}>{score.toLocaleString()}</Text>
-        </LinearGradient>
+        <View>
+          <LinearGradient colors={["rgba(99,102,241,0.3)","rgba(139,92,246,0.2)"]} style={styles.chip}>
+            <Text style={styles.chipEmoji}>⭐</Text>
+            <Text style={styles.chipVal}>{score.toLocaleString()}</Text>
+          </LinearGradient>
+          {scoreDelta > 0 && (
+            <Animated.Text style={[styles.scoreDelta, { transform: [{ translateY: deltaAnim }], opacity: deltaOpacity }]}>
+              +{scoreDelta}
+            </Animated.Text>
+          )}
+        </View>
 
         {/* Round */}
         <View style={styles.roundBadge}>
@@ -232,7 +285,10 @@ export function TriviaQuestionView({ showResult = false }: { showResult?: boolea
       <View style={styles.timerTrack}>
         <View style={styles.timerBg} />
         {showResult ? (
-          <View style={[styles.timerFill, { width: "100%", backgroundColor: "#22c55e" }]} />
+          <Animated.View style={[styles.timerFill, {
+            width: revealTimer.interpolate({ inputRange: [0, 1], outputRange: ["0%", "100%"] }),
+            backgroundColor: "#22c55e",
+          }]} />
         ) : (
           <Animated.View style={[styles.timerFill, { width: timerWidth, backgroundColor: timerColor }]} />
         )}
@@ -339,8 +395,9 @@ const styles = StyleSheet.create({
     borderRadius: 24, paddingHorizontal: 14, paddingVertical: 8,
     borderWidth: 1, borderColor: "rgba(255,255,255,0.1)",
   },
-  chipEmoji: { fontSize: 15 },
-  chipVal:   { color: "#fff", fontWeight: "900", fontSize: 16 },
+  chipEmoji:  { fontSize: 15 },
+  chipVal:    { color: "#fff", fontWeight: "900", fontSize: 16 },
+  scoreDelta: { position: "absolute", top: 0, left: "50%", color: "#4ade80", fontWeight: "900", fontSize: 14, textAlign: "center" },
 
   roundBadge: { alignItems: "center" },
   roundLabel: { color: "rgba(255,255,255,0.35)", fontSize: 9, fontWeight: "800", letterSpacing: 2 },

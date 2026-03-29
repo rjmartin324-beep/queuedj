@@ -29,6 +29,9 @@ const PROMPTS = [
 
 const DRAWING_TIME_MS = 60_000; // 60s per round
 
+interface StrokePoint { x: number; y: number; }
+interface Stroke { points: StrokePoint[]; color: string; width: number; }
+
 interface DrawItState {
   phase: "waiting" | "drawing" | "reveal" | "finished";
   round: number;
@@ -40,6 +43,7 @@ interface DrawItState {
   correctGuessers: string[];
   drawerQueue: string[];
   usedPrompts: string[];
+  strokes: Stroke[];
 }
 
 export class DrawItExperience implements ExperienceModule {
@@ -55,7 +59,7 @@ export class DrawItExperience implements ExperienceModule {
     const state: DrawItState = {
       phase: "waiting", round: 0, totalRounds: 5,
       scores: {}, currentDrawer: null, currentPrompt: null,
-      guesses: {}, correctGuessers: [], drawerQueue: [], usedPrompts: [],
+      guesses: {}, correctGuessers: [], drawerQueue: [], usedPrompts: [], strokes: [],
     };
     await redisClient.set(KEY(roomId), JSON.stringify(state));
   }
@@ -88,6 +92,7 @@ export class DrawItExperience implements ExperienceModule {
         state.guesses = {};
         state.correctGuessers = [];
         state.scores = {};
+        state.strokes = [];
         state.phase = "drawing";
         await redisClient.set(KEY(roomId), JSON.stringify(state));
         const seq = await getNextSequenceId(roomId);
@@ -103,6 +108,34 @@ export class DrawItExperience implements ExperienceModule {
       case "resume": {
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._resumeIfStuck(roomId, io);
+        break;
+      }
+
+      case "stroke": {
+        if (state.phase !== "drawing") return;
+        if (guestId !== state.currentDrawer) return;
+        const stroke = payload as Stroke;
+        if (!stroke?.points?.length) return;
+        state.strokes.push(stroke);
+        await redisClient.set(KEY(roomId), JSON.stringify(state));
+        const seq = await getNextSequenceId(roomId);
+        io.to(roomId).emit("experience:state" as any, {
+          experienceType: "draw_it", state,
+          view: { type: "draw_it" as any, data: state }, sequenceId: seq,
+        });
+        break;
+      }
+
+      case "clear_canvas": {
+        if (state.phase !== "drawing") return;
+        if (guestId !== state.currentDrawer) return;
+        state.strokes = [];
+        await redisClient.set(KEY(roomId), JSON.stringify(state));
+        const seq = await getNextSequenceId(roomId);
+        io.to(roomId).emit("experience:state" as any, {
+          experienceType: "draw_it", state,
+          view: { type: "draw_it" as any, data: state }, sequenceId: seq,
+        });
         break;
       }
 
@@ -173,8 +206,10 @@ export class DrawItExperience implements ExperienceModule {
     if (existing) { clearTimeout(existing); this.timers.delete(roomId); }
 
     if (state.phase !== "drawing") return;
-    if (state.currentDrawer && state.correctGuessers.length > 0) {
-      state.scores[state.currentDrawer] = (state.scores[state.currentDrawer] ?? 0) + 200;
+    if (state.currentDrawer) {
+      // 200 pts if at least one guesser got it; 50 pts for a valid drawing nobody guessed
+      const drawerBonus = state.correctGuessers.length > 0 ? 200 : 50;
+      state.scores[state.currentDrawer] = (state.scores[state.currentDrawer] ?? 0) + drawerBonus;
     }
     state.phase = "reveal";
     await redisClient.set(KEY(roomId), JSON.stringify(state));
@@ -233,6 +268,7 @@ export class DrawItExperience implements ExperienceModule {
       state.usedPrompts.push(p);
       state.guesses = {};
       state.correctGuessers = [];
+      state.strokes = [];
       state.phase = "drawing";
       await redisClient.set(KEY(roomId), JSON.stringify(state));
       const seq = await getNextSequenceId(roomId);

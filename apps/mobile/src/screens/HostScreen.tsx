@@ -49,6 +49,12 @@ import { MindMoleControls }          from "../components/host/controls/MindMoleC
 import { GuessSongControls }         from "../components/host/controls/GuessSongControls";
 import { NameGenreControls }         from "../components/host/controls/NameGenreControls";
 import { VibeCheckControls }         from "../components/host/controls/VibeCheckControls";
+import { BucketListControls }        from "../components/host/controls/BucketListControls";
+import { FightOrFlightControls }     from "../components/host/controls/FightOrFlightControls";
+import { HotTakesControls }          from "../components/host/controls/HotTakesControls";
+import { StoryTimeControls }         from "../components/host/controls/StoryTimeControls";
+import { DrawItControls }            from "../components/host/controls/DrawItControls";
+import { PhotoBombControls }         from "../components/host/controls/PhotoBombControls";
 import { RoomQRCode }                from "../components/host/RoomQRCode";
 import { HostQueueView }             from "../components/host/HostQueueView";
 import { DevTestPanel }             from "../components/host/DevTestPanel";
@@ -349,6 +355,12 @@ export default function HostScreen() {
       case "guess_the_song":         return <GuessSongControls {...vmProps} />;
       case "name_that_genre":        return <NameGenreControls {...vmProps} />;
       case "vibe_check":             return <VibeCheckControls {...vmProps} />;
+      case "bucket_list":            return <BucketListControls {...vmProps} />;
+      case "fight_or_flight":        return <FightOrFlightControls {...vmProps} />;
+      case "hot_takes":              return <HotTakesControls {...vmProps} />;
+      case "story_time":             return <StoryTimeControls {...vmProps} />;
+      case "draw_it":                return <DrawItControls {...vmProps} />;
+      case "photo_bomb":             return <PhotoBombControls {...vmProps} />;
       default:                       return null;
     }
   }

@@ -342,6 +342,11 @@ export class NightShiftExperience implements ExperienceModule {
     };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   private async _assignRoles(roomId: string, playerIds: string[], playerNames: Record<string, string>, io: Server): Promise<void> {
     const state = await this._load(roomId);
     const cas = CASES[state.caseIndex];

@@ -6,7 +6,7 @@ import type {
 } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { handleQueueRequest, handleQueueReorder, handleQueueRemove, getQueue } from "./queue";
-import { handleVibeCast, getCrowdState } from "./vibe";
+import { handleVibeCast, getCrowdState, setCrowdState } from "./vibe";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DJ Experience — Module 1
@@ -70,6 +70,15 @@ export class DJExperience implements ExperienceModule {
           await this._toggleBathroomBreak(roomId, (payload as any).active, io);
         }
         break;
+
+      case "vote_play_again": {
+        // Any guest can vote to play again — track in a Redis set so duplicates are ignored.
+        // Broadcasts the current vote count so guests see how many want to replay.
+        await redisClient.sAdd(`vote_play_again:${roomId}`, guestId);
+        const count = await redisClient.sCard(`vote_play_again:${roomId}`);
+        io.to(roomId).emit("play_again:votes" as any, { count });
+        break;
+      }
       case "track:now_playing":
         if (role === "HOST") {
           await this._updateNowPlaying(roomId, (payload as any).isrc, (payload as any).bpm, io);
@@ -102,6 +111,8 @@ export class DJExperience implements ExperienceModule {
     const state: DJExperienceState = JSON.parse(raw);
     state.isBathroomBreak = active;
     await redisClient.set(DJ_STATE_KEY(roomId), JSON.stringify(state));
+    // Sync crowd state so reconnecting guests see the right energy level
+    await setCrowdState(roomId, active ? "RECOVERY" : "RISING", io);
     io.to(roomId).emit("experience:state" as any, {
       experienceType: "dj",
       state,

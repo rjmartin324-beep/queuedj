@@ -194,4 +194,9 @@ export class MimicMeExperience implements ExperienceModule {
     if (state.phase === "finished") return { type: "leaderboard", data: state.scores };
     return { type: "mimic_me" as any, data: state };
   }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
 }

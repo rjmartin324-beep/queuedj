@@ -121,4 +121,9 @@ export class SpeedTypingExperience implements ExperienceModule {
     if (state.phase === "finished") return { type: "leaderboard", data: state.scores };
     return { type: "speed_typing" as any, data: state };
   }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
 }

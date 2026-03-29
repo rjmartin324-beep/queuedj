@@ -14,6 +14,7 @@ const DRAWING_MS = 60000;  // 60 seconds to draw
 
 export class CopyrightInfringementExperience implements ExperienceModule {
   readonly type = "copyright_infringement" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const existing = await this._load(roomId);
@@ -32,7 +33,11 @@ export class CopyrightInfringementExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(roomId: string): Promise<void> {
+    const t = this.timers.get(roomId);
+    if (t) { clearTimeout(t); this.timers.delete(roomId); }
+    await redisClient.del(KEY(roomId));
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -75,6 +80,11 @@ export class CopyrightInfringementExperience implements ExperienceModule {
       case "skip_round":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._skipPhase(roomId, io);
+        break;
+
+      case "resume":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._resumeIfStuck(roomId, io);
         break;
     }
   }
@@ -120,7 +130,7 @@ export class CopyrightInfringementExperience implements ExperienceModule {
     await this._broadcast(roomId, state, io);
 
     // Auto-hide logo after VIEW_MS, start drawing phase
-    setTimeout(() => this._startDrawing(roomId, io), VIEW_MS + 200);
+    this._setTimer(roomId, VIEW_MS + 200, () => this._startDrawing(roomId, io));
   }
 
   private async _startDrawing(roomId: string, io: Server): Promise<void> {
@@ -131,7 +141,7 @@ export class CopyrightInfringementExperience implements ExperienceModule {
     await this._broadcast(roomId, state, io);
 
     // Auto-close drawing after DRAWING_MS
-    setTimeout(() => this._openGallery(roomId, io), DRAWING_MS);
+    this._setTimer(roomId, DRAWING_MS, () => this._openGallery(roomId, io));
   }
 
   private async _updateDrawing(roomId: string, guestId: string, drawing: DrawingData, io: Server): Promise<void> {
@@ -215,6 +225,29 @@ export class CopyrightInfringementExperience implements ExperienceModule {
       view: await this.getGuestViewDescriptor(roomId),
       sequenceId: seq,
     });
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    return this._load(roomId);
+  }
+
+  private _setTimer(roomId: string, ms: number, fn: () => void): void {
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    this.timers.set(roomId, setTimeout(fn, ms));
+  }
+
+  private async _resumeIfStuck(roomId: string, io: Server): Promise<void> {
+    if (this.timers.has(roomId)) return;
+    const state = await this._load(roomId);
+    if (!state) return;
+    if (state.phase === "viewing") {
+      this._setTimer(roomId, VIEW_MS + 200, () => this._startDrawing(roomId, io));
+      await this._broadcast(roomId, state, io);
+    } else if (state.phase === "drawing") {
+      this._setTimer(roomId, DRAWING_MS, () => this._openGallery(roomId, io));
+      await this._broadcast(roomId, state, io);
+    }
   }
 
   private async _load(roomId: string): Promise<CopyrightState | null> {

@@ -189,4 +189,9 @@ export class MusicalChairsExperience implements ExperienceModule {
     if (state.phase === "finished") return { type: "leaderboard", data: state.scores };
     return { type: "musical_chairs" as any, data: state };
   }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
 }

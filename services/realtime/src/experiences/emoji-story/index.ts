@@ -280,6 +280,11 @@ export class EmojiStoryExperience implements ExperienceModule {
     return { type: "emoji_story" as any, data: this._safeState(state) };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ──────────────────────────────────────────────────────────────
 
   /** Strip the answer from currentPuzzle so guests cannot cheat */

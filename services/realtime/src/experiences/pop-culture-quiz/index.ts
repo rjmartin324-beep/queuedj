@@ -483,6 +483,7 @@ const QUESTIONS: PopCultureQuestion[] = [
 
 export class PopCultureQuizExperience implements ExperienceModule {
   readonly type = "pop_culture_quiz" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, _hostGuestId: string): Promise<void> {
     const state: PopCultureQuizState = {
@@ -499,6 +500,8 @@ export class PopCultureQuizExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    const t = this.timers.get(roomId);
+    if (t) { clearTimeout(t); this.timers.delete(roomId); }
     await redisClient.del(KEY(roomId));
   }
 
@@ -551,6 +554,11 @@ export class PopCultureQuizExperience implements ExperienceModule {
     return { type: "pop_culture_quiz" as any, data: this._safeState(state) };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private async _start(roomId: string, io: Server): Promise<void> {
@@ -594,7 +602,9 @@ export class PopCultureQuizExperience implements ExperienceModule {
     state.phase = "reveal";
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
-    setTimeout(async () => {
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    const t = setTimeout(async () => {
       try {
         const raw2 = await redisClient.get(KEY(roomId));
         const st: PopCultureQuizState | null = raw2 ? JSON.parse(raw2) : null;
@@ -608,8 +618,11 @@ export class PopCultureQuizExperience implements ExperienceModule {
           });
         }
       } catch {}
-      setTimeout(() => this._next(roomId, io).catch(() => {}), 3000);
+      this.timers.delete(roomId);
+      const t2 = setTimeout(() => this._next(roomId, io).catch(() => {}), 3000);
+      this.timers.set(roomId, t2);
     }, 4000);
+    this.timers.set(roomId, t);
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {

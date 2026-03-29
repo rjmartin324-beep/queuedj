@@ -168,6 +168,11 @@ export class WordAssociationExperience implements ExperienceModule {
     return { type: "word_association" as any, data: state };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ──────────────────────────────────────────────────────────────
 
   /** Return the next guestId in the cycling list after currentId */

@@ -12,9 +12,11 @@ import { OfflineBanner } from "../components/shared/OfflineBanner";
 import { registerForPushNotifications, registerTokenWithServer } from "../lib/notifications";
 import { tapLight, tapMedium } from "../lib/haptics";
 import { PartyChatPanel, ChatFloatingButton } from "../components/shared/PartyChatPanel";
+import { MidGameLeaderboard } from "../components/shared/MidGameLeaderboard";
 import { socketManager } from "../lib/socket";
 
-import { ExperiencePlayerView }   from "../components/experiences/shared/ExperiencePlayerView";
+import { ExperiencePlayerView }      from "../components/experiences/shared/ExperiencePlayerView";
+import { ExperienceErrorBoundary }   from "../components/experiences/shared/ExperienceErrorBoundary";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Guest Screen
@@ -34,6 +36,7 @@ export default function GuestScreen() {
   const router = useRouter();
   const [recap,       setRecap]       = useState<SessionRecapData | null>(null);
   const [chatOpen,    setChatOpen]    = useState(false);
+  const [scoresOpen,  setScoresOpen]  = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Pulse animation for the ready-up button when it first activates
@@ -100,6 +103,11 @@ export default function GuestScreen() {
     socket.on("chat:received" as any, handler);
     return () => { socket.off("chat:received" as any, handler); };
   }, [chatOpen]);
+
+  // Close chat panel when a new game/experience starts
+  useEffect(() => {
+    if (state.activeExperience) setChatOpen(false);
+  }, [state.activeExperience]);
 
   // Register push token when joining a room
   useEffect(() => {
@@ -251,10 +259,17 @@ export default function GuestScreen() {
         <GuestAvatarRow guests={guestPresences} maxVisible={12} />
       )}
 
-      <ExperiencePlayerView />
+      <ExperienceErrorBoundary>
+        <ExperiencePlayerView />
+      </ExperienceErrorBoundary>
 
-      {/* Floating chat button — always visible regardless of active game */}
-      <View style={styles.chatFab}>
+      {/* Floating buttons — chat + mid-game leaderboard */}
+      <View style={styles.fabRow}>
+        {state.guestView && state.guestView !== "intermission" && state.guestView !== "dj_queue" && state.room?.id && (
+          <TouchableOpacity style={styles.scoreFab} onPress={() => setScoresOpen(true)} activeOpacity={0.8}>
+            <Text style={styles.scoreFabText}>🏆</Text>
+          </TouchableOpacity>
+        )}
         <ChatFloatingButton
           onPress={() => { setChatOpen(true); setUnreadCount(0); }}
           unreadCount={unreadCount}
@@ -266,6 +281,12 @@ export default function GuestScreen() {
         onClose={() => setChatOpen(false)}
         unreadCount={unreadCount}
         onRead={() => setUnreadCount(0)}
+      />
+
+      <MidGameLeaderboard
+        visible={scoresOpen}
+        onClose={() => setScoresOpen(false)}
+        roomId={state.room?.id ?? ""}
       />
     </View>
   );
@@ -324,10 +345,24 @@ const styles = StyleSheet.create({
   },
   readyWaitingText: { color: "#4ade80", fontSize: 11, fontWeight: "800" },
 
-  chatFab: {
+  fabRow: {
     position: "absolute",
     bottom: 28,
     right: 16,
     zIndex: 20,
+    flexDirection: "column",
+    gap: 10,
+    alignItems: "flex-end",
   },
+  scoreFab: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(251,191,36,0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(251,191,36,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scoreFabText: { fontSize: 22 },
 });

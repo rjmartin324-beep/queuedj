@@ -99,6 +99,11 @@ export class StoryTimeExperience implements ExperienceModule {
     return { type: "story_time" as any, data: state };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private async _start(roomId: string, io: Server): Promise<void> {

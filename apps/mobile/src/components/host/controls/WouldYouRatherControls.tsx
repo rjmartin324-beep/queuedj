@@ -15,11 +15,10 @@ export function WouldYouRatherControls({ viewMode, onViewModeChange }: Props) {
   const scores = expState?.scores ?? {};
   const members = state.members;
 
-  const currentRound: number = expState?.currentRound ?? 1;
+  const currentRound: number = expState?.round ?? 1;
   const totalRounds: number = expState?.totalRounds ?? 10;
-  const questionText: string = expState?.currentQuestion?.text ?? "";
-  const optionA: string = expState?.currentQuestion?.optionA ?? "Option A";
-  const optionB: string = expState?.currentQuestion?.optionB ?? "Option B";
+  const optionA: string = expState?.currentQ?.a ?? "Option A";
+  const optionB: string = expState?.currentQ?.b ?? "Option B";
   const votes: Record<string, "A" | "B"> = expState?.votes ?? {};
   const votesA: number = Object.values(votes).filter((v) => v === "A").length;
   const votesB: number = Object.values(votes).filter((v) => v === "B").length;
@@ -62,9 +61,7 @@ export function WouldYouRatherControls({ viewMode, onViewModeChange }: Props) {
               {totalVotes} / {members.length} votes received
             </Text>
           </View>
-          {questionText ? (
-            <Text style={s.questionText}>{questionText}</Text>
-          ) : null}
+
           <View style={s.optionRow}>
             <View style={[s.optionBadge, { backgroundColor: "#1d4ed8" }]}>
               <Text style={s.optionBadgeText}>A</Text>

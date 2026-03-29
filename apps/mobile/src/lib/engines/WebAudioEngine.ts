@@ -19,12 +19,13 @@ interface DeckState {
   bpm: number;
   positionMs: number;
   volume: number;
+  eq: { low: number; mid: number; high: number };
 }
 
 class WebAudioEngineImpl implements AudioEngineInterface {
   private decks: Record<"A" | "B", DeckState> = {
-    A: { sound: null, isPlaying: false, bpm: 120, positionMs: 0, volume: 1 },
-    B: { sound: null, isPlaying: false, bpm: 120, positionMs: 0, volume: 1 },
+    A: { sound: null, isPlaying: false, bpm: 120, positionMs: 0, volume: 1, eq: { low: 1, mid: 1, high: 1 } },
+    B: { sound: null, isPlaying: false, bpm: 120, positionMs: 0, volume: 1, eq: { low: 1, mid: 1, high: 1 } },
   };
   private crossfader = 0.5; // 0 = full A, 1 = full B
   private onPositionUpdate?: (deckId: "A" | "B", posMs: number) => void;
@@ -89,10 +90,11 @@ class WebAudioEngineImpl implements AudioEngineInterface {
     this._applyVolumes();
   }
 
-  setEQ(_deckId: "A" | "B", _low: number, _mid: number, _high: number): void {
-    // Web Audio API EQ requires AudioContext nodes — Phase A stub
-    // Full EQ filtering is implemented in Superpowered (Path B)
-    console.log("[WebAudioEngine] EQ not yet implemented in Path A");
+  setEQ(deckId: "A" | "B", low: number, mid: number, high: number): void {
+    // Store values for Path B (Superpowered) to apply when the native bridge is ready.
+    // Web Audio API EQ via BiquadFilterNode requires chaining into expo-av's audio graph,
+    // which is not exposed in Path A.
+    this.decks[deckId].eq = { low, mid, high };
   }
 
   setVolume(deckId: "A" | "B", volume: number): void {

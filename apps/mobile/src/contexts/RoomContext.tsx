@@ -129,6 +129,7 @@ function reducer(state: RoomState, action: Action): RoomState {
         guestView: action.view,
         guestViewData: action.viewData !== undefined ? action.viewData : state.guestViewData,
         experienceState: mergedExpState,
+        readyUp: { ...state.readyUp, iHaveReadied: false },
       };
     }
     case "UPDATE_EXPERIENCE_STATE":

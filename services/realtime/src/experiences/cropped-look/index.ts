@@ -281,6 +281,11 @@ export class CroppedLookExperience implements ExperienceModule {
     return { type: "cropped_look" as any, data: this._visibleState(state) };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private async _start(roomId: string, io: Server): Promise<void> {

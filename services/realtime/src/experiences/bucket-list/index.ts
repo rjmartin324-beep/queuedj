@@ -106,6 +106,12 @@ export class BucketListExperience implements ExperienceModule {
     return { type: "bucket_list" as any, data: this._safeState(state) };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    if (!raw) return null;
+    return this._safeState(JSON.parse(raw));
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private async _start(roomId: string, io: Server): Promise<void> {

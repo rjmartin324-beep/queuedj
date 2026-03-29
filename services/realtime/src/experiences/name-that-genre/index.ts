@@ -41,6 +41,7 @@ function buildOptions(correct: string): string[] {
 
 export class NameGenreExperience implements ExperienceModule {
   readonly type = "name_that_genre" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const state: GenreRoundState = {
@@ -59,7 +60,10 @@ export class NameGenreExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(_roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -109,6 +113,11 @@ export class NameGenreExperience implements ExperienceModule {
     };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   private async _startRound(roomId: string, genre: string, title: string, artist: string, isrc: string, io: Server): Promise<void> {
     const state = await this._load(roomId);
     state.phase = "guessing";
@@ -131,7 +140,8 @@ export class NameGenreExperience implements ExperienceModule {
       roundStartedAt: state.roundStartedAt,
       roundDurationMs: ROUND_MS,
     });
-    setTimeout(() => this._reveal(roomId, io), ROUND_MS);
+    clearTimeout(this.timers.get(`${roomId}:reveal`));
+    this.timers.set(`${roomId}:reveal`, setTimeout(() => this._reveal(roomId, io), ROUND_MS));
   }
 
   private async _submitAnswer(roomId: string, guestId: string, genre: string, io: Server): Promise<void> {

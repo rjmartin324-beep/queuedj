@@ -212,6 +212,11 @@ export class ScavengerSnapExperience implements ExperienceModule {
     }
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(STATE_KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private async _startRound(roomId: string, io: Server): Promise<void> {

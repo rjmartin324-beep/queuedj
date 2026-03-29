@@ -45,6 +45,7 @@ const LYRIC_BANK = [
 export class FinishLyricExperience implements ExperienceModule {
   readonly type = "finish_the_lyric" as const;
   private usedIndices: Set<number> = new Set();
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const state: FinishLyricState = {
@@ -63,7 +64,10 @@ export class FinishLyricExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(_roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -123,6 +127,11 @@ export class FinishLyricExperience implements ExperienceModule {
     };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   private async _startRound(roomId: string, prompt: string, answer: string, title: string, artist: string, io: Server): Promise<void> {
     const state = await this._load(roomId);
     state.phase = "answering";
@@ -136,7 +145,8 @@ export class FinishLyricExperience implements ExperienceModule {
     state.roundStartedAt = Date.now();
     await this._save(roomId, state);
     io.to(roomId).emit("experience:state_updated", { phase: "answering", roundNumber: state.roundNumber, totalRounds: state.totalRounds, lyricPrompt: prompt, roundStartedAt: state.roundStartedAt, roundDurationMs: ROUND_DURATION_MS });
-    setTimeout(() => this._reveal(roomId, io), ROUND_DURATION_MS);
+    clearTimeout(this.timers.get(`${roomId}:reveal`));
+    this.timers.set(`${roomId}:reveal`, setTimeout(() => this._reveal(roomId, io), ROUND_DURATION_MS));
   }
 
   private async _startRoundRandom(roomId: string, io: Server): Promise<void> {
@@ -179,7 +189,8 @@ export class FinishLyricExperience implements ExperienceModule {
       submissions: state.submissionNames,
       scores: state.scores,
     });
-    setTimeout(async () => {
+    clearTimeout(this.timers.get(`${roomId}:leaderboard`));
+    this.timers.set(`${roomId}:leaderboard`, setTimeout(async () => {
       try {
         const raw2 = await redisClient.get(KEY(roomId));
         const st: FinishLyricState | null = raw2 ? JSON.parse(raw2) : null;
@@ -193,8 +204,8 @@ export class FinishLyricExperience implements ExperienceModule {
           });
         }
       } catch {}
-      setTimeout(() => this._nextRound(roomId, io).catch(() => {}), 3000);
-    }, 5000);
+      this.timers.set(`${roomId}:advance`, setTimeout(() => this._nextRound(roomId, io).catch(() => {}), 3000));
+    }, 5000));
   }
 
   private async _awardBonus(roomId: string, targetGuestId: string, io: Server): Promise<void> {

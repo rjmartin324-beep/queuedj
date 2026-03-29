@@ -256,6 +256,7 @@ const KEY = (roomId: string) => `experience:celebrity_head:${roomId}`;
 
 export class CelebrityHeadExperience implements ExperienceModule {
   readonly type = "celebrity_head" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, _hostGuestId: string): Promise<void> {
     const state: CelebrityHeadState = {
@@ -273,6 +274,8 @@ export class CelebrityHeadExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
     await redisClient.del(KEY(roomId));
   }
 
@@ -369,7 +372,8 @@ export class CelebrityHeadExperience implements ExperienceModule {
           view: { type: "celebrity_head", data: state },
           sequenceId: seq,
         });
-        setTimeout(async () => {
+        clearTimeout(this.timers.get(`${roomId}:reveal`));
+        this.timers.set(`${roomId}:reveal`, setTimeout(async () => {
           try {
             const raw2 = await redisClient.get(KEY(roomId));
             const st: CelebrityHeadState | null = raw2 ? JSON.parse(raw2) : null;
@@ -383,8 +387,8 @@ export class CelebrityHeadExperience implements ExperienceModule {
               });
             }
           } catch {}
-          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
-        }, 4000);
+          this.timers.set(`${roomId}:advance`, setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000));
+        }, 4000));
         break;
       }
 
@@ -401,7 +405,8 @@ export class CelebrityHeadExperience implements ExperienceModule {
           view: { type: "celebrity_head", data: state },
           sequenceId: seq2,
         });
-        setTimeout(async () => {
+        clearTimeout(this.timers.get(`${roomId}:reveal`));
+        this.timers.set(`${roomId}:reveal`, setTimeout(async () => {
           try {
             const raw2 = await redisClient.get(KEY(roomId));
             const st: CelebrityHeadState | null = raw2 ? JSON.parse(raw2) : null;
@@ -415,8 +420,8 @@ export class CelebrityHeadExperience implements ExperienceModule {
               });
             }
           } catch {}
-          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
-        }, 4000);
+          this.timers.set(`${roomId}:advance`, setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000));
+        }, 4000));
         break;
       }
 
@@ -483,5 +488,10 @@ export class CelebrityHeadExperience implements ExperienceModule {
     const state: CelebrityHeadState = JSON.parse(raw);
     if (state.phase === "finished") return { type: "leaderboard", data: state.scores };
     return { type: "celebrity_head" as any, data: state };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
   }
 }

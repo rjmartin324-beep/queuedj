@@ -209,6 +209,11 @@ export class WhoKnowsWhoExperience implements ExperienceModule {
     return { type: "who_knows_who" as any, data: this._safeState(state) };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private async _start(roomId: string, providedGuestIds: string[], io: Server): Promise<void> {

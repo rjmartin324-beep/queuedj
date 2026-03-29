@@ -243,6 +243,10 @@ export class DrawbackExperience implements ExperienceModule {
     });
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    return this._getState(roomId);
+  }
+
   private _setTimer(roomId: string, ms: number, fn: () => void) {
     const existing = this.timers.get(roomId);
     if (existing) clearTimeout(existing);

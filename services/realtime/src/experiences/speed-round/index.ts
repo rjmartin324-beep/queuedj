@@ -284,6 +284,11 @@ export class SpeedRoundExperience implements ExperienceModule {
     return { type: "speed_round" as any, data: state };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ──────────────────────────────────────────────────────────────
 
   private async _broadcast(roomId: string, state: SpeedRoundState, io: Server): Promise<void> {

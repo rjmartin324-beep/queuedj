@@ -520,6 +520,11 @@ export class RankItExperience implements ExperienceModule {
     return { type: "rank_it" as any, data: this._safeState(state) };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ──────────────────────────────────────────────────────────────
 
   /** Strip correctOrder from currentChallenge so guests cannot cheat */

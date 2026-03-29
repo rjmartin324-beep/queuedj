@@ -52,6 +52,32 @@ import { VibeCheckView }     from "../vibe-check/VibeCheckView";
 import { ImprovChallengeView } from "../improv-challenge/ImprovChallengeView";
 import { HumItView }           from "../hum-it/HumItView";
 import { AccentChallengeView } from "../accent-challenge/AccentChallengeView";
+import { DrawItView }              from "../draw-it/DrawItView";
+import { WouldYouRatherView }      from "../would-you-rather/WouldYouRatherView";
+import { NeverHaveIEverView }      from "../never-have-i-ever/NeverHaveIEverView";
+import { TruthOrDareView }         from "../truth-or-dare/TruthOrDareView";
+import { TwoTruthsOneLieView }     from "../two-truths-one-lie/TwoTruthsOneLieView";
+import { FakeNewsView }            from "../fake-news/FakeNewsView";
+import { RankItView }              from "../rank-it/RankItView";
+import { EmojiStoryView }          from "../emoji-story/EmojiStoryView";
+import { CelebrityHeadView }       from "../celebrity-head/CelebrityHeadView";
+import { WordAssociationView }     from "../word-association/WordAssociationView";
+import { WhoKnowsWhoView }         from "../who-knows-who/WhoKnowsWhoView";
+import { AlibiView }               from "../alibi/AlibiView";
+import { MindReadingView }         from "../mind-reading/MindReadingView";
+import { SpeedRoundView }          from "../speed-round/SpeedRoundView";
+import { MimicMeView }             from "../mimic-me/MimicMeView";
+import { ChainReactionView }       from "../chain-reaction/ChainReactionView";
+import { PartyDiceView }           from "../party-dice/PartyDiceView";
+import { ConnectionsView }         from "../connections/ConnectionsView";
+import { LyricsDropView }          from "../lyrics-drop/LyricsDropView";
+import { MusicalChairsView }       from "../musical-chairs/MusicalChairsView";
+import { ThumbWarView }            from "../thumb-war/ThumbWarView";
+import { PopCultureQuizView }     from "../pop-culture-quiz/PopCultureQuizView";
+import { BucketListView }        from "../bucket-list/BucketListView";
+import { FightOrFlightView }     from "../fight-or-flight/FightOrFlightView";
+import { HotTakesView }          from "../hot-takes/HotTakesView";
+import { StoryTimeView }         from "../story-time/StoryTimeView";
 
 export function ExperiencePlayerView() {
   const { state } = useRoom();
@@ -183,29 +209,36 @@ export function ExperiencePlayerView() {
     case "accent_challenge_finished":
       return <AccentChallengeView />;
 
-    case "draw_it":
-    case "would_you_rather":
-    case "never_have_i_ever":
-    case "truth_or_dare":
-    case "two_truths_one_lie":
-    case "rank_it":
-    case "emoji_story":
-    case "celebrity_head":
-    case "word_association":
-    case "who_knows_who":
-    case "fake_news":
-    case "pop_culture_quiz":
-    case "alibi":
-    case "mind_reading":
-    case "speed_round":
-    case "mimic_me":
-    case "chain_reaction":
-    case "party_dice":
-    case "connections":
-    case "lyrics_drop":
-    case "musical_chairs":
-    case "thumb_war":
-      return <GenericGameView />;
+    case "draw_it":           return <DrawItView />;
+
+    case "would_you_rather":    return <WouldYouRatherView />;
+    case "never_have_i_ever":   return <NeverHaveIEverView />;
+    case "truth_or_dare":       return <TruthOrDareView />;
+    case "two_truths_one_lie":  return <TwoTruthsOneLieView />;
+
+    case "rank_it":           return <RankItView />;
+    case "emoji_story":       return <EmojiStoryView />;
+    case "celebrity_head":    return <CelebrityHeadView />;
+    case "word_association":  return <WordAssociationView />;
+    case "who_knows_who":     return <WhoKnowsWhoView />;
+    case "fake_news":         return <FakeNewsView />;
+    case "alibi":             return <AlibiView />;
+    case "mind_reading":      return <MindReadingView />;
+    case "speed_round":       return <SpeedRoundView />;
+    case "mimic_me":          return <MimicMeView />;
+    case "chain_reaction":    return <ChainReactionView />;
+    case "party_dice":        return <PartyDiceView />;
+    case "connections":       return <ConnectionsView />;
+    case "lyrics_drop":       return <LyricsDropView />;
+    case "musical_chairs":    return <MusicalChairsView />;
+    case "thumb_war":         return <ThumbWarView />;
+
+    case "pop_culture_quiz":  return <PopCultureQuizView />;
+
+    case "bucket_list":       return <BucketListView />;
+    case "fight_or_flight":   return <FightOrFlightView />;
+    case "hot_takes":         return <HotTakesView />;
+    case "story_time":        return <StoryTimeView />;
 
     case "intermission":
     default:

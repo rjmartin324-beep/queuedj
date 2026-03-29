@@ -12,6 +12,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { redisClient } from "../redis"
+import { db } from "../db/client"
 import { sendSOTDPush, sendStreakAtRiskPush } from "./push"
 import { getAllGlobalTokens, getGlobalToken } from "../routes/notifications"
 
@@ -55,19 +56,37 @@ function scheduleDaily(hour: number, minute: number, label: string, fn: () => Pr
 // ─── Job: Song of the Day (09:00) ────────────────────────────────────────────
 
 async function jobSOTD() {
-  const key  = `sotd:${isoDate()}`
-  const raw  = await redisClient.get(key)
-  if (!raw) {
-    console.warn("[scheduler] SOTD: no entry in Redis for today, skipping push")
+  if (process.env.SOTD_ENABLED !== "true") {
+    console.log("[scheduler] SOTD: disabled (set SOTD_ENABLED=true to enable)")
     return
   }
+  const key  = `sotd:${isoDate()}`
+  const raw  = await redisClient.get(key)
+
+  // Seed tracks — same pool as GET /sotd so the push matches what the card shows
+  const SEED_TRACKS = [
+    { title: "Blinding Lights",             artist: "The Weeknd",                      genre: "Synth-pop",  curatedNote: "The ultimate midnight drive anthem." },
+    { title: "Uptown Funk",                 artist: "Mark Ronson ft. Bruno Mars",      genre: "Funk",       curatedNote: "Zero percent chance this doesn't make you move." },
+    { title: "Happy",                       artist: "Pharrell Williams",               genre: "Neo-soul",   curatedNote: "The literal definition of good vibes." },
+    { title: "Shape of You",               artist: "Ed Sheeran",                      genre: "Pop",        curatedNote: "Still a banger. Don't @ us." },
+    { title: "Starboy",                     artist: "The Weeknd ft. Daft Punk",        genre: "Synthwave",  curatedNote: "Daft Punk on a Weeknd track. Need we say more?" },
+    { title: "Mr. Brightside",             artist: "The Killers",                     genre: "Indie Rock", curatedNote: "The crowd knows every word. Every single time." },
+    { title: "Somebody That I Used To Know", artist: "Gotye ft. Kimbra",              genre: "Indie Pop",  curatedNote: "Haunting, beautiful, and still bittersweet." },
+  ]
 
   let sotd: { title: string; artist: string; genre?: string; curatedNote?: string }
-  try {
-    sotd = JSON.parse(raw)
-  } catch {
-    console.warn("[scheduler] SOTD: invalid JSON, skipping push")
-    return
+  if (raw) {
+    try {
+      sotd = JSON.parse(raw)
+    } catch {
+      console.warn("[scheduler] SOTD: invalid JSON, falling back to seed track")
+      const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86_400_000)
+      sotd = SEED_TRACKS[doy % SEED_TRACKS.length]
+    }
+  } else {
+    console.log("[scheduler] SOTD: no Redis entry for today, using seed track")
+    const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86_400_000)
+    sotd = SEED_TRACKS[doy % SEED_TRACKS.length]
   }
 
   const tokens = await getAllGlobalTokens()
@@ -117,9 +136,24 @@ async function jobStreakReminder() {
   console.log(`[scheduler] streak: sent reminder to ${tokens.length} at-risk guest(s)`)
 }
 
+// ─── Job: Data retention cleanup (03:00) ────────────────────────────────────
+
+async function jobDataRetention() {
+  try {
+    const result = await db.query<{ cleanup_expired_data: number }>(
+      "SELECT cleanup_expired_data()"
+    )
+    const deleted = result.rows[0]?.cleanup_expired_data ?? 0
+    console.log(`[scheduler] data-retention: deleted ${deleted} expired row(s)`)
+  } catch (err) {
+    console.error("[scheduler] data-retention: error", err)
+  }
+}
+
 // ─── Public entry point ───────────────────────────────────────────────────────
 
 export function startScheduledJobs() {
-  scheduleDaily(9,  0,  "SOTD push",         jobSOTD)
-  scheduleDaily(20, 0,  "streak-at-risk push", jobStreakReminder)
+  scheduleDaily(3,  0,  "data-retention cleanup", jobDataRetention)
+  scheduleDaily(9,  0,  "SOTD push",              jobSOTD)
+  scheduleDaily(20, 0,  "streak-at-risk push",     jobStreakReminder)
 }

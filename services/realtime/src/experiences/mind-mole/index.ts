@@ -159,6 +159,11 @@ export class MindMoleExperience implements ExperienceModule {
     };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // Roles are assigned per-guest via socket join — host distributes words
   getWordForGuest(guestId: string, state: MindMoleState): string {
     return guestId === state.moleId ? (state.moleWord ?? "") : (state.crewWord ?? "");

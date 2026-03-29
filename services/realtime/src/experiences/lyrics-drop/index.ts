@@ -101,6 +101,7 @@ const KEY = (roomId: string) => `experience:lyrics_drop:${roomId}`;
 
 export class LyricsDropExperience implements ExperienceModule {
   readonly type = "lyrics_drop" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const state: LyricsDropState = {
@@ -112,6 +113,8 @@ export class LyricsDropExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
     await redisClient.del(KEY(roomId));
   }
 
@@ -167,7 +170,8 @@ export class LyricsDropExperience implements ExperienceModule {
           experienceType: "lyrics_drop", state,
           view: { type: "lyrics_drop" as any, data: state }, sequenceId: seq,
         });
-        setTimeout(async () => {
+        clearTimeout(this.timers.get(`${roomId}:reveal`));
+        this.timers.set(`${roomId}:reveal`, setTimeout(async () => {
           try {
             const raw2 = await redisClient.get(KEY(roomId));
             const st: LyricsDropState | null = raw2 ? JSON.parse(raw2) : null;
@@ -181,8 +185,8 @@ export class LyricsDropExperience implements ExperienceModule {
               });
             }
           } catch {}
-          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
-        }, 4000);
+          this.timers.set(`${roomId}:advance`, setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000));
+        }, 4000));
         break;
       }
       case "next": {
@@ -230,5 +234,10 @@ export class LyricsDropExperience implements ExperienceModule {
     const state: LyricsDropState = JSON.parse(raw);
     if (state.phase === "finished") return { type: "leaderboard", data: state.scores };
     return { type: "lyrics_drop" as any, data: state };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
   }
 }

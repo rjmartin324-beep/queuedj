@@ -130,6 +130,7 @@ interface HumItState {
 
 export class HumItExperience implements ExperienceModule {
   readonly type = "hum_it" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const state: HumItState = {
@@ -146,7 +147,10 @@ export class HumItExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(_roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -206,6 +210,11 @@ export class HumItExperience implements ExperienceModule {
         scores: state.scores,
       },
     };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
   }
 
   // ─── Private ──────────────────────────────────────────────────────────────
@@ -299,7 +308,8 @@ export class HumItExperience implements ExperienceModule {
       view: { type: "hum_it_reveal" as any, data: state },
       sequenceId: seq,
     });
-    setTimeout(async () => {
+    clearTimeout(this.timers.get(`${roomId}:reveal`));
+    this.timers.set(`${roomId}:reveal`, setTimeout(async () => {
       try {
         const raw2 = await redisClient.get(KEY(roomId));
         const st: HumItState | null = raw2 ? JSON.parse(raw2) : null;
@@ -313,8 +323,8 @@ export class HumItExperience implements ExperienceModule {
           });
         }
       } catch {}
-      setTimeout(() => this._next(roomId, io).catch(() => {}), 3000);
-    }, 5000);
+      this.timers.set(`${roomId}:advance`, setTimeout(() => this._next(roomId, io).catch(() => {}), 3000));
+    }, 5000));
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {

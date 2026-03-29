@@ -201,6 +201,11 @@ export class ChainReactionExperience implements ExperienceModule {
     return { type: "chain_reaction" as any, data: state };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ──────────────────────────────────────────────────────────────
 
   private _nextGuest(currentId: string, guestIds: string[]): string | null {

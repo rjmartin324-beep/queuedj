@@ -381,4 +381,9 @@ export class NeverHaveIEverExperience implements ExperienceModule {
     }
     return { type: "never_have_i_ever" as any, data: state };
   }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
 }

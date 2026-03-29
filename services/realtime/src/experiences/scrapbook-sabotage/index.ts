@@ -280,6 +280,10 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
     });
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    return this._load(roomId);
+  }
+
   private async _load(roomId: string): Promise<ScrapbookSabotageState | null> {
     const raw = await redisClient.get(KEY(roomId));
     return raw ? JSON.parse(raw) : null;

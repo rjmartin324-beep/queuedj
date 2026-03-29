@@ -143,6 +143,11 @@ export class VibeCheckExperience implements ExperienceModule {
     };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   private async _setTrack(roomId: string, isrc: string, title: string, artist: string, io: Server): Promise<void> {
     const state = await this._load(roomId);
     state.isrc = isrc;

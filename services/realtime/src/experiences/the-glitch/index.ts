@@ -13,6 +13,7 @@ const VIEWING_MS = 5000;  // Prompt shown for 5 seconds
 
 export class TheGlitchExperience implements ExperienceModule {
   readonly type = "the_glitch" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const existing = await this._load(roomId);
@@ -31,7 +32,11 @@ export class TheGlitchExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(roomId: string): Promise<void> {
+    const t = this.timers.get(roomId);
+    if (t) { clearTimeout(t); this.timers.delete(roomId); }
+    await redisClient.del(KEY(roomId));
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -71,6 +76,11 @@ export class TheGlitchExperience implements ExperienceModule {
       case "skip_round":
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._skipPhase(roomId, io);
+        break;
+
+      case "resume":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._resumeIfStuck(roomId, io);
         break;
     }
   }
@@ -136,7 +146,7 @@ export class TheGlitchExperience implements ExperienceModule {
     }
 
     // Auto-move to describing phase after viewing window
-    setTimeout(() => this._startDescribing(roomId, io), VIEWING_MS + 500);
+    this._setTimer(roomId, VIEWING_MS + 500, () => this._startDescribing(roomId, io));
   }
 
   private async _startDescribing(roomId: string, io: Server): Promise<void> {
@@ -236,6 +246,26 @@ export class TheGlitchExperience implements ExperienceModule {
       view: await this.getGuestViewDescriptor(roomId),
       sequenceId: seq,
     });
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    return this._load(roomId);
+  }
+
+  private _setTimer(roomId: string, ms: number, fn: () => void): void {
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    this.timers.set(roomId, setTimeout(fn, ms));
+  }
+
+  private async _resumeIfStuck(roomId: string, io: Server): Promise<void> {
+    if (this.timers.has(roomId)) return;
+    const state = await this._load(roomId);
+    if (!state) return;
+    if (state.phase === "watching") {
+      this._setTimer(roomId, VIEWING_MS + 500, () => this._startDescribing(roomId, io));
+      await this._broadcast(roomId, state, io);
+    }
   }
 
   private async _load(roomId: string): Promise<TheGlitchState | null> {

@@ -287,6 +287,7 @@ const SCENARIOS: Scenario[] = [
 
 export class FightOrFlightExperience implements ExperienceModule {
   readonly type = "fight_or_flight" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, _hostGuestId: string): Promise<void> {
     const state: FightOrFlightState = {
@@ -301,6 +302,8 @@ export class FightOrFlightExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
     await redisClient.del(KEY(roomId));
   }
 
@@ -351,6 +354,12 @@ export class FightOrFlightExperience implements ExperienceModule {
     const state = await this._load(roomId);
     if (!state) return { type: "intermission" };
     return { type: "fight_or_flight" as any, data: this._safeState(state) };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    if (!raw) return null;
+    return this._safeState(JSON.parse(raw));
   }
 
   // ─── Private ────────────────────────────────────────────────────────────────
@@ -407,7 +416,8 @@ export class FightOrFlightExperience implements ExperienceModule {
     state.phase = "reveal";
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
-    setTimeout(async () => {
+    clearTimeout(this.timers.get(`${roomId}:reveal`));
+    this.timers.set(`${roomId}:reveal`, setTimeout(async () => {
       try {
         const raw2 = await redisClient.get(KEY(roomId));
         const st: FightOrFlightState | null = raw2 ? JSON.parse(raw2) : null;
@@ -421,8 +431,8 @@ export class FightOrFlightExperience implements ExperienceModule {
           });
         }
       } catch {}
-      setTimeout(() => this._next(roomId, io).catch(() => {}), 3000);
-    }, 4000);
+      this.timers.set(`${roomId}:advance`, setTimeout(() => this._next(roomId, io).catch(() => {}), 3000));
+    }, 4000));
   }
 
   private async _next(roomId: string, io: Server): Promise<void> {

@@ -75,6 +75,7 @@ const DEFAULT_ARTIFACTS: Omit<Artifact, "foundBy" | "foundNames" | "unlockedAt">
 
 export class ArtifactHuntExperience implements ExperienceModule {
   readonly type = "artifact_hunt" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const state: ArtifactHuntState = {
@@ -88,7 +89,10 @@ export class ArtifactHuntExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(_roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -151,6 +155,11 @@ export class ArtifactHuntExperience implements ExperienceModule {
     };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // Host view — shows all placements including unfound
   async getHostViewData(roomId: string): Promise<unknown> {
     const state = await this._load(roomId);
@@ -181,7 +190,8 @@ export class ArtifactHuntExperience implements ExperienceModule {
       durationMs: state.durationMs,
     });
     // Auto-end after duration
-    setTimeout(() => this._endHunt(roomId, io), state.durationMs);
+    clearTimeout(this.timers.get(`${roomId}:end`));
+    this.timers.set(`${roomId}:end`, setTimeout(() => this._endHunt(roomId, io), state.durationMs));
   }
 
   private async _scanQR(roomId: string, guestId: string, qrCode: string, guestName: string, io: Server): Promise<void> {

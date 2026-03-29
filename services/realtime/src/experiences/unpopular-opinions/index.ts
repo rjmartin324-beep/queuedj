@@ -10,8 +10,9 @@ import { getNextSequenceId } from "../../rooms/stateReconciliation";
 import { awardGameWin } from "../../lib/credits";
 
 const KEY = (roomId: string) => `experience:opinions:${roomId}`;
-const REVEAL_DELAY_MS  = 3000;  // 3s after last guess before auto-reveal
-const JUDGE_TIMEOUT_MS = 30000; // 30s — auto-skip if judge never submits
+const REVEAL_DELAY_MS   = 3000;  // 3s after last guess before auto-reveal
+const JUDGE_TIMEOUT_MS  = 30000; // 30s — auto-skip if judge never submits
+const GUESS_TIMEOUT_MS  = 45000; // 45s — auto-reveal if not all guests guess
 
 export class UnpopularOpinionsExperience implements ExperienceModule {
   readonly type = "unpopular_opinions" as const;
@@ -94,6 +95,11 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
     }
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────
 
   private async _startRound(roomId: string, io: Server): Promise<void> {
@@ -144,6 +150,17 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
     state.phase = "guessing";
     await this._save(roomId, state);
     await this._broadcast(roomId, state, io);
+
+    // Auto-reveal if not all guests guess within timeout
+    const t = setTimeout(async () => {
+      const s = await this._load(roomId);
+      if (s && s.phase === "guessing") {
+        await this._reveal(roomId, io);
+      }
+    }, GUESS_TIMEOUT_MS);
+    const existing = this.timers.get(roomId);
+    if (existing) clearTimeout(existing);
+    this.timers.set(roomId, t);
   }
 
   private async _submitGuess(roomId: string, guestId: string, guess: number, bet: boolean, io: Server): Promise<void> {
@@ -167,6 +184,8 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
   }
 
   private async _reveal(roomId: string, io: Server): Promise<void> {
+    const t = this.timers.get(roomId);
+    if (t) { clearTimeout(t); this.timers.delete(roomId); }
     const state = await this._load(roomId);
     if (!state || state.judgeScore === null) return;
 

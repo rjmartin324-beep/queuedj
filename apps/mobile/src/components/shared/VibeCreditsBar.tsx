@@ -11,6 +11,7 @@ const EARN_LABELS: Record<string, string> = {
   track_request: "+2 🎵 request",
   game_win:      "+10 🏆 win",
   full_session:  "+5 🎉 session",
+  award_failed:  "⚡ Credits unavailable",
 };
 
 // ─── Earn Toast ───────────────────────────────────────────────────────────────
@@ -29,7 +30,7 @@ function EarnBadge({ toast, onDone }: { toast: EarnToast; onDone: () => void }) 
     ]).start(onDone);
   }, []);
 
-  const label = EARN_LABELS[toast.reason] ?? `+${toast.amount} ⚡`;
+  const label = EARN_LABELS[toast.reason] ?? (toast.amount > 0 ? `+${toast.amount} ⚡` : "⚡ Credits unavailable");
   return (
     <Animated.View style={[styles.earnBadge, { transform: [{ translateY: slideY }], opacity }]}>
       <Text style={styles.earnText}>{label}</Text>
@@ -108,7 +109,11 @@ export function VibeCreditsBar({ guestId, compact = false }: Props) {
     };
     socket?.on("credits:awarded" as any, handler);
 
-    const failHandler = () => setFetchFailed(true);
+    const failHandler = ({ reason }: { reason?: string }) => {
+      // Show a brief "failed" toast without marking the balance as unreliable
+      const id = ++_toastId;
+      setToasts(prev => [...prev, { id, reason: reason ?? "award_failed", amount: 0 }]);
+    };
     socket?.on("credits:award_failed" as any, failHandler);
 
     return () => {

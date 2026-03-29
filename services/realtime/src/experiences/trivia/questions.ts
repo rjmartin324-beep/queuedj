@@ -1,4 +1,6 @@
 import type { TriviaQuestion } from "@queuedj/shared-types";
+import fs from "fs";
+import path from "path";
 
 // Starter question bank — replace with DB-backed questions in Phase 3
 // Categories: music (fits the DJ app theme), general, pop culture
@@ -4621,3 +4623,42 @@ export const SAMPLE_QUESTIONS: TriviaQuestion[] = [
   { id:"q674", text:"Who won the 2023 NBA Championship?", options:[{id:"a",text:"Boston Celtics"},{id:"b",text:"Golden State Warriors"},{id:"c",text:"Miami Heat"},{id:"d",text:"Denver Nuggets"}], correctOptionId:"d", timeLimitSeconds:20, category:"sports", difficulty:"medium" },
   { id:"q675", text:"What is the NBA's 'luxury tax' threshold designed to do?", options:[{id:"a",text:"Fine teams that commit flagrant fouls"},{id:"b",text:"Discourage teams from exceeding the salary cap by a large margin"},{id:"c",text:"Limit player contract lengths"},{id:"d",text:"Redistribute revenue to smaller markets"}], correctOptionId:"b", timeLimitSeconds:20, category:"sports", difficulty:"medium" },
 ];
+
+/**
+ * Returns the active question bank.
+ *
+ * If TRIVIA_QUESTIONS_PATH is set and the file exists it is loaded once and
+ * cached for the lifetime of the process (env-var swaps require a restart anyway).
+ *
+ * File format: a JSON array of TriviaQuestion objects.
+ *
+ * Example:
+ *   TRIVIA_QUESTIONS_PATH=/data/my-questions.json
+ */
+let _questionsCache: TriviaQuestion[] | null = null;
+
+export function getQuestions(): TriviaQuestion[] {
+  if (_questionsCache) return _questionsCache;
+
+  const customPath = process.env.TRIVIA_QUESTIONS_PATH;
+  if (customPath) {
+    const resolved = path.resolve(customPath);
+    if (fs.existsSync(resolved)) {
+      try {
+        const raw = fs.readFileSync(resolved, "utf-8");
+        const questions = JSON.parse(raw) as TriviaQuestion[];
+        if (Array.isArray(questions) && questions.length > 0) {
+          console.log(`[trivia] loaded ${questions.length} questions from ${resolved}`);
+          _questionsCache = questions;
+          return _questionsCache;
+        }
+      } catch (err) {
+        console.warn(`[trivia] failed to load custom questions from ${customPath}:`, err);
+      }
+    } else {
+      console.warn(`[trivia] TRIVIA_QUESTIONS_PATH set but file not found: ${resolved}`);
+    }
+  }
+  _questionsCache = SAMPLE_QUESTIONS;
+  return _questionsCache;
+}

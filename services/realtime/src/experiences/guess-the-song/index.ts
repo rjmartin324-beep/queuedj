@@ -30,6 +30,7 @@ interface GuessSongState {
 
 export class GuessSongExperience implements ExperienceModule {
   readonly type = "guess_the_song" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
     const state: GuessSongState = {
@@ -48,7 +49,10 @@ export class GuessSongExperience implements ExperienceModule {
     await this._save(roomId, state);
   }
 
-  async onDeactivate(roomId: string): Promise<void> {}
+  async onDeactivate(_roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
+  }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
     action: string; payload: unknown; roomId: string;
@@ -97,6 +101,11 @@ export class GuessSongExperience implements ExperienceModule {
     };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   private async _startRound(
     roomId: string, isrc: string, title: string, artist: string, io: Server
   ): Promise<void> {
@@ -114,7 +123,8 @@ export class GuessSongExperience implements ExperienceModule {
     io.to(roomId).emit("experience:state_updated", { phase: "guessing", roundNumber: state.roundNumber, totalRounds: state.totalRounds, roundStartedAt: state.roundStartedAt, roundDurationMs: ROUND_DURATION_MS });
 
     // Auto-reveal after timeout
-    setTimeout(() => this._reveal(roomId, io), ROUND_DURATION_MS);
+    clearTimeout(this.timers.get(`${roomId}:reveal`));
+    this.timers.set(`${roomId}:reveal`, setTimeout(() => this._reveal(roomId, io), ROUND_DURATION_MS));
   }
 
   private async _submitGuess(

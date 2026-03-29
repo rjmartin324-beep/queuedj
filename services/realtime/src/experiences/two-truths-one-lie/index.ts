@@ -33,6 +33,7 @@ const KEY = (roomId: string) => `experience:two_truths_one_lie:${roomId}`;
 
 export class TwoTruthsOneLieExperience implements ExperienceModule {
   readonly type = "two_truths_one_lie" as const;
+  private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string, _hostGuestId: string): Promise<void> {
     const state: TwoTruthsOneLieState = {
@@ -50,6 +51,8 @@ export class TwoTruthsOneLieExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    this.timers.forEach(t => clearTimeout(t));
+    this.timers.clear();
     await redisClient.del(KEY(roomId));
   }
 
@@ -167,7 +170,8 @@ export class TwoTruthsOneLieExperience implements ExperienceModule {
           view: { type: "two_truths_one_lie", data: state },
           sequenceId: seq,
         });
-        setTimeout(async () => {
+        clearTimeout(this.timers.get(`${roomId}:reveal`));
+        this.timers.set(`${roomId}:reveal`, setTimeout(async () => {
           try {
             const raw2 = await redisClient.get(KEY(roomId));
             const st: TwoTruthsOneLieState | null = raw2 ? JSON.parse(raw2) : null;
@@ -181,8 +185,8 @@ export class TwoTruthsOneLieExperience implements ExperienceModule {
               });
             }
           } catch {}
-          setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000);
-        }, 5000);
+          this.timers.set(`${roomId}:advance`, setTimeout(() => this.handleAction({ action: "next", payload: {}, roomId, guestId: "", role: "HOST", io }).catch(() => {}), 3000));
+        }, 5000));
         break;
       }
 
@@ -257,5 +261,15 @@ export class TwoTruthsOneLieExperience implements ExperienceModule {
       };
     }
     return { type: "two_truths_one_lie" as any, data: state };
+  }
+
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    if (!raw) return null;
+    const state = JSON.parse(raw);
+    if (state.phase === "voting") {
+      return { ...state, votes: {}, voteCount: Object.keys(state.votes).length };
+    }
+    return state;
   }
 }

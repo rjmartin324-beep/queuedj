@@ -7,7 +7,7 @@ import type {
 } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
-import { SAMPLE_QUESTIONS } from "./questions";
+import { getQuestions } from "./questions";
 import { awardGameWin } from "../../lib/credits";
 import { shuffle } from "../../lib/shuffle";
 
@@ -142,7 +142,7 @@ export class TriviaExperience implements ExperienceModule {
     state.phase = "waiting";
     state.scores = {};
     // Build a fresh shuffled queue — no repeats until all questions used
-    (state as any).questionQueue = shuffle(SAMPLE_QUESTIONS.map(q => q.id));
+    (state as any).questionQueue = shuffle(getQuestions().map(q => q.id));
     (state as any).questionQueueIdx = 0;
     await this._saveState(roomId, state);
 
@@ -170,13 +170,13 @@ export class TriviaExperience implements ExperienceModule {
     }
 
     // Pull next from pre-shuffled queue; re-shuffle when exhausted
-    let queue: string[] = (state as any).questionQueue ?? shuffle(SAMPLE_QUESTIONS.map(q => q.id));
+    let queue: string[] = (state as any).questionQueue ?? shuffle(getQuestions().map(q => q.id));
     let idx: number = (state as any).questionQueueIdx ?? 0;
-    if (idx >= queue.length) { queue = shuffle(SAMPLE_QUESTIONS.map(q => q.id)); idx = 0; }
+    if (idx >= queue.length) { queue = shuffle(getQuestions().map(q => q.id)); idx = 0; }
     const questionId = queue[idx];
     (state as any).questionQueue = queue;
     (state as any).questionQueueIdx = idx + 1;
-    const question = SAMPLE_QUESTIONS.find(q => q.id === questionId) ?? SAMPLE_QUESTIONS[0];
+    const question = getQuestions().find(q => q.id === questionId) ?? getQuestions()[0];
 
     state.currentQuestion = question;
     state.answers = {};      // Clear previous answers

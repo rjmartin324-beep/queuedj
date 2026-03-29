@@ -387,6 +387,11 @@ export class AlibiExperience implements ExperienceModule {
     return { type: "alibi" as any, data: this._safeState(state) };
   }
 
+  async getBootstrapState(roomId: string): Promise<unknown> {
+    const raw = await redisClient.get(KEY(roomId));
+    return raw ? JSON.parse(raw) : null;
+  }
+
   // ─── Private ────────────────────────────────────────────────────────────────
 
   private async _start(roomId: string, io: Server): Promise<void> {

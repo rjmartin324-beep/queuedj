@@ -238,6 +238,10 @@ export async function trackRoutes(fastify: FastifyInstance) {
       energy?: number;
       analysisSource?: string;
       analysisConfidence?: number;
+      introEndMs?: number;
+      firstDropMs?: number;
+      outroStartMs?: number;
+      downbeatOffsetMs?: number;
     }
   }>("/tracks", {
     schema: {
@@ -257,6 +261,10 @@ export async function trackRoutes(fastify: FastifyInstance) {
           energy:             { type: "number", minimum: 0, maximum: 1 },
           analysisSource:     { type: "string" },
           analysisConfidence: { type: "number", minimum: 0, maximum: 1 },
+          introEndMs:         { type: "number" },
+          firstDropMs:        { type: "number" },
+          outroStartMs:       { type: "number" },
+          downbeatOffsetMs:   { type: "number" },
         },
       },
     },
@@ -265,14 +273,17 @@ export async function trackRoutes(fastify: FastifyInstance) {
       isrc, title, artist, album, artworkUrl, durationMs,
       bpm, camelotKey, camelotType, energy,
       analysisSource = "unknown", analysisConfidence = 0,
+      introEndMs, firstDropMs, outroStartMs, downbeatOffsetMs,
     } = request.body;
 
     await db.query(
       `INSERT INTO tracks (
          isrc, title, artist, album, album_art_url, duration_ms,
          bpm, camelot_key, camelot_type, energy,
-         analysis_source, analysis_confidence, updated_at
-       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,NOW())
+         analysis_source, analysis_confidence,
+         intro_end_ms, first_drop_ms, outro_start_ms, downbeat_offset_ms,
+         updated_at
+       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,NOW())
        ON CONFLICT (isrc) DO UPDATE SET
          title              = EXCLUDED.title,
          artist             = EXCLUDED.artist,
@@ -283,6 +294,10 @@ export async function trackRoutes(fastify: FastifyInstance) {
          camelot_key        = COALESCE(EXCLUDED.camelot_key, tracks.camelot_key),
          camelot_type       = COALESCE(EXCLUDED.camelot_type, tracks.camelot_type),
          energy             = COALESCE(EXCLUDED.energy, tracks.energy),
+         intro_end_ms       = COALESCE(EXCLUDED.intro_end_ms, tracks.intro_end_ms),
+         first_drop_ms      = COALESCE(EXCLUDED.first_drop_ms, tracks.first_drop_ms),
+         outro_start_ms     = COALESCE(EXCLUDED.outro_start_ms, tracks.outro_start_ms),
+         downbeat_offset_ms = COALESCE(EXCLUDED.downbeat_offset_ms, tracks.downbeat_offset_ms),
          analysis_source    = CASE
            WHEN EXCLUDED.analysis_confidence > tracks.analysis_confidence
            THEN EXCLUDED.analysis_source
@@ -292,7 +307,8 @@ export async function trackRoutes(fastify: FastifyInstance) {
          updated_at         = NOW()`,
       [isrc, title, artist, album ?? null, artworkUrl ?? null, durationMs ?? null,
        bpm ?? null, camelotKey ?? null, camelotType ?? null, energy ?? null,
-       analysisSource, analysisConfidence],
+       analysisSource, analysisConfidence,
+       introEndMs ?? null, firstDropMs ?? null, outroStartMs ?? null, downbeatOffsetMs ?? null],
     );
 
     return reply.code(201).send({ isrc });
