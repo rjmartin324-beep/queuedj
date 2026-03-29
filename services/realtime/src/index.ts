@@ -341,6 +341,22 @@ async function main() {
             readyCount: bootstrapReadyCount,
             readyTotalCount: bootstrapReadyTotalCount,
           });
+
+          // Auto-resume timer-based games if the server restarted mid-question.
+          // Only the host triggers this to avoid multiple timers from multiple reconnects.
+          if (role === "HOST" && experience.handleAction) {
+            const bs = bootstrapState as any;
+            if (bs?.phase === "question") {
+              experience.handleAction({
+                action: "resume",
+                payload: {},
+                roomId,
+                guestId: resolvedGuestId,
+                role: "HOST",
+                io,
+              }).catch(() => {});
+            }
+          }
         } catch { /* non-critical */ }
 
         // Notify room of new member (excluding push token — private)
