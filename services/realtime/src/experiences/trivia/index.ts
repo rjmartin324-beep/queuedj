@@ -131,8 +131,13 @@ export class TriviaExperience implements ExperienceModule {
   // ─── Private ──────────────────────────────────────────────────────────────
 
   private async _startRound(roomId: string, io: Server): Promise<void> {
-    const state = await this._getState(roomId);
-    if (!state) return;
+    let state = await this._getState(roomId);
+    if (!state) {
+      // State missing — create it inline rather than silently failing.
+      // This can happen if onActivate was skipped (server restart + force_start).
+      console.warn("[trivia] _startRound: no state found, bootstrapping for", roomId);
+      state = { roundNumber: 0, totalRounds: 10, scores: {}, answers: {}, phase: "waiting" } as any;
+    }
     state.roundNumber = 1;
     state.phase = "waiting";
     state.scores = {};

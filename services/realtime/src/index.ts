@@ -699,15 +699,17 @@ async function main() {
         const experience = getExperience(experienceType);
         let action = "start";
         let payload: Record<string, unknown> = {};
+        const allGuestIds = guestMembers.map(m => m.guestId);
 
         if (experienceType === "trivia") {
           action = "start_round";
-        } else if (experienceType === "mimic_me") {
-          payload = { guestIds: guestMembers.map(m => m.guestId) };
+        } else if (experienceType === "draw_it" || experienceType === "mimic_me" ||
+                   experienceType === "would_you_rather" || experienceType === "never_have_i_ever") {
+          payload = { guestIds: allGuestIds };
         } else if (experienceType === "mind_mole") {
           action = "start_game";
           payload = {
-            playerIds: guestMembers.map(m => m.guestId),
+            playerIds: allGuestIds,
             playerNames: Object.fromEntries(
               guestMembers.map(m => [m.guestId, m.displayName ?? m.guestId.slice(0, 8)])
             ),
@@ -716,6 +718,10 @@ async function main() {
 
         const hostMember = allMembers.find(m => m.role === "HOST");
         const hostGuestId = hostMember?.guestId ?? guestId;
+        // Ensure experience state exists — may be missing after server restart
+        if (experience.onActivate) {
+          await experience.onActivate(roomId, hostGuestId);
+        }
         console.log("[ready_up] auto-starting", experienceType, action, "for room", roomId);
         await experience.handleAction({ action, payload, roomId, guestId: hostGuestId, role: "HOST", io });
       }
@@ -755,6 +761,12 @@ async function main() {
           };
         }
 
+        // Ensure experience state exists before starting — onActivate is normally called
+        // on experience switch, but if the server restarted or state was cleaned up it
+        // may be missing. onActivate is idempotent and won't reset a running game.
+        if (experience.onActivate) {
+          await experience.onActivate(roomId, socketGuestId ?? "");
+        }
         console.log("[force_start]", experienceType, action, "for room", roomId);
         await experience.handleAction({ action, payload, roomId, guestId: socketGuestId ?? "", role: "HOST", io });
       } catch (err) { console.error("[force_start] error", err); }
