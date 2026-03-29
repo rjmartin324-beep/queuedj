@@ -28,6 +28,7 @@ import { creditRoutes } from "./routes/credits";
 import { sotdRoutes } from "./routes/sotd";
 import { tasteReportRoutes } from "./routes/tasteReport";
 import { recommendationRoutes } from "./routes/recommendations";
+import { authRoutes } from "./routes/auth";
 import { startScheduledJobs } from "./lib/scheduledJobs";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ async function start() {
   // ─── Plugins ───────────────────────────────────────────────────────────────
   await fastify.register(cors, {
     origin: process.env.ALLOWED_ORIGINS?.split(",") ?? true,
-    methods: ["GET", "POST", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "DELETE", "OPTIONS", "PATCH"],
   });
 
   await fastify.register(rateLimit, {
@@ -99,6 +100,7 @@ async function start() {
   await fastify.register(sotdRoutes, { prefix: "/" });
   await fastify.register(tasteReportRoutes, { prefix: "/" });
   await fastify.register(recommendationRoutes, { prefix: "/" });
+  await fastify.register(authRoutes,           { prefix: "/auth" });
 
   // ─── Start ─────────────────────────────────────────────────────────────────
   await fastify.listen({ port: PORT, host: "0.0.0.0" });

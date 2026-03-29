@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, Switch, Alert, ActivityIndicator, Modal, Linking, Share,
+  TextInput, Switch, Alert, ActivityIndicator, Modal, Linking, Share, Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { CreditsStoreScreen } from "./CreditsStoreScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme, type ThemePref, type BgTheme } from "../contexts/ThemeContext";
 import { selectionTick, tapLight } from "../lib/haptics";
+import { useAuth } from "../contexts/AuthContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Settings Screen
@@ -81,6 +82,7 @@ interface Props {
 export function SettingsScreen({ guestId, onClose }: Props) {
   const router = useRouter();
   const { pref, setTheme, bgTheme, setBgTheme } = useTheme();
+  const auth = useAuth();
   const [name, setName]             = useState("");
   const [editingName, setEditingName] = useState(false);
   const [notifications, setNotifications] = useState(true);
@@ -236,6 +238,67 @@ export function SettingsScreen({ guestId, onClose }: Props) {
       )}
 
       <Text style={styles.screenTitle}>Account</Text>
+
+      {/* ── Sign In / Account Section ───────────────────────────────────── */}
+      {auth.account ? (
+        <View style={styles.accountCard}>
+          <View style={styles.accountInfo}>
+            <View style={styles.accountAvatar}>
+              <Text style={styles.accountAvatarText}>
+                {(auth.account.displayName ?? auth.account.email ?? "?")[0].toUpperCase()}
+              </Text>
+            </View>
+            <View style={styles.accountMeta}>
+              <Text style={styles.accountName} numberOfLines={1}>
+                {auth.account.displayName ?? "Signed in"}
+              </Text>
+              {auth.account.email && (
+                <Text style={styles.accountEmail} numberOfLines={1}>{auth.account.email}</Text>
+              )}
+              <View style={styles.accountProviderRow}>
+                <Text style={styles.accountProvider}>
+                  {auth.account.provider === "apple" ? "🍎" : "🔵"} Linked via{" "}
+                  {auth.account.provider === "apple" ? "Apple" : "Google"}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.signOutBtn}
+            onPress={() => auth.signOut()}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.signOutText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.signInCard}>
+          <Text style={styles.signInTitle}>Save your progress</Text>
+          <Text style={styles.signInSub}>
+            Sign in to keep your XP, credits, and stats across devices.
+          </Text>
+          {auth.error && (
+            <Text style={styles.signInError}>{auth.error}</Text>
+          )}
+          {Platform.OS !== "web" && (
+            <TouchableOpacity
+              style={styles.appleBtn}
+              onPress={auth.signInWithApple}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.appleBtnText}>🍎  Sign in with Apple</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.googleBtn}
+            onPress={auth.signInWithGoogle}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.googleBtnText}>🔵  Sign in with Google</Text>
+          </TouchableOpacity>
+          <Text style={styles.signInNote}>Your anonymous party history is preserved.</Text>
+        </View>
+      )}
 
       {/* Profile stats header */}
       <View style={styles.statsHeader}>
@@ -463,6 +526,67 @@ const styles = StyleSheet.create({
   closeBtnText: { color: "#9ca3af", fontSize: 20 },
 
   screenTitle: { color: "#fff", fontSize: 28, fontWeight: "900", marginBottom: 16 },
+
+  // ── Account / Sign-in ──────────────────────────────────────────────────────
+  accountCard: {
+    backgroundColor: "#141414",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#222",
+    padding: 16,
+    marginBottom: 20,
+    gap: 14,
+  },
+  accountInfo: { flexDirection: "row", alignItems: "center", gap: 12 },
+  accountAvatar: {
+    width: 48, height: 48, borderRadius: 24,
+    backgroundColor: "#8b5cf620",
+    borderWidth: 1, borderColor: "#8b5cf6",
+    alignItems: "center", justifyContent: "center",
+  },
+  accountAvatarText: { color: "#a78bfa", fontSize: 20, fontWeight: "800" },
+  accountMeta: { flex: 1, gap: 2 },
+  accountName:  { color: "#fff", fontSize: 16, fontWeight: "700" },
+  accountEmail: { color: "#888", fontSize: 13 },
+  accountProviderRow: { flexDirection: "row" },
+  accountProvider: { color: "#555", fontSize: 12, marginTop: 2 },
+  signOutBtn: {
+    backgroundColor: "rgba(220,38,38,0.15)",
+    borderRadius: 10,
+    borderWidth: 1, borderColor: "rgba(220,38,38,0.35)",
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  signOutText: { color: "#f87171", fontWeight: "700", fontSize: 14 },
+
+  signInCard: {
+    backgroundColor: "#141414",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#222",
+    padding: 20,
+    marginBottom: 20,
+    gap: 12,
+  },
+  signInTitle: { color: "#fff", fontSize: 17, fontWeight: "800" },
+  signInSub:   { color: "#888", fontSize: 14, lineHeight: 20 },
+  signInError: { color: "#f87171", fontSize: 13 },
+  appleBtn: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  appleBtnText: { color: "#000", fontSize: 16, fontWeight: "700" },
+  googleBtn: {
+    backgroundColor: "#1a1a2e",
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+    borderWidth: 1, borderColor: "#333",
+  },
+  googleBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  signInNote:  { color: "#555", fontSize: 12, textAlign: "center" },
 
   statsHeader: {
     flexDirection: "row", backgroundColor: "rgba(255,255,255,0.04)",

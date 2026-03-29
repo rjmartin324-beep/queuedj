@@ -10,15 +10,17 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@queuedj/shared-types": "*",
     "@aws-sdk/client-s3": "^3.600.0",
     "@aws-sdk/s3-request-presigner": "^3.600.0",
-    "@sentry/node": "^8.0.0",
     "@fastify/cors": "^9.0.0",
+    "@fastify/jwt": "^10.0.0",
     "@fastify/multipart": "^8.0.0",
     "@fastify/rate-limit": "^9.0.0",
+    "@queuedj/shared-types": "*",
+    "@sentry/node": "^8.0.0",
     "bullmq": "^5.4.0",
     "fastify": "^4.26.0",
+    "jose": "^6.2.2",
     "pg": "^8.11.0",
     "redis": "^4.6.0"
   },

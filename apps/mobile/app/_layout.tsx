@@ -7,6 +7,7 @@ import { storage } from "../src/lib/storage";
 import * as Sentry from "@sentry/react-native";
 import { RoomProvider } from "../src/contexts/RoomContext";
 import { ThemeProvider } from "../src/contexts/ThemeContext";
+import { AuthProvider } from "../src/contexts/AuthContext";
 import { OnboardingScreen, ONBOARDED_KEY } from "../src/screens/OnboardingScreen";
 import { IntroVideoScreen } from "../src/screens/IntroVideoScreen";
 import { ErrorBoundary } from "../src/components/shared/ErrorBoundary";
@@ -111,6 +112,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
     <ErrorBoundary>
       <ThemeProvider>
+        <AuthProvider>
         <RoomProvider>
           <StatusBar style="light" />
           <Stack
@@ -122,6 +124,7 @@ export default function RootLayout() {
           />
           <AchievementToast />
         </RoomProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
     </SafeAreaProvider>

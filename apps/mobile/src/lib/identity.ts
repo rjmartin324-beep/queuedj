@@ -12,7 +12,11 @@ import { storage } from "./storage";
 // RoomContext, and any screen that needs the guest's profile.
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Canonical key — used by all code going forward
+const SOCKET_GUEST_ID_KEY = "queuedj:guestId";
+
 const KEYS = {
+  // Keep the identity key as an alias that stays in sync
   guestId:      "queuedj:identity:guestId",
   displayName:  "queuedj:identity:displayName",
   avatarChoice: "queuedj:identity:avatarChoice",
@@ -44,9 +48,26 @@ function generateUUID(): string {
  * Kept async for backward compatibility with call sites.
  */
 export async function getIdentity(): Promise<Identity> {
-  let guestId = storage.getString(KEYS.guestId) ?? null;
-  if (!guestId) {
+  // ── guestId unification ──────────────────────────────────────────────────
+  // socket.ts uses "queuedj:guestId"; identity.ts uses "queuedj:identity:guestId".
+  // On first load after this change, unify both to the socket key (the one that
+  // credits in Postgres are already tied to). New installs get a fresh UUID.
+  const socketKey   = storage.getString(SOCKET_GUEST_ID_KEY) ?? null;
+  const identityKey = storage.getString(KEYS.guestId) ?? null;
+
+  let guestId: string;
+  if (socketKey) {
+    // socket key is canonical — ensure identity key matches
+    guestId = socketKey;
+    if (identityKey !== socketKey) storage.set(KEYS.guestId, socketKey);
+  } else if (identityKey) {
+    // only identity key — promote it to socket key
+    guestId = identityKey;
+    storage.set(SOCKET_GUEST_ID_KEY, identityKey);
+  } else {
+    // neither exists — fresh install
     guestId = generateUUID();
+    storage.set(SOCKET_GUEST_ID_KEY, guestId);
     storage.set(KEYS.guestId, guestId);
   }
 
@@ -56,6 +77,16 @@ export async function getIdentity(): Promise<Identity> {
     avatarChoice: storage.getString(KEYS.avatarChoice) ?? null,
     vibeCredits:  parseInt(storage.getString(KEYS.vibeCredits) ?? "0", 10),
   };
+}
+
+/**
+ * Override the local guestId — called when an account sign-in returns a
+ * canonical guestId from the server (e.g., returning user on a new device).
+ * Writes both keys to keep them in sync.
+ */
+export function setCanonicalGuestId(id: string): void {
+  storage.set(SOCKET_GUEST_ID_KEY, id);
+  storage.set(KEYS.guestId, id);
 }
 
 /**

@@ -41,6 +41,41 @@ export async function runMigrations(): Promise<void> {
       );
     `);
 
+    // ── Account system ────────────────────────────────────────────────────────
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS accounts (
+        id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        provider         VARCHAR(10)  NOT NULL CHECK (provider IN ('apple', 'google')),
+        provider_id      VARCHAR(255) NOT NULL,
+        email            VARCHAR(255),
+        display_name     VARCHAR(100),
+        primary_guest_id VARCHAR(36)  NOT NULL,
+        created_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+        updated_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+      );
+
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_accounts_provider_pid
+        ON accounts(provider, provider_id);
+
+      CREATE INDEX IF NOT EXISTS idx_accounts_primary_guest_id
+        ON accounts(primary_guest_id);
+
+      CREATE TABLE IF NOT EXISTS account_sessions (
+        id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        account_id  UUID        NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+        jti         VARCHAR(36) NOT NULL UNIQUE,
+        created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        expires_at  TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '90 days'),
+        revoked_at  TIMESTAMPTZ
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_account_sessions_jti
+        ON account_sessions(jti);
+
+      CREATE INDEX IF NOT EXISTS idx_account_sessions_account_id
+        ON account_sessions(account_id);
+    `);
+
     console.log("[migrate] Migrations complete");
   } catch (err: any) {
     console.error("[migrate] Migration failed:", err.message);
