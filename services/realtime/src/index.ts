@@ -189,6 +189,7 @@ async function main() {
       const { roomId } = JSON.parse(message);
       if (roomId) {
         io.to(roomId).emit("room:closed" as any, { roomId });
+        unregisterActiveRoom(roomId).catch(() => {});
       }
     } catch { /* malformed message */ }
   });
@@ -902,6 +903,7 @@ async function main() {
                 await redisClient.set(`room:${roomId}:meta`, JSON.stringify(meta), { KEEPTTL: true }).catch(() => {});
               }
               io.to(roomId).emit("room:closed" as any, { roomId });
+              await unregisterActiveRoom(roomId).catch(() => {});
               console.log(`[realtime] Auto-closed room ${roomId} — host disconnected and did not return`);
             }
           }, 5 * 60 * 1000); // 5 minutes
