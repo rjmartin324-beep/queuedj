@@ -1,13 +1,17 @@
 FROM node:20-alpine
+LABEL build="2"
 
 WORKDIR /app
 
-# Install dependencies from monorepo root so workspace packages resolve
-COPY package.json ./
+# Copy lock file first so npm ci layer is cached
+COPY package.json package-lock.json ./
 COPY packages/ ./packages/
-COPY services/realtime/ ./services/realtime/
+COPY services/realtime/package.json ./services/realtime/package.json
 
-RUN npm install --workspace=services/realtime --include-workspace-root
+RUN npm ci --workspace=services/realtime --include-workspace-root
+
+# Copy source after install so code changes don't bust the npm layer
+COPY services/realtime/ ./services/realtime/
 
 # Bundle realtime + shared-types into a single compiled JS file using esbuild.
 # Running tsx (TypeScript compiler) at runtime adds ~200MB+ to heap, causing OOM
@@ -29,4 +33,6 @@ WORKDIR /app/services/realtime
 
 EXPOSE 3002
 
-CMD ["node", "dist/index.js"]
+# --max-old-space-size=400 tells V8 to GC aggressively before hitting
+# Railway's 512MB hard container limit (process was crashing at ~475MB)
+CMD ["node", "--max-old-space-size=450", "dist/index.js"]
