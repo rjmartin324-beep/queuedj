@@ -1,9 +1,28 @@
 import type { Server } from "socket.io";
 import type { ExperienceModule, GuestViewDescriptor } from "@queuedj/shared-types";
 import { redisClient } from "../../redis";
+import { db } from "../../db";
 import { getNextSequenceId } from "../../rooms/stateReconciliation";
-import { GEO_LOCATIONS, type GeoLocation } from "./locations";
 import { shuffle } from "../../lib/shuffle";
+
+interface GeoLocation {
+  id: string; name: string; lat: number; lng: number; hint: string; imageUrl?: string;
+}
+
+async function getLocationIds(): Promise<string[]> {
+  const res = await db.query<{ id: string }>("SELECT id FROM geo_locations");
+  return res.rows.map(r => r.id);
+}
+
+async function getLocationById(id: string): Promise<GeoLocation | null> {
+  const res = await db.query<{ id: string; name: string; lat: string; lng: string; hint: string; image_url: string | null }>(
+    "SELECT id, name, lat, lng, hint, image_url FROM geo_locations WHERE id = $1",
+    [id],
+  );
+  if (!res.rows.length) return null;
+  const r = res.rows[0];
+  return { id: r.id, name: r.name, lat: parseFloat(r.lat), lng: parseFloat(r.lng), hint: r.hint, imageUrl: r.image_url ?? undefined };
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GeoGuesser Experience
@@ -35,6 +54,7 @@ export class GeoGuesserExperience implements ExperienceModule {
   private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
 
   async onActivate(roomId: string): Promise<void> {
+    const ids = await getLocationIds();
     const state: GeoState = {
       phase: "waiting",
       location: null,
@@ -44,7 +64,7 @@ export class GeoGuesserExperience implements ExperienceModule {
       roundNumber: 0,
       totalRounds: 5,
       usedIds: [],
-      locationQueue: shuffle(GEO_LOCATIONS.map(l => l.id)),
+      locationQueue: shuffle(ids),
     };
     await redisClient.set(STATE_KEY(roomId), JSON.stringify(state));
   }
@@ -113,10 +133,11 @@ export class GeoGuesserExperience implements ExperienceModule {
     if (!s) return;
 
     // Work through pre-shuffled queue; fall back to re-shuffle if exhausted
-    let queue = s.locationQueue?.length ? s.locationQueue : shuffle(GEO_LOCATIONS.map(l => l.id));
+    let queue = s.locationQueue?.length ? s.locationQueue : shuffle(await getLocationIds());
     const nextId = queue[0];
     s.locationQueue = queue.slice(1);
-    const location = GEO_LOCATIONS.find(l => l.id === nextId) ?? GEO_LOCATIONS[0];
+    const location = await getLocationById(nextId);
+    if (!location) { console.error("[geo] location not found:", nextId); return; }
 
     s.phase = "guessing";
     s.location = location;
