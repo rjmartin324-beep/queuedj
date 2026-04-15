@@ -15,6 +15,7 @@ const DRAWING_MS = 60000;  // 60 seconds to draw
 export class CopyrightInfringementExperience implements ExperienceModule {
   readonly type = "copyright_infringement" as const;
   private timers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+  private deactivated: Set<string> = new Set();
 
   async onActivate(roomId: string): Promise<void> {
     const existing = await this._load(roomId);
@@ -34,9 +35,11 @@ export class CopyrightInfringementExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
+    this.deactivated.add(roomId);
     const t = this.timers.get(roomId);
     if (t) { clearTimeout(t); this.timers.delete(roomId); }
     await redisClient.del(KEY(roomId));
+    this.deactivated.delete(roomId);
   }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {
@@ -232,6 +235,7 @@ export class CopyrightInfringementExperience implements ExperienceModule {
   }
 
   private _setTimer(roomId: string, ms: number, fn: () => void): void {
+    if (this.deactivated.has(roomId)) return; // guard against race on deactivate
     const existing = this.timers.get(roomId);
     if (existing) clearTimeout(existing);
     this.timers.set(roomId, setTimeout(fn, ms));

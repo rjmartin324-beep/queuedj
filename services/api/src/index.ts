@@ -29,6 +29,7 @@ import { sotdRoutes } from "./routes/sotd";
 import { tasteReportRoutes } from "./routes/tasteReport";
 import { recommendationRoutes } from "./routes/recommendations";
 import { authRoutes } from "./routes/auth";
+import { statsRoutes } from "./routes/stats";
 import { startScheduledJobs } from "./lib/scheduledJobs";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -101,6 +102,7 @@ async function start() {
   await fastify.register(tasteReportRoutes, { prefix: "/" });
   await fastify.register(recommendationRoutes, { prefix: "/" });
   await fastify.register(authRoutes,           { prefix: "/auth" });
+  await fastify.register(statsRoutes,          { prefix: "/" });
 
   // ─── Start ─────────────────────────────────────────────────────────────────
   await fastify.listen({ port: PORT, host: "0.0.0.0" });

@@ -103,21 +103,18 @@ export function SettingsScreen({ guestId, onClose }: Props) {
     AsyncStorage.getItem(HAPTICS_KEY).then((v) => setHapticsOn(v !== "0"));
     AsyncStorage.getItem(ANTHEM_LABEL_KEY).then((v) => setAnthemLabel(v));
 
-    // Load lifetime stats from AsyncStorage
-    AsyncStorage.multiGet([
-      "stat_rooms_hosted", "stat_parties_attended",
-      "stat_game_wins_total", "stat_credits_total",
-    ]).then((pairs) => {
-      const m = Object.fromEntries(pairs.map(([k, v]) => [k, Number(v ?? 0)]));
-      setProfileStats({
-        roomsHosted:   m["stat_rooms_hosted"]      ?? 0,
-        partiesJoined: m["stat_parties_attended"]  ?? 0,
-        gameWins:      m["stat_game_wins_total"]   ?? 0,
-        totalCredits:  m["stat_credits_total"]     ?? 0,
-      });
-    });
-
     if (guestId) {
+      // Fetch lifetime stats from API
+      fetch(`${API_URL}/stats/${encodeURIComponent(guestId)}`)
+        .then((r) => r.json())
+        .then((d) => setProfileStats({
+          roomsHosted:   d.roomsHosted   ?? 0,
+          partiesJoined: d.partiesJoined ?? 0,
+          gameWins:      d.gameWins      ?? 0,
+          totalCredits:  d.totalCredits  ?? 0,
+        }))
+        .catch(() => {});
+
       fetch(`${API_URL}/credits/${encodeURIComponent(guestId)}/history?limit=20`)
         .then((r) => r.json())
         .then((d) => setCredits(d.history ?? []))

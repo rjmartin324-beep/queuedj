@@ -82,11 +82,15 @@ async function jobSOTD() {
       console.warn("[scheduler] SOTD: invalid JSON, falling back to seed track")
       const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86_400_000)
       sotd = SEED_TRACKS[doy % SEED_TRACKS.length]
+      // Overwrite the corrupt key with the seed track
+      await redisClient.set(key, JSON.stringify(sotd), { EX: 90_000 })
     }
   } else {
     console.log("[scheduler] SOTD: no Redis entry for today, using seed track")
     const doy = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86_400_000)
     sotd = SEED_TRACKS[doy % SEED_TRACKS.length]
+    // Persist so the GET /sotd route returns the same track and future reads don't re-derive
+    await redisClient.set(key, JSON.stringify(sotd), { EX: 90_000 })
   }
 
   const tokens = await getAllGlobalTokens()

@@ -150,7 +150,17 @@ function reducer(state: RoomState, action: Action): RoomState {
     case "SET_READY_UP":
       return { ...state, readyUp: { active: action.active, readyCount: action.readyCount, totalCount: action.totalCount, iHaveReadied: false } };
     case "READY_COUNT_UPDATE":
-      return { ...state, readyUp: { ...state.readyUp, readyCount: action.readyCount, totalCount: action.totalCount } };
+      // Reset iHaveReadied when the count drops to 0 — signals a new ready-up period.
+      // Preserves it otherwise so an already-readied player keeps their confirmed state.
+      return {
+        ...state,
+        readyUp: {
+          ...state.readyUp,
+          readyCount: action.readyCount,
+          totalCount: action.totalCount,
+          iHaveReadied: action.readyCount === 0 ? false : state.readyUp.iHaveReadied,
+        },
+      };
     case "MARK_ME_READY":
       return { ...state, readyUp: { ...state.readyUp, iHaveReadied: true } };
     case "ACTION_ACK":

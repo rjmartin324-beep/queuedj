@@ -19,9 +19,10 @@ export function WouldYouRatherControls({ viewMode, onViewModeChange }: Props) {
   const totalRounds: number = expState?.totalRounds ?? 10;
   const optionA: string = expState?.currentQ?.a ?? "Option A";
   const optionB: string = expState?.currentQ?.b ?? "Option B";
-  const votes: Record<string, "A" | "B"> = expState?.votes ?? {};
-  const votesA: number = Object.values(votes).filter((v) => v === "A").length;
-  const votesB: number = Object.values(votes).filter((v) => v === "B").length;
+  // Server broadcasts votes:{} (empty) during question phase to hide individual choices.
+  // Use aCount/bCount which are always populated.
+  const votesA: number = expState?.aCount ?? 0;
+  const votesB: number = expState?.bCount ?? 0;
   const totalVotes = votesA + votesB;
 
   function memberName(guestId: string) {
