@@ -18,6 +18,7 @@ export class CopyrightInfringementExperience implements ExperienceModule {
   private deactivated: Set<string> = new Set();
 
   async onActivate(roomId: string): Promise<void> {
+    this.deactivated.delete(roomId); // Clear any stale guard from a prior deactivation
     const existing = await this._load(roomId);
     if (existing && existing.phase !== "waiting" && existing.phase !== "scores") return; // mid-game — don't reset
     const state: CopyrightState = {
@@ -35,11 +36,10 @@ export class CopyrightInfringementExperience implements ExperienceModule {
   }
 
   async onDeactivate(roomId: string): Promise<void> {
-    this.deactivated.add(roomId);
+    this.deactivated.add(roomId); // persists until next onActivate — guards any async callbacks still in flight
     const t = this.timers.get(roomId);
     if (t) { clearTimeout(t); this.timers.delete(roomId); }
     await redisClient.del(KEY(roomId));
-    this.deactivated.delete(roomId);
   }
 
   async handleAction({ action, payload, roomId, guestId, role, io }: {

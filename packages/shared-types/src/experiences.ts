@@ -60,6 +60,9 @@ export type ExperienceType =
   | "photo_bomb"              // Party game — odd one out
   | "speed_typing"            // Party game — typing race
   | "party_dice"              // Party game — roll for challenge
+  | "buzzer"                  // Party game — zero-latency buzz-in race
+  | "roastmaster"             // Party game — write & vote on roasts
+  | "reflex"                  // Party game — sub-50ms reaction tap
   | "poll"                    // Phase 3 — standalone poll session
   | "raffle"                  // Phase 5 — ticket draw
   | "countdown"               // Phase 5 — event timer
@@ -160,6 +163,9 @@ export type GuestViewType =
   | "photo_bomb"                // all phases handled internally via data.phase
   | "speed_typing"              // all phases handled internally via data.phase
   | "party_dice"                // all phases handled internally via data.phase
+  | "buzzer"                    // all phases handled internally via data.phase
+  | "roastmaster"               // all phases handled internally via data.phase
+  | "reflex"                    // all phases handled internally via data.phase
   | "intermission";             // Between experiences — host is setting up next
 
 export interface GuestViewDescriptor {

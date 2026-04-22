@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView,
+  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRoom } from "../../../contexts/RoomContext";
@@ -111,20 +111,121 @@ export function GenericGameView() {
     return <PopCultureQuizView meta={meta} data={data} guestId={guestId} sendAction={sendAction} />;
   }
 
-  // ── Default card view (truth_or_dare, emoji_story, etc.) ──────────────────
+  // ── Default fallback — operable stub for unimplemented games ─────────────
+  return <StubGameView meta={meta} data={data} guestId={guestId} sendAction={sendAction} round={round} total={total} />;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// StubGameView — operable fallback for stub games
+// Shows phase, all state keys/values, "I'm Ready" + text submit
+// ─────────────────────────────────────────────────────────────────────────────
+function StubGameView({ meta, data, guestId, sendAction, round, total }: any) {
+  const [text, setText] = useState("");
+  const [readied, setReadied] = useState(false);
+
+  const phase: string = data.phase ?? "waiting";
+  const scores: Record<string, number> | undefined = data.scores;
+
+  // Friendly title: replace underscores, title-case
+  const friendlyTitle = meta.title !== meta.emoji
+    ? meta.title
+    : (meta.title as string).replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+  // State entries for inspection (exclude large arrays to keep it readable)
+  const stateEntries = Object.entries(data).filter(([k]) => k !== "scores");
+
+  function handleReady() {
+    setReadied(true);
+    sendAction("ready");
+  }
+
+  function handleSubmit() {
+    const t = text.trim();
+    if (!t) return;
+    sendAction("submit", { text: t });
+    setText("");
+  }
+
   return (
     <LinearGradient colors={["#0e0024", "#08081a"]} style={s.flex}>
       {/* Header */}
       <View style={[s.header, { borderBottomColor: meta.accent + "33" }]}>
         <Text style={s.headerEmoji}>{meta.emoji}</Text>
-        <Text style={[s.headerTitle, { color: meta.accent }]}>{meta.title}</Text>
-        {total > 0 && (
-          <Text style={s.roundPill}>Round {round} / {total}</Text>
-        )}
+        <Text style={[s.headerTitle, { color: meta.accent }]}>{friendlyTitle}</Text>
+        {total > 0 && <Text style={s.roundPill}>Round {round} / {total}</Text>}
       </View>
 
-      <ScrollView contentContainerStyle={s.body}>
-        <GameCard data={data} meta={meta} guestId={guestId} sendAction={sendAction} />
+      <ScrollView contentContainerStyle={s.body} keyboardShouldPersistTaps="handled">
+        {/* Phase chip */}
+        <View style={[s.phaseChip, { borderColor: meta.accent + "55" }]}>
+          <Text style={[s.phaseChipText, { color: meta.accent }]}>PHASE: {phase.toUpperCase()}</Text>
+        </View>
+
+        {/* State viewer */}
+        <View style={s.stateBox}>
+          <Text style={s.stateBoxTitle}>GAME STATE</Text>
+          {stateEntries.map(([k, v]) => {
+            const val = typeof v === "object" ? JSON.stringify(v).slice(0, 80) : String(v);
+            return (
+              <View key={k} style={s.stateRow}>
+                <Text style={s.stateKey}>{k}</Text>
+                <Text style={s.stateVal} numberOfLines={2}>{val}</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Scores if present */}
+        {scores && Object.keys(scores).length > 0 && (
+          <View style={s.stateBox}>
+            <Text style={s.stateBoxTitle}>SCORES</Text>
+            {Object.entries(scores)
+              .sort(([, a], [, b]) => (b as number) - (a as number))
+              .map(([id, pts], i) => (
+                <View key={id} style={s.stateRow}>
+                  <Text style={s.stateKey}>#{i + 1} {id === guestId ? "You" : id.slice(0, 8)}</Text>
+                  <Text style={[s.stateVal, { color: meta.accent }]}>{pts as number} pts</Text>
+                </View>
+              ))}
+          </View>
+        )}
+
+        {/* I'm Ready */}
+        {!readied ? (
+          <TouchableOpacity
+            style={[s.stubBtn, { borderColor: meta.accent + "66" }]}
+            onPress={handleReady}
+            activeOpacity={0.8}
+          >
+            <Text style={[s.stubBtnText, { color: meta.accent }]}>I'm Ready ✓</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={[s.stubBtn, { borderColor: "#22c55e44" }]}>
+            <Text style={{ color: "#22c55e", fontWeight: "700" }}>Ready! Waiting...</Text>
+          </View>
+        )}
+
+        {/* Text input for games that need it */}
+        <View style={s.stubInputRow}>
+          <TextInput
+            style={s.stubInput}
+            placeholder="Submit an answer..."
+            placeholderTextColor="#555"
+            value={text}
+            onChangeText={setText}
+            returnKeyType="send"
+            onSubmitEditing={handleSubmit}
+            autoCapitalize="none"
+          />
+          <TouchableOpacity
+            style={[s.stubSendBtn, { backgroundColor: meta.accent + "33", borderColor: meta.accent + "55" }]}
+            onPress={handleSubmit}
+            disabled={!text.trim()}
+            activeOpacity={0.8}
+          >
+            <Text style={[s.stubSendText, { color: meta.accent }]}>Send</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </LinearGradient>
   );
@@ -1123,4 +1224,24 @@ const s = StyleSheet.create({
 
   rateBtn:     { flex: 1, borderRadius: 12, borderWidth: 1.5, padding: 16, alignItems: "center" },
   rateBtnText: { fontSize: 18, fontWeight: "900" },
+
+  // Stub game styles
+  phaseChip:     { borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, alignSelf: "flex-start" },
+  phaseChipText: { fontSize: 11, fontWeight: "900", letterSpacing: 2 },
+  stateBox:      { backgroundColor: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 12, gap: 6 },
+  stateBoxTitle: { color: "#555", fontSize: 9, fontWeight: "900", letterSpacing: 2, marginBottom: 4 },
+  stateRow:      { flexDirection: "row", gap: 8, alignItems: "flex-start" },
+  stateKey:      { color: "#6b7280", fontSize: 12, fontWeight: "700", minWidth: 90 },
+  stateVal:      { flex: 1, color: "#9ca3af", fontSize: 12 },
+  stubBtn:       { borderRadius: 12, borderWidth: 1.5, padding: 16, alignItems: "center" },
+  stubBtnText:   { fontSize: 16, fontWeight: "900" },
+  stubInputRow:  { flexDirection: "row", gap: 8 },
+  stubInput: {
+    flex: 1, backgroundColor: "rgba(255,255,255,0.06)", borderRadius: 10,
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.1)",
+    paddingHorizontal: 14, paddingVertical: 12,
+    color: "#fff", fontSize: 14,
+  },
+  stubSendBtn:  { borderRadius: 10, borderWidth: 1, paddingHorizontal: 16, paddingVertical: 12, alignItems: "center", justifyContent: "center" },
+  stubSendText: { fontSize: 14, fontWeight: "900" },
 });

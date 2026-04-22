@@ -152,15 +152,15 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
     await this._broadcast(roomId, state, io);
 
     // Auto-reveal if not all guests guess within timeout
-    const t = setTimeout(async () => {
+    const existing2 = this.timers.get(roomId);
+    if (existing2) clearTimeout(existing2);
+    const guessTimer = setTimeout(async () => {
       const s = await this._load(roomId);
       if (s && s.phase === "guessing") {
         await this._reveal(roomId, io);
       }
     }, GUESS_TIMEOUT_MS);
-    const existing = this.timers.get(roomId);
-    if (existing) clearTimeout(existing);
-    this.timers.set(roomId, t);
+    this.timers.set(roomId, guessTimer);
   }
 
   private async _submitGuess(roomId: string, guestId: string, guess: number, bet: boolean, io: Server): Promise<void> {
@@ -176,7 +176,11 @@ export class UnpopularOpinionsExperience implements ExperienceModule {
     const memberCount = await redisClient.sCard(`room:${roomId}:members`);
     const expectedGuessers = memberCount - 1; // Everyone except the judge
     if (Object.keys(state.guesses).length >= expectedGuessers) {
-      await this._reveal(roomId, io);
+      // Clear the guess timeout, then delay reveal so guests see "all guessed" briefly
+      const t = this.timers.get(roomId);
+      if (t) { clearTimeout(t); this.timers.delete(roomId); }
+      const revealTimer = setTimeout(() => this._reveal(roomId, io), REVEAL_DELAY_MS);
+      this.timers.set(roomId, revealTimer);
     } else {
       // Broadcast updated guess count (not the guesses themselves)
       await this._broadcast(roomId, state, io);

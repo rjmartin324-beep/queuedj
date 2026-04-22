@@ -100,6 +100,11 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
         if (role !== "HOST" && role !== "CO_HOST") return;
         await this._skipPhase(roomId, io);
         break;
+
+      case "resume":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._resumeIfStuck(roomId, io);
+        break;
     }
   }
 
@@ -172,8 +177,7 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
     const invalidWords = words.filter((w) => !state.wordBank.includes(w));
 
     if (invalidWords.length > 0) {
-      // Tell only this guest about invalid words
-      // In the client, invalid words are highlighted in real-time
+      io.to(`guest:${guestId}`).emit("experience:action_error" as any, { error: "invalid_words", invalidWords });
       return;
     }
 
@@ -263,11 +267,26 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
     else if (state.phase === "voting") await this._reveal(roomId, io);
   }
 
-  /** During voting, responses are shown but authorship is hidden */
+  private async _resumeIfStuck(roomId: string, io: Server): Promise<void> {
+    if (this.timers.has(roomId)) return;
+    const state = await this._load(roomId);
+    if (!state) return;
+    if (state.phase === "writing") {
+      this._setTimer(roomId, WRITING_MS, () => this._startVoting(roomId, io));
+      await this._broadcast(roomId, state, io);
+    } else if (state.phase === "voting") {
+      this._setTimer(roomId, VOTING_MS, () => this._reveal(roomId, io));
+      await this._broadcast(roomId, state, io);
+    }
+  }
+
+  /** During voting, responses are shown but authorship is hidden.
+   *  Sort is deterministic per round so order doesn't shift between broadcasts. */
   private _anonymizeResponses(state: ScrapbookSabotageState): Array<{ id: string; text: string }> {
+    const seed = state.roundNumber;
     return Object.entries(state.responses)
       .map(([guestId, text]) => ({ id: guestId, text }))
-      .sort(() => Math.random() - 0.5); // Shuffle so order doesn't reveal author
+      .sort((a, b) => hashCode(a.id + seed) - hashCode(b.id + seed));
   }
 
   private async _broadcast(roomId: string, state: ScrapbookSabotageState, io: Server): Promise<void> {
@@ -302,4 +321,12 @@ export class ScrapbookSabotageExperience implements ExperienceModule {
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function hashCode(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  }
+  return h;
 }

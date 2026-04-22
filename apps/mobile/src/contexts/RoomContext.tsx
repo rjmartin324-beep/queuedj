@@ -29,6 +29,7 @@ interface RoomState {
   guestViewData: unknown;       // Payload from GuestViewDescriptor.data
   experienceState: unknown;     // Full server-side experience state (for host controls)
   djState: DJExperienceState | null;
+  walkInAnthem: { guestId: string; displayName: string; isrc: string; trackTitle?: string; artistName?: string } | null;
   activePollId: string | null;
   roomClosed: boolean;
   readyUp: { active: boolean; readyCount: number; totalCount: number; iHaveReadied: boolean };
@@ -48,6 +49,7 @@ type Action =
   | { type: "SET_EXPERIENCE"; experience: ExperienceType; view: GuestViewType; viewData?: unknown; expState?: unknown; partial?: boolean }
   | { type: "UPDATE_EXPERIENCE_STATE"; viewData: unknown; expState?: unknown }
   | { type: "SET_DJ_STATE"; djState: DJExperienceState }
+  | { type: "WALK_IN_ANTHEM"; guestId: string; displayName: string; isrc: string; trackTitle?: string; artistName?: string }
   | { type: "SET_POLL"; pollId: string | null }
   | { type: "SET_ROLE"; role: "HOST" | "CO_HOST" | "GUEST" }
   | { type: "ROOM_CLOSED" }
@@ -74,6 +76,7 @@ const initialState: RoomState = {
   guestViewData: null,
   experienceState: null,
   djState: null,
+  walkInAnthem: null,
   activePollId: null,
   roomClosed: false,
   readyUp: { active: false, readyCount: 0, totalCount: 0, iHaveReadied: false },
@@ -141,6 +144,8 @@ function reducer(state: RoomState, action: Action): RoomState {
       };
     case "SET_DJ_STATE":
       return { ...state, djState: action.djState };
+    case "WALK_IN_ANTHEM":
+      return { ...state, walkInAnthem: { guestId: action.guestId, displayName: action.displayName, isrc: action.isrc, trackTitle: action.trackTitle, artistName: action.artistName } };
     case "SET_POLL":
       return { ...state, activePollId: action.pollId };
     case "ROOM_CLOSED":
@@ -334,6 +339,14 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       type: "MERGE_EXPERIENCE_STATE",
       expState: { myWord: payload.word, isMole: payload.isMole, moleHint: payload.moleHint },
     });
+    const onWalkInAnthem = (payload: any) => dispatch({
+      type: "WALK_IN_ANTHEM",
+      guestId: payload.guestId,
+      displayName: payload.displayName,
+      isrc: payload.isrc,
+      trackTitle: payload.trackTitle,
+      artistName: payload.artistName,
+    });
 
     // ─── Reconnect failure notification ──────────────────────────────────────
     const unsubReconnect = socketManager.addReconnectStatusListener((status) => {
@@ -365,6 +378,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     socket.on("experience:action_ack" as any,   onActionAck);
     socket.on("night_shift:your_role" as any,   onNightShiftRole);
     socket.on("mind_mole:your_word" as any,     onMindMoleWord);
+    socket.on("room:walk_in_anthem" as any,     onWalkInAnthem);
 
     return () => {
       // Remove only RoomContext handlers — bindCoreEvents handlers stay intact
@@ -393,6 +407,7 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
       socket.off("experience:action_ack" as any,   onActionAck);
       socket.off("night_shift:your_role" as any,   onNightShiftRole);
       socket.off("mind_mole:your_word" as any,     onMindMoleWord);
+      socket.off("room:walk_in_anthem" as any,     onWalkInAnthem);
       unsubReconnect();
     };
   // Re-run when guestId changes (guest joins with session ID) OR when a room

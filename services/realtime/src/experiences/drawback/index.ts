@@ -91,6 +91,11 @@ export class DrawbackExperience implements ExperienceModule {
         await this._skipPhase(roomId, io);
         break;
 
+      case "resume":
+        if (role !== "HOST" && role !== "CO_HOST") return;
+        await this._resumeIfStuck(roomId, io);
+        break;
+
       case "end_game":
         if (role !== "HOST") return;
         await this.onDeactivate(roomId);
@@ -221,6 +226,29 @@ export class DrawbackExperience implements ExperienceModule {
 
     if (state.phase === "finished") {
       await awardGameWin(io, state.scores, roomId);
+    }
+  }
+
+  private async _resumeIfStuck(roomId: string, io: Server): Promise<void> {
+    if (this.timers.has(roomId)) return;
+    const state = await this._getState(roomId);
+    if (!state) return;
+    if (state.phase === "drawing") {
+      this._setTimer(roomId, DRAW_SECS * 1000, () => this._startVoting(roomId, io));
+      const seq = await getNextSequenceId(roomId);
+      io.to(roomId).emit("experience:state" as any, {
+        experienceType: "drawback", state,
+        view: { type: "drawback_drawing", data: { prompt: state.prompt, timeLimit: DRAW_SECS } },
+        sequenceId: seq,
+      });
+    } else if (state.phase === "voting") {
+      this._setTimer(roomId, VOTE_SECS * 1000, () => this._reveal(roomId, io));
+      const seq = await getNextSequenceId(roomId);
+      io.to(roomId).emit("experience:state" as any, {
+        experienceType: "drawback", state,
+        view: { type: "drawback_voting", data: { drawings: state.drawings, prompt: state.prompt } },
+        sequenceId: seq,
+      });
     }
   }
 

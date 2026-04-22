@@ -98,6 +98,22 @@ export default function WouldYouRatherScreen() {
   }
 
   // ── Multiplayer block ──────────────────────────────────────────────────────
+  // Guard: in-room but experience state hasn't arrived yet — show loading
+  // instead of falling through to standalone lobby where vote() never calls
+  // sendAction and votes are silently lost.
+  if (inRoom && !mpState) {
+    return (
+      <LinearGradient colors={["#03001c", "#1a0040"]} style={s.flex}>
+        <SafeAreaView style={s.flex}>
+          <View style={s.center}>
+            <Text style={{ fontSize: 48, marginBottom: 16 }}>⏳</Text>
+            <Text style={s.gameTitle}>Loading game…</Text>
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
+    );
+  }
+
   if (inRoom && mpState) {
     const mpPhase: string = mpState.phase ?? "waiting";
     const myGuestId = state.guestId;

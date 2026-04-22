@@ -78,6 +78,9 @@ import { BucketListView }        from "../bucket-list/BucketListView";
 import { FightOrFlightView }     from "../fight-or-flight/FightOrFlightView";
 import { HotTakesView }          from "../hot-takes/HotTakesView";
 import { StoryTimeView }         from "../story-time/StoryTimeView";
+import { BuzzerView }            from "../buzzer/BuzzerView";
+import { RoastmasterView }       from "../roastmaster/RoastmasterView";
+import { ReflexView }            from "../reflex/ReflexView";
 
 export function ExperiencePlayerView() {
   const { state } = useRoom();
@@ -239,6 +242,10 @@ export function ExperiencePlayerView() {
     case "fight_or_flight":   return <FightOrFlightView />;
     case "hot_takes":         return <HotTakesView />;
     case "story_time":        return <StoryTimeView />;
+
+    case "buzzer":            return <BuzzerView />;
+    case "roastmaster":       return <RoastmasterView />;
+    case "reflex":            return <ReflexView />;
 
     case "intermission":
     default:

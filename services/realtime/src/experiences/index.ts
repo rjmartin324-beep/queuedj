@@ -48,6 +48,9 @@ import { LyricsDropExperience } from "./lyrics-drop";
 import { PhotoBombExperience } from "./photo-bomb";
 import { SpeedTypingExperience } from "./speed-typing";
 import { PartyDiceExperience } from "./party-dice";
+import { BuzzerExperience } from "./buzzer";
+import { RoastmasterExperience } from "./roastmaster";
+import { ReflexExperience } from "./reflex";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Experience Registry
@@ -110,6 +113,9 @@ const registry = new Map<ExperienceType, ExperienceModule>([
   ["photo_bomb",            new PhotoBombExperience()],
   ["speed_typing",          new SpeedTypingExperience()],
   ["party_dice",            new PartyDiceExperience()],
+  ["buzzer",                new BuzzerExperience()],
+  ["roastmaster",           new RoastmasterExperience()],
+  ["reflex",                new ReflexExperience()],
 ]);
 
 export function getExperience(type: ExperienceType): ExperienceModule {

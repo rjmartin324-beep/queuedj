@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity, Image, Animated, Easing, ActivityIndicator,
+  View, Text, StyleSheet, TouchableOpacity, Image, Animated, Easing, ActivityIndicator, Linking,
 } from "react-native";
 import { SkeletonShimmer } from "../shared/SkeletonShimmer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -205,26 +205,40 @@ export function SongOfTheDayCard() {
             {energyPct !== null && <View style={styles.metaChip}><Text style={styles.metaChipText}>Energy {energyPct}%</Text></View>}
           </View>
         </View>
-        {/* Circular play button — right side */}
-        <TouchableOpacity
-          onPress={togglePlay}
-          activeOpacity={previewUrl ? 0.8 : 1}
-          disabled={!previewUrl}
-          style={[styles.playCircle, !previewUrl && { opacity: 0.45 }]}
-        >
-          <LinearGradient
-            colors={
-              playError   ? ["#7f1d1d", "#991b1b"] :
-              playing     ? ["#2a2a2a", "#1a1a1a"] :
-                            ["#7c3aed", "#6d28d9"]
-            }
-            style={styles.playCircleGrad}
+        {/* Circular play button — right side; search button if no preview */}
+        {previewUrl ? (
+          <TouchableOpacity
+            onPress={togglePlay}
+            activeOpacity={0.8}
+            style={styles.playCircle}
           >
-            <Text style={styles.playCircleIcon}>
-              {playError ? "⚠" : playing ? "⏸" : "▶"}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            <LinearGradient
+              colors={
+                playError ? ["#7f1d1d", "#991b1b"] :
+                playing   ? ["#2a2a2a", "#1a1a1a"] :
+                            ["#7c3aed", "#6d28d9"]
+              }
+              style={styles.playCircleGrad}
+            >
+              <Text style={styles.playCircleIcon}>
+                {playError ? "⚠" : playing ? "⏸" : "▶"}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => {
+              const q = encodeURIComponent(`${sotd!.title} ${sotd!.artist}`);
+              Linking.openURL(`https://open.spotify.com/search/${q}`).catch(() => {});
+            }}
+            activeOpacity={0.8}
+            style={styles.searchCircle}
+          >
+            <LinearGradient colors={["#1db954", "#17a347"]} style={styles.playCircleGrad}>
+              <Text style={styles.searchCircleIcon}>🔍</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Curated note */}
@@ -286,4 +300,7 @@ const styles = StyleSheet.create({
   playCircle:     { width: 52, height: 52, borderRadius: 26, overflow: "hidden", alignSelf: "center", flexShrink: 0 },
   playCircleGrad: { width: 52, height: 52, borderRadius: 26, alignItems: "center", justifyContent: "center" },
   playCircleIcon: { fontSize: 20, color: "#fff", marginLeft: 3 },
+
+  searchCircle:     { width: 52, height: 52, borderRadius: 26, overflow: "hidden", alignSelf: "center", flexShrink: 0 },
+  searchCircleIcon: { fontSize: 18 },
 });

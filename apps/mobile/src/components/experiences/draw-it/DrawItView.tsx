@@ -157,7 +157,7 @@ export function DrawItView() {
 
       {/* Canvas */}
       <View style={styles.canvasWrap} {...(isDrawer ? panResponder.panHandlers : {})}>
-        <View style={styles.canvas}>
+        <View style={styles.canvas} pointerEvents="none">
           <Svg width={CANVAS_SIZE} height={CANVAS_SIZE}>
             {displayStrokes.map((stroke, i) => (
               <Path

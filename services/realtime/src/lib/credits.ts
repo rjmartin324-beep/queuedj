@@ -108,6 +108,7 @@ export function fingerprintGuest(guestId: string): string {
 
 /**
  * Award game_win credits to the top scorer(s) in a scores map.
+ * Also updates the cross-game session leaderboard for all participants.
  * Call this when a game reaches its finished state.
  */
 export async function awardGameWin(
@@ -119,7 +120,14 @@ export async function awardGameWin(
   if (entries.length === 0) return;
   const maxScore = Math.max(...entries.map(([, v]) => v));
   if (maxScore <= 0) return;
+
+  // Import here to avoid circular deps
+  const { addSessionScore } = await import("./sessionLeaderboard");
+
   for (const [guestId, score] of entries) {
+    // Accumulate session score for every participant
+    await addSessionScore(roomId, guestId, score).catch(() => {});
+
     if (score === maxScore) {
       await awardCreditsAndNotify(io, guestId, "game_win", undefined);
       await incrementSessionStat(roomId, guestId, "game_wins").catch(() => {});

@@ -220,7 +220,7 @@ async function main() {
     const socketDisplayName = rawDisplayName ? sanitizeString(rawDisplayName, 24) : undefined;
 
     // ─── room:join ───────────────────────────────────────────────────────────
-    socket.on("room:join", async ({ roomId, guestId, lastSequenceId }, ack) => {
+    socket.on("room:join" as any, async ({ roomId, guestId, lastSequenceId, walkInAnthemIsrc: rawAnthemIsrc }: any, ack: any) => {
       try {
         // Validate: guestId must match socket auth or be new guest
         const resolvedGuestId = socketGuestId ?? guestId;
@@ -229,11 +229,19 @@ async function main() {
         let role: RoomRole = "GUEST";
         const existing = await getMember(roomId, resolvedGuestId);
 
+        const anthemIsrc = typeof rawAnthemIsrc === "string" && rawAnthemIsrc.length <= 20
+          ? rawAnthemIsrc
+          : undefined;
+
         if (existing) {
           // Reconnecting member — keep their role, refresh joinedAt so the
           // disconnect cleanup timer can detect the reconnect via timestamp comparison.
           role = existing.role;
-          await setMember(roomId, { ...existing, joinedAt: Date.now() });
+          await setMember(roomId, {
+            ...existing,
+            joinedAt: Date.now(),
+            ...(anthemIsrc ? { walkInAnthemIsrc: anthemIsrc } : {}),
+          });
         } else {
           // New member — check if room exists (3s timeout guards against Redis hangs)
           const snapshot = await withTimeout(getRoomSnapshot(roomId), 3000);
@@ -255,6 +263,7 @@ async function main() {
             displayName: socketDisplayName,
             joinedAt: Date.now(),
             isWorkerNode: false,
+            ...(anthemIsrc ? { walkInAnthemIsrc: anthemIsrc } : {}),
           });
         }
 
@@ -846,6 +855,23 @@ async function main() {
       }
     });
 
+    // ─── session:leaderboard ─────────────────────────────────────────────────
+    // HOST emits to request current cross-game session totals.
+    // Broadcasts to all room members as session:scores.
+    socket.on("session:leaderboard" as any, async ({ roomId }: { roomId: string }) => {
+      const guestId = socketGuestId;
+      if (!guestId) return;
+      const { allowed } = await requirePermission(roomId, guestId, "canSwitchExperience").catch(() => ({ allowed: false }));
+      if (!allowed) return;
+      try {
+        const { getSessionScores } = await import("./lib/sessionLeaderboard");
+        const scores = await getSessionScores(roomId);
+        io.to(roomId).emit("session:scores" as any, { roomId, scores });
+      } catch (err) {
+        console.warn("[session:leaderboard] failed", err);
+      }
+    });
+
     // ─── guest:set_anthem ────────────────────────────────────────────────────
     socket.on("guest:set_anthem" as any, async ({ roomId, isrc }: { roomId: string; isrc: string | null }) => {
       const guestId = socketGuestId;
@@ -853,6 +879,12 @@ async function main() {
       const member = await getMember(roomId, guestId);
       if (!member) return;
       await setMember(roomId, { ...member, walkInAnthemIsrc: isrc ?? undefined });
+      // Persist the ISRC separately so it survives beyond the room session (24h)
+      if (isrc) {
+        await redisClient.set(`guest:anthem:isrc:${guestId}`, isrc, { EX: 86400 }).catch(() => {});
+      } else {
+        await redisClient.del(`guest:anthem:isrc:${guestId}`).catch(() => {});
+      }
     });
 
     // ─── room:setting ────────────────────────────────────────────────────────

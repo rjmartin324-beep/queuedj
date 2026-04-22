@@ -13,13 +13,13 @@ export function WouldYouRatherView() {
   const round: number   = expState?.round ?? 1;
   const total: number   = expState?.totalRounds ?? 10;
   const myVote: string | undefined = expState?.votes?.[state.guestId ?? ""];
-  const votesA = Object.values(expState?.votes ?? {}).filter(v => v === "A").length;
-  const votesB = Object.values(expState?.votes ?? {}).filter(v => v === "B").length;
+  const votesA = Object.values(expState?.votes ?? {}).filter(v => v === "a").length;
+  const votesB = Object.values(expState?.votes ?? {}).filter(v => v === "b").length;
   const totalVotes = votesA + votesB;
 
-  const [voted, setVoted] = useState<"A" | "B" | null>(null);
+  const [voted, setVoted] = useState<"a" | "b" | null>(null);
 
-  function handleVote(choice: "A" | "B") {
+  function handleVote(choice: "a" | "b") {
     if (voted || phase !== "question") return;
     setVoted(choice);
     sendAction("vote", { choice });
@@ -51,19 +51,19 @@ export function WouldYouRatherView() {
       <View style={styles.optionsWrap}>
         {/* Option A */}
         <TouchableOpacity
-          style={[styles.option, voted === "A" && styles.optionSelected, showResult && styles.optionResult]}
-          onPress={() => handleVote("A")}
+          style={[styles.option, voted === "a" && styles.optionSelected, showResult && styles.optionResult]}
+          onPress={() => handleVote("a")}
           disabled={!!voted || showResult}
           activeOpacity={0.8}
         >
           <LinearGradient
-            colors={voted === "A" || showResult ? ["#1d4ed8", "#1e40af"] : ["rgba(30,64,175,0.3)", "rgba(29,78,216,0.15)"]}
+            colors={voted === "a" || showResult ? ["#1d4ed8", "#1e40af"] : ["rgba(30,64,175,0.3)", "rgba(29,78,216,0.15)"]}
             style={styles.optionGrad}
           >
             <Text style={styles.optionLetter}>A</Text>
             <Text style={styles.optionText}>{optionA}</Text>
             {showResult && <Text style={styles.optionPct}>{pctA}%</Text>}
-            {voted === "A" && !showResult && <Text style={styles.myVoteBadge}>✓ Your pick</Text>}
+            {voted === "a" && !showResult && <Text style={styles.myVoteBadge}>✓ Your pick</Text>}
           </LinearGradient>
         </TouchableOpacity>
 
@@ -73,19 +73,19 @@ export function WouldYouRatherView() {
 
         {/* Option B */}
         <TouchableOpacity
-          style={[styles.option, voted === "B" && styles.optionSelected, showResult && styles.optionResult]}
-          onPress={() => handleVote("B")}
+          style={[styles.option, voted === "b" && styles.optionSelected, showResult && styles.optionResult]}
+          onPress={() => handleVote("b")}
           disabled={!!voted || showResult}
           activeOpacity={0.8}
         >
           <LinearGradient
-            colors={voted === "B" || showResult ? ["#7e22ce", "#6b21a8"] : ["rgba(126,34,206,0.3)", "rgba(107,33,168,0.15)"]}
+            colors={voted === "b" || showResult ? ["#7e22ce", "#6b21a8"] : ["rgba(126,34,206,0.3)", "rgba(107,33,168,0.15)"]}
             style={styles.optionGrad}
           >
             <Text style={styles.optionLetter}>B</Text>
             <Text style={styles.optionText}>{optionB}</Text>
             {showResult && <Text style={styles.optionPct}>{pctB}%</Text>}
-            {voted === "B" && !showResult && <Text style={styles.myVoteBadge}>✓ Your pick</Text>}
+            {voted === "b" && !showResult && <Text style={styles.myVoteBadge}>✓ Your pick</Text>}
           </LinearGradient>
         </TouchableOpacity>
       </View>

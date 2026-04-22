@@ -20,7 +20,6 @@ export async function statsRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const fp = fingerprint(request.params.guestId);
-      const hostHash = createHash("sha256").update(request.params.guestId).digest("hex");
 
       const [creditsResult, gameWinsResult, partiesResult, roomsHostedResult] = await Promise.all([
         // Current credit balance
@@ -45,8 +44,8 @@ export async function statsRoutes(fastify: FastifyInstance) {
         // Rooms hosted (sessions where this guestId was the host)
         db.query<{ count: string }>(
           `SELECT COUNT(*) AS count FROM sessions
-           WHERE host_guest_id_hash = $1 AND ended_at IS NOT NULL`,
-          [hostHash],
+           WHERE host_fingerprint = $1 AND ended_at IS NOT NULL`,
+          [fp],
         ).catch(() => ({ rows: [{ count: "0" }] })),
       ]);
 

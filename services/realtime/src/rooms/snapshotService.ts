@@ -25,12 +25,12 @@ let snapshotTimer: NodeJS.Timer | null = null;
 
 // ─── Track active rooms ───────────────────────────────────────────────────────
 
-const ACTIVE_ROOMS_TTL_S = 12 * 3600; // 12h — refreshed on every room activation
+const ACTIVE_ROOMS_TTL_S = 24 * 3600; // 24h — refreshed on every room activation
 
 export async function registerActiveRoom(roomId: string): Promise<void> {
   await redisClient.sAdd(ACTIVE_ROOMS_KEY, roomId);
   // Refresh TTL on every activation so the set survives as long as rooms are active.
-  // If no room registers for 12h straight, the key expires and self-cleans.
+  // If no room registers for 24h straight, the key expires and self-cleans.
   await redisClient.expire(ACTIVE_ROOMS_KEY, ACTIVE_ROOMS_TTL_S);
 }
 

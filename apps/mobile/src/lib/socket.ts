@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { AppState, AppStateStatus } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storage } from "./storage";
 
 import type {
@@ -21,9 +22,10 @@ import type {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const REALTIME_URL    = process.env.EXPO_PUBLIC_REALTIME_URL ?? "http://localhost:3002";
-const GUEST_ID_KEY    = "queuedj:guestId";
-const DISPLAY_NAME_KEY = "queuedj:displayName";
-const LAST_SEQ_KEY    = (roomId: string) => `queuedj:room:${roomId}:lastSeq`;
+const GUEST_ID_KEY      = "queuedj:guestId";
+const DISPLAY_NAME_KEY  = "queuedj:displayName";
+const ANTHEM_ISRC_KEY   = "queuedj_walkin_anthem_isrc";
+const LAST_SEQ_KEY      = (roomId: string) => `queuedj:room:${roomId}:lastSeq`;
 
 export type QueueDJSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
@@ -153,6 +155,12 @@ class SocketManager {
     const guestId = sessionGuestId ?? this._guestId ?? await this.getOrCreateGuestId();
     const lastSeq = await this.getLastSequenceId(roomId);
 
+    let walkInAnthemIsrc: string | undefined;
+    try {
+      const isrc = await AsyncStorage.getItem(ANTHEM_ISRC_KEY);
+      if (isrc) walkInAnthemIsrc = isrc;
+    } catch { /* non-critical */ }
+
     this.currentRoomId = roomId;
 
     // Wait for the socket to physically connect before emitting room:join.
@@ -175,10 +183,10 @@ class SocketManager {
     }
 
     return new Promise((resolve, reject) => {
-      this.socket!.emit(
+      (this.socket! as any).emit(
         "room:join",
-        { roomId, guestId, lastSequenceId: lastSeq },
-        (ack) => resolve(ack),
+        { roomId, guestId, lastSequenceId: lastSeq, walkInAnthemIsrc },
+        (ack: RoomJoinAck) => resolve(ack),
       );
       setTimeout(() => reject(new Error("Server did not respond. Try again.")), 20000);
     });

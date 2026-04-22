@@ -14,6 +14,7 @@ import { tapLight, tapMedium } from "../lib/haptics";
 import { PartyChatPanel, ChatFloatingButton } from "../components/shared/PartyChatPanel";
 import { MidGameLeaderboard } from "../components/shared/MidGameLeaderboard";
 import { socketManager } from "../lib/socket";
+import { ProfileScreen } from "./ProfileScreen";
 
 import { ExperiencePlayerView }      from "../components/experiences/shared/ExperiencePlayerView";
 import { ExperienceErrorBoundary }   from "../components/experiences/shared/ExperienceErrorBoundary";
@@ -34,10 +35,11 @@ export default function GuestScreen() {
   const { state, dispatch, sendReadyUp } = useRoom();
 
   const router = useRouter();
-  const [recap,       setRecap]       = useState<SessionRecapData | null>(null);
-  const [chatOpen,    setChatOpen]    = useState(false);
-  const [scoresOpen,  setScoresOpen]  = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [recap,        setRecap]       = useState<SessionRecapData | null>(null);
+  const [chatOpen,     setChatOpen]    = useState(false);
+  const [scoresOpen,   setScoresOpen]  = useState(false);
+  const [profileOpen,  setProfileOpen] = useState(false);
+  const [unreadCount,  setUnreadCount] = useState(0);
 
   // Pulse animation for the ready-up button when it first activates
   const readyPulse = useRef(new Animated.Value(1)).current;
@@ -191,10 +193,15 @@ export default function GuestScreen() {
 
       {/* Top bar */}
       <View style={styles.topBar}>
-        {/* Left: Leave button */}
-        <TouchableOpacity onPress={handleLeave} style={styles.leaveBtn}>
-          <Text style={styles.leaveText}>✕</Text>
-        </TouchableOpacity>
+        {/* Left: Leave button + Profile */}
+        <View style={styles.topLeft}>
+          <TouchableOpacity onPress={handleLeave} style={styles.leaveBtn}>
+            <Text style={styles.leaveText}>✕</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setProfileOpen(true)} style={styles.profileBtn} activeOpacity={0.7}>
+            <Text style={styles.profileBtnText}>👤</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Center: room code + active game */}
         <View style={styles.topCenter}>
@@ -288,6 +295,13 @@ export default function GuestScreen() {
         onClose={() => setScoresOpen(false)}
         roomId={state.room?.id ?? ""}
       />
+
+      {/* Profile modal */}
+      {profileOpen && (
+        <View style={[StyleSheet.absoluteFill, { zIndex: 50 }]}>
+          <ProfileScreen onClose={() => setProfileOpen(false)} />
+        </View>
+      )}
     </View>
   );
 }
@@ -301,6 +315,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingTop: Platform.OS === "ios" ? 54 : 14, paddingBottom: 10,
   },
 
+  topLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
+
   leaveBtn: {
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: "rgba(255,255,255,0.07)",
@@ -308,6 +324,14 @@ const styles = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
   },
   leaveText: { color: "#6b7fa0", fontSize: 14, fontWeight: "700" },
+
+  profileBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: "rgba(124,58,237,0.12)",
+    borderWidth: 1, borderColor: "rgba(124,58,237,0.3)",
+    alignItems: "center", justifyContent: "center",
+  },
+  profileBtnText: { fontSize: 16 },
 
   topCenter: { alignItems: "center", gap: 4 },
   roomCode:  { color: "rgba(167,139,250,0.7)", fontSize: 16, fontWeight: "900", letterSpacing: 3 },

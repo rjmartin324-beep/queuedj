@@ -614,14 +614,22 @@ export class ConnectionsExperience implements ExperienceModule {
             sequenceId: seq,
           });
         } else {
-          // Wrong
+          // Wrong — check one-away (3 of 4 items match a single unsolved group)
+          const guessSet = new Set(p.items.map(normalise));
+          const solvedSets = state.solved.map(g => new Set(g.map(normalise)));
+          const oneAway = puzzle.groups
+            .filter(g => !solvedSets.some(ss => setsEqual([...ss], g.items)))
+            .some(g => {
+              const overlap = g.items.filter(item => guessSet.has(normalise(item))).length;
+              return overlap === 3;
+            });
           state.mistakes[guestId] = (state.mistakes[guestId] ?? 0) + 1;
           await redisClient.set(KEY(roomId), JSON.stringify(state));
           const seq = await getNextSequenceId(roomId);
           io.to(roomId).emit("experience:state" as any, {
             experienceType: "connections",
             state,
-            view: { type: "connections", data: { ...state, puzzle, lastResult: { correct: false, guestId } } },
+            view: { type: "connections", data: { ...state, puzzle, lastResult: { correct: false, guestId, oneAway } } },
             sequenceId: seq,
           });
         }

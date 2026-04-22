@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AvatarSVG, type OutfitType } from "../avatar/AvatarSVG";
 import { useRoom } from "../../contexts/RoomContext";
 import { socketManager } from "../../lib/socket";
+import { storage } from "../../lib/storage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FriendsSection
@@ -20,7 +21,6 @@ import { socketManager } from "../../lib/socket";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const FRIENDS_KEY    = "partyglue_friends";
-const GUEST_ID_KEY   = "guest_id";
 const GUEST_NAME_KEY = "guest_display_name";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -82,9 +82,8 @@ export function FriendsSection() {
 
   useEffect(() => {
     loadFriends().then(setFriends);
-    AsyncStorage.getItem(GUEST_ID_KEY).then(id => {
-      if (id) setMyCode(id.slice(0, 8).toUpperCase());
-    });
+    const id = storage.getString("queuedj:guestId");
+    if (id) setMyCode(id.slice(0, 8).toUpperCase());
     AsyncStorage.getItem(GUEST_NAME_KEY).then(n => setMyName(n ?? "You"));
   }, []);
 
@@ -183,7 +182,12 @@ export function FriendsSection() {
       ) : (
         <View style={styles.list}>
           {friends.map(friend => {
-            const status = getStatus(friend.lastSeenAt);
+            const inRoom = state.members.some(
+              m => m.guestId.slice(0, 8).toUpperCase() === friend.code,
+            );
+            const status = inRoom
+              ? { label: "In this room 🎉", color: "#22c55e", emoji: "🟢" }
+              : getStatus(friend.lastSeenAt);
             return (
               <TouchableOpacity
                 key={friend.id}
