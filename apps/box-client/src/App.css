@@ -2762,13 +2762,16 @@ button {
 
 /* ─── Connections ──────────────────────────────────────────────────────────── */
 
-/* Game container with subtle dot-grid puzzle backdrop */
+/* Game container — warm-cool gradient backdrop with subtle radial vignette so
+   the tiles don't blend into a flat dark field. Plenty of contrast for the
+   colored found-group banners too. */
 .conn-game {
   min-height: 100vh;
   padding: 0 0 24px;
   background:
-    radial-gradient(circle at center, rgba(255,255,255,0.018) 1.2px, transparent 1.2px) 0 0/26px 26px,
-    var(--bg);
+    radial-gradient(ellipse at 50% 20%, rgba(167,139,250,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 90%, rgba(245,200,66,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #1a1623 0%, #0e0c14 60%, #08070c 100%);
 }
 
 /* NYT-puzzle-reverent header — display title with chromatic shadow + strikes */
@@ -2840,11 +2843,11 @@ button {
 .conn-tile {
   position: relative;
   background:
-    linear-gradient(165deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 100%),
-    rgba(255,255,255,0.025);
+    linear-gradient(165deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%),
+    rgba(255,255,255,0.06);
   backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.16);
   border-radius: 14px;
   color: var(--text);
   font-size: clamp(0.7rem, 2.6vw, 0.86rem);
