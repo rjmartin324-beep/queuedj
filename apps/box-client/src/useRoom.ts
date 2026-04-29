@@ -19,6 +19,8 @@ export interface RoomState {
   members: Member[];
   error: string | null;
   gameState: unknown | null;
+  transferToken: string | null;   // present on host's tablet in Mode 3 (Phone Host) only
+  isMarquee: boolean;             // true on the device that handed off host (tablet in Mode 3)
 }
 
 export function useRoom() {
@@ -29,6 +31,8 @@ export function useRoom() {
     members: [],
     error: null,
     gameState: null,
+    transferToken: null,
+    isMarquee: sessionStorage.getItem("pg_marquee") === "1",
   });
 
   useEffect(() => {
@@ -54,13 +58,56 @@ export function useRoom() {
   function handleMessage(msg: ServerMessage) {
     switch (msg.type) {
       case "room:created":
-      case "room:joined":
-        // Persist room info for reconnect
+        localStorage.setItem("pg_room", JSON.stringify({
+          code: msg.room.code,
+          displayName: msg.you.displayName,
+        }));
+        setState(s => ({
+          ...s,
+          room: msg.room,
+          you: msg.you,
+          members: msg.members,
+          error: null,
+          transferToken: msg.transferToken ?? null,
+        }));
+        break;
+      case "room:joined": {
         localStorage.setItem("pg_room", JSON.stringify({
           code: msg.room.code,
           displayName: msg.you.displayName,
         }));
         setState(s => ({ ...s, room: msg.room, you: msg.you, members: msg.members, error: null }));
+        // Mode 3: if URL had ?takeover=TOKEN, claim host now that we're in the room
+        const takeoverToken = new URLSearchParams(window.location.search).get("takeover");
+        if (takeoverToken) {
+          // Strip the param so a refresh doesn't re-claim
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete("takeover");
+          window.history.replaceState({}, "", cleanUrl.toString());
+          socket.send({
+            type: "host:claim_transfer",
+            guestId: getOrCreateGuestId(),
+            roomId: msg.room.id,
+            token: takeoverToken,
+          });
+        }
+        break;
+      }
+      case "host:transferred":
+        setState(s => {
+          const myId = s.guestId;
+          const wasHost = s.you?.role === "host" && msg.oldHostGuestId === myId;
+          const updatedYou = msg.members.find(m => m.guestId === myId) ?? s.you;
+          if (wasHost) sessionStorage.setItem("pg_marquee", "1");
+          return {
+            ...s,
+            room: msg.room,
+            members: msg.members,
+            you: updatedYou,
+            transferToken: null,
+            isMarquee: wasHost ? true : s.isMarquee,
+          };
+        });
         break;
       case "room:error":
         setState(s => ({ ...s, error: msg.message }));
@@ -79,11 +126,13 @@ export function useRoom() {
         break;
       case "room:closed":
         localStorage.removeItem("pg_room");
-        setState(s => ({ ...s, room: null, members: [], error: "The host ended the game." }));
+        sessionStorage.removeItem("pg_marquee");
+        setState(s => ({ ...s, room: null, members: [], error: "The host ended the game.", isMarquee: false, transferToken: null }));
         break;
       case "room:kicked":
         localStorage.removeItem("pg_room");
-        setState(s => ({ ...s, room: null, members: [], error: "You were removed from the room." }));
+        sessionStorage.removeItem("pg_marquee");
+        setState(s => ({ ...s, room: null, members: [], error: "You were removed from the room.", isMarquee: false, transferToken: null }));
         break;
       case "game:state":
         setState(s => ({ ...s, gameState: msg.state as any }));

@@ -416,8 +416,19 @@ wss.on("connection", (ws, req) => {
       case "room:create": {
         const result = rooms.createRoom(msg.guestId, msg.displayName, msg.mode, msg.experience);
         connectedRoomId = result.room.id;
-        console.log(`[ws] room:create code=${result.room.code} host=${msg.guestId} exp=${msg.experience}`);
-        send(ws, { type: "room:created", room: result.room, you: result.host, members: rooms.getMembers(result.room.id) });
+        // Mode 3 (Phone Host): mint a one-time host-transfer token so the tablet can show a "take
+        // control on your phone" QR. Token is consumed when the phone calls host:claim_transfer.
+        const transferToken = msg.mode === "phones_only"
+          ? rooms.generateTransferToken(result.room.id) ?? undefined
+          : undefined;
+        console.log(`[ws] room:create code=${result.room.code} host=${msg.guestId} exp=${msg.experience} mode=${msg.mode}${transferToken ? " transferToken=issued" : ""}`);
+        send(ws, {
+          type: "room:created",
+          room: result.room,
+          you: result.host,
+          members: rooms.getMembers(result.room.id),
+          transferToken,
+        });
         break;
       }
 
@@ -622,6 +633,37 @@ wss.on("connection", (ws, req) => {
           const state = trivia.pickCategory(msg.roomId, msg.category);
           if (state) broadcast(msg.roomId, { type: "game:state", state });
         }
+        break;
+      }
+
+      case "host:claim_transfer": {
+        const room = rooms.findRoom(msg.roomId);
+        if (!room) {
+          send(ws, { type: "room:error", code: "ROOM_NOT_FOUND", message: "Room is gone" });
+          return;
+        }
+        if (room.phase !== "lobby") {
+          send(ws, { type: "room:error", code: "TRANSFER_TOO_LATE", message: "Game already started" });
+          return;
+        }
+        if (!rooms.consumeTransferToken(msg.roomId, msg.token)) {
+          send(ws, { type: "room:error", code: "INVALID_TOKEN", message: "Bad or expired transfer token" });
+          return;
+        }
+        const oldHostGuestId = room.hostGuestId;
+        const result = rooms.transferHost(msg.roomId, msg.guestId, oldHostGuestId);
+        if (!result) {
+          send(ws, { type: "room:error", code: "TRANSFER_FAILED", message: "Host transfer failed" });
+          return;
+        }
+        console.log(`[ws] host:transferred ${oldHostGuestId} → ${msg.guestId} room=${msg.roomId}`);
+        broadcast(msg.roomId, {
+          type: "host:transferred",
+          room: result.room,
+          members: result.members,
+          oldHostGuestId,
+          newHostGuestId: msg.guestId,
+        });
         break;
       }
 

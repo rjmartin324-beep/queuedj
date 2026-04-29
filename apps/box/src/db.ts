@@ -91,6 +91,7 @@ const insertRoom = db.prepare(
 const getRoom = db.prepare("SELECT * FROM rooms WHERE id = ?");
 const getRoomByCode = db.prepare("SELECT * FROM rooms WHERE code = ?");
 const updateRoomPhase = db.prepare("UPDATE rooms SET phase = ? WHERE id = ?");
+const updateRoomHostStmt = db.prepare("UPDATE rooms SET host_guest_id = ? WHERE id = ?");
 const deleteRoom = db.prepare("DELETE FROM rooms WHERE id = ?");
 
 // ─── Members ──────────────────────────────────────────────────────────────────
@@ -106,6 +107,7 @@ const upsertMember = db.prepare(`
 const removeMember = db.prepare("DELETE FROM members WHERE guest_id = ? AND room_id = ?");
 const getRoomMembers = db.prepare("SELECT * FROM members WHERE room_id = ? ORDER BY joined_at ASC");
 const getMember = db.prepare("SELECT * FROM members WHERE guest_id = ? AND room_id = ?");
+const updateMemberRoleStmt = db.prepare("UPDATE members SET role = ? WHERE guest_id = ? AND room_id = ?");
 
 // ─── Row mappers ──────────────────────────────────────────────────────────────
 
@@ -151,6 +153,10 @@ export function setRoomPhase(id: string, phase: Room["phase"]): void {
   updateRoomPhase.run(phase, id);
 }
 
+export function updateRoomHost(id: string, hostGuestId: string): void {
+  updateRoomHostStmt.run(hostGuestId, id);
+}
+
 export function closeRoom(id: string): void {
   deleteRoom.run(id);
 }
@@ -170,6 +176,10 @@ export function listMembers(roomId: string): Member[] {
 export function findMember(roomId: string, guestId: string): Member | null {
   const row = getMember.get(guestId, roomId) as any;
   return row ? rowToMember(row) : null;
+}
+
+export function updateMemberRole(roomId: string, guestId: string, role: Member["role"]): void {
+  updateMemberRoleStmt.run(role, guestId, roomId);
 }
 
 // ─── Trivia Questions ─────────────────────────────────────────────────────────

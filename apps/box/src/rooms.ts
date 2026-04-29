@@ -104,3 +104,50 @@ export function findRoom(roomId: string): Room | null {
 export function findRoomByCode(code: string): Room | null {
   return db.findRoomByCode(code.toUpperCase());
 }
+
+// ─── Host Transfer (Mode 3: Phone Host) ──────────────────────────────────────
+// In-memory token map. Tokens are one-time use and don't survive a server restart,
+// which is fine — host transfer is a session-scoped event.
+
+const transferTokens = new Map<string, string>(); // roomId → token
+
+export function generateTransferToken(roomId: string): string | null {
+  if (!db.findRoom(roomId)) return null;
+  const token = nanoid(8);
+  transferTokens.set(roomId, token);
+  return token;
+}
+
+export function getTransferToken(roomId: string): string | null {
+  return transferTokens.get(roomId) ?? null;
+}
+
+export function consumeTransferToken(roomId: string, token: string): boolean {
+  const stored = transferTokens.get(roomId);
+  if (!stored || stored !== token) return false;
+  transferTokens.delete(roomId);
+  return true;
+}
+
+// Swap room hostGuestId and update member roles. Returns updated room + members
+// or null if any precondition failed.
+export function transferHost(
+  roomId: string,
+  newHostGuestId: string,
+  oldHostGuestId: string,
+): { room: Room; members: Member[] } | null {
+  const room = db.findRoom(roomId);
+  if (!room) return null;
+  if (room.hostGuestId !== oldHostGuestId) return null;
+
+  const newMember = db.findMember(roomId, newHostGuestId);
+  const oldMember = db.findMember(roomId, oldHostGuestId);
+  if (!newMember || !oldMember) return null;
+
+  db.updateRoomHost(roomId, newHostGuestId);
+  db.updateMemberRole(roomId, newHostGuestId, "host");
+  db.updateMemberRole(roomId, oldHostGuestId, "guest");
+
+  const updated = db.findRoom(roomId)!;
+  return { room: updated, members: db.listMembers(roomId) };
+}

@@ -151,9 +151,9 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
 // ─── Party Room ───────────────────────────────────────────────────────────────
 
 const MODES: { id: PlayMode; label: string; desc: string; icon: string }[] = [
-  { id: "host_tablet", label: "Host Tablet",     desc: "Shared board + phones", icon: "📺" },
-  { id: "phones_only", label: "Phones Only",     desc: "Everyone simultaneous",  icon: "📱" },
-  { id: "pass_tablet", label: "Pass & Play",     desc: "One device, take turns", icon: "🔄" },
+  { id: "host_tablet", label: "Tablet + Phones", desc: "Tablet shows the question, phones answer", icon: "📺" },
+  { id: "phones_only", label: "Phone Host",      desc: "Host runs the game from their phone, tablet shows the lobby", icon: "📱" },
+  { id: "pass_tablet", label: "Pass the Tablet", desc: "One device, take turns", icon: "🔄" },
 ];
 
 interface Experience {
@@ -852,7 +852,7 @@ function CustomDeckBuilder() {
 // ─── Waiting Room ─────────────────────────────────────────────────────────────
 
 function WaitingRoom({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
-  const { room, you, members, guestId, error, startGame, kickGuest } = roomHook;
+  const { room, you, members, guestId, error, startGame, kickGuest, transferToken } = roomHook;
   const [loading, setLoading] = useState(false);
   const isHost = you?.role === "host";
 
@@ -862,26 +862,52 @@ function WaitingRoom({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
 
   const expLabel = EXPERIENCES.find(e => e.id === room.experience)?.label ?? room.experience;
   const joinUrl = `http://${window.location.host}?join=${room.code}`;
+  const takeoverUrl = transferToken
+    ? `http://${window.location.host}?join=${room.code}&takeover=${transferToken}`
+    : null;
   const hostIsLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const showTakeover = isHost && room.mode === "phones_only" && !!takeoverUrl;
 
   return (
     <div className="waiting-room">
-      <div className="waiting-qr-block">
-        <div className="waiting-qr-wrap">
-          <QRCodeSVG value={joinUrl} size={180} bgColor="transparent" fgColor="white" level="M" />
-        </div>
-        <div className="waiting-code">{room.code}</div>
-        <div className="waiting-join-hint">Scan or go to <span className="waiting-url">{window.location.host}</span></div>
-        {hostIsLocalhost && (
-          <div className="qr-localhost-warn">
-            <strong>⚠ Localhost detected.</strong> Phones won't be able to scan this. Reload from the tablet's network IP (e.g. <code>192.168.1.X:8080</code>).
+      {showTakeover ? (
+        <>
+          <div className="waiting-qr-block waiting-takeover">
+            <div className="waiting-takeover-eyebrow">PHONE HOST · STEP 1</div>
+            <div className="waiting-takeover-title">SCAN TO TAKE CONTROL</div>
+            <div className="waiting-qr-wrap">
+              <QRCodeSVG value={takeoverUrl!} size={220} bgColor="transparent" fgColor="#F6C842" level="M" />
+            </div>
+            <div className="waiting-takeover-sub">Scan with the phone you'll host from. The tablet will then show the lobby for everyone else.</div>
           </div>
-        )}
-      </div>
+
+          <div className="waiting-qr-block waiting-secondary">
+            <div className="waiting-qr-section-label">OR — JOIN AS A PLAYER</div>
+            <div className="waiting-qr-wrap waiting-qr-wrap-small">
+              <QRCodeSVG value={joinUrl} size={140} bgColor="transparent" fgColor="white" level="M" />
+            </div>
+            <div className="waiting-code">{room.code}</div>
+          </div>
+        </>
+      ) : (
+        <div className="waiting-qr-block">
+          <div className="waiting-qr-wrap">
+            <QRCodeSVG value={joinUrl} size={180} bgColor="transparent" fgColor="white" level="M" />
+          </div>
+          <div className="waiting-code">{room.code}</div>
+          <div className="waiting-join-hint">Scan or go to <span className="waiting-url">{window.location.host}</span></div>
+        </div>
+      )}
+
+      {hostIsLocalhost && (
+        <div className="qr-localhost-warn">
+          <strong>⚠ Localhost detected.</strong> Phones won't be able to scan this. Reload from the tablet's network IP (e.g. <code>192.168.1.X:8080</code>).
+        </div>
+      )}
 
       <div className="waiting-meta">
         <span className="room-exp-badge">{expLabel}</span>
-        <span className="waiting-mode-badge">{room.mode.replace("_", " ")}</span>
+        <span className="waiting-mode-badge">{MODES.find(m => m.id === room.mode)?.label ?? room.mode}</span>
       </div>
 
       <div className="member-list">
@@ -911,15 +937,62 @@ function WaitingRoom({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
   );
 }
 
+// ─── Marquee View — tablet display in Mode 3 (Phone Host) after host transfer ─
+
+function MarqueeView({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
+  const { room, members } = roomHook;
+  if (!room) return null;
+  const expLabel = EXPERIENCES.find(e => e.id === room.experience)?.label ?? room.experience;
+  const joinUrl = `http://${window.location.host}?join=${room.code}`;
+  const host = members.find(m => m.role === "host");
+
+  return (
+    <div className="marquee">
+      <div className="marquee-eyebrow">PARTYGLUE BOX</div>
+      <div className="marquee-title">{expLabel.toUpperCase()}</div>
+      {host && <div className="marquee-host">Hosted by <strong>{host.displayName}</strong></div>}
+
+      <div className="marquee-qr-block">
+        <div className="marquee-qr-wrap">
+          <QRCodeSVG value={joinUrl} size={260} bgColor="transparent" fgColor="white" level="M" />
+        </div>
+        <div className="marquee-code">{room.code}</div>
+        <div className="marquee-hint">Scan to join · {window.location.host}</div>
+      </div>
+
+      <div className="marquee-players">
+        <div className="marquee-players-label">PLAYERS · {members.length}</div>
+        <div className="marquee-players-list">
+          {members.map(m => (
+            <div key={m.guestId} className="marquee-player-chip">
+              {m.displayName}{m.role === "host" ? " ★" : ""}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="marquee-status">
+        {room.phase === "lobby" && <span>Waiting on host to start…</span>}
+        {room.phase === "playing" && <span>● GAME IN PROGRESS</span>}
+        {room.phase === "results" && <span>GAME OVER</span>}
+      </div>
+    </div>
+  );
+}
+
 // ─── App root ─────────────────────────────────────────────────────────────────
 
 export default function App() {
   const wsStatus = useWsStatus();
   const roomHook = useRoom();
-  const { room, you, guestId, gameState } = roomHook;
+  const { room, you, guestId, gameState, isMarquee } = roomHook;
 
   if (wsStatus === "connecting") return <ConnectingScreen />;
   if (wsStatus === "disconnected") return <DisconnectedScreen />;
+
+  // Mode 3 (Phone Host) — once this device handed off host, it stays in MarqueeView for
+  // the rest of the session no matter what the room phase is.
+  if (room && isMarquee) return <MarqueeView roomHook={roomHook} />;
 
   if (room && (room.phase === "playing" || room.phase === "results")) {
     if (!gameState && room.phase === "results") {

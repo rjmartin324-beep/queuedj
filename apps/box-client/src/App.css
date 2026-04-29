@@ -1829,6 +1829,151 @@ button {
   padding: 12px 0;
 }
 
+/* ─── Mode 3 (Phone Host): takeover QR + secondary join QR ─────────────────── */
+
+.waiting-takeover {
+  max-width: 360px;
+  border-color: rgba(246,200,66,0.35);
+  background: linear-gradient(180deg, rgba(246,200,66,0.06) 0%, rgba(0,0,0,0.0) 100%);
+  box-shadow: 0 0 30px rgba(246,200,66,0.12);
+}
+.waiting-takeover-eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.42em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.waiting-takeover-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: #FFFFFF;
+  text-shadow: 0 0 20px rgba(246,200,66,0.35);
+}
+.waiting-takeover-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.45;
+}
+
+.waiting-secondary {
+  max-width: 240px;
+  padding: 14px 18px;
+  opacity: 0.85;
+}
+.waiting-qr-section-label {
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.waiting-qr-wrap-small { line-height: 0; }
+
+/* ─── Marquee — tablet display in Mode 3 after host transfer ───────────────── */
+
+.marquee {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 40px 24px;
+  background: radial-gradient(circle at 50% 30%, rgba(246,200,66,0.04) 0%, transparent 60%), var(--bg);
+  text-align: center;
+}
+.marquee-eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 900;
+  letter-spacing: 0.5em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.marquee-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #FFFFFF;
+  text-shadow: 0 0 36px rgba(246,200,66,0.25);
+  line-height: 1;
+}
+.marquee-host {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+.marquee-host strong { color: #FFFFFF; font-weight: 700; }
+
+.marquee-qr-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 32px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+}
+.marquee-qr-wrap { line-height: 0; }
+.marquee-code {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  color: #FFFFFF;
+  line-height: 1;
+}
+.marquee-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.marquee-players { width: 100%; max-width: 720px; }
+.marquee-players-label {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.4em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.marquee-players-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.marquee-player-chip {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.marquee-status {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
 /* ─── Waiting room exp badge ──────────────────────────────────────────────── */
 
 .room-exp-badge {
