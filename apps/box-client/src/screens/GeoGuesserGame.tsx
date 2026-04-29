@@ -132,14 +132,18 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
       <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
       <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
 
-      <div className="trivia-header">
-        <span className="q-progress">Q {questionIndex + 1}/{totalQuestions}</span>
-        <span className="round-badge">🌍 GEO</span>
-        <span className="answered-count">{pinnedCount}/{totalPlayers} ✓</span>
+      {/* Atlas-style header — replaces the generic trivia-header */}
+      <div className="geo-header">
+        <div className="geo-header-eyebrow">EXPEDITION №{String(questionIndex + 1).padStart(2, "0")} OF {String(totalQuestions).padStart(2, "0")}</div>
+        <div className="geo-header-title">GEOGUESSER</div>
+        <div className="geo-header-meta">
+          <span>{pinnedCount}/{totalPlayers} pinned</span>
+          {phase === "question" && deadline && <span className="geo-header-divider">·</span>}
+        </div>
       </div>
 
       {question && (
-        <div className="geo-photo-wrap">
+        <div className="geo-frame geo-photo-frame">
           {!photoFailed && question.photoUrl && (
             <img
               className="geo-photo"
@@ -165,7 +169,7 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
         </div>
       )}
 
-      <div className="geo-map-wrap">
+      <div className="geo-frame geo-map-wrap">
         <svg
           ref={mapRef}
           className="geo-map"

@@ -3846,13 +3846,107 @@ button {
 }
 .qr-localhost-warn strong { color: #ff6b6b; }
 
-/* ─── GeoGuesser (photo + map mode) ─────────────────────────────────────── */
+/* ─── GeoGuesser — vintage atlas / pixelated old-map frame ────────────────── */
 .geo-game {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bg);
   overflow: hidden;
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0, transparent 18px,
+      rgba(40, 70, 100, 0.05) 18px, rgba(40, 70, 100, 0.05) 19px),
+    linear-gradient(180deg, #0a1428 0%, #050a14 100%);
+}
+
+/* Atlas-style header — replaces generic trivia-header */
+.geo-header {
+  text-align: center;
+  padding: 18px 20px 14px;
+  background: linear-gradient(180deg, rgba(244, 230, 200, 0.06) 0%, transparent 100%);
+  border-bottom: 2px solid rgba(180, 140, 80, 0.3);
+}
+.geo-header-eyebrow {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.74rem;
+  letter-spacing: 0.32em;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.geo-header-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 20px rgba(180,200,220,0.32), 0 2px 0 rgba(0,0,0,0.5), 1px 1px 0 rgba(20,40,60,0.4);
+  line-height: 1;
+}
+.geo-header-meta {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.geo-header-divider { margin: 0 6px; }
+
+/* Pixelated old-map frame — applies to anything wrapped in .geo-frame.
+   Chunky double-border (dark ink outer + lighter ink inner outline), parchment
+   matte showing through the padding, four small pixel compass-rose corner marks. */
+.geo-frame {
+  position: relative;
+  margin: 10px 12px;
+  padding: 10px;
+  border: 4px solid #2a1808;
+  outline: 2px solid #6e4920;
+  outline-offset: 2px;
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(110, 73, 32, 0.6),
+    0 6px 22px rgba(0,0,0,0.5);
+  image-rendering: pixelated;
+  background:
+    /* Compass-rose pixel sprites at all four corners */
+    url("data:image/svg+xml,%3Csvg width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 0 L8 6 L14 7 L8 8 L7 14 L6 8 L0 7 L6 6 Z' fill='%232a1808'/%3E%3Crect x='6' y='6' width='2' height='2' fill='%236e4920'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 0 L8 6 L14 7 L8 8 L7 14 L6 8 L0 7 L6 6 Z' fill='%232a1808'/%3E%3Crect x='6' y='6' width='2' height='2' fill='%236e4920'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 0 L8 6 L14 7 L8 8 L7 14 L6 8 L0 7 L6 6 Z' fill='%232a1808'/%3E%3Crect x='6' y='6' width='2' height='2' fill='%236e4920'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg width='14' height='14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 0 L8 6 L14 7 L8 8 L7 14 L6 8 L0 7 L6 6 Z' fill='%232a1808'/%3E%3Crect x='6' y='6' width='2' height='2' fill='%236e4920'/%3E%3C/svg%3E"),
+    /* Parchment grid lines */
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 9px,
+      rgba(110, 73, 32, 0.08) 9px, rgba(110, 73, 32, 0.08) 10px),
+    repeating-linear-gradient(90deg,
+      transparent 0, transparent 9px,
+      rgba(110, 73, 32, 0.08) 9px, rgba(110, 73, 32, 0.08) 10px),
+    /* Base parchment */
+    linear-gradient(180deg, #d9c9a3 0%, #c2af83 100%);
+  background-position:
+    4px 4px,
+    calc(100% - 4px) 4px,
+    4px calc(100% - 4px),
+    calc(100% - 4px) calc(100% - 4px),
+    0 0,
+    0 0,
+    0 0;
+  background-repeat: no-repeat;
+}
+
+/* Frame applied to the photo container — keep aspect + cover */
+.geo-photo-frame {
+  width: calc(100% - 24px);
+  aspect-ratio: 16 / 9;
+  max-height: 38vh;
+  overflow: hidden;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Frame applied to the map wrap — fills remaining space */
+.geo-frame.geo-map-wrap {
+  flex: 1;
 }
 
 .geo-photo-wrap {
@@ -3882,9 +3976,7 @@ button {
 .geo-photo-fallback-hint { color: var(--text-muted); font-size: 0.86rem; }
 
 .geo-map-wrap {
-  flex: 1;
   position: relative;
-  background: #0a1428;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3899,7 +3991,8 @@ button {
   height: 100%;
   display: block;
 }
-.geo-map image { filter: brightness(0.92) contrast(1.05); }
+/* Sepia-tinted world map for the vintage atlas feel */
+.geo-map image { filter: brightness(0.95) contrast(1.05) sepia(0.35) hue-rotate(-8deg); }
 
 /* Live pin (pre-submit) */
 .geo-pin-live { animation: pin-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -4398,8 +4491,49 @@ button {
 .exp-color-connections { background: linear-gradient(155deg, #C58A1F 0%, #6E3F8C 50%, #1F2050 100%); }
 .exp-color-connections .exp-card-glow { background: rgba(160, 100, 200, 0.50); }
 
-.exp-color-geoguesser  { background: linear-gradient(155deg, #2B6CB0 0%, #1A6E5E 50%, #062828 100%); }
+/* GeoGuesser — vintage atlas + map-graticule overlay. Diagonal cross-hatch
+   reads as cartographer's lat/long lines. Eyebrow "EXPEDITION №01" via ::before.
+   Description hidden — title carries it. */
+.exp-color-geoguesser {
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0, transparent 14px,
+      rgba(255,255,255,0.04) 14px, rgba(255,255,255,0.04) 15px),
+    repeating-linear-gradient(-45deg,
+      transparent 0, transparent 14px,
+      rgba(255,255,255,0.04) 14px, rgba(255,255,255,0.04) 15px),
+    linear-gradient(155deg, #2B6CB0 0%, #1A6E5E 50%, #062828 100%);
+}
 .exp-color-geoguesser .exp-card-glow  { background: rgba(80, 180, 200, 0.50); }
+.exp-color-geoguesser .exp-desc-color { display: none; }
+.exp-color-geoguesser::before {
+  content: "EXPEDITION №01";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.65);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  z-index: 1;
+}
+.exp-color-geoguesser::after {
+  content: "";
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(180,200,220,0.55) 30%,
+    rgba(180,200,220,0.55) 70%,
+    rgba(255,255,255,0) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
 
 /* The Draft — pink gradient + faint horizontal "draft board" sort lines layered on top.
    Eyebrow "ROUND 1 · PICK 01" rendered via ::before pseudo for the broadcast feel.
@@ -4505,8 +4639,17 @@ button {
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 700;
   font-style: italic;
-  font-size: 1.5rem;
+  font-size: 2rem;
   letter-spacing: 0.04em;
+  color: #FFFFFF;
+  line-height: 0.95;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.5),
+    0 0 24px rgba(120,180,210,0.35),
+    1px 1px 0 rgba(20,40,60,0.4);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 /* The Draft — NFL Draft broadcast typography. Heavy condensed italic sans, inspired
    by the NFL DRAFT mark but using free system fonts (Impact / Bebas Neue / Arial Narrow). */
