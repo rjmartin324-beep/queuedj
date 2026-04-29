@@ -4077,6 +4077,51 @@ button {
 /* Sepia-tinted world map for the vintage atlas feel */
 .geo-map image { filter: brightness(0.95) contrast(1.05) sepia(0.35) hue-rotate(-8deg); }
 
+/* Zoom controls — sit in the bottom-right of the map frame */
+.geo-zoom-controls {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 5;
+}
+.geo-zoom-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1.5px solid #3a2410;
+  background: linear-gradient(180deg, #f5e7c6 0%, #e0cd9f 100%);
+  color: #2a1808;
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.geo-zoom-btn:hover  { background: linear-gradient(180deg, #faecc9 0%, #e8d5a8 100%); }
+.geo-zoom-btn:active { transform: scale(0.94); }
+.geo-zoom-btn:disabled { opacity: 0.4; cursor: default; }
+.geo-zoom-level {
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: #2a1808;
+  background: #f5e7c6;
+  border: 1.5px solid #3a2410;
+  border-radius: 4px;
+  padding: 3px 0;
+  text-align: center;
+  font-weight: 700;
+  width: 40px;
+}
+.geo-zoom-reset { font-size: 1rem; }
+
 /* Live pin (pre-submit) */
 .geo-pin-live { animation: pin-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .geo-pin-halo { fill: rgba(246,200,66,0.25); stroke: rgba(246,200,66,0.6); stroke-width: 2; }

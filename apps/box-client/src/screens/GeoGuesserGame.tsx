@@ -34,11 +34,30 @@ function fmtKm(km: number): string {
   return `${Math.round(km).toLocaleString()} km`;
 }
 
+// ─── Zoom / pan constants ──────────────────────────────────────────────────
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 6;
+const TAP_THRESHOLD_PX = 6; // movement under this counts as a tap, not a drag
+
 export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: Props) {
   const [pin, setPin] = useState<Pin | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [photoFailed, setPhotoFailed] = useState(false);
   const mapRef = useRef<SVGSVGElement | null>(null);
+
+  // Zoom + pan state
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+
+  // Touch tracking
+  const touchStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
+  const pinchStartRef = useRef<{
+    dist: number; centerX: number; centerY: number;
+    zoom: number; panX: number; panY: number;
+  } | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+  const lastTapRef = useRef<number>(0); // for double-tap detection
 
   const { phase, question, scores, questionIndex, totalQuestions, deadline, timeLimit, pins, distances } = gameState ?? {};
   const isReveal = phase === "reveal";
@@ -49,18 +68,67 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
   const prevPhaseRef = useRef<string | null>(null);
   function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
 
-  // Reset between questions
+  // Reset between questions — including zoom/pan
   useEffect(() => {
     setPin(null);
     setSubmitted(false);
     setPhotoFailed(false);
+    setZoom(1);
+    setPanX(0);
+    setPanY(0);
   }, [questionIndex]);
+
+  // Clamp pan so we can't scroll off the map. View width/height = MAP / zoom.
+  function clampPan(z: number, px: number, py: number): { x: number; y: number } {
+    const viewW = MAP_W / z;
+    const viewH = MAP_H / z;
+    return {
+      x: Math.max(0, Math.min(MAP_W - viewW, px)),
+      y: Math.max(0, Math.min(MAP_H - viewH, py)),
+    };
+  }
+
+  function setZoomAt(newZoom: number, focusXPx: number, focusYPx: number) {
+    // focusXPx/focusYPx are SVG coords (0..MAP_W) of the zoom focus point.
+    // We want that point to stay fixed under the pinch center after zoom.
+    const z = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newZoom));
+    if (z === zoom) return;
+    // Current view top-left in SVG coords: (panX, panY)
+    // The focus point's offset within the current view (in screen %):
+    const oldViewW = MAP_W / zoom;
+    const oldViewH = MAP_H / zoom;
+    const focusU = (focusXPx - panX) / oldViewW; // 0..1
+    const focusV = (focusYPx - panY) / oldViewH;
+    const newViewW = MAP_W / z;
+    const newViewH = MAP_H / z;
+    const newPanX = focusXPx - focusU * newViewW;
+    const newPanY = focusYPx - focusV * newViewH;
+    const c = clampPan(z, newPanX, newPanY);
+    setZoom(z);
+    setPanX(c.x);
+    setPanY(c.y);
+  }
+
+  function screenToSvg(clientX: number, clientY: number): { x: number; y: number } | null {
+    const svg = mapRef.current;
+    if (!svg) return null;
+    const rect = svg.getBoundingClientRect();
+    const xPct = (clientX - rect.left) / rect.width;
+    const yPct = (clientY - rect.top) / rect.height;
+    const viewW = MAP_W / zoom;
+    const viewH = MAP_H / zoom;
+    return { x: panX + xPct * viewW, y: panY + yPct * viewH };
+  }
 
   // Cutscene triggers based on phase + my distance
   useEffect(() => {
     if (!gameState) return;
     if (phase === prevPhaseRef.current) return;
     prevPhaseRef.current = phase;
+    // Reset zoom whenever we transition to reveal so pins don't render at
+    // a stale zoom level. (Phase change to "question" already covered by
+    // questionIndex effect above.)
+    if (phase === "reveal") { setZoom(1); setPanX(0); setPanY(0); }
 
     if (phase === "question" && questionIndex === totalQuestions - 1) {
       showCutScene("FINAL DROP");
@@ -80,27 +148,143 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
     }
   }, [phase]);
 
-  function handleMapClick(e: React.MouseEvent<SVGSVGElement> | React.TouchEvent<SVGSVGElement>) {
+  function dropPinAt(clientX: number, clientY: number) {
     if (submitted || isReveal) return;
-    const svg = mapRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    let clientX: number, clientY: number;
-    if ("touches" in e) {
-      const t = (e as React.TouchEvent).changedTouches[0] ?? (e as React.TouchEvent).touches[0];
-      if (!t) return;
-      clientX = t.clientX; clientY = t.clientY;
-    } else {
-      clientX = (e as React.MouseEvent).clientX;
-      clientY = (e as React.MouseEvent).clientY;
+    const sv = screenToSvg(clientX, clientY);
+    if (!sv) return;
+    haptic.tap();
+    setPin(pxToLngLat(sv.x, sv.y));
+  }
+
+  function handleTouchStart(e: React.TouchEvent<SVGSVGElement>) {
+    if (e.touches.length === 2) {
+      // Pinch start
+      const [t1, t2] = [e.touches[0], e.touches[1]];
+      const dx = t2.clientX - t1.clientX;
+      const dy = t2.clientY - t1.clientY;
+      const dist = Math.hypot(dx, dy);
+      const cx = (t1.clientX + t2.clientX) / 2;
+      const cy = (t1.clientY + t2.clientY) / 2;
+      pinchStartRef.current = { dist, centerX: cx, centerY: cy, zoom, panX, panY };
+      touchStartRef.current = null;
+      dragStartRef.current = null;
+    } else if (e.touches.length === 1) {
+      const t = e.touches[0];
+      touchStartRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
+      // If we're already zoomed in, treat single-finger move as pan
+      if (zoom > 1) dragStartRef.current = { x: t.clientX, y: t.clientY, panX, panY };
+      pinchStartRef.current = null;
     }
+  }
+
+  function handleTouchMove(e: React.TouchEvent<SVGSVGElement>) {
+    // Pinch zoom
+    if (e.touches.length === 2 && pinchStartRef.current) {
+      e.preventDefault();
+      const [t1, t2] = [e.touches[0], e.touches[1]];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      const ratio = dist / pinchStartRef.current.dist;
+      const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, pinchStartRef.current.zoom * ratio));
+      // Pinch center in SVG coords (using the ORIGINAL zoom/pan from gesture start)
+      const sv = svgFromPan(
+        pinchStartRef.current.centerX, pinchStartRef.current.centerY,
+        pinchStartRef.current.zoom, pinchStartRef.current.panX, pinchStartRef.current.panY,
+      );
+      if (sv) setZoomAt(newZoom, sv.x, sv.y);
+      return;
+    }
+    // Single-finger pan when zoomed
+    if (e.touches.length === 1 && dragStartRef.current && zoom > 1) {
+      e.preventDefault();
+      const t = e.touches[0];
+      const svg = mapRef.current;
+      if (!svg) return;
+      const rect = svg.getBoundingClientRect();
+      const dxScreen = t.clientX - dragStartRef.current.x;
+      const dyScreen = t.clientY - dragStartRef.current.y;
+      // Convert screen-pixel delta to SVG-coord delta (panning the view in the opposite direction)
+      const viewW = MAP_W / zoom;
+      const viewH = MAP_H / zoom;
+      const dxSvg = (dxScreen / rect.width) * viewW;
+      const dySvg = (dyScreen / rect.height) * viewH;
+      const c = clampPan(zoom, dragStartRef.current.panX - dxSvg, dragStartRef.current.panY - dySvg);
+      setPanX(c.x);
+      setPanY(c.y);
+    }
+  }
+
+  function handleTouchEnd(e: React.TouchEvent<SVGSVGElement>) {
+    // End of pinch
+    if (pinchStartRef.current && e.touches.length < 2) {
+      pinchStartRef.current = null;
+    }
+    // If dragging, decide tap vs drag
+    if (touchStartRef.current && e.touches.length === 0) {
+      const t = e.changedTouches[0];
+      if (t) {
+        const dx = t.clientX - touchStartRef.current.x;
+        const dy = t.clientY - touchStartRef.current.y;
+        const moved = Math.hypot(dx, dy);
+        const elapsed = Date.now() - touchStartRef.current.t;
+        if (moved < TAP_THRESHOLD_PX && elapsed < 400) {
+          // Tap — check for double-tap to zoom in
+          const now = Date.now();
+          if (now - lastTapRef.current < 300) {
+            // Double-tap → zoom in 2x at this point
+            const sv = screenToSvg(t.clientX, t.clientY);
+            if (sv) setZoomAt(Math.min(ZOOM_MAX, zoom * 2), sv.x, sv.y);
+            lastTapRef.current = 0; // reset
+          } else {
+            // Single tap → drop pin (after a short delay so a double-tap can override)
+            const tx = t.clientX, ty = t.clientY;
+            lastTapRef.current = now;
+            setTimeout(() => {
+              if (lastTapRef.current === now) dropPinAt(tx, ty);
+            }, 280);
+          }
+        }
+      }
+      touchStartRef.current = null;
+      dragStartRef.current = null;
+    }
+  }
+
+  // Helper: screen → SVG using arbitrary zoom/pan (used during gesture)
+  function svgFromPan(clientX: number, clientY: number, z: number, px: number, py: number) {
+    const svg = mapRef.current;
+    if (!svg) return null;
+    const rect = svg.getBoundingClientRect();
     const xPct = (clientX - rect.left) / rect.width;
     const yPct = (clientY - rect.top) / rect.height;
-    const x = xPct * MAP_W;
-    const y = yPct * MAP_H;
-    const ll = pxToLngLat(x, y);
+    const viewW = MAP_W / z;
+    const viewH = MAP_H / z;
+    return { x: px + xPct * viewW, y: py + yPct * viewH };
+  }
+
+  // Mouse fallback for desktop testing
+  function handleMouseClick(e: React.MouseEvent<SVGSVGElement>) {
+    dropPinAt(e.clientX, e.clientY);
+  }
+  function handleWheel(e: React.WheelEvent<SVGSVGElement>) {
+    if (submitted || isReveal) return;
+    const sv = screenToSvg(e.clientX, e.clientY);
+    if (!sv) return;
+    const factor = e.deltaY < 0 ? 1.2 : 1 / 1.2;
+    setZoomAt(zoom * factor, sv.x, sv.y);
+  }
+
+  // Zoom controls (buttons)
+  function zoomIn() {
     haptic.tap();
-    setPin(ll);
+    setZoomAt(Math.min(ZOOM_MAX, zoom * 1.5), panX + (MAP_W / zoom) / 2, panY + (MAP_H / zoom) / 2);
+  }
+  function zoomOut() {
+    haptic.tap();
+    setZoomAt(Math.max(ZOOM_MIN, zoom / 1.5), panX + (MAP_W / zoom) / 2, panY + (MAP_H / zoom) / 2);
+  }
+  function zoomReset() {
+    haptic.tap();
+    setZoom(1); setPanX(0); setPanY(0);
   }
 
   function submit() {
@@ -173,19 +357,23 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
         <svg
           ref={mapRef}
           className="geo-map"
-          viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+          viewBox={`${panX} ${panY} ${MAP_W / zoom} ${MAP_H / zoom}`}
           preserveAspectRatio="xMidYMid meet"
-          onClick={handleMapClick}
-          onTouchEnd={handleMapClick}
+          onClick={handleMouseClick}
+          onWheel={handleWheel}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* World map background loaded from /world.svg */}
           <image href="/world.svg" x={0} y={0} width={MAP_W} height={MAP_H} preserveAspectRatio="xMidYMid meet" />
 
-          {/* My live pin (pre-submit) */}
+          {/* My live pin (pre-submit) — scale radii inversely with zoom so
+              the pin stays roughly constant size on screen */}
           {livePinPx && (
             <g className="geo-pin-live">
-              <circle cx={livePinPx.x} cy={livePinPx.y} r={28} className="geo-pin-halo" />
-              <circle cx={livePinPx.x} cy={livePinPx.y} r={14} className="geo-pin-dot" />
+              <circle cx={livePinPx.x} cy={livePinPx.y} r={28 / zoom} className="geo-pin-halo" />
+              <circle cx={livePinPx.x} cy={livePinPx.y} r={14 / zoom} className="geo-pin-dot" />
             </g>
           )}
 
@@ -228,6 +416,19 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
             />
           )}
         </svg>
+
+        {/* Zoom controls — pinch + double-tap also work, this is the explicit
+            backup for users who want buttons. Only visible during question phase. */}
+        {!isReveal && (
+          <div className="geo-zoom-controls">
+            <button className="geo-zoom-btn" aria-label="Zoom in" onClick={zoomIn} disabled={zoom >= ZOOM_MAX}>+</button>
+            <div className="geo-zoom-level">{zoom.toFixed(1)}×</div>
+            <button className="geo-zoom-btn" aria-label="Zoom out" onClick={zoomOut} disabled={zoom <= ZOOM_MIN}>−</button>
+            {zoom > 1 && (
+              <button className="geo-zoom-btn geo-zoom-reset" aria-label="Reset zoom" onClick={zoomReset}>⟲</button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Submit button + reveal panel */}
