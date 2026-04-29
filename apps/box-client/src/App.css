@@ -2762,16 +2762,29 @@ button {
 
 /* ─── Connections ──────────────────────────────────────────────────────────── */
 
-/* Game container — warm-cool gradient backdrop with subtle radial vignette so
-   the tiles don't blend into a flat dark field. Plenty of contrast for the
-   colored found-group banners too. */
+/* Game container — green chalkboard backdrop. Chalk-dust streaks across the
+   surface, slight vignette toward edges, deep slate-green base. Reads as a
+   classroom puzzle board — perfect contrast for cream tiles + colored found
+   banners. */
 .conn-game {
   min-height: 100vh;
   padding: 0 0 24px;
   background:
-    radial-gradient(ellipse at 50% 20%, rgba(167,139,250,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 90%, rgba(245,200,66,0.06) 0%, transparent 50%),
-    linear-gradient(180deg, #1a1623 0%, #0e0c14 60%, #08070c 100%);
+    /* chalk-dust streaks at slight angles */
+    repeating-linear-gradient(170deg,
+      transparent 0, transparent 90px,
+      rgba(255,255,255,0.014) 90px, rgba(255,255,255,0.014) 130px),
+    repeating-linear-gradient(190deg,
+      transparent 0, transparent 70px,
+      rgba(255,255,255,0.010) 70px, rgba(255,255,255,0.010) 110px),
+    /* faint vertical chalk smudges */
+    repeating-linear-gradient(90deg,
+      transparent 0, transparent 200px,
+      rgba(255,255,255,0.006) 200px, rgba(255,255,255,0.006) 280px),
+    /* vignette darker at edges */
+    radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.45) 100%),
+    /* chalkboard base — deep slate green */
+    linear-gradient(180deg, #2c4030 0%, #213024 60%, #1a261d 100%);
 }
 
 /* NYT-puzzle-reverent header — display title with chromatic shadow + strikes */
@@ -2840,19 +2853,18 @@ button {
 /* Each Connections tile is its own polished bubble — same vocabulary as the
    Trivia answer squares but scaled to 16-on-screen density. Glass surface,
    soft inner glow, spring on tap, lift on hover. */
+/* Cream chalk-card tiles — like index cards taped to the chalkboard.
+   Solid cream surface, dark blackboard-green text, chalky highlight at the
+   top, soft shadow lifting them off the board. */
 .conn-tile {
   position: relative;
-  background:
-    linear-gradient(165deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%),
-    rgba(255,255,255,0.06);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 14px;
-  color: var(--text);
-  font-size: clamp(0.7rem, 2.6vw, 0.86rem);
-  font-weight: 700;
-  letter-spacing: -0.005em;
+  background: linear-gradient(165deg, #f5f0dd 0%, #e7dec3 100%);
+  border: 1.5px solid rgba(80, 60, 40, 0.32);
+  border-radius: 8px;
+  color: #1a2820;
+  font-size: clamp(0.72rem, 2.6vw, 0.88rem);
+  font-weight: 800;
+  letter-spacing: 0;
   padding: 14px 6px;
   min-height: 58px;
   cursor: pointer;
@@ -2862,14 +2874,15 @@ button {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
   transition:
     transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1),
     border-color 0.16s ease,
     background 0.2s ease,
     box-shadow 0.2s ease;
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.04) inset,
-    0 3px 10px rgba(0,0,0,0.22);
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 3px 10px rgba(0,0,0,0.4);
   touch-action: manipulation;
   animation: conn-tile-in 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
   -webkit-tap-highlight-color: transparent;
@@ -2885,7 +2898,7 @@ button {
   transition: opacity 0.22s ease;
 }
 .conn-tile:hover::before { opacity: 1; }
-.conn-tile:hover { border-color: rgba(255,255,255,0.16); }
+.conn-tile:hover { border-color: rgba(80, 60, 40, 0.55); }
 .conn-tile:active {
   transform: scale(0.94);
   transition: transform 0.07s ease-out;
@@ -2914,19 +2927,18 @@ button {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Selected: warm gold glow + slightly raised */
+/* Selected: warm gold-amber tint, chalk circled feel, slight lift */
 .conn-tile.conn-tile-selected {
-  background:
-    linear-gradient(165deg, rgba(246,200,66,0.20) 0%, rgba(246,200,66,0.05) 100%),
-    rgba(255,255,255,0.025);
-  border-color: rgba(246, 200, 66, 0.55);
-  color: #fff;
+  background: linear-gradient(165deg, #f8d97a 0%, #e8b948 100%);
+  border-color: #8a6420;
+  color: #1f1408;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
   box-shadow:
-    0 1px 0 rgba(255,255,255,0.1) inset,
-    0 0 0 1px rgba(246,200,66,0.35),
-    0 6px 18px rgba(246,200,66,0.22),
-    0 3px 10px rgba(0,0,0,0.25);
-  transform: scale(1.02);
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 0 0 2px rgba(184, 134, 44, 0.4),
+    0 8px 22px rgba(0,0,0,0.45),
+    0 3px 10px rgba(232,185,72,0.35);
+  transform: scale(1.04);
 }
 .conn-tile.conn-tile-selected::before { opacity: 1; }
 
@@ -2956,8 +2968,11 @@ button {
 .conn-found-group {
   margin: 6px 12px;
   border-radius: 10px;
-  border: 1.5px solid;
-  padding: 10px 14px;
+  border: 2px solid;
+  padding: 12px 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 6px 18px rgba(0,0,0,0.45);
 }
 
 .conn-group-label {
