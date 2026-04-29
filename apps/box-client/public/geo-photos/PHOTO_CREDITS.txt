@@ -1,0 +1,365 @@
+PartyGlue Box — GeoGuesser photo credits
+Generated: 2026-04-29T15:18:55.943Z
+Photos: 1 downloaded, 0 skipped, 0 failed
+
+#049 Listvyanka, Lake Baikal
+  file: geo_049.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ALake%20Bailkal%20-%20panoramio%20(1).jpg
+  author: Raki_Man
+  license: CC BY 3.0
+
+==== CURATED REDOWNLOAD ====
+Run: 2026-04-29T16:23:03.566Z
+58 ok / 0 skipped / 62 failed
+
+#001
+  file: geo_001.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ATour%20Eiffel%20Wikimedia%20Commons.jpg
+  author: Benh LIEU SONG
+  license: Public domain
+
+#002
+  file: geo_002.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AColosseo%202020.jpg
+  author: FeaturedPics
+  license: CC BY-SA 4.0
+
+#003
+  file: geo_003.jpg
+  source: https://commons.wikimedia.org/wiki/File%3APalace%20of%20Westminster%20from%20the%20dome%20on%20Methodist%20Central%20Hall.jpg
+  author: Colin
+  license: CC BY-SA 4.0
+
+#004
+  file: geo_004.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ASagrada%20Familia%2001.jpg
+  author: Bernard Gagnon
+  license: CC BY-SA 3.0
+
+#005
+  file: geo_005.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AOia%2C%20Santorini.jpg
+  author: Κλέαρχος Π. Καπούτσης
+  license: Attribution
+
+#006
+  file: geo_006.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AStatue%20of%20Liberty%207.jpg
+  author: Elcobbola
+  license: Public domain
+
+#007
+  file: geo_007.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ATimes%20Square%2C%20New%20York%20City%20(HDR).jpg
+  author: Francisco Diez from New Jersey, USA
+  license: CC BY 2.0
+
+#008
+  file: geo_008.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ASydney%20Opera%20House%20-%20Dec%202008.jpg
+  author: Diliff
+  license: CC BY-SA 3.0
+
+#009
+  file: geo_009.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ATaj%20Mahal%2C%20Agra%2C%20India%20edit3.jpg
+  author: Taj_Mahal,_Agra,_India_edit2.jpg: Yann; edited by King of Hearts
+derivative work: Jbarta (talk)
+  license: CC BY-SA 3.0
+
+#010
+  file: geo_010.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AThe%20Great%20wall%20-%20by%20Hao%20Wei.jpg
+  author: Hao Wei from China
+  license: CC BY 2.0
+
+#012
+  file: geo_012.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AMachu%20Picchu%2C%20Peru.jpg
+  author: Pedro Szekely at https://www.flickr.com/photos/pedrosz/
+  license: CC BY-SA 2.0
+
+#013
+  file: geo_013.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AAll%20Gizah%20Pyramids.jpg
+  author: Ricardo Liberato
+  license: CC BY-SA 2.0
+
+#014
+  file: geo_014.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AChrist%20on%20Corcovado%20mountain.JPG
+  author: Artyominc
+  license: CC BY-SA 3.0
+
+#015
+  file: geo_015.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AAngkor%20wat%20temple.jpg
+  author: The original uploader was Fuzheado at English Wikipedia.
+  license: CC BY-SA 2.0
+
+#016
+  file: geo_016.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AHohenschwangau%20-%20Schloss%20Neuschwanstein2.jpg
+  author: Taxiarchos228, reworked Alchemist-hp
+  license: FAL
+
+#017
+  file: geo_017.jpg
+  source: https://commons.wikimedia.org/wiki/File%3APetra%20Jordan%20BW%2021.JPG
+  author: Berthold Werner
+  license: CC BY-SA 3.0
+
+#018
+  file: geo_018.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AGoldenGateBridge-001.jpg
+  author: Rich Niewiroski Jr.
+  license: CC BY 2.5
+
+#019
+  file: geo_019.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AHagia%20Sophia%20Mars%202013.jpg
+  author: Arild Vågen
+  license: CC BY-SA 3.0
+
+#020
+  file: geo_020.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AMount%20Fuji%20from%20Lake%20Kawaguchi.jpg
+  author: Subramaniam K V
+  license: CC BY 3.0
+
+#027
+  file: geo_027.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ALake%20Moraine.jpg
+  author: Maneperez
+  license: CC BY-SA 4.0
+
+#029
+  file: geo_029.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AShibuya%20crossing.jpg
+  author: Hide1228
+  license: CC BY-SA 4.0
+
+#034
+  file: geo_034.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ABagan%2C%20Burma.jpg
+  author: Corto Maltese 1999
+  license: CC BY 2.0
+
+#038
+  file: geo_038.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ALongyearbyen%20Svalbard.jpg
+  author: Mfiskum.
+Marius Fiskum.
+
+www.fototopia.no
+  license: CC BY 3.0
+
+#039
+  file: geo_039.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AAltai%20Mountains.jpg
+  author: Rudyologist
+  license: CC BY-SA 4.0
+
+#041
+  file: geo_041.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AMount%20Tongariro.jpg
+  author: Mirko Thiessen (Baldhur)
+  license: CC BY-SA 3.0
+
+#043
+  file: geo_043.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ARegistan%20square%20Samarkand.jpg
+  author: Ekrem Canli
+  license: CC BY-SA 3.0
+
+#047
+  file: geo_047.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ASalar%20de%20Uyuni%20Bolivia.jpg
+  author: Entropy1963
+  license: Public domain
+
+#048
+  file: geo_048.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ADarvasa%20gas%20crater%20panorama.jpg
+  author: Tormod Sandtorv
+  license: CC BY-SA 2.0
+
+#055
+  file: geo_055.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ALower%20Antelope%20Canyon%20478.jpg
+  author: Uploaded by Meckimac
+  license: CC BY-SA 3.0
+
+#056
+  file: geo_056.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AReine%20Lofoten%20Norway.jpg
+  author: Ddubbert
+  license: CC BY-SA 3.0
+
+#061
+  file: geo_061.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ABrandenburger%20Tor%20abends.jpg
+  author: Thomas Wolf, www.foto-tw.de
+  license: CC BY-SA 3.0
+
+#062
+  file: geo_062.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AStonehenge2007%2007%2030.jpg
+  author: garethwiscombe
+  license: CC BY 2.0
+
+#063
+  file: geo_063.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ATower%20Bridge%20from%20Shad%20Thames.jpg
+  author: Colin
+  license: CC BY-SA 4.0
+
+#064
+  file: geo_064.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AAcropolis%20at%20night.jpg
+  author: StamStam7®️
+  license: CC BY-SA 4.0
+
+#065
+  file: geo_065.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ASaint%20Basil's%20Cathedral%20in%20Moscow.jpg
+  author: Tsy1980
+  license: CC BY-SA 4.0
+
+#066
+  file: geo_066.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ASchloss%20Sch%C3%B6nbrunn%20Wien%202014%20(Zuschnitt%202).jpg
+  author: Thomas Wolf, www.foto-tw.de
+  license: CC BY-SA 3.0 de
+
+#067
+  file: geo_067.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ACharles%20Bridge%20in%20Prague.jpg
+  author: www.Pixel.la Free Stock Photos
+  license: CC0
+
+#069
+  file: geo_069.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AGeirangerfjord%20(6-2007).jpg
+  author: Frédéric de Goldschmidt www.frederic.net
+  license: CC BY 2.5
+
+#073
+  file: geo_073.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AHallgrimskirkja%20Reykjavik.jpg
+  author: Johannes Jansson
+  license: Public domain
+
+#075
+  file: geo_075.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AEilean%20Donan%20castle%20-%2095mm.jpg
+  author: Eusebius
+  license: CC BY 3.0
+
+#076
+  file: geo_076.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AMount%20Rushmore%20National%20Memorial.jpg
+  author: Jim Bowen from Hope Mills NC, US
+  license: CC BY 2.0
+
+#077
+  file: geo_077.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AHollywoodsign.jpg
+  author: gangxtamops
+  license: Public domain
+
+#078
+  file: geo_078.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ASpace%20Needle%202011-07-04.jpg
+  author: Jordon Kalilich
+  license: Public domain
+
+#079
+  file: geo_079.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AGateway%20Arch.jpg
+  author: David K. Staub at en.wikipedia
+  license: CC BY-SA 2.5
+
+#080
+  file: geo_080.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AToronto%20-%20ON%20-%20Toronto%20Skyline2.jpg
+  author: Taxiarchos228
+  license: CC BY-SA 3.0
+
+#081
+  file: geo_081.jpg
+  source: https://commons.wikimedia.org/wiki/File%3A3Falls%20Niagara.jpg
+  author: Saffron Blaze
+  license: CC BY-SA 3.0
+
+#082
+  file: geo_082.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AHoover%20Dam%20Nevada%20Luftaufnahme.jpg
+  author: Mikano
+  license: CC BY-SA 3.0
+
+#084
+  file: geo_084.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ACliff%20Palace%20at%20Mesa%20Verde.jpg
+  author: ?
+  license: CC BY-SA 3.0
+
+#089
+  file: geo_089.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AWat%20Arun%20Bangkok%204.jpg
+  author: Philip Nalangan
+  license: CC BY 4.0
+
+#090
+  file: geo_090.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ABorobudur-Nothwest-view.jpg
+  author: Gunawan Kartapranata
+  license: CC BY-SA 3.0
+
+#092
+  file: geo_092.jpg
+  source: https://commons.wikimedia.org/wiki/File%3APangong%20Lake.jpg
+  author: Mahuasarkar25
+  license: CC BY-SA 3.0
+
+#099
+  file: geo_099.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AValle%20de%20la%20Luna%2C%20Atacama.jpg
+  author: Alex Mazaira
+  license: CC BY-SA 3.0
+
+#100
+  file: geo_100.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AMt.%20Kilimanjaro%2012.2006.JPG
+  author: ?
+  license: CC BY-SA 3.0
+
+#101
+  file: geo_101.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AVictoria%20Falls%20Zambia.jpg
+  author: Gypsy Denise
+  license: CC BY-SA 4.0
+
+#102
+  file: geo_102.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ABete%20Giyorgis%2003.jpg
+  author: Bernard Gagnon
+  license: CC BY-SA 3.0
+
+#111
+  file: geo_111.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ADome%20of%20the%20Rock%20Jerusalem.jpg
+  author: RonAlmog, (Flickr page)
+  license: CC BY 2.5
+
+#116
+  file: geo_116.jpg
+  source: https://commons.wikimedia.org/wiki/File%3AIlulissat%20icefjord.jpg
+  author: Greenland Travel
+  license: CC BY 2.0
+
+#118
+  file: geo_118.jpg
+  source: https://commons.wikimedia.org/wiki/File%3ABanaue%20Rice%20Terraces%2C%20Philippines.jpg
+  author: Andrewhaimerl
+  license: CC BY-SA 4.0

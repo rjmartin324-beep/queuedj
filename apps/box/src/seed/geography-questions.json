@@ -1,0 +1,3827 @@
+[
+  [
+    "What is the capital of France?",
+    "London",
+    "Paris",
+    "Berlin",
+    "Madrid",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the capital of Germany?",
+    "Munich",
+    "Hamburg",
+    "Frankfurt",
+    "Berlin",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Japan?",
+    "Osaka",
+    "Kyoto",
+    "Tokyo",
+    "Hiroshima",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of the United States?",
+    "New York",
+    "Los Angeles",
+    "Chicago",
+    "Washington D.C.",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Australia?",
+    "Sydney",
+    "Melbourne",
+    "Canberra",
+    "Brisbane",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Canada?",
+    "Toronto",
+    "Vancouver",
+    "Montreal",
+    "Ottawa",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Brazil?",
+    "Rio de Janeiro",
+    "São Paulo",
+    "Brasília",
+    "Salvador",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of China?",
+    "Shanghai",
+    "Beijing",
+    "Guangzhou",
+    "Chengdu",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the capital of India?",
+    "Mumbai",
+    "Chennai",
+    "New Delhi",
+    "Kolkata",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Russia?",
+    "St. Petersburg",
+    "Moscow",
+    "Novosibirsk",
+    "Vladivostok",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the capital of Italy?",
+    "Milan",
+    "Venice",
+    "Naples",
+    "Rome",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Spain?",
+    "Barcelona",
+    "Seville",
+    "Valencia",
+    "Madrid",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Mexico?",
+    "Guadalajara",
+    "Monterrey",
+    "Tijuana",
+    "Mexico City",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Argentina?",
+    "Córdoba",
+    "Rosario",
+    "Mendoza",
+    "Buenos Aires",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of South Africa?",
+    "Cape Town",
+    "Johannesburg",
+    "Durban",
+    "Pretoria",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Egypt?",
+    "Alexandria",
+    "Cairo",
+    "Luxor",
+    "Aswan",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the capital of Nigeria?",
+    "Lagos",
+    "Ibadan",
+    "Abuja",
+    "Kano",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Kenya?",
+    "Mombasa",
+    "Nairobi",
+    "Kisumu",
+    "Nakuru",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the capital of Turkey?",
+    "Istanbul",
+    "Izmir",
+    "Antalya",
+    "Ankara",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Saudi Arabia?",
+    "Jeddah",
+    "Mecca",
+    "Medina",
+    "Riyadh",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the largest country in the world by area?",
+    "China",
+    "USA",
+    "Canada",
+    "Russia",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the smallest country in the world?",
+    "Monaco",
+    "San Marino",
+    "Vatican City",
+    "Liechtenstein",
+    "c",
+    "easy"
+  ],
+  [
+    "Which continent is the largest by area?",
+    "Africa",
+    "Asia",
+    "North America",
+    "Europe",
+    "b",
+    "easy"
+  ],
+  [
+    "Which is the longest river in the world?",
+    "Amazon",
+    "Yangtze",
+    "Mississippi",
+    "Nile",
+    "d",
+    "easy"
+  ],
+  [
+    "Which is the tallest mountain in the world?",
+    "K2",
+    "Mount Everest",
+    "Kangchenjunga",
+    "Lhotse",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the largest ocean on Earth?",
+    "Atlantic",
+    "Indian",
+    "Arctic",
+    "Pacific",
+    "d",
+    "easy"
+  ],
+  [
+    "On which continent is the Amazon rainforest?",
+    "Africa",
+    "South America",
+    "Asia",
+    "North America",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country has the Great Wall?",
+    "Japan",
+    "Mongolia",
+    "South Korea",
+    "China",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of the United Kingdom?",
+    "Manchester",
+    "Edinburgh",
+    "London",
+    "Birmingham",
+    "c",
+    "easy"
+  ],
+  [
+    "What country is the Eiffel Tower in?",
+    "Italy",
+    "Belgium",
+    "France",
+    "Germany",
+    "c",
+    "easy"
+  ],
+  [
+    "What ocean lies between Europe and North America?",
+    "Pacific",
+    "Indian",
+    "Atlantic",
+    "Arctic",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country is known as the Land Down Under?",
+    "New Zealand",
+    "South Africa",
+    "Chile",
+    "Australia",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of South Korea?",
+    "Busan",
+    "Incheon",
+    "Seoul",
+    "Daegu",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Pakistan?",
+    "Karachi",
+    "Lahore",
+    "Islamabad",
+    "Peshawar",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Indonesia?",
+    "Surabaya",
+    "Bandung",
+    "Medan",
+    "Jakarta",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Greece?",
+    "Thessaloniki",
+    "Heraklion",
+    "Patras",
+    "Athens",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Sweden?",
+    "Gothenburg",
+    "Malmö",
+    "Uppsala",
+    "Stockholm",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Norway?",
+    "Bergen",
+    "Stavanger",
+    "Trondheim",
+    "Oslo",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Netherlands?",
+    "Rotterdam",
+    "The Hague",
+    "Utrecht",
+    "Amsterdam",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Poland?",
+    "Krakow",
+    "Lodz",
+    "Gdansk",
+    "Warsaw",
+    "d",
+    "easy"
+  ],
+  [
+    "Which continent is Egypt primarily located on?",
+    "Asia",
+    "Europe",
+    "Africa",
+    "Middle East",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the largest continent?",
+    "Africa",
+    "North America",
+    "Asia",
+    "Antarctica",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country does the Amazon River mostly flow through?",
+    "Peru",
+    "Colombia",
+    "Venezuela",
+    "Brazil",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of New Zealand?",
+    "Auckland",
+    "Christchurch",
+    "Dunedin",
+    "Wellington",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Portugal?",
+    "Porto",
+    "Faro",
+    "Braga",
+    "Lisbon",
+    "d",
+    "easy"
+  ],
+  [
+    "Which country is Mount Fuji located in?",
+    "China",
+    "Japan",
+    "South Korea",
+    "Taiwan",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the capital of Thailand?",
+    "Chiang Mai",
+    "Phuket",
+    "Pattaya",
+    "Bangkok",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Vietnam?",
+    "Ho Chi Minh City",
+    "Da Nang",
+    "Hanoi",
+    "Hue",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Malaysia?",
+    "Penang",
+    "Johor Bahru",
+    "Kuala Lumpur",
+    "Ipoh",
+    "c",
+    "easy"
+  ],
+  [
+    "Which desert is the largest in the world?",
+    "Sahara",
+    "Arabian",
+    "Gobi",
+    "Antarctic Desert",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Ukraine?",
+    "Lviv",
+    "Kharkiv",
+    "Odessa",
+    "Kyiv",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Romania?",
+    "Cluj-Napoca",
+    "Timișoara",
+    "Iași",
+    "Bucharest",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Hungary?",
+    "Debrecen",
+    "Miskolc",
+    "Győr",
+    "Budapest",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Czech Republic?",
+    "Brno",
+    "Ostrava",
+    "Plzeň",
+    "Prague",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Austria?",
+    "Salzburg",
+    "Graz",
+    "Linz",
+    "Vienna",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Switzerland?",
+    "Zurich",
+    "Geneva",
+    "Basel",
+    "Bern",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Belgium?",
+    "Antwerp",
+    "Ghent",
+    "Bruges",
+    "Brussels",
+    "d",
+    "easy"
+  ],
+  [
+    "What country is the Colosseum located in?",
+    "Greece",
+    "Spain",
+    "France",
+    "Italy",
+    "d",
+    "easy"
+  ],
+  [
+    "Which continent is Brazil on?",
+    "North America",
+    "Central America",
+    "South America",
+    "Caribbean",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Morocco?",
+    "Casablanca",
+    "Marrakesh",
+    "Fez",
+    "Rabat",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Israel?",
+    "Tel Aviv",
+    "Haifa",
+    "Jerusalem",
+    "Eilat",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of the Philippines?",
+    "Cebu City",
+    "Davao",
+    "Quezon City",
+    "Manila",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Singapore?",
+    "Jurong",
+    "Tampines",
+    "Woodlands",
+    "Singapore City",
+    "d",
+    "easy"
+  ],
+  [
+    "Which country contains the most of the Amazon rainforest?",
+    "Colombia",
+    "Peru",
+    "Bolivia",
+    "Brazil",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Chile?",
+    "Valparaíso",
+    "Concepción",
+    "Antofagasta",
+    "Santiago",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Peru?",
+    "Cusco",
+    "Arequipa",
+    "Trujillo",
+    "Lima",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Colombia?",
+    "Medellín",
+    "Cali",
+    "Barranquilla",
+    "Bogotá",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Venezuela?",
+    "Maracaibo",
+    "Valencia",
+    "Barquisimeto",
+    "Caracas",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Cuba?",
+    "Santiago de Cuba",
+    "Camagüey",
+    "Holguín",
+    "Havana",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Ireland?",
+    "Cork",
+    "Galway",
+    "Limerick",
+    "Dublin",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Denmark?",
+    "Aarhus",
+    "Odense",
+    "Aalborg",
+    "Copenhagen",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Finland?",
+    "Tampere",
+    "Espoo",
+    "Turku",
+    "Helsinki",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Iran?",
+    "Isfahan",
+    "Mashhad",
+    "Shiraz",
+    "Tehran",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Iraq?",
+    "Basra",
+    "Mosul",
+    "Erbil",
+    "Baghdad",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Bangladesh?",
+    "Chittagong",
+    "Khulna",
+    "Rajshahi",
+    "Dhaka",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Ethiopia?",
+    "Dire Dawa",
+    "Mekelle",
+    "Gondar",
+    "Addis Ababa",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Ghana?",
+    "Kumasi",
+    "Tamale",
+    "Cape Coast",
+    "Accra",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Tanzania?",
+    "Mwanza",
+    "Arusha",
+    "Zanzibar",
+    "Dodoma",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Senegal?",
+    "Thiès",
+    "Ziguinchor",
+    "Saint-Louis",
+    "Dakar",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Algeria?",
+    "Oran",
+    "Constantine",
+    "Annaba",
+    "Algiers",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Tunisia?",
+    "Sfax",
+    "Sousse",
+    "Bizerte",
+    "Tunis",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Libya?",
+    "Benghazi",
+    "Misrata",
+    "Tobruk",
+    "Tripoli",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Sudan?",
+    "Port Sudan",
+    "Omdurman",
+    "Kassala",
+    "Khartoum",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Zimbabwe?",
+    "Bulawayo",
+    "Mutare",
+    "Gweru",
+    "Harare",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Zambia?",
+    "Ndola",
+    "Kitwe",
+    "Livingstone",
+    "Lusaka",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Angola?",
+    "Huambo",
+    "Benguela",
+    "Lobito",
+    "Luanda",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Mozambique?",
+    "Beira",
+    "Nampula",
+    "Quelimane",
+    "Maputo",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Madagascar?",
+    "Toamasina",
+    "Mahajanga",
+    "Fianarantsoa",
+    "Antananarivo",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Cameroon?",
+    "Douala",
+    "Bafoussam",
+    "Garoua",
+    "Yaoundé",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Côte d'Ivoire (Ivory Coast)?",
+    "Bouaké",
+    "Korhogo",
+    "San-Pédro",
+    "Yamoussoukro",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Myanmar?",
+    "Yangon",
+    "Mandalay",
+    "Bago",
+    "Naypyidaw",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Sri Lanka?",
+    "Kandy",
+    "Galle",
+    "Jaffna",
+    "Sri Jayawardenepura Kotte",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Nepal?",
+    "Pokhara",
+    "Lalitpur",
+    "Bhaktapur",
+    "Kathmandu",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Afghanistan?",
+    "Kandahar",
+    "Herat",
+    "Mazar-i-Sharif",
+    "Kabul",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Jordan?",
+    "Aqaba",
+    "Zarqa",
+    "Irbid",
+    "Amman",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Lebanon?",
+    "Tripoli",
+    "Sidon",
+    "Tyre",
+    "Beirut",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Syria?",
+    "Aleppo",
+    "Homs",
+    "Latakia",
+    "Damascus",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Yemen?",
+    "Aden",
+    "Taiz",
+    "Hodeidah",
+    "Sana'a",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Kuwait?",
+    "Salmiya",
+    "Hawalli",
+    "Jahra",
+    "Kuwait City",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Qatar?",
+    "Al Wakrah",
+    "Al Rayyan",
+    "Dukhan",
+    "Doha",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of United Arab Emirates?",
+    "Dubai",
+    "Sharjah",
+    "Ajman",
+    "Abu Dhabi",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Oman?",
+    "Salalah",
+    "Sohar",
+    "Nizwa",
+    "Muscat",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Bahrain?",
+    "Riffa",
+    "Muharraq",
+    "Hamad Town",
+    "Manama",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Kazakhstan?",
+    "Almaty",
+    "Shymkent",
+    "Karaganda",
+    "Astana",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Uzbekistan?",
+    "Samarkand",
+    "Namangan",
+    "Fergana",
+    "Tashkent",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Georgia (country)?",
+    "Batumi",
+    "Kutaisi",
+    "Rustavi",
+    "Tbilisi",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Armenia?",
+    "Gyumri",
+    "Vanadzor",
+    "Kapan",
+    "Yerevan",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Azerbaijan?",
+    "Ganja",
+    "Sumqayit",
+    "Mingachevir",
+    "Baku",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Serbia?",
+    "Novi Sad",
+    "Niš",
+    "Kragujevac",
+    "Belgrade",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Croatia?",
+    "Split",
+    "Dubrovnik",
+    "Rijeka",
+    "Zagreb",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Slovakia?",
+    "Košice",
+    "Prešov",
+    "Žilina",
+    "Bratislava",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Slovenia?",
+    "Maribor",
+    "Celje",
+    "Kranj",
+    "Ljubljana",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Bulgaria?",
+    "Plovdiv",
+    "Varna",
+    "Burgas",
+    "Sofia",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Albania?",
+    "Durrës",
+    "Vlorë",
+    "Shkodër",
+    "Tirana",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of North Macedonia?",
+    "Bitola",
+    "Kumanovo",
+    "Ohrid",
+    "Skopje",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Bosnia and Herzegovina?",
+    "Mostar",
+    "Banja Luka",
+    "Tuzla",
+    "Sarajevo",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Moldova?",
+    "Bălți",
+    "Tiraspol",
+    "Cahul",
+    "Chișinău",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Belarus?",
+    "Brest",
+    "Grodno",
+    "Vitebsk",
+    "Minsk",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Lithuania?",
+    "Kaunas",
+    "Klaipėda",
+    "Šiauliai",
+    "Vilnius",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Latvia?",
+    "Daugavpils",
+    "Liepāja",
+    "Jēkabpils",
+    "Riga",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Estonia?",
+    "Tartu",
+    "Narva",
+    "Pärnu",
+    "Tallinn",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Iceland?",
+    "Akureyri",
+    "Hafnarfjörður",
+    "Kópavogur",
+    "Reykjavik",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Luxembourg?",
+    "Esch-sur-Alzette",
+    "Differdange",
+    "Dudelange",
+    "Luxembourg City",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Malta?",
+    "Birkirkara",
+    "Mosta",
+    "Qormi",
+    "Valletta",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Cyprus?",
+    "Limassol",
+    "Larnaca",
+    "Famagusta",
+    "Nicosia",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Ecuador?",
+    "Guayaquil",
+    "Cuenca",
+    "Manta",
+    "Quito",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Bolivia?",
+    "Cochabamba",
+    "Santa Cruz",
+    "La Paz",
+    "Sucre",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Paraguay?",
+    "Ciudad del Este",
+    "Encarnación",
+    "Concepción",
+    "Asunción",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Uruguay?",
+    "Salto",
+    "Paysandú",
+    "Maldonado",
+    "Montevideo",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Panama?",
+    "Colón",
+    "David",
+    "Chitré",
+    "Panama City",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Costa Rica?",
+    "Liberia",
+    "Alajuela",
+    "Cartago",
+    "San José",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Guatemala?",
+    "Quetzaltenango",
+    "Escuintla",
+    "Antigua",
+    "Guatemala City",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Honduras?",
+    "San Pedro Sula",
+    "La Ceiba",
+    "Comayagua",
+    "Tegucigalpa",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of El Salvador?",
+    "Santa Ana",
+    "Soyapango",
+    "San Miguel",
+    "San Salvador",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Nicaragua?",
+    "León",
+    "Granada",
+    "Masaya",
+    "Managua",
+    "d",
+    "easy"
+  ],
+  [
+    "Which country shares the longest land border with the USA?",
+    "Mexico",
+    "Cuba",
+    "Russia",
+    "Canada",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the deepest lake in the world?",
+    "Lake Superior",
+    "Caspian Sea",
+    "Lake Titicaca",
+    "Lake Baikal",
+    "d",
+    "medium"
+  ],
+  [
+    "Which African country has the largest population?",
+    "Ethiopia",
+    "South Africa",
+    "Egypt",
+    "Nigeria",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the highest mountain in Africa?",
+    "Mount Kenya",
+    "Mount Kilimanjaro",
+    "Rwenzori Mountains",
+    "Mount Elgon",
+    "b",
+    "medium"
+  ],
+  [
+    "Which river flows through Egypt?",
+    "Niger",
+    "Congo",
+    "Zambezi",
+    "Nile",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country has the most islands in the world?",
+    "Indonesia",
+    "Philippines",
+    "Japan",
+    "Sweden",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the highest peak in North America?",
+    "Mount Logan",
+    "Mount Whitney",
+    "Pikes Peak",
+    "Denali",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is the Andes mountain range primarily in?",
+    "Argentina",
+    "Bolivia",
+    "Chile",
+    "It spans multiple South American countries",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of Pakistan's Punjab province and also its second largest city?",
+    "Faisalabad",
+    "Multan",
+    "Rawalpindi",
+    "Lahore",
+    "d",
+    "medium"
+  ],
+  [
+    "The Strait of Gibraltar connects the Atlantic Ocean to which sea?",
+    "Red Sea",
+    "Black Sea",
+    "Mediterranean Sea",
+    "Arabian Sea",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country does Greenland belong to?",
+    "Iceland",
+    "Norway",
+    "USA",
+    "Denmark",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the driest hot desert in the world?",
+    "Gobi",
+    "Arabian",
+    "Atacama",
+    "Sahara",
+    "c",
+    "medium"
+  ],
+  [
+    "Which two countries share the longest international border?",
+    "USA and Mexico",
+    "Brazil and Bolivia",
+    "Russia and China",
+    "USA and Canada",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the sea between Africa and the Arabian Peninsula?",
+    "Arabian Sea",
+    "Red Sea",
+    "Persian Gulf",
+    "Gulf of Aden",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country is Mount Olympus located in?",
+    "Italy",
+    "Turkey",
+    "Albania",
+    "Greece",
+    "d",
+    "medium"
+  ],
+  [
+    "The Amazon River empties into which ocean?",
+    "Pacific",
+    "Caribbean Sea",
+    "South Atlantic",
+    "Atlantic",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the largest lake in Africa?",
+    "Lake Chad",
+    "Lake Tanganyika",
+    "Lake Malawi",
+    "Lake Victoria",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country has the most land borders with other countries?",
+    "Brazil",
+    "Russia",
+    "China",
+    "Germany",
+    "c",
+    "medium"
+  ],
+  [
+    "What mountain range separates Europe from Asia?",
+    "Caucasus",
+    "Pyrenees",
+    "Alps",
+    "Ural Mountains",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is the Yangtze River in?",
+    "India",
+    "Vietnam",
+    "Japan",
+    "China",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of the Canadian province of Quebec?",
+    "Montreal",
+    "Quebec City",
+    "Ottawa",
+    "Gatineau",
+    "b",
+    "medium"
+  ],
+  [
+    "The Tropic of Cancer passes through which country?",
+    "Australia",
+    "Brazil",
+    "Argentina",
+    "Mexico",
+    "d",
+    "medium"
+  ],
+  [
+    "Which ocean does the Congo River flow into?",
+    "Indian",
+    "Pacific",
+    "Atlantic",
+    "Mediterranean",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the highest mountain in Europe (excluding the Caucasus)?",
+    "Mont Blanc",
+    "Monte Rosa",
+    "Matterhorn",
+    "Dufourspitze",
+    "a",
+    "medium"
+  ],
+  [
+    "Which country is home to the Serengeti National Park?",
+    "Kenya",
+    "Zimbabwe",
+    "Tanzania",
+    "South Africa",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the only country that borders both the Atlantic and Indian oceans?",
+    "Mozambique",
+    "Angola",
+    "South Africa",
+    "Namibia",
+    "c",
+    "medium"
+  ],
+  [
+    "The Iberian Peninsula is primarily occupied by which two countries?",
+    "France and Italy",
+    "Spain and Portugal",
+    "Spain and France",
+    "Portugal and Morocco",
+    "b",
+    "medium"
+  ],
+  [
+    "Which of these countries is landlocked?",
+    "Morocco",
+    "Zambia",
+    "Angola",
+    "Mozambique",
+    "b",
+    "medium"
+  ],
+  [
+    "Where is the Sahara Desert located?",
+    "Asia",
+    "South America",
+    "Middle East",
+    "North Africa",
+    "d",
+    "medium"
+  ],
+  [
+    "Which river forms part of the border between the USA and Mexico?",
+    "Colorado River",
+    "Rio Grande",
+    "Missouri River",
+    "Pecos River",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the largest country in South America?",
+    "Argentina",
+    "Colombia",
+    "Peru",
+    "Brazil",
+    "d",
+    "medium"
+  ],
+  [
+    "Which sea lies between Greece and Turkey?",
+    "Ionian Sea",
+    "Aegean Sea",
+    "Adriatic Sea",
+    "Black Sea",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the largest country in Africa by area?",
+    "Sudan",
+    "Democratic Republic of Congo",
+    "Algeria",
+    "Libya",
+    "c",
+    "medium"
+  ],
+  [
+    "Which strait separates the Asian and European parts of Turkey?",
+    "Dardanelles",
+    "Bosphorus",
+    "Gibraltar",
+    "Kerch",
+    "b",
+    "medium"
+  ],
+  [
+    "The Mekong River flows through how many countries?",
+    "3",
+    "4",
+    "5",
+    "6",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the southernmost capital city in the world?",
+    "Canberra",
+    "Wellington",
+    "Ushuaia",
+    "Stanley",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country has the most coastline?",
+    "Australia",
+    "USA",
+    "Norway",
+    "Canada",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the archipelago that includes Tahiti?",
+    "Micronesia",
+    "French Polynesia",
+    "Melanesia",
+    "Cook Islands",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country is Mont Blanc located in (on the border of)?",
+    "Switzerland and Austria",
+    "France and Italy",
+    "France and Switzerland",
+    "Italy and Austria",
+    "b",
+    "medium"
+  ],
+  [
+    "The Ganges River is sacred to followers of which religion?",
+    "Buddhism",
+    "Sikhism",
+    "Jainism",
+    "Hinduism",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of the US state of California?",
+    "Los Angeles",
+    "San Diego",
+    "San Francisco",
+    "Sacramento",
+    "d",
+    "medium"
+  ],
+  [
+    "Which African country was formerly called Rhodesia?",
+    "Zambia",
+    "Malawi",
+    "Mozambique",
+    "Zimbabwe",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the largest river in Europe?",
+    "Rhine",
+    "Danube",
+    "Volga",
+    "Dnieper",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country does the island of Corsica belong to?",
+    "Italy",
+    "France",
+    "Spain",
+    "Greece",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the name of the peninsula where South Korea and North Korea are located?",
+    "Kamchatka",
+    "Indochina",
+    "Malay",
+    "Korean Peninsula",
+    "d",
+    "medium"
+  ],
+  [
+    "Which mountain range separates France and Spain?",
+    "Alps",
+    "Apennines",
+    "Carpathians",
+    "Pyrenees",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the largest island in the world?",
+    "Borneo",
+    "New Guinea",
+    "Greenland",
+    "Baffin Island",
+    "c",
+    "medium"
+  ],
+  [
+    "Which African country is not on the mainland (is an island)?",
+    "Djibouti",
+    "Seychelles",
+    "Eritrea",
+    "Gambia",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the highest peak in Australia?",
+    "Mount Kosciuszko",
+    "Mount Bogong",
+    "Cradle Mountain",
+    "Mount Townsend",
+    "a",
+    "medium"
+  ],
+  [
+    "The Panama Canal connects which two oceans?",
+    "Pacific and Indian",
+    "Atlantic and Arctic",
+    "Pacific and Atlantic",
+    "Indian and Arctic",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the capital of the US state of Texas?",
+    "Houston",
+    "Dallas",
+    "San Antonio",
+    "Austin",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is known as the Land of the Midnight Sun?",
+    "Sweden",
+    "Iceland",
+    "Finland",
+    "Norway",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the world's largest hot desert?",
+    "Arabian",
+    "Gobi",
+    "Sahara",
+    "Kalahari",
+    "c",
+    "medium"
+  ],
+  [
+    "Which ocean lies to the east of Africa?",
+    "Atlantic",
+    "Pacific",
+    "Arctic",
+    "Indian",
+    "d",
+    "medium"
+  ],
+  [
+    "The Dead Sea borders which countries?",
+    "Egypt and Jordan",
+    "Israel, Jordan and Palestinian territories",
+    "Lebanon and Syria",
+    "Saudi Arabia and Israel",
+    "b",
+    "medium"
+  ],
+  [
+    "Which European country has the most UNESCO World Heritage Sites?",
+    "Spain",
+    "Germany",
+    "France",
+    "Italy",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of Australia's largest coral reef system?",
+    "Ningaloo Reef",
+    "Great Barrier Reef",
+    "Coral Sea Reef",
+    "Osprey Reef",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the capital of the Ivory Coast (Côte d'Ivoire)?",
+    "Abidjan",
+    "Bouaké",
+    "Daloa",
+    "Yamoussoukro",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country's territory includes the Galápagos Islands?",
+    "Peru",
+    "Chile",
+    "Colombia",
+    "Ecuador",
+    "d",
+    "medium"
+  ],
+  [
+    "Which sea lies between Italy and the Balkans?",
+    "Ionian Sea",
+    "Tyrrhenian Sea",
+    "Adriatic Sea",
+    "Mediterranean Sea",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the largest lake in North America?",
+    "Lake Michigan",
+    "Lake Huron",
+    "Lake Superior",
+    "Lake Ontario",
+    "c",
+    "medium"
+  ],
+  [
+    "The Volga River flows into which body of water?",
+    "Black Sea",
+    "Baltic Sea",
+    "Aral Sea",
+    "Caspian Sea",
+    "d",
+    "medium"
+  ],
+  [
+    "Which Asian country has the most land borders?",
+    "India",
+    "Kazakhstan",
+    "China",
+    "Russia",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the highest point in South America?",
+    "Aconcagua",
+    "Huascarán",
+    "Chimborazo",
+    "Monte Pissis",
+    "a",
+    "medium"
+  ],
+  [
+    "What is the only country in the world that is also a continent?",
+    "Greenland",
+    "New Zealand",
+    "Indonesia",
+    "Australia",
+    "d",
+    "medium"
+  ],
+  [
+    "Which mountain range runs along the west coast of South America?",
+    "Rockies",
+    "Andes",
+    "Sierra Nevada",
+    "Serra do Mar",
+    "b",
+    "medium"
+  ],
+  [
+    "The Suez Canal connects the Mediterranean Sea to which body of water?",
+    "Arabian Sea",
+    "Persian Gulf",
+    "Indian Ocean",
+    "Red Sea",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country has the most freshwater resources?",
+    "USA",
+    "China",
+    "Russia",
+    "Brazil",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the narrow strip of land connecting North and South America?",
+    "Isthmus of Suez",
+    "Strait of Magellan",
+    "Isthmus of Panama",
+    "Yucatán Peninsula",
+    "c",
+    "medium"
+  ],
+  [
+    "Which European country is entirely surrounded by other countries?",
+    "Vatican City",
+    "Switzerland",
+    "Austria",
+    "Luxembourg",
+    "a",
+    "medium"
+  ],
+  [
+    "What is the highest active volcano in the world?",
+    "Mount Etna",
+    "Popocatépetl",
+    "Mount St. Helens",
+    "Ojos del Salado",
+    "d",
+    "medium"
+  ],
+  [
+    "Which continent has no permanent human population?",
+    "Arctic",
+    "Antarctica",
+    "Greenland",
+    "Svalbard",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the name of the world's highest navigable lake?",
+    "Lake Titicaca",
+    "Lake Tahoe",
+    "Crater Lake",
+    "Lake Issyk-Kul",
+    "a",
+    "medium"
+  ],
+  [
+    "Which African country has pyramids similar to Egypt's?",
+    "Libya",
+    "Ethiopia",
+    "Morocco",
+    "Sudan",
+    "d",
+    "medium"
+  ],
+  [
+    "Which is the largest city in Africa by population?",
+    "Kinshasa",
+    "Johannesburg",
+    "Cairo",
+    "Lagos",
+    "d",
+    "medium"
+  ],
+  [
+    "What sea lies between Australia and New Zealand?",
+    "Coral Sea",
+    "Solomon Sea",
+    "Tasman Sea",
+    "Timor Sea",
+    "c",
+    "medium"
+  ],
+  [
+    "The Danube River flows through how many countries?",
+    "6",
+    "7",
+    "10",
+    "12",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country owns the Canary Islands?",
+    "Portugal",
+    "France",
+    "Morocco",
+    "Spain",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the world's longest mountain range?",
+    "Himalayas",
+    "Rocky Mountains",
+    "Alps",
+    "Andes",
+    "d",
+    "medium"
+  ],
+  [
+    "Which Asian city is the most populous in the world?",
+    "Mumbai",
+    "Shanghai",
+    "Jakarta",
+    "Tokyo",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the sea north of Russia?",
+    "Barents Sea",
+    "Kara Sea",
+    "Laptev Sea",
+    "Arctic Sea",
+    "a",
+    "medium"
+  ],
+  [
+    "Which country contains Angel Falls, the world's highest waterfall?",
+    "Brazil",
+    "Colombia",
+    "Venezuela",
+    "Bolivia",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the capital of Papua New Guinea?",
+    "Lae",
+    "Mount Hagen",
+    "Madang",
+    "Port Moresby",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is the Atacama Desert in?",
+    "Peru",
+    "Bolivia",
+    "Argentina",
+    "Chile",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the smallest continent by area?",
+    "Europe",
+    "Australia",
+    "Antarctica",
+    "South America",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country has the world's largest population?",
+    "USA",
+    "India",
+    "Russia",
+    "China",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of the US state of Florida?",
+    "Miami",
+    "Orlando",
+    "Tampa",
+    "Tallahassee",
+    "d",
+    "medium"
+  ],
+  [
+    "The Himalaya mountain range lies between which two countries mainly?",
+    "India and Pakistan",
+    "Nepal and Bhutan",
+    "India and China",
+    "China and Pakistan",
+    "c",
+    "medium"
+  ],
+  [
+    "Which ocean surrounds Iceland?",
+    "Arctic",
+    "Pacific",
+    "Mediterranean",
+    "Atlantic",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is the Sahel region associated with?",
+    "Only Sahara countries",
+    "Only Senegal",
+    "Only Sudan",
+    "Multiple Sub-Saharan African countries",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the longest river in Asia?",
+    "Mekong",
+    "Ganges",
+    "Yangtze",
+    "Indus",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country is the island of Sardinia part of?",
+    "France",
+    "Spain",
+    "Greece",
+    "Italy",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of the Canadian province of Ontario?",
+    "Ottawa",
+    "Hamilton",
+    "Mississauga",
+    "Toronto",
+    "d",
+    "medium"
+  ],
+  [
+    "The Gobi Desert spans which two countries?",
+    "China and Kazakhstan",
+    "China and India",
+    "China and Mongolia",
+    "Mongolia and Russia",
+    "c",
+    "medium"
+  ],
+  [
+    "Which US state is the largest by area?",
+    "Texas",
+    "California",
+    "Montana",
+    "Alaska",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the highest mountain in Antarctica?",
+    "Mount Sidley",
+    "Vinson Massif",
+    "Mount Kirkpatrick",
+    "Mount Markham",
+    "b",
+    "medium"
+  ],
+  [
+    "Which river is known as the 'Father of Waters' in the USA?",
+    "Ohio River",
+    "Missouri River",
+    "Colorado River",
+    "Mississippi River",
+    "d",
+    "medium"
+  ],
+  [
+    "Which small European country is surrounded entirely by Italy?",
+    "Vatican City",
+    "Monaco",
+    "San Marino",
+    "Liechtenstein",
+    "c",
+    "medium"
+  ],
+  [
+    "The Gulf of Mexico is bordered by the USA, Cuba, and which third country?",
+    "Guatemala",
+    "Belize",
+    "Honduras",
+    "Mexico",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the tallest building in the world?",
+    "One World Trade Center",
+    "Shanghai Tower",
+    "Abraj Al-Bait Clock Tower",
+    "Burj Khalifa",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is the world's largest producer of oil?",
+    "Russia",
+    "Saudi Arabia",
+    "Iran",
+    "USA",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of the Australian state of Queensland?",
+    "Sydney",
+    "Darwin",
+    "Melbourne",
+    "Brisbane",
+    "d",
+    "medium"
+  ],
+  [
+    "Which sea is located between Europe and Africa?",
+    "Red Sea",
+    "Arabian Sea",
+    "Black Sea",
+    "Mediterranean Sea",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the mountain range in the eastern United States?",
+    "Rocky Mountains",
+    "Sierra Nevada",
+    "Cascades",
+    "Appalachian Mountains",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is Victoria Falls located in?",
+    "Mozambique",
+    "Zambia/Zimbabwe border",
+    "Tanzania",
+    "South Africa",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the largest country in Central America?",
+    "Honduras",
+    "Costa Rica",
+    "Belize",
+    "Nicaragua",
+    "d",
+    "medium"
+  ],
+  [
+    "Which sea lies to the west of Scandinavia?",
+    "Baltic Sea",
+    "Barents Sea",
+    "North Sea",
+    "Norwegian Sea",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of the US state of New York?",
+    "New York City",
+    "Buffalo",
+    "Rochester",
+    "Albany",
+    "d",
+    "medium"
+  ],
+  [
+    "Which is the world's second largest ocean?",
+    "Indian",
+    "Arctic",
+    "Pacific",
+    "Atlantic",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the body of water between Denmark and Norway?",
+    "Kattegat",
+    "Skagerrak",
+    "North Sea",
+    "Baltic Sea",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country does the Nile River NOT flow through?",
+    "Sudan",
+    "Ethiopia",
+    "Uganda",
+    "Chad",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is the Matterhorn located in (on the border of)?",
+    "France and Germany",
+    "Austria and Italy",
+    "Switzerland and Italy",
+    "France and Switzerland",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the name of the large plateau in South Africa?",
+    "Great Rift Valley",
+    "Congo Basin",
+    "Highveld",
+    "Karoo",
+    "d",
+    "medium"
+  ],
+  [
+    "Which European country is shaped like a boot?",
+    "Greece",
+    "Spain",
+    "Italy",
+    "Portugal",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the capital of Jamaica?",
+    "Montego Bay",
+    "Ocho Rios",
+    "Negril",
+    "Kingston",
+    "d",
+    "medium"
+  ],
+  [
+    "Which US state contains the Grand Canyon?",
+    "Utah",
+    "New Mexico",
+    "Nevada",
+    "Arizona",
+    "d",
+    "medium"
+  ],
+  [
+    "The Strait of Malacca separates Malaysia from which country?",
+    "Thailand",
+    "Vietnam",
+    "Philippines",
+    "Indonesia",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country owns Easter Island?",
+    "Peru",
+    "Ecuador",
+    "France",
+    "Chile",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the largest country in the Middle East by area?",
+    "Iraq",
+    "Iran",
+    "Turkey",
+    "Saudi Arabia",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country is the Forbidden City located in?",
+    "Japan",
+    "South Korea",
+    "Mongolia",
+    "China",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the body of water between Sweden and Finland?",
+    "Gulf of Finland",
+    "Gulf of Riga",
+    "Gulf of Bothnia",
+    "Baltic Sea",
+    "c",
+    "medium"
+  ],
+  [
+    "Which African country is the largest by population?",
+    "Egypt",
+    "Ethiopia",
+    "South Africa",
+    "Nigeria",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of North Korea?",
+    "Kaesong",
+    "Hamhung",
+    "Chongjin",
+    "Pyongyang",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the deepest point in any ocean?",
+    "Puerto Rico Trench",
+    "Mariana Trench",
+    "Java Trench",
+    "Philippine Trench",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country has the most time zones?",
+    "USA",
+    "China",
+    "Australia",
+    "Russia",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the plateau in Tibet?",
+    "Tibetan Plateau",
+    "Iranian Plateau",
+    "Deccan Plateau",
+    "Anatolian Plateau",
+    "a",
+    "hard"
+  ],
+  [
+    "Which city is located at the highest elevation in the world?",
+    "Lhasa",
+    "La Paz",
+    "Quito",
+    "Potosí",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the easternmost point of South America?",
+    "Cape Horn",
+    "Cabo Branco",
+    "Punta Gallinas",
+    "Punta Arenas",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country contains the Okavango Delta?",
+    "Zimbabwe",
+    "Zambia",
+    "Namibia",
+    "Botswana",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the largest lake in Central America?",
+    "Lake Managua",
+    "Lake Ilopango",
+    "Lake Nicaragua",
+    "Lake Atitlán",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country has the most volcanoes?",
+    "Japan",
+    "Mexico",
+    "Indonesia",
+    "USA",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the world's largest hot spring?",
+    "Old Faithful",
+    "Blue Lagoon",
+    "Fly Geyser",
+    "Grand Prismatic Spring",
+    "d",
+    "hard"
+  ],
+  [
+    "Which African country is home to the city of Timbuktu?",
+    "Niger",
+    "Senegal",
+    "Chad",
+    "Mali",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the narrow sea between Crimea and Russia?",
+    "Sea of Azov",
+    "Kerch Strait",
+    "Black Sea strait",
+    "Bosphorus",
+    "b",
+    "hard"
+  ],
+  [
+    "Which ocean trench is the deepest in the Atlantic?",
+    "South Sandwich Trench",
+    "Cayman Trough",
+    "Puerto Rico Trench",
+    "Romanche Trench",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the capital of Western Sahara's government-in-exile?",
+    "Dakhla",
+    "El Aaiún",
+    "Smara",
+    "Tindouf",
+    "d",
+    "hard"
+  ],
+  [
+    "Which river is the longest in Russia?",
+    "Volga",
+    "Ob",
+    "Yenisei",
+    "Lena",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the mountain range along Norway's spine?",
+    "Scandinavian Mountains",
+    "Kolen Mountains",
+    "Kjølen Mountains",
+    "All three names refer to the same range",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does the island of Socotra belong to?",
+    "Oman",
+    "Somalia",
+    "UAE",
+    "Yemen",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the longest river in Australia?",
+    "Darling River",
+    "Murray River",
+    "Murrumbidgee River",
+    "Murray-Darling",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country has the Dasht-e Kavir desert?",
+    "Afghanistan",
+    "Iraq",
+    "Pakistan",
+    "Iran",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the world's largest fjord?",
+    "Hardangerfjord",
+    "Scoresby Sound",
+    "Sognefjord",
+    "Milford Sound",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country contains the Cape of Good Hope?",
+    "Namibia",
+    "Mozambique",
+    "Angola",
+    "South Africa",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the sea between Japan and Korea?",
+    "Yellow Sea",
+    "Sea of Japan (East Sea)",
+    "East China Sea",
+    "Philippine Sea",
+    "b",
+    "hard"
+  ],
+  [
+    "Which is the highest mountain in the Caucasus range?",
+    "Mount Kazbek",
+    "Mount Shkhara",
+    "Mount Elbrus",
+    "Mount Dykhtau",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the world's largest delta?",
+    "Nile Delta",
+    "Mississippi Delta",
+    "Ganges-Brahmaputra Delta",
+    "Mekong Delta",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country is the Virunga National Park in?",
+    "Rwanda",
+    "Uganda",
+    "Kenya",
+    "Democratic Republic of Congo",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the salt flat in Bolivia?",
+    "Atacama Salt Flat",
+    "Uyuni Salt Flat",
+    "Coipasa Salt Flat",
+    "Puna de Atacama",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country does the island of Réunion belong to?",
+    "Mauritius",
+    "UK",
+    "Portugal",
+    "France",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the deepest lake in Africa?",
+    "Lake Malawi",
+    "Lake Victoria",
+    "Lake Albert",
+    "Lake Tanganyika",
+    "d",
+    "hard"
+  ],
+  [
+    "Which river forms the border between Zambia and Zimbabwe?",
+    "Congo",
+    "Limpopo",
+    "Okavango",
+    "Zambezi",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the lowest point on land?",
+    "Salton Sea",
+    "Death Valley",
+    "Dead Sea shore",
+    "Qattara Depression",
+    "c",
+    "hard"
+  ],
+  [
+    "Which mountain is the highest in Japan?",
+    "Mount Aso",
+    "Mount Nantai",
+    "Mount Tateyama",
+    "Mount Fuji",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Kyrgyzstan?",
+    "Osh",
+    "Jalal-Abad",
+    "Karakol",
+    "Bishkek",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country is the Tibetan Plateau primarily located in?",
+    "Nepal",
+    "Bhutan",
+    "India",
+    "China",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the largest river in Central Africa?",
+    "Zambezi",
+    "Ubangi",
+    "Kasai",
+    "Congo River",
+    "d",
+    "hard"
+  ],
+  [
+    "Which of these is not a Great Lake of North America?",
+    "Lake Erie",
+    "Lake Huron",
+    "Lake Champlain",
+    "Lake Ontario",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the body of water between Madagascar and mainland Africa?",
+    "Gulf of Aden",
+    "Mozambique Channel",
+    "Somali Sea",
+    "Madagascar Strait",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country contains Lake Baikal?",
+    "Kazakhstan",
+    "Mongolia",
+    "China",
+    "Russia",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the large island off the coast of Tanzania?",
+    "Zanzibar",
+    "Pemba",
+    "Mafia",
+    "Lamu",
+    "a",
+    "hard"
+  ],
+  [
+    "Which river flows through Baghdad?",
+    "Euphrates",
+    "Karun",
+    "Tigris",
+    "Diyala",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the plateau in central Turkey?",
+    "Taurus Plateau",
+    "Anatolian Plateau",
+    "Armenian Highlands",
+    "Pontic Plateau",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country contains the Kavango River basin?",
+    "Only Angola",
+    "Only Botswana",
+    "Only Namibia",
+    "Angola, Namibia, Botswana, Zimbabwe, Zambia",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the sea to the north of Australia?",
+    "Banda Sea",
+    "Coral Sea",
+    "Timor Sea",
+    "Arafura Sea",
+    "d",
+    "hard"
+  ],
+  [
+    "Which is the highest peak in Oceania?",
+    "Mount Cook",
+    "Puncak Jaya",
+    "Mount Wilhelm",
+    "Mauna Kea",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the capital of Eritrea?",
+    "Keren",
+    "Massawa",
+    "Assab",
+    "Asmara",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does the island of Timor-Leste (East Timor) border?",
+    "Philippines",
+    "Australia",
+    "Papua New Guinea",
+    "Indonesia",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the ancient Roman province that is now roughly Tunisia and northeastern Algeria?",
+    "Numidia",
+    "Mauretania",
+    "Carthage",
+    "Africa Proconsularis",
+    "d",
+    "hard"
+  ],
+  [
+    "Which river forms the border between Uganda and Democratic Republic of Congo?",
+    "Kagera",
+    "Nile",
+    "Albert Nile",
+    "Semuliki",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Tajikistan?",
+    "Khujand",
+    "Kulob",
+    "Bokhtar",
+    "Dushanbe",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country contains most of the Patagonia region?",
+    "Chile",
+    "Bolivia",
+    "Argentina",
+    "Both Argentina and Chile equally",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the northernmost point of Africa?",
+    "Ras al Hadd",
+    "Cape Spartel",
+    "Ras Ben Sakka",
+    "Cape Juby",
+    "c",
+    "hard"
+  ],
+  [
+    "Which ocean is the Maldives archipelago in?",
+    "Pacific",
+    "Bay of Bengal",
+    "Arabian Sea",
+    "Indian Ocean",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the world's largest cold desert?",
+    "Arctic Desert",
+    "Gobi Desert",
+    "Great Basin Desert",
+    "Antarctic Desert",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country has the Ngorongoro Crater?",
+    "Kenya",
+    "Rwanda",
+    "Tanzania",
+    "Uganda",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the gulf between Yemen and Djibouti?",
+    "Gulf of Oman",
+    "Gulf of Aden",
+    "Gulf of Tadjoura",
+    "Red Sea",
+    "b",
+    "hard"
+  ],
+  [
+    "Which river is the longest in South America?",
+    "Río de la Plata",
+    "Paraná",
+    "Orinoco",
+    "Amazon",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Suriname?",
+    "Paramaribo",
+    "Nieuw Nickerie",
+    "Lelydorp",
+    "Brokopondo",
+    "a",
+    "hard"
+  ],
+  [
+    "Which island nation is known as the 'Pearl of the Indian Ocean'?",
+    "Maldives",
+    "Seychelles",
+    "Réunion",
+    "Sri Lanka",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the river delta in the Netherlands?",
+    "Rhine-Meuse-Scheldt Delta",
+    "Rhine Delta",
+    "Scheldt Delta",
+    "IJssel Delta",
+    "a",
+    "hard"
+  ],
+  [
+    "Which two countries share the island of Hispaniola?",
+    "Puerto Rico and Cuba",
+    "Haiti and Cuba",
+    "Dominican Republic and Puerto Rico",
+    "Haiti and Dominican Republic",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the high plateau in Bolivia and Peru?",
+    "Sierra",
+    "Altiplano",
+    "Meseta",
+    "Pampa",
+    "b",
+    "hard"
+  ],
+  [
+    "Which is the highest navigable lake on the Tibetan Plateau?",
+    "Manasarovar",
+    "Nam Co",
+    "Qinghai Lake",
+    "Siling Co",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the name of the tectonic plate underneath most of the Pacific Ocean?",
+    "North American Plate",
+    "Australian Plate",
+    "Pacific Plate",
+    "Philippine Plate",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country is the Guilin karst landscape in?",
+    "Vietnam",
+    "Philippines",
+    "Laos",
+    "China",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Djibouti?",
+    "Ali Sabieh",
+    "Tadjoura",
+    "Obock",
+    "Djibouti City",
+    "d",
+    "hard"
+  ],
+  [
+    "Which is the only country to span four hemispheres?",
+    "Russia",
+    "USA",
+    "Indonesia",
+    "Kiribati",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the sea that almost dried up in ancient times due to tectonic activity?",
+    "Dead Sea",
+    "Caspian Sea",
+    "Aral Sea",
+    "Tethys Sea",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does the island of Jan Mayen belong to?",
+    "Iceland",
+    "Denmark",
+    "Russia",
+    "Norway",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Turkmenistan?",
+    "Türkmenabat",
+    "Mary",
+    "Balkanabat",
+    "Ashgabat",
+    "d",
+    "hard"
+  ],
+  [
+    "Which African country is home to the Rwenzori Mountains?",
+    "Rwanda",
+    "Kenya",
+    "Tanzania",
+    "Uganda",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the largest river in Canada?",
+    "Peace River",
+    "Fraser River",
+    "Yukon River",
+    "Mackenzie River",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does Tierra del Fuego primarily belong to?",
+    "Argentina only",
+    "Chile only",
+    "Argentina and Chile",
+    "Argentina, Chile, and Bolivia",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the narrow isthmus connecting North and South America?",
+    "Isthmus of Darien",
+    "Yucatán Isthmus",
+    "Isthmus of Tehuantepec",
+    "Isthmus of Panama",
+    "d",
+    "hard"
+  ],
+  [
+    "Which US state is the most southerly?",
+    "Florida",
+    "Texas",
+    "Puerto Rico",
+    "Hawaii",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the mountain range in Morocco?",
+    "Atlas Mountains",
+    "Rif Mountains",
+    "Anti-Atlas",
+    "All three exist",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does the island of Curaçao belong to?",
+    "USA",
+    "France",
+    "Venezuela",
+    "Netherlands",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Bhutan?",
+    "Punakha",
+    "Phuntsholing",
+    "Paro",
+    "Thimphu",
+    "d",
+    "hard"
+  ],
+  [
+    "Which river flows through Khartoum, Sudan?",
+    "Blue Nile and White Nile",
+    "Only White Nile",
+    "Only Blue Nile",
+    "Atbara River",
+    "a",
+    "hard"
+  ],
+  [
+    "What is the name of the sea to the south of the Arabian Peninsula?",
+    "Persian Gulf",
+    "Gulf of Oman",
+    "Arabian Sea",
+    "Bay of Bengal",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country has the westernmost point of continental Europe?",
+    "Spain",
+    "Ireland",
+    "Portugal",
+    "France",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the largest lake in Mexico?",
+    "Lake Texcoco",
+    "Lake Cajititlán",
+    "Lake Pátzcuaro",
+    "Lake Chapala",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does the island of Fernando de Noronha belong to?",
+    "Portugal",
+    "Brazil",
+    "France",
+    "Cape Verde",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the capital of the Maldives?",
+    "Addu City",
+    "Fuvahmulah",
+    "Kulhudhuffushi",
+    "Malé",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country is the source of the Blue Nile?",
+    "Sudan",
+    "Uganda",
+    "Rwanda",
+    "Ethiopia",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the mountain range running through Central Asia?",
+    "Tian Shan",
+    "Kunlun",
+    "Altai",
+    "Pamir",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does the Cocos Island belong to?",
+    "Panama",
+    "Ecuador",
+    "Colombia",
+    "Costa Rica",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the deepest point in the Mediterranean Sea?",
+    "Hellenic Trench",
+    "Ionian Basin",
+    "Calypso Deep",
+    "Sirte Basin",
+    "c",
+    "hard"
+  ],
+  [
+    "Which is the longest river in India?",
+    "Brahmaputra",
+    "Yamuna",
+    "Krishna",
+    "Ganga (Ganges)",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Comoros?",
+    "Fomboni",
+    "Mutsamudu",
+    "Domoni",
+    "Moroni",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country contains the Lena Delta, one of the world's largest river deltas?",
+    "Canada",
+    "China",
+    "Russia",
+    "Alaska/USA",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the large salt lake in the western USA?",
+    "Salton Sea",
+    "Mono Lake",
+    "Lake Bonneville",
+    "Great Salt Lake",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country is home to the Bwindi Impenetrable Forest?",
+    "Rwanda",
+    "Democratic Republic of Congo",
+    "Uganda",
+    "Tanzania",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the peninsula forming the easternmost part of Russia?",
+    "Kamchatka",
+    "Chukotka",
+    "Sakhalin",
+    "Sikhote-Alin",
+    "a",
+    "hard"
+  ],
+  [
+    "Which African country is divided by the Sahara Desert?",
+    "Algeria",
+    "Libya",
+    "Sudan",
+    "All of the above",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the largest archipelago in the Indian Ocean?",
+    "Maldives",
+    "Andaman Islands",
+    "Seychelles",
+    "Lakshadweep",
+    "a",
+    "hard"
+  ],
+  [
+    "Which river forms the border between Botswana and Zimbabwe?",
+    "Limpopo",
+    "Shashe",
+    "Chobe",
+    "Zambezi",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the capital of Vanuatu?",
+    "Luganville",
+    "Lakatoro",
+    "Norsup",
+    "Port Vila",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country contains the Hoggar Mountains?",
+    "Libya",
+    "Niger",
+    "Algeria",
+    "Morocco",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the largest river flowing into the Mediterranean Sea?",
+    "Po",
+    "Ebro",
+    "Rhône",
+    "Nile",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country owns the Falkland Islands (Islas Malvinas)?",
+    "Argentina",
+    "Chile",
+    "Spain",
+    "United Kingdom",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the sea between China, Korea, and Japan?",
+    "Pacific Ocean",
+    "South China Sea",
+    "Yellow Sea",
+    "East China Sea",
+    "c",
+    "hard"
+  ],
+  [
+    "Which mountain in Tanzania is the highest free-standing mountain in the world?",
+    "Mount Meru",
+    "Mount Kenya",
+    "Kilimanjaro",
+    "Mount Elgon",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the capital of the Solomon Islands?",
+    "Gizo",
+    "Auki",
+    "Munda",
+    "Honiara",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country contains the Dasht-e Lut, one of Earth's hottest places?",
+    "Pakistan",
+    "Iraq",
+    "Saudi Arabia",
+    "Iran",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the large bay on the east coast of Canada?",
+    "Fundy Bay",
+    "Hudson Bay",
+    "James Bay",
+    "Ungava Bay",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country does Nagorno-Karabakh geographically sit within?",
+    "Armenia",
+    "Azerbaijan",
+    "Georgia",
+    "Russia",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the capital of Samoa?",
+    "Pago Pago",
+    "Salelologa",
+    "Saleimoa",
+    "Apia",
+    "d",
+    "hard"
+  ],
+  [
+    "Which river is the second longest in Africa?",
+    "Zambezi",
+    "Orange",
+    "Limpopo",
+    "Congo",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the world's longest submarine mountain range?",
+    "Mid-Atlantic Ridge",
+    "East Pacific Rise",
+    "Mid-Ocean Ridge System",
+    "Pacific-Antarctic Ridge",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country does the island of Svalbard belong to?",
+    "Denmark",
+    "Iceland",
+    "Russia",
+    "Norway",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Tonga?",
+    "Neifu",
+    "Pangai",
+    "Ohonua",
+    "Nuku'alofa",
+    "d",
+    "hard"
+  ],
+  [
+    "Which African country was formerly known as Dahomey?",
+    "Togo",
+    "Niger",
+    "Benin",
+    "Burkina Faso",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the name of the body of water between Iran and Saudi Arabia?",
+    "Gulf of Oman",
+    "Red Sea",
+    "Arabian Sea",
+    "Persian Gulf",
+    "d",
+    "hard"
+  ],
+  [
+    "Which is the highest pass in the Alps?",
+    "Col du Grand Saint-Bernard",
+    "Brenner Pass",
+    "Simplon Pass",
+    "Col de l'Iseran",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Kiribati?",
+    "Funafuti",
+    "Suva",
+    "Tarawa",
+    "South Tarawa",
+    "d",
+    "hard"
+  ],
+  [
+    "Which mountain range forms the spine of the Italian peninsula?",
+    "Ligurian Alps",
+    "Julian Alps",
+    "Dolomites",
+    "Apennines",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the lake on the border of Bolivia and Peru?",
+    "Lake Poopó",
+    "Lake Titicaca",
+    "Lake Uru Uru",
+    "Lake Coipasa",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country does the island of Madeira belong to?",
+    "Spain",
+    "France",
+    "Cape Verde",
+    "Portugal",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the group of islands off the coast of Ecuador containing unique wildlife?",
+    "Society Islands",
+    "Cook Islands",
+    "Marquesas Islands",
+    "Galápagos Islands",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country is the source of the White Nile?",
+    "Ethiopia",
+    "Tanzania",
+    "Uganda",
+    "Rwanda",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the capital of Nauru?",
+    "Yaren",
+    "Aiwo",
+    "Meneng",
+    "No official capital",
+    "d",
+    "hard"
+  ],
+  [
+    "Which African country is entirely surrounded by South Africa?",
+    "Swaziland (Eswatini)",
+    "Lesotho",
+    "Botswana",
+    "Zimbabwe",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the name of the large volcanic island off the coast of East Africa?",
+    "Reunion",
+    "Comoros",
+    "Mauritius",
+    "Madagascar",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country has the Ross Ice Shelf on its territorial claim?",
+    "Argentina",
+    "Australia",
+    "New Zealand",
+    "No country (Antarctic Treaty)",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the narrow strip of land connecting Africa to Asia?",
+    "Sinai Peninsula",
+    "Strait of Suez",
+    "Suez Isthmus",
+    "Isthmus of Suez",
+    "d",
+    "hard"
+  ],
+  [
+    "Which river forms the western border of the USA state of Idaho?",
+    "Columbia River",
+    "Snake River",
+    "Salmon River",
+    "Clearwater River",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the capital of Micronesia?",
+    "Koror",
+    "Pohnpei",
+    "Palikir",
+    "Kolonia",
+    "c",
+    "hard"
+  ],
+  [
+    "Which is the largest island in Southeast Asia?",
+    "Java",
+    "Sumatra",
+    "Luzon",
+    "Borneo",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the natural arch region in Utah, USA?",
+    "Bryce Canyon",
+    "Canyonlands",
+    "Arches National Park",
+    "Zion National Park",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country contains the Thar Desert?",
+    "Afghanistan",
+    "Pakistan",
+    "India",
+    "Both India and Pakistan",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the world's highest capital city?",
+    "Bogotá",
+    "Lhasa",
+    "Addis Ababa",
+    "La Paz (seat of government)",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country does the Azores archipelago belong to?",
+    "Spain",
+    "France",
+    "UK",
+    "Portugal",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the easternmost country in Europe?",
+    "Belarus",
+    "Kazakhstan",
+    "Azerbaijan",
+    "Russia",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country contains the Murray-Darling basin?",
+    "New Zealand",
+    "Australia",
+    "Papua New Guinea",
+    "Indonesia",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the capital of Palau?",
+    "Melekeok",
+    "Ngerulmud",
+    "Koror",
+    "Airai",
+    "b",
+    "hard"
+  ],
+  [
+    "Which river is called the Yellow River?",
+    "Huang He",
+    "Li River",
+    "Yangtze",
+    "Pearl River",
+    "a",
+    "hard"
+  ],
+  [
+    "What is the name of the narrow channel between Tasmania and the Australian mainland?",
+    "Torres Strait",
+    "Bass Strait",
+    "Cook Strait",
+    "Banks Strait",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country does the island of New Caledonia belong to?",
+    "Australia",
+    "UK",
+    "New Zealand",
+    "France",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the name of the salt flat in Argentina?",
+    "Salinas Grandes",
+    "Uyuni Salt Flat",
+    "Atacama Salt Flat",
+    "Puna de Atacama",
+    "a",
+    "hard"
+  ],
+  [
+    "Which European country contains the Douro River?",
+    "Spain",
+    "France",
+    "Portugal",
+    "Both Spain and Portugal",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the capital of Liechtenstein?",
+    "Balzers",
+    "Vaduz",
+    "Triesen",
+    "Schaan",
+    "b",
+    "hard"
+  ],
+  [
+    "Which body of water connects the Mediterranean Sea to the Atlantic Ocean?",
+    "Strait of Messina",
+    "Strait of Gibraltar",
+    "Bosphorus",
+    "Strait of Sicily",
+    "b",
+    "hard"
+  ],
+  [
+    "What is the name of the area of ocean with no wind between the tropics?",
+    "Horse Latitudes",
+    "Roaring Forties",
+    "Furious Fifties",
+    "Doldrums",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country does the island of Mindanao belong to?",
+    "Indonesia",
+    "Malaysia",
+    "Philippines",
+    "Japan",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the capital of Tuvalu?",
+    "Vaiaku",
+    "Nui",
+    "Nukufetau",
+    "Funafuti",
+    "d",
+    "medium"
+  ],
+  [
+    "Which mountain range contains the Khyber Pass?",
+    "Karakoram",
+    "Hindu Kush",
+    "Himalayas",
+    "Sulaiman Range",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the name of the sea between Turkey and Bulgaria?",
+    "Mediterranean Sea",
+    "Ionian Sea",
+    "Marmara Sea",
+    "Aegean Sea",
+    "c",
+    "medium"
+  ],
+  [
+    "Which African country was formerly called Upper Volta?",
+    "Niger",
+    "Chad",
+    "Benin",
+    "Burkina Faso",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of San Marino?",
+    "Borgo Maggiore",
+    "Serravalle",
+    "Domagnano",
+    "San Marino City",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country does Rodrigues Island belong to?",
+    "France",
+    "Réunion",
+    "Madagascar",
+    "Mauritius",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the gulf between Finland and Estonia?",
+    "Gulf of Riga",
+    "Baltic Gulf",
+    "Gulf of Finland",
+    "Gulf of Bothnia",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country contains the largest mangrove forest in the world?",
+    "Indonesia",
+    "Malaysia",
+    "Bangladesh",
+    "Brazil",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the deepest point in the Arctic Ocean?",
+    "Lomonosov Ridge",
+    "Molloy Deep",
+    "Nansen Basin",
+    "Amundsen Basin",
+    "b",
+    "medium"
+  ],
+  [
+    "Which African country is home to the Simien Mountains?",
+    "Somalia",
+    "Eritrea",
+    "Kenya",
+    "Ethiopia",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the strait between the UK and France?",
+    "English Channel",
+    "Strait of Dover",
+    "North Sea Strait",
+    "Celtic Sea",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country contains most of the Mekong Delta?",
+    "Cambodia",
+    "Thailand",
+    "Laos",
+    "Vietnam",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the capital of Equatorial Guinea?",
+    "Bata",
+    "Ebebiyin",
+    "Mongomo",
+    "Malabo",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the exact depth of the Challenger Deep in the Mariana Trench?",
+    "Approximately 9,000 meters",
+    "Approximately 10,935 meters",
+    "Approximately 8,500 meters",
+    "Approximately 12,000 meters",
+    "b",
+    "extreme"
+  ],
+  [
+    "Which country has the largest number of UNESCO Biosphere Reserves?",
+    "China",
+    "Germany",
+    "Russia",
+    "USA",
+    "d",
+    "extreme"
+  ],
+  [
+    "What is the name of the world's longest cave system?",
+    "Krubera Cave",
+    "Mammoth Cave",
+    "Lechuguilla Cave",
+    "Clearwater Cave",
+    "b",
+    "extreme"
+  ],
+  [
+    "Which is the only river to flow through the Tropic of Cancer, Equator, and Tropic of Capricorn?",
+    "Amazon",
+    "Nile",
+    "Congo",
+    "Zambezi",
+    "c",
+    "extreme"
+  ],
+  [
+    "The Diomede Islands are in which body of water, separating the USA from Russia?",
+    "Bering Sea",
+    "Arctic Ocean",
+    "North Pacific",
+    "Chukchi Sea",
+    "a",
+    "extreme"
+  ],
+  [
+    "What is the capital of Niger?",
+    "Zinder",
+    "Maradi",
+    "Tahoua",
+    "Niamey",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Mali?",
+    "Timbuktu",
+    "Ségou",
+    "Sikasso",
+    "Bamako",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Chad?",
+    "Moundou",
+    "Sarh",
+    "Abéché",
+    "N'Djamena",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the capital of Namibia?",
+    "Swakopmund",
+    "Walvis Bay",
+    "Windhoek",
+    "Lüderitz",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the capital of Botswana?",
+    "Francistown",
+    "Maun",
+    "Selebi-Phikwe",
+    "Gaborone",
+    "d",
+    "easy"
+  ],
+  [
+    "Which country is shaped like a maple leaf on its flag?",
+    "Australia",
+    "New Zealand",
+    "Jamaica",
+    "Canada",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the world largest bay by shoreline?",
+    "Bay of Bengal",
+    "Hudson Bay",
+    "Gulf of Mexico",
+    "Gulf of Guinea",
+    "b",
+    "medium"
+  ]
+]

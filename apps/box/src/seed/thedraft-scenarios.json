@@ -1,0 +1,1354 @@
+{
+  "scenarios": [
+    {
+      "title": "Draft Your Superhero Team",
+      "subtitle": "Pick 2 heroes — hidden power ratings revealed at the end",
+      "items": [
+        {
+          "id": "superman",
+          "name": "Superman",
+          "emoji": "🦸",
+          "value": 95
+        },
+        {
+          "id": "batman",
+          "name": "Batman",
+          "emoji": "🦇",
+          "value": 25
+        },
+        {
+          "id": "wonder_woman",
+          "name": "Wonder Woman",
+          "emoji": "⚔️",
+          "value": 92
+        },
+        {
+          "id": "flash",
+          "name": "The Flash",
+          "emoji": "⚡",
+          "value": 65
+        },
+        {
+          "id": "aquaman",
+          "name": "Aquaman",
+          "emoji": "🔱",
+          "value": 22
+        },
+        {
+          "id": "cyborg",
+          "name": "Cyborg",
+          "emoji": "🤖",
+          "value": 55
+        },
+        {
+          "id": "gl",
+          "name": "Green Lantern",
+          "emoji": "💚",
+          "value": 60
+        },
+        {
+          "id": "hawkman",
+          "name": "Hawkman",
+          "emoji": "🦅",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "title": "Draft Your Heist Crew",
+      "subtitle": "Pick 2 — hidden skill ratings revealed at the end",
+      "items": [
+        {
+          "id": "hacker",
+          "name": "The Hacker",
+          "emoji": "💻",
+          "value": 92
+        },
+        {
+          "id": "driver",
+          "name": "The Driver",
+          "emoji": "🚗",
+          "value": 65
+        },
+        {
+          "id": "muscle",
+          "name": "The Muscle",
+          "emoji": "💪",
+          "value": 28
+        },
+        {
+          "id": "mastermind",
+          "name": "The Mastermind",
+          "emoji": "🧠",
+          "value": 95
+        },
+        {
+          "id": "grifter",
+          "name": "The Grifter",
+          "emoji": "🎭",
+          "value": 62
+        },
+        {
+          "id": "safecracker",
+          "name": "Safecracker",
+          "emoji": "🔓",
+          "value": 55
+        },
+        {
+          "id": "forger",
+          "name": "The Forger",
+          "emoji": "✒️",
+          "value": 22
+        },
+        {
+          "id": "medic",
+          "name": "The Medic",
+          "emoji": "💉",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "title": "Draft a Road Trip Playlist",
+      "subtitle": "Pick 2 songs — hidden vibe scores revealed at the end",
+      "items": [
+        {
+          "id": "bohemian",
+          "name": "Bohemian Rhapsody",
+          "emoji": "🎵",
+          "value": 95
+        },
+        {
+          "id": "thunder",
+          "name": "Thunderstruck",
+          "emoji": "⚡",
+          "value": 28
+        },
+        {
+          "id": "highway",
+          "name": "Highway to Hell",
+          "emoji": "😈",
+          "value": 60
+        },
+        {
+          "id": "take",
+          "name": "Take On Me",
+          "emoji": "🎹",
+          "value": 65
+        },
+        {
+          "id": "africa",
+          "name": "Africa",
+          "emoji": "🌍",
+          "value": 92
+        },
+        {
+          "id": "september",
+          "name": "September",
+          "emoji": "🌟",
+          "value": 70
+        },
+        {
+          "id": "journey",
+          "name": "Don't Stop Believin'",
+          "emoji": "✨",
+          "value": 25
+        },
+        {
+          "id": "rickroll",
+          "name": "Never Gonna Give You Up",
+          "emoji": "🎤",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "title": "Draft Your Island Survival Kit",
+      "subtitle": "Pick 2 — hidden survival scores revealed at the end",
+      "items": [
+        {
+          "id": "knife",
+          "name": "Swiss Army Knife",
+          "emoji": "🔪",
+          "value": 95
+        },
+        {
+          "id": "matches",
+          "name": "Waterproof Matches",
+          "emoji": "🔥",
+          "value": 92
+        },
+        {
+          "id": "rope",
+          "name": "50ft of Rope",
+          "emoji": "🪢",
+          "value": 65
+        },
+        {
+          "id": "radio",
+          "name": "Satellite Radio",
+          "emoji": "📻",
+          "value": 8
+        },
+        {
+          "id": "tarp",
+          "name": "Tarp",
+          "emoji": "⛺",
+          "value": 70
+        },
+        {
+          "id": "fishing",
+          "name": "Fishing Line + Hook",
+          "emoji": "🎣",
+          "value": 60
+        },
+        {
+          "id": "compass",
+          "name": "Compass",
+          "emoji": "🧭",
+          "value": 28
+        },
+        {
+          "id": "mirror",
+          "name": "Signal Mirror",
+          "emoji": "🪞",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "title": "Draft a Pizza Topping Lineup",
+      "subtitle": "Pick 2 toppings — hidden taste scores revealed at the end",
+      "items": [
+        {
+          "id": "pepperoni",
+          "name": "Pepperoni",
+          "emoji": "🍕",
+          "value": 92
+        },
+        {
+          "id": "mushroom",
+          "name": "Mushroom",
+          "emoji": "🍄",
+          "value": 65
+        },
+        {
+          "id": "sausage",
+          "name": "Italian Sausage",
+          "emoji": "🥓",
+          "value": 90
+        },
+        {
+          "id": "onion",
+          "name": "Red Onion",
+          "emoji": "🧅",
+          "value": 10
+        },
+        {
+          "id": "pineapple",
+          "name": "Pineapple",
+          "emoji": "🍍",
+          "value": 25
+        },
+        {
+          "id": "olives",
+          "name": "Black Olives",
+          "emoji": "🫒",
+          "value": 22
+        },
+        {
+          "id": "basil",
+          "name": "Fresh Basil",
+          "emoji": "🌿",
+          "value": 70
+        },
+        {
+          "id": "jalapeno",
+          "name": "Jalapeño",
+          "emoji": "🌶️",
+          "value": 60
+        }
+      ]
+    },
+    {
+      "title": "Draft a Marvel Avengers Team",
+      "subtitle": "Pick 2 heroes — hidden power scores revealed at the end",
+      "items": [
+        {
+          "id": "ironman",
+          "name": "Iron Man",
+          "emoji": "🤖",
+          "value": 65
+        },
+        {
+          "id": "thor",
+          "name": "Thor",
+          "emoji": "⚡",
+          "value": 70
+        },
+        {
+          "id": "hulk",
+          "name": "Hulk",
+          "emoji": "💚",
+          "value": 95
+        },
+        {
+          "id": "capamerica",
+          "name": "Captain America",
+          "emoji": "🛡️",
+          "value": 55
+        },
+        {
+          "id": "widow",
+          "name": "Black Widow",
+          "emoji": "🕷️",
+          "value": 22
+        },
+        {
+          "id": "hawkeye",
+          "name": "Hawkeye",
+          "emoji": "🏹",
+          "value": 8
+        },
+        {
+          "id": "strange",
+          "name": "Doctor Strange",
+          "emoji": "🔮",
+          "value": 92
+        },
+        {
+          "id": "spider",
+          "name": "Spider-Man",
+          "emoji": "🕸️",
+          "value": 28
+        }
+      ]
+    },
+    {
+      "title": "Draft Your Camping Gear",
+      "subtitle": "Pick 2 — hidden comfort scores revealed at the end",
+      "items": [
+        {
+          "id": "tent",
+          "name": "4-Person Tent",
+          "emoji": "⛺",
+          "value": 95
+        },
+        {
+          "id": "bag",
+          "name": "Sleeping Bag",
+          "emoji": "🛌",
+          "value": 90
+        },
+        {
+          "id": "chair",
+          "name": "Folding Chair",
+          "emoji": "🪑",
+          "value": 10
+        },
+        {
+          "id": "hammock",
+          "name": "Hammock",
+          "emoji": "🪢",
+          "value": 60
+        },
+        {
+          "id": "stove",
+          "name": "Camp Stove",
+          "emoji": "🔥",
+          "value": 70
+        },
+        {
+          "id": "cooler",
+          "name": "Big Cooler",
+          "emoji": "🧊",
+          "value": 65
+        },
+        {
+          "id": "lantern",
+          "name": "LED Lantern",
+          "emoji": "🏮",
+          "value": 22
+        },
+        {
+          "id": "speaker",
+          "name": "Bluetooth Speaker",
+          "emoji": "🔊",
+          "value": 28
+        }
+      ]
+    },
+    {
+      "title": "Draft a Friendsgiving Menu",
+      "subtitle": "Pick 2 dishes — hidden popularity scores revealed at the end",
+      "items": [
+        {
+          "id": "turkey",
+          "name": "Roast Turkey",
+          "emoji": "🦃",
+          "value": 55
+        },
+        {
+          "id": "stuffing",
+          "name": "Stuffing",
+          "emoji": "🍞",
+          "value": 70
+        },
+        {
+          "id": "mashed",
+          "name": "Mashed Potatoes",
+          "emoji": "🥔",
+          "value": 95
+        },
+        {
+          "id": "yams",
+          "name": "Sweet Potato Casserole",
+          "emoji": "🍠",
+          "value": 22
+        },
+        {
+          "id": "greenbean",
+          "name": "Green Bean Casserole",
+          "emoji": "🥗",
+          "value": 8
+        },
+        {
+          "id": "cranberry",
+          "name": "Cranberry Sauce",
+          "emoji": "🍒",
+          "value": 28
+        },
+        {
+          "id": "pumpkin",
+          "name": "Pumpkin Pie",
+          "emoji": "🥧",
+          "value": 90
+        },
+        {
+          "id": "pecan",
+          "name": "Pecan Pie",
+          "emoji": "🌰",
+          "value": 65
+        }
+      ]
+    },
+    {
+      "title": "Draft a Vacation Destination Trio",
+      "subtitle": "Pick 2 — hidden 'dream factor' scores revealed at the end",
+      "items": [
+        {
+          "id": "bali",
+          "name": "Bali",
+          "emoji": "🌴",
+          "value": 68
+        },
+        {
+          "id": "iceland",
+          "name": "Iceland",
+          "emoji": "🌋",
+          "value": 92
+        },
+        {
+          "id": "japan",
+          "name": "Japan",
+          "emoji": "🗾",
+          "value": 95
+        },
+        {
+          "id": "italy",
+          "name": "Italy",
+          "emoji": "🇮🇹",
+          "value": 72
+        },
+        {
+          "id": "hawaii",
+          "name": "Hawaii",
+          "emoji": "🏝️",
+          "value": 28
+        },
+        {
+          "id": "thailand",
+          "name": "Thailand",
+          "emoji": "🛕",
+          "value": 60
+        },
+        {
+          "id": "peru",
+          "name": "Peru",
+          "emoji": "⛰️",
+          "value": 10
+        },
+        {
+          "id": "morocco",
+          "name": "Morocco",
+          "emoji": "🕌",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "title": "Draft a Halloween Costume",
+      "subtitle": "Pick 2 — hidden style scores revealed at the end",
+      "items": [
+        {
+          "id": "vampire",
+          "name": "Vampire",
+          "emoji": "🧛",
+          "value": 90
+        },
+        {
+          "id": "ghost",
+          "name": "Ghost",
+          "emoji": "👻",
+          "value": 28
+        },
+        {
+          "id": "witch",
+          "name": "Witch",
+          "emoji": "🧙",
+          "value": 65
+        },
+        {
+          "id": "zombie",
+          "name": "Zombie",
+          "emoji": "🧟",
+          "value": 10
+        },
+        {
+          "id": "superhero",
+          "name": "Superhero",
+          "emoji": "🦸",
+          "value": 60
+        },
+        {
+          "id": "pirate",
+          "name": "Pirate",
+          "emoji": "🏴‍☠️",
+          "value": 70
+        },
+        {
+          "id": "astronaut",
+          "name": "Astronaut",
+          "emoji": "👨‍🚀",
+          "value": 92
+        },
+        {
+          "id": "alien",
+          "name": "Alien",
+          "emoji": "👽",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "title": "Draft Your Disney Sidekicks",
+      "subtitle": "Pick 2 sidekicks — hidden charm scores revealed at the end",
+      "items": [
+        {
+          "id": "genie",
+          "name": "Genie",
+          "emoji": "🧞",
+          "value": 95
+        },
+        {
+          "id": "olaf",
+          "name": "Olaf",
+          "emoji": "⛄",
+          "value": 65
+        },
+        {
+          "id": "sebastian",
+          "name": "Sebastian",
+          "emoji": "🦀",
+          "value": 72
+        },
+        {
+          "id": "timon",
+          "name": "Timon",
+          "emoji": "🐭",
+          "value": 28
+        },
+        {
+          "id": "pumbaa",
+          "name": "Pumbaa",
+          "emoji": "🐗",
+          "value": 22
+        },
+        {
+          "id": "mushu",
+          "name": "Mushu",
+          "emoji": "🐉",
+          "value": 88
+        },
+        {
+          "id": "dory",
+          "name": "Dory",
+          "emoji": "🐠",
+          "value": 68
+        },
+        {
+          "id": "abu",
+          "name": "Abu",
+          "emoji": "🐒",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "title": "Draft a Workout Routine",
+      "subtitle": "Pick 2 exercises — hidden 'gains' scores revealed at the end",
+      "items": [
+        {
+          "id": "squat",
+          "name": "Squats",
+          "emoji": "🦵",
+          "value": 95
+        },
+        {
+          "id": "deadlift",
+          "name": "Deadlifts",
+          "emoji": "🏋️",
+          "value": 92
+        },
+        {
+          "id": "bench",
+          "name": "Bench Press",
+          "emoji": "💪",
+          "value": 70
+        },
+        {
+          "id": "pullup",
+          "name": "Pull-Ups",
+          "emoji": "🤸",
+          "value": 65
+        },
+        {
+          "id": "plank",
+          "name": "Plank",
+          "emoji": "📏",
+          "value": 25
+        },
+        {
+          "id": "burpee",
+          "name": "Burpees",
+          "emoji": "🔥",
+          "value": 28
+        },
+        {
+          "id": "yoga",
+          "name": "Yoga",
+          "emoji": "🧘",
+          "value": 8
+        },
+        {
+          "id": "hiit",
+          "name": "HIIT Cardio",
+          "emoji": "⚡",
+          "value": 60
+        }
+      ]
+    },
+    {
+      "title": "Draft a Star Wars Squad",
+      "subtitle": "Pick 2 characters — hidden Force scores revealed at the end",
+      "items": [
+        {
+          "id": "yoda",
+          "name": "Yoda",
+          "emoji": "🧙",
+          "value": 95
+        },
+        {
+          "id": "vader",
+          "name": "Darth Vader",
+          "emoji": "🖤",
+          "value": 92
+        },
+        {
+          "id": "luke",
+          "name": "Luke Skywalker",
+          "emoji": "⚔️",
+          "value": 68
+        },
+        {
+          "id": "leia",
+          "name": "Princess Leia",
+          "emoji": "👸",
+          "value": 60
+        },
+        {
+          "id": "han",
+          "name": "Han Solo",
+          "emoji": "🚀",
+          "value": 28
+        },
+        {
+          "id": "chewie",
+          "name": "Chewbacca",
+          "emoji": "🦍",
+          "value": 8
+        },
+        {
+          "id": "r2",
+          "name": "R2-D2",
+          "emoji": "🤖",
+          "value": 22
+        },
+        {
+          "id": "obi",
+          "name": "Obi-Wan",
+          "emoji": "🪐",
+          "value": 72
+        }
+      ]
+    },
+    {
+      "title": "Draft a Breakfast Plate",
+      "subtitle": "Pick 2 — hidden 'best meal of the day' scores revealed",
+      "items": [
+        {
+          "id": "bacon",
+          "name": "Bacon",
+          "emoji": "🥓",
+          "value": 92
+        },
+        {
+          "id": "eggs",
+          "name": "Scrambled Eggs",
+          "emoji": "🍳",
+          "value": 60
+        },
+        {
+          "id": "pancakes",
+          "name": "Pancakes",
+          "emoji": "🥞",
+          "value": 90
+        },
+        {
+          "id": "toast",
+          "name": "Avocado Toast",
+          "emoji": "🥑",
+          "value": 28
+        },
+        {
+          "id": "waffles",
+          "name": "Waffles",
+          "emoji": "🧇",
+          "value": 70
+        },
+        {
+          "id": "sausage",
+          "name": "Sausage",
+          "emoji": "🌭",
+          "value": 22
+        },
+        {
+          "id": "hashbrowns",
+          "name": "Hash Browns",
+          "emoji": "🥔",
+          "value": 65
+        },
+        {
+          "id": "yogurt",
+          "name": "Yogurt + Granola",
+          "emoji": "🥣",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "title": "Draft Your Game Night Lineup",
+      "subtitle": "Pick 2 games — hidden fun scores revealed at the end",
+      "items": [
+        {
+          "id": "catan",
+          "name": "Catan",
+          "emoji": "🏝️",
+          "value": 72
+        },
+        {
+          "id": "codenames",
+          "name": "Codenames",
+          "emoji": "🕵️",
+          "value": 92
+        },
+        {
+          "id": "jenga",
+          "name": "Jenga",
+          "emoji": "🧱",
+          "value": 28
+        },
+        {
+          "id": "monopoly",
+          "name": "Monopoly",
+          "emoji": "🎩",
+          "value": 8
+        },
+        {
+          "id": "mariokart",
+          "name": "Mario Kart",
+          "emoji": "🏎️",
+          "value": 95
+        },
+        {
+          "id": "poker",
+          "name": "Poker",
+          "emoji": "🃏",
+          "value": 60
+        },
+        {
+          "id": "uno",
+          "name": "Uno",
+          "emoji": "🟥",
+          "value": 25
+        },
+        {
+          "id": "trivia",
+          "name": "Trivia",
+          "emoji": "🧠",
+          "value": 68
+        }
+      ]
+    },
+    {
+      "title": "Draft Cocktails for Your Party",
+      "subtitle": "Pick 2 — hidden 'crowd pleaser' scores revealed at the end",
+      "items": [
+        {
+          "id": "margarita",
+          "name": "Margarita",
+          "emoji": "🍹",
+          "value": 92
+        },
+        {
+          "id": "oldfashioned",
+          "name": "Old Fashioned",
+          "emoji": "🥃",
+          "value": 72
+        },
+        {
+          "id": "mojito",
+          "name": "Mojito",
+          "emoji": "🌿",
+          "value": 68
+        },
+        {
+          "id": "negroni",
+          "name": "Negroni",
+          "emoji": "🍷",
+          "value": 28
+        },
+        {
+          "id": "espressomartini",
+          "name": "Espresso Martini",
+          "emoji": "☕",
+          "value": 90
+        },
+        {
+          "id": "manhattan",
+          "name": "Manhattan",
+          "emoji": "🏙️",
+          "value": 60
+        },
+        {
+          "id": "daiquiri",
+          "name": "Daiquiri",
+          "emoji": "🍓",
+          "value": 10
+        },
+        {
+          "id": "whiskeysour",
+          "name": "Whiskey Sour",
+          "emoji": "🍋",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "title": "Draft a Pet Lineup",
+      "subtitle": "Pick 2 pets — hidden 'best companion' scores revealed",
+      "items": [
+        {
+          "id": "goldenretriever",
+          "name": "Golden Retriever",
+          "emoji": "🐕",
+          "value": 95
+        },
+        {
+          "id": "cat",
+          "name": "Cat",
+          "emoji": "🐈",
+          "value": 72
+        },
+        {
+          "id": "husky",
+          "name": "Husky",
+          "emoji": "🐺",
+          "value": 88
+        },
+        {
+          "id": "hamster",
+          "name": "Hamster",
+          "emoji": "🐹",
+          "value": 28
+        },
+        {
+          "id": "parrot",
+          "name": "Parrot",
+          "emoji": "🦜",
+          "value": 65
+        },
+        {
+          "id": "rabbit",
+          "name": "Rabbit",
+          "emoji": "🐇",
+          "value": 60
+        },
+        {
+          "id": "turtle",
+          "name": "Turtle",
+          "emoji": "🐢",
+          "value": 22
+        },
+        {
+          "id": "fish",
+          "name": "Goldfish",
+          "emoji": "🐟",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "title": "Draft a Concert Festival Lineup",
+      "subtitle": "Pick 2 acts — hidden draw-power scores revealed",
+      "items": [
+        {
+          "id": "taylor",
+          "name": "Taylor Swift",
+          "emoji": "⭐",
+          "value": 95
+        },
+        {
+          "id": "beyonce",
+          "name": "Beyoncé",
+          "emoji": "👑",
+          "value": 95
+        },
+        {
+          "id": "drake",
+          "name": "Drake",
+          "emoji": "🎤",
+          "value": 28
+        },
+        {
+          "id": "weeknd",
+          "name": "The Weeknd",
+          "emoji": "🌃",
+          "value": 22
+        },
+        {
+          "id": "kendrick",
+          "name": "Kendrick Lamar",
+          "emoji": "🔥",
+          "value": 68
+        },
+        {
+          "id": "adele",
+          "name": "Adele",
+          "emoji": "🌹",
+          "value": 72
+        },
+        {
+          "id": "badbunny",
+          "name": "Bad Bunny",
+          "emoji": "🐰",
+          "value": 60
+        },
+        {
+          "id": "olivia",
+          "name": "Olivia Rodrigo",
+          "emoji": "💜",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "title": "Draft Mythological Creatures",
+      "subtitle": "Pick 2 creatures — hidden mythic-power scores revealed",
+      "items": [
+        {
+          "id": "dragon",
+          "name": "Dragon",
+          "emoji": "🐉",
+          "value": 95
+        },
+        {
+          "id": "phoenix",
+          "name": "Phoenix",
+          "emoji": "🔥",
+          "value": 92
+        },
+        {
+          "id": "kraken",
+          "name": "Kraken",
+          "emoji": "🐙",
+          "value": 72
+        },
+        {
+          "id": "unicorn",
+          "name": "Unicorn",
+          "emoji": "🦄",
+          "value": 8
+        },
+        {
+          "id": "griffin",
+          "name": "Griffin",
+          "emoji": "🦅",
+          "value": 60
+        },
+        {
+          "id": "hydra",
+          "name": "Hydra",
+          "emoji": "🐍",
+          "value": 68
+        },
+        {
+          "id": "sphinx",
+          "name": "Sphinx",
+          "emoji": "🦁",
+          "value": 28
+        },
+        {
+          "id": "minotaur",
+          "name": "Minotaur",
+          "emoji": "🐂",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "title": "Draft a Dorm Room Setup",
+      "subtitle": "Pick 2 items — hidden 'flex' scores revealed",
+      "items": [
+        {
+          "id": "tv",
+          "name": "Big TV",
+          "emoji": "📺",
+          "value": 92
+        },
+        {
+          "id": "bean",
+          "name": "Bean Bag",
+          "emoji": "💺",
+          "value": 28
+        },
+        {
+          "id": "mini",
+          "name": "Mini Fridge",
+          "emoji": "🧊",
+          "value": 90
+        },
+        {
+          "id": "plant",
+          "name": "Real Plants",
+          "emoji": "🪴",
+          "value": 8
+        },
+        {
+          "id": "led",
+          "name": "LED Strips",
+          "emoji": "💡",
+          "value": 60
+        },
+        {
+          "id": "console",
+          "name": "Game Console",
+          "emoji": "🎮",
+          "value": 72
+        },
+        {
+          "id": "speaker",
+          "name": "Bluetooth Speaker",
+          "emoji": "🔊",
+          "value": 68
+        },
+        {
+          "id": "poster",
+          "name": "Posters",
+          "emoji": "🖼️",
+          "value": 22
+        }
+      ]
+    },
+    {
+      "title": "Draft Your Pokémon Starter Squad",
+      "subtitle": "Pick 2 — hidden battle scores revealed",
+      "items": [
+        {
+          "id": "pikachu",
+          "name": "Pikachu",
+          "emoji": "⚡",
+          "value": 28
+        },
+        {
+          "id": "charizard",
+          "name": "Charizard",
+          "emoji": "🔥",
+          "value": 92
+        },
+        {
+          "id": "blastoise",
+          "name": "Blastoise",
+          "emoji": "💧",
+          "value": 65
+        },
+        {
+          "id": "venusaur",
+          "name": "Venusaur",
+          "emoji": "🌿",
+          "value": 60
+        },
+        {
+          "id": "mewtwo",
+          "name": "Mewtwo",
+          "emoji": "🧠",
+          "value": 95
+        },
+        {
+          "id": "snorlax",
+          "name": "Snorlax",
+          "emoji": "😴",
+          "value": 22
+        },
+        {
+          "id": "dragonite",
+          "name": "Dragonite",
+          "emoji": "🐲",
+          "value": 72
+        },
+        {
+          "id": "eevee",
+          "name": "Eevee",
+          "emoji": "🦊",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "title": "Draft a Snack Spread",
+      "subtitle": "Pick 2 snacks — hidden 'instant happiness' scores revealed",
+      "items": [
+        {
+          "id": "chips",
+          "name": "Doritos",
+          "emoji": "🍿",
+          "value": 68
+        },
+        {
+          "id": "oreos",
+          "name": "Oreos",
+          "emoji": "🍪",
+          "value": 92
+        },
+        {
+          "id": "popcorn",
+          "name": "Popcorn",
+          "emoji": "🍿",
+          "value": 28
+        },
+        {
+          "id": "chocolate",
+          "name": "Chocolate Bar",
+          "emoji": "🍫",
+          "value": 72
+        },
+        {
+          "id": "gummy",
+          "name": "Gummy Bears",
+          "emoji": "🐻",
+          "value": 22
+        },
+        {
+          "id": "pretzel",
+          "name": "Pretzels",
+          "emoji": "🥨",
+          "value": 8
+        },
+        {
+          "id": "icecream",
+          "name": "Ice Cream",
+          "emoji": "🍦",
+          "value": 95
+        },
+        {
+          "id": "nachos",
+          "name": "Nachos",
+          "emoji": "🌮",
+          "value": 60
+        }
+      ]
+    },
+    {
+      "title": "Draft Olympic Events to Watch",
+      "subtitle": "Pick 2 events — hidden 'most thrilling' scores revealed",
+      "items": [
+        {
+          "id": "sprints",
+          "name": "100m Sprint",
+          "emoji": "🏃",
+          "value": 92
+        },
+        {
+          "id": "swimming",
+          "name": "Swimming",
+          "emoji": "🏊",
+          "value": 68
+        },
+        {
+          "id": "gymnastics",
+          "name": "Gymnastics",
+          "emoji": "🤸",
+          "value": 95
+        },
+        {
+          "id": "basketball",
+          "name": "Basketball",
+          "emoji": "🏀",
+          "value": 72
+        },
+        {
+          "id": "diving",
+          "name": "Diving",
+          "emoji": "🤿",
+          "value": 60
+        },
+        {
+          "id": "skateboard",
+          "name": "Skateboarding",
+          "emoji": "🛹",
+          "value": 28
+        },
+        {
+          "id": "surf",
+          "name": "Surfing",
+          "emoji": "🏄",
+          "value": 22
+        },
+        {
+          "id": "breaking",
+          "name": "Breaking",
+          "emoji": "🕺",
+          "value": 10
+        }
+      ]
+    },
+    {
+      "title": "Draft a Roommate Profile",
+      "subtitle": "Pick 2 traits — hidden 'best roommate' scores revealed",
+      "items": [
+        {
+          "id": "clean",
+          "name": "Super Clean",
+          "emoji": "🧼",
+          "value": 95
+        },
+        {
+          "id": "chill",
+          "name": "Chill Vibes",
+          "emoji": "😎",
+          "value": 72
+        },
+        {
+          "id": "chef",
+          "name": "Great Cook",
+          "emoji": "👨‍🍳",
+          "value": 92
+        },
+        {
+          "id": "quiet",
+          "name": "Quiet",
+          "emoji": "🤫",
+          "value": 68
+        },
+        {
+          "id": "social",
+          "name": "Hosts Friends",
+          "emoji": "🎉",
+          "value": 8
+        },
+        {
+          "id": "plants",
+          "name": "Plant Person",
+          "emoji": "🪴",
+          "value": 28
+        },
+        {
+          "id": "music",
+          "name": "Always Plays Music",
+          "emoji": "🎶",
+          "value": 22
+        },
+        {
+          "id": "pet",
+          "name": "Has a Cute Dog",
+          "emoji": "🐶",
+          "value": 60
+        }
+      ]
+    },
+    {
+      "title": "Draft a Reality TV Cast",
+      "subtitle": "Pick 2 archetypes — hidden 'drama' scores revealed",
+      "items": [
+        {
+          "id": "villain",
+          "name": "The Villain",
+          "emoji": "😈",
+          "value": 95
+        },
+        {
+          "id": "goldenboy",
+          "name": "The Golden Child",
+          "emoji": "😇",
+          "value": 22
+        },
+        {
+          "id": "underdog",
+          "name": "The Underdog",
+          "emoji": "🥺",
+          "value": 60
+        },
+        {
+          "id": "flirt",
+          "name": "The Flirt",
+          "emoji": "😘",
+          "value": 68
+        },
+        {
+          "id": "jokester",
+          "name": "The Jokester",
+          "emoji": "🤪",
+          "value": 28
+        },
+        {
+          "id": "mastermind",
+          "name": "The Mastermind",
+          "emoji": "🧠",
+          "value": 92
+        },
+        {
+          "id": "diva",
+          "name": "The Diva",
+          "emoji": "💅",
+          "value": 72
+        },
+        {
+          "id": "wholesome",
+          "name": "The Wholesome One",
+          "emoji": "🥰",
+          "value": 8
+        }
+      ]
+    }
+  ]
+}

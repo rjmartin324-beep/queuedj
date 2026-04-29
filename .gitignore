@@ -18,3 +18,11 @@ venv/
 .next/
 out/
 apps/mobile/google-services.json
+
+# PartyGlue Box runtime SQLite (regenerated from seeds)
+apps/box/partyglue.db
+apps/box/partyglue.db-shm
+apps/box/partyglue.db-wal
+apps/box/*.db
+apps/box/*.db-shm
+apps/box/*.db-wal

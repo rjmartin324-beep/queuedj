@@ -1,0 +1,7748 @@
+{
+  "puzzles": [
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things that are red",
+          "items": [
+            "APPLE",
+            "FIRE TRUCK",
+            "BLOOD",
+            "STOP SIGN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "___ BALL",
+          "items": [
+            "BASKET",
+            "FOOT",
+            "BASE",
+            "FIRE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Types of clouds",
+          "items": [
+            "CUMULUS",
+            "STRATUS",
+            "CIRRUS",
+            "NIMBUS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Johns",
+          "items": [
+            "LENNON",
+            "WICK",
+            "OLIVER",
+            "MULANEY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Citrus fruits",
+          "items": [
+            "LEMON",
+            "LIME",
+            "ORANGE",
+            "GRAPEFRUIT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Yellow things",
+          "items": [
+            "BANANA",
+            "SUN",
+            "CORN",
+            "TAXI"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Card games",
+          "items": [
+            "POKER",
+            "BRIDGE",
+            "HEARTS",
+            "RUMMY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Bridge ___",
+          "items": [
+            "TOLL",
+            "DRAWBRIDGE",
+            "KEY",
+            "BAY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Boxing legends",
+          "items": [
+            "ALI",
+            "HOLYFIELD",
+            "FOREMAN",
+            "FRAZIER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Types of pasta",
+          "items": [
+            "PENNE",
+            "ZITI",
+            "FUSILLI",
+            "ORZO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Things in a bedroom",
+          "items": [
+            "BED",
+            "DRESSER",
+            "LAMP",
+            "NIGHTSTAND"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mike ___",
+          "items": [
+            "TYSON",
+            "WAZOWSKI",
+            "MYERS",
+            "PENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Coffee drinks",
+          "items": [
+            "LATTE",
+            "MOCHA",
+            "ESPRESSO",
+            "CAPPUCCINO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Italian cities",
+          "items": [
+            "ROME",
+            "MILAN",
+            "FLORENCE",
+            "NAPLES"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Pizza toppings",
+          "items": [
+            "PEPPERONI",
+            "MUSHROOM",
+            "OLIVE",
+            "ONION"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Roman ___",
+          "items": [
+            "EMPIRE",
+            "HOLIDAY",
+            "NUMERAL",
+            "CANDLE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Olympic events",
+          "items": [
+            "DIVING",
+            "FENCING",
+            "ARCHERY",
+            "BOXING"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Things on a desk",
+          "items": [
+            "LAPTOP",
+            "STAPLER",
+            "LAMP",
+            "PEN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Apple products",
+          "items": [
+            "IPHONE",
+            "IPAD",
+            "WATCH",
+            "MAC"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Steves",
+          "items": [
+            "JOBS",
+            "KING",
+            "CARELL",
+            "WONDER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Greek letters",
+          "items": [
+            "ALPHA",
+            "BETA",
+            "GAMMA",
+            "DELTA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Phonetic alphabet",
+          "items": [
+            "BRAVO",
+            "CHARLIE",
+            "ECHO",
+            "TANGO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Dance styles",
+          "items": [
+            "RUMBA",
+            "CHA-CHA",
+            "WALTZ",
+            "FOXTROT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Sauces",
+          "items": [
+            "SALSA",
+            "MAYO",
+            "RANCH",
+            "BBQ"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Body parts",
+          "items": [
+            "ELBOW",
+            "KNEE",
+            "ANKLE",
+            "WRIST"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Shades of blue",
+          "items": [
+            "NAVY",
+            "ROYAL",
+            "SKY",
+            "TEAL"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Navy ___",
+          "items": [
+            "SEAL",
+            "PIER",
+            "CORE",
+            "BLUE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pier ___",
+          "items": [
+            "PRESSURE",
+            "FOUNDATION",
+            "FACING",
+            "REVIEW"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Snakes",
+          "items": [
+            "COBRA",
+            "PYTHON",
+            "VIPER",
+            "BOA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Programming languages",
+          "items": [
+            "KOTLIN",
+            "JAVA",
+            "RUST",
+            "GO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Gemstones",
+          "items": [
+            "RUBY",
+            "EMERALD",
+            "SAPPHIRE",
+            "DIAMOND"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Quick movements",
+          "items": [
+            "DART",
+            "SWIFT",
+            "FLASH",
+            "ZIP"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things in a kitchen",
+          "items": [
+            "FRIDGE",
+            "STOVE",
+            "SINK",
+            "OVEN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Bens",
+          "items": [
+            "FRANKLIN",
+            "AFFLECK",
+            "STILLER",
+            "KINGSLEY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Hot ___",
+          "items": [
+            "DOG",
+            "SHOT",
+            "ROD",
+            "SAUCE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "___ Dog",
+          "items": [
+            "BULL",
+            "HOT",
+            "UNDER",
+            "TOP"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Currencies",
+          "items": [
+            "YEN",
+            "EURO",
+            "DOLLAR",
+            "POUND"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Weights",
+          "items": [
+            "TON",
+            "KILO",
+            "OUNCE",
+            "GRAM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Synonyms for hit",
+          "items": [
+            "STRIKE",
+            "SMACK",
+            "SLUG",
+            "WHACK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Wear around the waist",
+          "items": [
+            "BELT",
+            "SASH",
+            "CUMMERBUND",
+            "CORSET"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pixar films",
+          "items": [
+            "UP",
+            "CARS",
+            "WALL-E",
+            "COCO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Two-letter words",
+          "items": [
+            "OH",
+            "OK",
+            "HI",
+            "NO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Beatles songs",
+          "items": [
+            "YESTERDAY",
+            "HELP",
+            "LET IT BE",
+            "HEY JUDE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Cry for assistance",
+          "items": [
+            "RESCUE",
+            "SOS",
+            "MAYDAY",
+            "AID"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Frozen things",
+          "items": [
+            "ICE",
+            "SNOW",
+            "SLEET",
+            "HAIL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Greetings",
+          "items": [
+            "WAVE",
+            "HELLO",
+            "SALUTE",
+            "HI"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Football positions",
+          "items": [
+            "TIGHT END",
+            "TACKLE",
+            "RECEIVER",
+            "QUARTERBACK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "___ END",
+          "items": [
+            "TIGHT",
+            "WEEK",
+            "DEAD",
+            "REAR"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Disney villains",
+          "items": [
+            "URSULA",
+            "SCAR",
+            "JAFAR",
+            "MALEFICENT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Sea creatures",
+          "items": [
+            "OCTOPUS",
+            "SQUID",
+            "STARFISH",
+            "JELLYFISH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Yellow things",
+          "items": [
+            "BANANA",
+            "CORN",
+            "SUN",
+            "SCHOOL BUS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Fairy tale characters",
+          "items": [
+            "RAPUNZEL",
+            "CINDERELLA",
+            "ARIEL",
+            "BELLE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Kitchen utensils",
+          "items": [
+            "WHISK",
+            "LADLE",
+            "SPATULA",
+            "TONGS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Hairstyles",
+          "items": [
+            "BUN",
+            "BRAID",
+            "PONYTAIL",
+            "MOHAWK"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Ways to cook eggs",
+          "items": [
+            "FRIED",
+            "SCRAMBLED",
+            "POACHED",
+            "BOILED"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Hot ___",
+          "items": [
+            "DOG",
+            "TUB",
+            "SAUCE",
+            "WATER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Stephen King novels",
+          "items": [
+            "IT",
+            "CARRIE",
+            "SHINING",
+            "CUJO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Types of dogs",
+          "items": [
+            "POODLE",
+            "HUSKY",
+            "BEAGLE",
+            "BULLDOG"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Two-letter pronouns",
+          "items": [
+            "ME",
+            "HE",
+            "WE",
+            "US"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "To shine ___",
+          "items": [
+            "BRIGHT",
+            "ON",
+            "THROUGH",
+            "DOWN"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Sports balls",
+          "items": [
+            "BASEBALL",
+            "SOCCER",
+            "TENNIS",
+            "FOOTBALL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Round things",
+          "items": [
+            "WHEEL",
+            "COIN",
+            "DISC",
+            "DONUT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Italian foods",
+          "items": [
+            "PIZZA",
+            "PASTA",
+            "RAVIOLI",
+            "RISOTTO"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Wedding ___",
+          "items": [
+            "RING",
+            "CAKE",
+            "DRESS",
+            "DAY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Famous queens",
+          "items": [
+            "ELIZABETH",
+            "VICTORIA",
+            "CLEOPATRA",
+            "MARIE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Songs by Queen",
+          "items": [
+            "BOHEMIAN",
+            "RADIO",
+            "KILLER",
+            "UNDER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bohemian ___",
+          "items": [
+            "RHAPSODY",
+            "CRYSTAL",
+            "LIFE",
+            "STYLE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Killer ___",
+          "items": [
+            "BEE",
+            "WHALE",
+            "INSTINCT",
+            "QUEEN"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of chairs",
+          "items": [
+            "RECLINER",
+            "STOOL",
+            "ROCKING",
+            "BEAN BAG"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Mikes",
+          "items": [
+            "TYSON",
+            "JORDAN",
+            "MYERS",
+            "PENCE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Types of bread",
+          "items": [
+            "BAGEL",
+            "SOURDOUGH",
+            "RYE",
+            "PITA"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pita ___",
+          "items": [
+            "BREAD",
+            "CHIP",
+            "POCKET",
+            "SANDWICH"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Ocean predators",
+          "items": [
+            "SHARK",
+            "ORCA",
+            "BARRACUDA",
+            "EEL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Card suits",
+          "items": [
+            "HEARTS",
+            "SPADES",
+            "DIAMONDS",
+            "CLUBS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Disney movies",
+          "items": [
+            "FROZEN",
+            "TANGLED",
+            "BRAVE",
+            "MULAN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Things to dig with",
+          "items": [
+            "SHOVEL",
+            "SPADE",
+            "HOE",
+            "FORK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "James Bond actors",
+          "items": [
+            "CONNERY",
+            "CRAIG",
+            "MOORE",
+            "BROSNAN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Three-letter colors",
+          "items": [
+            "RED",
+            "TAN",
+            "HUE",
+            "DYE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Lawn tools",
+          "items": [
+            "MOWER",
+            "RAKE",
+            "SHEARS",
+            "HOSE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pierce ___",
+          "items": [
+            "EARS",
+            "ARROW",
+            "SCREAM",
+            "HEART"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Continents",
+          "items": [
+            "AFRICA",
+            "ASIA",
+            "EUROPE",
+            "AUSTRALIA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "NBA teams",
+          "items": [
+            "LAKERS",
+            "CELTICS",
+            "BULLS",
+            "HEAT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Fire ___",
+          "items": [
+            "WORK",
+            "FIGHTER",
+            "BALL",
+            "FLY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Body extremities",
+          "items": [
+            "HEAD",
+            "ARM",
+            "FOOT",
+            "HAND"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Famous bridges",
+          "items": [
+            "BROOKLYN",
+            "TOWER",
+            "GOLDEN GATE",
+            "RIALTO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Card games",
+          "items": [
+            "POKER",
+            "BRIDGE",
+            "HEARTS",
+            "RUMMY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Types of boats",
+          "items": [
+            "KAYAK",
+            "CANOE",
+            "YACHT",
+            "FERRY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Heart ___",
+          "items": [
+            "BEAT",
+            "BREAK",
+            "FELT",
+            "ATTACK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "World capitals",
+          "items": [
+            "LONDON",
+            "PARIS",
+            "TOKYO",
+            "CAIRO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Types of ___ rolls",
+          "items": [
+            "EGG",
+            "SPRING",
+            "DRUM",
+            "ROCK"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Punk rock bands",
+          "items": [
+            "RAMONES",
+            "CLASH",
+            "BLINK 182",
+            "SEX PISTOLS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Egg ___",
+          "items": [
+            "SHELL",
+            "WHITE",
+            "NOG",
+            "PLANT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Chess pieces",
+          "items": [
+            "KING",
+            "QUEEN",
+            "ROOK",
+            "KNIGHT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Religious leaders",
+          "items": [
+            "POPE",
+            "BISHOP",
+            "RABBI",
+            "IMAM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Royals",
+          "items": [
+            "BARON",
+            "EARL",
+            "PRINCE",
+            "DUKE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Princes",
+          "items": [
+            "HARRY",
+            "WILLIAM",
+            "CHARLES",
+            "ALBERT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pasta shapes",
+          "items": [
+            "BOWTIE",
+            "SHELL",
+            "WHEEL",
+            "TUBE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Stationery items",
+          "items": [
+            "STAPLER",
+            "TAPE",
+            "PEN",
+            "ERASER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Wheel ___",
+          "items": [
+            "CHAIR",
+            "BARROW",
+            "HOUSE",
+            "SPIN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Types of clothing fasteners",
+          "items": [
+            "BUTTON",
+            "ZIPPER",
+            "VELCRO",
+            "CLIP"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Drinks at a bar",
+          "items": [
+            "BEER",
+            "WINE",
+            "WHISKEY",
+            "COCKTAIL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Things in a forest",
+          "items": [
+            "TREE",
+            "BIRD",
+            "DEER",
+            "BUSH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bush ___",
+          "items": [
+            "FIRE",
+            "WHACK",
+            "LEAGUE",
+            "ROBIN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Robins",
+          "items": [
+            "WILLIAMS",
+            "HOOD",
+            "WRIGHT",
+            "THICKE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Star Wars characters",
+          "items": [
+            "YODA",
+            "LEIA",
+            "HAN",
+            "REY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Sun things",
+          "items": [
+            "RAY",
+            "BURN",
+            "FLOWER",
+            "BATHE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Fantasy creatures",
+          "items": [
+            "DRAGON",
+            "ELF",
+            "ORC",
+            "FAIRY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Luke ___",
+          "items": [
+            "WARM",
+            "SKYWALKER",
+            "WILSON",
+            "BRYANT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Tree types",
+          "items": [
+            "OAK",
+            "MAPLE",
+            "PINE",
+            "ELM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Pine ___",
+          "items": [
+            "APPLE",
+            "CONE",
+            "TREE",
+            "NUT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Peanuts characters",
+          "items": [
+            "CHARLIE",
+            "LUCY",
+            "SNOOPY",
+            "LINUS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Types of cones",
+          "items": [
+            "ICE CREAM",
+            "TRAFFIC",
+            "NOSE",
+            "SNOW"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "NHL Teams",
+          "items": [
+            "BRUINS",
+            "RANGERS",
+            "FLYERS",
+            "KINGS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Texas Rangers ___",
+          "items": [
+            "FAN",
+            "HALL",
+            "STADIUM",
+            "UNIFORM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Stephen King's books",
+          "items": [
+            "IT",
+            "CARRIE",
+            "CUJO",
+            "MISERY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Park ___",
+          "items": [
+            "RANGER",
+            "BENCH",
+            "WAY",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for happy",
+          "items": [
+            "GLAD",
+            "JOYFUL",
+            "ELATED",
+            "CHEERY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Card prefixes",
+          "items": [
+            "DIS",
+            "RE",
+            "UN",
+            "BE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Re ___",
+          "items": [
+            "TURN",
+            "START",
+            "DO",
+            "SEND"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Ways to mess up",
+          "items": [
+            "FAIL",
+            "BLUNDER",
+            "SLIP",
+            "ERR"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for very small",
+          "items": [
+            "TINY",
+            "WEE",
+            "MINI",
+            "MICRO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Mini ___",
+          "items": [
+            "VAN",
+            "SKIRT",
+            "BAR",
+            "CAB"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Types of cab",
+          "items": [
+            "TAXI",
+            "UBER",
+            "BLACK",
+            "LYFT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Types of fish",
+          "items": [
+            "BASS",
+            "TROUT",
+            "SALMON",
+            "TUNA"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words meaning fast",
+          "items": [
+            "QUICK",
+            "SWIFT",
+            "RAPID",
+            "SPEEDY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Things in a deli",
+          "items": [
+            "TURKEY",
+            "HAM",
+            "SALAMI",
+            "CHEESE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Holidays",
+          "items": [
+            "XMAS",
+            "HANUKKAH",
+            "DIWALI",
+            "EID"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Types of feast",
+          "items": [
+            "FAMINE",
+            "FERTILE",
+            "FRENZY",
+            "FILLING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Heavyweight champions",
+          "items": [
+            "ALI",
+            "TYSON",
+            "FOREMAN",
+            "HOLYFIELD"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Iron ___",
+          "items": [
+            "MAN",
+            "FIST",
+            "CLAD",
+            "WORK"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Marvel heroes",
+          "items": [
+            "IRON MAN",
+            "HULK",
+            "THOR",
+            "SPIDER-MAN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Types of clothing",
+          "items": [
+            "SHIRT",
+            "PANTS",
+            "DRESS",
+            "SUIT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words ending in -ing",
+          "items": [
+            "RUNNING",
+            "SINGING",
+            "DANCING",
+            "JUMPING"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Verbs in past tense",
+          "items": [
+            "RAN",
+            "SANG",
+            "DANCED",
+            "JUMPED"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Card games",
+          "items": [
+            "UNO",
+            "GO FISH",
+            "WAR",
+            "SOLITAIRE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Synonyms for unite",
+          "items": [
+            "JOIN",
+            "COMBINE",
+            "MERGE",
+            "FUSE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "World rivers",
+          "items": [
+            "NILE",
+            "AMAZON",
+            "DANUBE",
+            "MISSISSIPPI"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Synonyms for big",
+          "items": [
+            "LARGE",
+            "HUGE",
+            "GIANT",
+            "VAST"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Vast ___",
+          "items": [
+            "NESS",
+            "ARRAY",
+            "SEAS",
+            "LANDS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Things at a desk",
+          "items": [
+            "MOUSE",
+            "KEYBOARD",
+            "SCREEN",
+            "CABLE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of hats",
+          "items": [
+            "FEDORA",
+            "BERET",
+            "CAP",
+            "BOWLER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Things to bowl",
+          "items": [
+            "STRIKE",
+            "SPARE",
+            "SPLIT",
+            "GUTTER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Thanksgiving foods",
+          "items": [
+            "TURKEY",
+            "STUFFING",
+            "CRANBERRY",
+            "PIE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Cap ___",
+          "items": [
+            "TAIN",
+            "TIVE",
+            "ITAL",
+            "TURE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things in a desert",
+          "items": [
+            "SAND",
+            "CACTUS",
+            "CAMEL",
+            "MIRAGE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Sci-fi books",
+          "items": [
+            "DUNE",
+            "FOUNDATION",
+            "HYPERION",
+            "ENDER'S GAME"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Roman gods",
+          "items": [
+            "MARS",
+            "JUPITER",
+            "NEPTUNE",
+            "SATURN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mars ___",
+          "items": [
+            "BAR",
+            "ROVER",
+            "ATTACKS",
+            "FIELD"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Coffee orders",
+          "items": [
+            "LATTE",
+            "CAPPUCCINO",
+            "ESPRESSO",
+            "AMERICANO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Types of milk",
+          "items": [
+            "WHOLE",
+            "SKIM",
+            "ALMOND",
+            "SOY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sushi types",
+          "items": [
+            "NIGIRI",
+            "SASHIMI",
+            "ROLL",
+            "TEMAKI"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Roll ___",
+          "items": [
+            "OUT",
+            "ER",
+            "UP",
+            "ICALL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Olympic medals",
+          "items": [
+            "GOLD",
+            "SILVER",
+            "BRONZE",
+            "PLATINUM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Anniversary types",
+          "items": [
+            "RUBY",
+            "EMERALD",
+            "DIAMOND",
+            "PEARL"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Wedding traditions",
+          "items": [
+            "RING",
+            "CAKE",
+            "DRESS",
+            "VOWS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pearl ___",
+          "items": [
+            "JAM",
+            "NECKLACE",
+            "HARBOR",
+            "WHITE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Countries in Europe",
+          "items": [
+            "FRANCE",
+            "SPAIN",
+            "ITALY",
+            "GERMANY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "World cup winners",
+          "items": [
+            "BRAZIL",
+            "URUGUAY",
+            "ARGENTINA",
+            "ENGLAND"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "World cuisines",
+          "items": [
+            "ITALIAN",
+            "CHINESE",
+            "INDIAN",
+            "MEXICAN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Kings",
+          "items": [
+            "LOUIS XIV",
+            "HENRY VIII",
+            "GEORGE III",
+            "JAMES I"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Three Kings",
+          "items": [
+            "ELVIS",
+            "JAMES",
+            "STEPHEN",
+            "BB"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous BB ___",
+          "items": [
+            "KING",
+            "GUN",
+            "CREAM",
+            "Q"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Game ___",
+          "items": [
+            "OVER",
+            "PLAY",
+            "BOY",
+            "SHOW"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Boys ___",
+          "items": [
+            "NIGHT",
+            "CLUB",
+            "TOY",
+            "TOWN"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Elements",
+          "items": [
+            "NICKEL",
+            "ZINC",
+            "IRON",
+            "COPPER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Type of medals",
+          "items": [
+            "GOLD",
+            "SILVER",
+            "BRONZE",
+            "PLATINUM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Big bands",
+          "items": [
+            "LED ZEPPELIN",
+            "BEATLES",
+            "STONES",
+            "NIRVANA"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Iron ___",
+          "items": [
+            "MAN",
+            "CLAD",
+            "FIST",
+            "ORE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Common dog names",
+          "items": [
+            "MAX",
+            "BUDDY",
+            "CHARLIE",
+            "ROCKY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Mini ___",
+          "items": [
+            "SKIRT",
+            "COOPER",
+            "VAN",
+            "GOLF"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Types of golf shots",
+          "items": [
+            "BIRDIE",
+            "EAGLE",
+            "BOGEY",
+            "ALBATROSS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Birds of prey",
+          "items": [
+            "KESTREL",
+            "HAWK",
+            "FALCON",
+            "OWL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Friends characters",
+          "items": [
+            "ROSS",
+            "RACHEL",
+            "MONICA",
+            "JOEY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Big bang theory cast",
+          "items": [
+            "SHELDON",
+            "LEONARD",
+            "HOWARD",
+            "PENNY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "How I Met Your Mother",
+          "items": [
+            "TED",
+            "MARSHALL",
+            "LILY",
+            "BARNEY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Coin parts",
+          "items": [
+            "HEADS",
+            "TAILS",
+            "EDGE",
+            "FACE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Heavy metal bands",
+          "items": [
+            "METALLICA",
+            "SLAYER",
+            "ANTHRAX",
+            "MEGADETH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Insects",
+          "items": [
+            "ANT",
+            "BEE",
+            "FLY",
+            "MOTH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bee ___",
+          "items": [
+            "HIVE",
+            "KEEPER",
+            "LINE",
+            "SWAX"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Bees",
+          "items": [
+            "MAYA",
+            "BEYONCÉ",
+            "GEES",
+            "SPELLING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Stretchy materials",
+          "items": [
+            "RUBBER",
+            "ELASTIC",
+            "SPANDEX",
+            "LYCRA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Rubber ___",
+          "items": [
+            "BAND",
+            "DUCK",
+            "TIRE",
+            "STAMP"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Types of stamps",
+          "items": [
+            "POSTAL",
+            "INK",
+            "GROCERY",
+            "SEAL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Body of water seals",
+          "items": [
+            "HARBOR",
+            "ELEPHANT",
+            "HARP",
+            "GREY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of weather",
+          "items": [
+            "RAIN",
+            "SNOW",
+            "HAIL",
+            "STORM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Old Hollywood actresses",
+          "items": [
+            "GARLAND",
+            "DAVIS",
+            "STREEP",
+            "HEPBURN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Audrey ___",
+          "items": [
+            "HORNE",
+            "TAUTOU",
+            "MEADOWS",
+            "ROSE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Garland ___",
+          "items": [
+            "JUDY",
+            "JIM",
+            "ROBERT",
+            "FLOWER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "NFL Teams",
+          "items": [
+            "GIANTS",
+            "JETS",
+            "COWBOYS",
+            "EAGLES"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Hall and Oates songs",
+          "items": [
+            "MANEATER",
+            "KISS ON MY LIST",
+            "SARA SMILE",
+            "RICH GIRL"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Eagle types",
+          "items": [
+            "BALD",
+            "GOLDEN",
+            "HARPY",
+            "PHILLY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Don Henley ___",
+          "items": [
+            "GLENN",
+            "DESPERADO",
+            "BOYS OF SUMMER",
+            "HOTEL CALIFORNIA"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Math operations",
+          "items": [
+            "ADD",
+            "SUBTRACT",
+            "MULTIPLY",
+            "DIVIDE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Multiply ___",
+          "items": [
+            "ER",
+            "ED",
+            "ING",
+            "CITY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "City names",
+          "items": [
+            "LONDON",
+            "PARIS",
+            "ROME",
+            "ATHENS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Athens ___",
+          "items": [
+            "GREECE",
+            "GEORGIA",
+            "TENNESSEE",
+            "OHIO"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pizza chains",
+          "items": [
+            "DOMINO'S",
+            "PAPA JOHN'S",
+            "LITTLE CAESARS",
+            "PIZZA HUT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Card games",
+          "items": [
+            "GO FISH",
+            "WAR",
+            "RUMMY",
+            "SOLITAIRE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Caesars",
+          "items": [
+            "JULIUS",
+            "LITTLE",
+            "SID",
+            "SHIRLEY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Little ___",
+          "items": [
+            "MERMAID",
+            "WOMEN",
+            "ROCK",
+            "DIPPER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things you fold",
+          "items": [
+            "LAUNDRY",
+            "ORIGAMI",
+            "CARDS",
+            "FLAG"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Types of paper",
+          "items": [
+            "NEWS",
+            "NOTE",
+            "TOILET",
+            "SAND"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sand ___",
+          "items": [
+            "WICH",
+            "CASTLE",
+            "STORM",
+            "PIPER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "News ___",
+          "items": [
+            "LETTER",
+            "STAND",
+            "ROOM",
+            "FEED"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Hot drinks",
+          "items": [
+            "COFFEE",
+            "TEA",
+            "COCOA",
+            "CIDER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "___ BREAK",
+          "items": [
+            "LUNCH",
+            "SPRING",
+            "HEART",
+            "FAST"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Tea ___",
+          "items": [
+            "BAG",
+            "SPOON",
+            "POT",
+            "CUP"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous ___ MUGS",
+          "items": [
+            "BEER",
+            "TRAVEL",
+            "SHOT",
+            "PINT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Punctuation",
+          "items": [
+            "COMMA",
+            "PERIOD",
+            "COLON",
+            "DASH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Period ___",
+          "items": [
+            "DRAMA",
+            "PIECE",
+            "FILM",
+            "BLOOD"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Blood ___",
+          "items": [
+            "BANK",
+            "HOUND",
+            "LINE",
+            "SHED"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Honey ___",
+          "items": [
+            "BEE",
+            "MOON",
+            "COMB",
+            "DEW"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Months",
+          "items": [
+            "MARCH",
+            "MAY",
+            "JUNE",
+            "APRIL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Names",
+          "items": [
+            "KATE",
+            "ANNA",
+            "GRACE",
+            "JANE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "To go forward",
+          "items": [
+            "MOVE",
+            "ADVANCE",
+            "PROCEED",
+            "STEP"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Janes",
+          "items": [
+            "AUSTEN",
+            "FONDA",
+            "GOODALL",
+            "DOE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for happy",
+          "items": [
+            "GLAD",
+            "CHEERY",
+            "JOLLY",
+            "MERRY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Mary's",
+          "items": [
+            "POPPINS",
+            "SHELLEY",
+            "TYLER MOORE",
+            "ANTOINETTE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Christmas songs",
+          "items": [
+            "FROSTY",
+            "JINGLE",
+            "SILENT",
+            "HOLY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Holy ___",
+          "items": [
+            "GRAIL",
+            "WATER",
+            "SMOKE",
+            "LAND"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Doctor Who actors",
+          "items": [
+            "BAKER",
+            "TENNANT",
+            "SMITH",
+            "CAPALDI"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Common surnames",
+          "items": [
+            "MILLER",
+            "JONES",
+            "WILLIAMS",
+            "BROWN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Foods that are brown",
+          "items": [
+            "CHOCOLATE",
+            "COFFEE",
+            "TOAST",
+            "STEAK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Dan ___",
+          "items": [
+            "PATRICK",
+            "AYKROYD",
+            "RATHER",
+            "MARINO"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "NFL franchises",
+          "items": [
+            "GIANTS",
+            "JETS",
+            "BEARS",
+            "LIONS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Big cats",
+          "items": [
+            "LION",
+            "TIGER",
+            "JAGUAR",
+            "LEOPARD"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Car brands",
+          "items": [
+            "BMW",
+            "FORD",
+            "HONDA",
+            "TESLA"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Tiger ___",
+          "items": [
+            "WOODS",
+            "SHARK",
+            "LILY",
+            "EYE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Tools",
+          "items": [
+            "HAMMER",
+            "WRENCH",
+            "SAW",
+            "DRILL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Drill ___",
+          "items": [
+            "BIT",
+            "SERGEANT",
+            "TEAM",
+            "DOWN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Things to bite",
+          "items": [
+            "APPLE",
+            "NAIL",
+            "TONGUE",
+            "LIP"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Lip ___",
+          "items": [
+            "STICK",
+            "SYNC",
+            "GLOSS",
+            "SERVICE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Wedding party",
+          "items": [
+            "BRIDE",
+            "GROOM",
+            "BEST MAN",
+            "MAID OF HONOR"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Card suits",
+          "items": [
+            "HEARTS",
+            "SPADES",
+            "CLUBS",
+            "DIAMONDS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Diamond ___",
+          "items": [
+            "RING",
+            "BACK",
+            "HEAD",
+            "FIELD"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Neil ___",
+          "items": [
+            "DIAMOND",
+            "ARMSTRONG",
+            "YOUNG",
+            "PATRICK HARRIS"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Days of the week",
+          "items": [
+            "MONDAY",
+            "TUESDAY",
+            "FRIDAY",
+            "SUNDAY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Sundae toppings",
+          "items": [
+            "CHERRY",
+            "NUTS",
+            "SPRINKLES",
+            "WHIPPED CREAM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Cherry ___",
+          "items": [
+            "PIE",
+            "TREE",
+            "BLOSSOM",
+            "PICK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pick ___",
+          "items": [
+            "UP",
+            "POCKET",
+            "AXE",
+            "LE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Ocean animals",
+          "items": [
+            "WHALE",
+            "DOLPHIN",
+            "SHARK",
+            "ORCA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "___ BAR",
+          "items": [
+            "CANDY",
+            "SPACE",
+            "SUSHI",
+            "SNACK"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Space ___",
+          "items": [
+            "SHIP",
+            "STATION",
+            "BAR",
+            "SUIT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Whale ___",
+          "items": [
+            "WATCHING",
+            "BONE",
+            "SONG",
+            "OIL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Body parts",
+          "items": [
+            "EYE",
+            "EAR",
+            "NOSE",
+            "MOUTH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Eye ___",
+          "items": [
+            "LASH",
+            "BROW",
+            "BALL",
+            "SIGHT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Things on a face",
+          "items": [
+            "BEARD",
+            "WRINKLE",
+            "DIMPLE",
+            "FRECKLE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mouth ___",
+          "items": [
+            "WASH",
+            "PIECE",
+            "FUL",
+            "Y"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "NBA Hall of Famers",
+          "items": [
+            "JORDAN",
+            "BIRD",
+            "MAGIC",
+            "KAREEM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Magic ___",
+          "items": [
+            "TRICK",
+            "WAND",
+            "CARPET",
+            "JOHNSON"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Birds",
+          "items": [
+            "LARRY",
+            "BIG",
+            "TWEETY",
+            "ROBIN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Robin ___",
+          "items": [
+            "HOOD",
+            "WILLIAMS",
+            "WRIGHT",
+            "REDBREAST"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Tree parts",
+          "items": [
+            "TRUNK",
+            "BRANCH",
+            "ROOT",
+            "LEAF"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Branch ___",
+          "items": [
+            "OUT",
+            "OFFICE",
+            "MANAGER",
+            "WATER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Body trunks",
+          "items": [
+            "TORSO",
+            "CHEST",
+            "BACK",
+            "SPINE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Root ___",
+          "items": [
+            "BEER",
+            "CANAL",
+            "CAUSE",
+            "WORD"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Salad greens",
+          "items": [
+            "LETTUCE",
+            "SPINACH",
+            "KALE",
+            "ARUGULA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for money",
+          "items": [
+            "DOUGH",
+            "BREAD",
+            "CHEDDAR",
+            "CABBAGE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Things from cows",
+          "items": [
+            "MILK",
+            "CHEESE",
+            "BEEF",
+            "LEATHER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Hot ___",
+          "items": [
+            "DOG",
+            "SAUCE",
+            "ROD",
+            "TUB"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Sweet things",
+          "items": [
+            "SUGAR",
+            "CANDY",
+            "CARAMEL",
+            "SYRUP"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Terms of endearment",
+          "items": [
+            "HONEY",
+            "SWEETIE",
+            "BABE",
+            "DARLING"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Songs by Britney",
+          "items": [
+            "BABY",
+            "TOXIC",
+            "STRONGER",
+            "OOPS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Sugar ___",
+          "items": [
+            "RAY",
+            "CANE",
+            "DADDY",
+            "COAT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Olympic events (water)",
+          "items": [
+            "SWIMMING",
+            "DIVING",
+            "WATER POLO",
+            "ROWING"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Things to do at a pool",
+          "items": [
+            "SWIM",
+            "FLOAT",
+            "DIVE",
+            "TAN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Dive ___",
+          "items": [
+            "BOMB",
+            "BAR",
+            "IN",
+            "BRIEFING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pool ___",
+          "items": [
+            "TABLE",
+            "SHARK",
+            "HOUSE",
+            "PARTY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Sounds dogs make",
+          "items": [
+            "BARK",
+            "WOOF",
+            "GROWL",
+            "HOWL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Bark ___",
+          "items": [
+            "BEETLE",
+            "ER",
+            "ED",
+            "ING"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Tree types",
+          "items": [
+            "OAK",
+            "PINE",
+            "BIRCH",
+            "ELM"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Howls",
+          "items": [
+            "WOLF",
+            "WIND",
+            "MOVING CASTLE",
+            "COYOTE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Football positions",
+          "items": [
+            "QB",
+            "RB",
+            "WR",
+            "TE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Things you receive",
+          "items": [
+            "GIFT",
+            "COMPLIMENT",
+            "LETTER",
+            "PACKAGE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Package ___",
+          "items": [
+            "DEAL",
+            "TOUR",
+            "STORE",
+            "DELIVERY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Tight ___",
+          "items": [
+            "END",
+            "ROPE",
+            "KNIT",
+            "FISTED"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Yoga poses",
+          "items": [
+            "WARRIOR",
+            "CHILD",
+            "COBRA",
+            "TREE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Cobra ___",
+          "items": [
+            "KAI",
+            "COMMANDER",
+            "STRIKE",
+            "POSE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Marvel snakes",
+          "items": [
+            "VENOM",
+            "BLACK MAMBA",
+            "ANACONDA",
+            "VIPER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Child ___",
+          "items": [
+            "HOOD",
+            "REN",
+            "PROOF",
+            "ISH"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Sushi types",
+          "items": [
+            "NIGIRI",
+            "SASHIMI",
+            "MAKI",
+            "TEMAKI"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Japanese cuisine",
+          "items": [
+            "RAMEN",
+            "TEMPURA",
+            "UDON",
+            "MISO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sake ___",
+          "items": [
+            "TINI",
+            "BREWERY",
+            "BOMB",
+            "FOR"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Salmon ___",
+          "items": [
+            "RUN",
+            "RIVER",
+            "STEAK",
+            "COLOR"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Popular cartoons",
+          "items": [
+            "RUGRATS",
+            "ARTHUR",
+            "DEXTER",
+            "DOUG"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Doug ___",
+          "items": [
+            "FUNNIE",
+            "SUPER",
+            "BURGER",
+            "WALK"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Arthurs",
+          "items": [
+            "KING",
+            "DENT",
+            "ASHE",
+            "FONZARELLI"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Things that are red",
+          "items": [
+            "FIRE",
+            "BLOOD",
+            "TOMATO",
+            "BRICK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Wedding traditions",
+          "items": [
+            "VOWS",
+            "RINGS",
+            "CAKE",
+            "TOAST"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Toast ___",
+          "items": [
+            "MASTER",
+            "ER",
+            "Y",
+            "ABLE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Cake ___",
+          "items": [
+            "WALK",
+            "BATTER",
+            "POP",
+            "BAKE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Vow ___",
+          "items": [
+            "EL",
+            "S",
+            "ED",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "School subjects",
+          "items": [
+            "MATH",
+            "SCIENCE",
+            "HISTORY",
+            "ENGLISH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "English ___",
+          "items": [
+            "MUFFIN",
+            "BREAKFAST",
+            "CHANNEL",
+            "BULLDOG"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "History ___",
+          "items": [
+            "BOOK",
+            "CLASS",
+            "BUFF",
+            "LESSON"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Channel ___",
+          "items": [
+            "SURFING",
+            "ISLAND",
+            "CROSSING",
+            "BLOCK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of bread",
+          "items": [
+            "RYE",
+            "SOURDOUGH",
+            "WHEAT",
+            "WHITE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "White ___",
+          "items": [
+            "HOUSE",
+            "BOARD",
+            "FLAG",
+            "NOISE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Whites",
+          "items": [
+            "BETTY",
+            "SNOW",
+            "WALTER",
+            "JACK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "House ___",
+          "items": [
+            "WORK",
+            "HOLD",
+            "BOAT",
+            "WIFE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Modes of transportation",
+          "items": [
+            "CAR",
+            "TRAIN",
+            "PLANE",
+            "BOAT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Ships in star wars",
+          "items": [
+            "FALCON",
+            "X-WING",
+            "TIE FIGHTER",
+            "DEATH STAR"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Train ___",
+          "items": [
+            "WRECK",
+            "ER",
+            "STATION",
+            "TRACK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Boat ___",
+          "items": [
+            "HOUSE",
+            "LOAD",
+            "SHED",
+            "SWAIN"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Heavy metals",
+          "items": [
+            "LEAD",
+            "CADMIUM",
+            "URANIUM",
+            "PLUTONIUM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Roman gods",
+          "items": [
+            "MERCURY",
+            "MARS",
+            "JUPITER",
+            "VENUS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Mercury ___",
+          "items": [
+            "RISING",
+            "RETROGRADE",
+            "FREDDIE",
+            "POISONING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Lead ___",
+          "items": [
+            "ER",
+            "SHIP",
+            "FOOT",
+            "PAINT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Ice cream flavors",
+          "items": [
+            "VANILLA",
+            "CHOCOLATE",
+            "MINT",
+            "STRAWBERRY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Strawberry ___",
+          "items": [
+            "FIELDS",
+            "SHORTCAKE",
+            "PRINT",
+            "JAM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Mint ___",
+          "items": [
+            "TEA",
+            "CONDITION",
+            "JULEP",
+            "CHIP"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Vanilla ___",
+          "items": [
+            "ICE",
+            "BEAN",
+            "SKY",
+            "LATTE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Game pieces",
+          "items": [
+            "DICE",
+            "CARDS",
+            "CHIPS",
+            "BOARD"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Chip ___",
+          "items": [
+            "MUNK",
+            "OFF",
+            "PER",
+            "SHOT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Chips",
+          "items": [
+            "DALE",
+            "CHIPMUNK",
+            "CHIPPENDALE",
+            "LOL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Board ___",
+          "items": [
+            "GAME",
+            "ROOM",
+            "WALK",
+            "CERTIFIED"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Body of water",
+          "items": [
+            "LAKE",
+            "SEA",
+            "RIVER",
+            "OCEAN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Ocean's 11 cast",
+          "items": [
+            "CLOONEY",
+            "PITT",
+            "DAMON",
+            "ROBERTS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sea ___",
+          "items": [
+            "FOOD",
+            "SICK",
+            "HORSE",
+            "SAW"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "River ___",
+          "items": [
+            "BANK",
+            "BED",
+            "BOAT",
+            "SIDE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Cards in a deck",
+          "items": [
+            "ACE",
+            "KING",
+            "QUEEN",
+            "JACK"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Jacks",
+          "items": [
+            "NICHOLSON",
+            "SPARROW",
+            "BLACK",
+            "DANIELS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Ace ___",
+          "items": [
+            "VENTURA",
+            "HARDWARE",
+            "BANDAGE",
+            "HIGH"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Queen ___",
+          "items": [
+            "BEE",
+            "SIZE",
+            "MOTHER",
+            "LATIFAH"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Christmas movies",
+          "items": [
+            "KLAUS",
+            "HOME ALONE",
+            "DIE HARD",
+            "GRINCH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Will Ferrell movies",
+          "items": [
+            "ELF",
+            "ANCHORMAN",
+            "STEP BROTHERS",
+            "TALLADEGA NIGHTS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Elf ___",
+          "items": [
+            "KING",
+            "MAN",
+            "ON THE SHELF",
+            "ISH"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Holiday ___",
+          "items": [
+            "INN",
+            "CHEER",
+            "ROAST",
+            "SPIRIT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Crayola colors",
+          "items": [
+            "RED",
+            "BLUE",
+            "GREEN",
+            "YELLOW"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Yellow ___",
+          "items": [
+            "JACKET",
+            "STONE",
+            "SUBMARINE",
+            "BELLY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Submarine ___",
+          "items": [
+            "SANDWICH",
+            "BAY",
+            "WARFARE",
+            "RACE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Red ___",
+          "items": [
+            "CARPET",
+            "SOX",
+            "HERRING",
+            "WINE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things with strings",
+          "items": [
+            "GUITAR",
+            "KITE",
+            "PUPPET",
+            "BOW"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Bow ___",
+          "items": [
+            "TIE",
+            "WOW",
+            "LING",
+            "HUNTER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Kite ___",
+          "items": [
+            "FLYING",
+            "FIGHTING",
+            "SURFING",
+            "RUNNER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "String ___",
+          "items": [
+            "BEAN",
+            "THEORY",
+            "CHEESE",
+            "ALONG"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Snow White's dwarfs",
+          "items": [
+            "DOC",
+            "GRUMPY",
+            "HAPPY",
+            "SLEEPY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Doctor types",
+          "items": [
+            "MD",
+            "PHD",
+            "DDS",
+            "DVM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sleepy ___",
+          "items": [
+            "TOWN",
+            "HOLLOW",
+            "HEAD",
+            "TIME"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Happy ___",
+          "items": [
+            "MEAL",
+            "HOUR",
+            "FEET",
+            "DAYS"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pasta sauces",
+          "items": [
+            "PESTO",
+            "MARINARA",
+            "ALFREDO",
+            "CARBONARA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Italian cities",
+          "items": [
+            "ROME",
+            "MILAN",
+            "NAPLES",
+            "TURIN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Naples ___",
+          "items": [
+            "FL",
+            "ITALY",
+            "PIZZA",
+            "BAY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Romans",
+          "items": [
+            "NERO",
+            "CAESAR",
+            "BRUTUS",
+            "CICERO"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Items in a desert",
+          "items": [
+            "CACTUS",
+            "SAND",
+            "CAMEL",
+            "MIRAGE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Frank Herbert books",
+          "items": [
+            "DUNE",
+            "CHAPTERHOUSE",
+            "HEROES",
+            "WHITE PLAGUE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sand ___",
+          "items": [
+            "BAR",
+            "CASTLE",
+            "STORM",
+            "BOX"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Camel ___",
+          "items": [
+            "BACK",
+            "TOE",
+            "COLOR",
+            "SAFARI"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of clouds",
+          "items": [
+            "CUMULUS",
+            "CIRRUS",
+            "STRATUS",
+            "NIMBUS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Harry Potter",
+          "items": [
+            "COMET",
+            "FIREBOLT",
+            "DEATHLY",
+            "HALLOWS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Things in the sky",
+          "items": [
+            "SUN",
+            "MOON",
+            "STAR",
+            "RAINBOW"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Star ___",
+          "items": [
+            "DUST",
+            "WARS",
+            "FISH",
+            "STRUCK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Office supplies",
+          "items": [
+            "STAPLER",
+            "TAPE",
+            "PAPER",
+            "CLIP"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Music album names",
+          "items": [
+            "CD",
+            "RECORD",
+            "TRACK",
+            "DISC"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Tape ___",
+          "items": [
+            "WORM",
+            "MEASURE",
+            "DECK",
+            "RECORDER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Paper ___",
+          "items": [
+            "BACK",
+            "WORK",
+            "ROUTE",
+            "TRAIL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Saturday Night Live alums",
+          "items": [
+            "MURPHY",
+            "FERRELL",
+            "FEY",
+            "POEHLER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Eddie Murphy movies",
+          "items": [
+            "SHREK",
+            "COMING TO AMERICA",
+            "BEVERLY HILLS COP",
+            "DREAMGIRLS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Tina Fey shows",
+          "items": [
+            "30 ROCK",
+            "SNL",
+            "KIMMY SCHMIDT",
+            "MEAN GIRLS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Cop ___",
+          "items": [
+            "CAR",
+            "OUT",
+            "ROUT",
+            "ULA"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Famous Spielberg films",
+          "items": [
+            "JAWS",
+            "E.T.",
+            "JURASSIC PARK",
+            "SCHINDLER'S LIST"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "___ TANK",
+          "items": [
+            "FISH",
+            "SHARK",
+            "GAS",
+            "THINK"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Park ___",
+          "items": [
+            "RANGER",
+            "WAY",
+            "BENCH",
+            "ING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Jurassic ___",
+          "items": [
+            "WORLD",
+            "PERIOD",
+            "COAST",
+            "PARK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of rooms",
+          "items": [
+            "KITCHEN",
+            "BEDROOM",
+            "BATHROOM",
+            "LIVING"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Living ___",
+          "items": [
+            "ROOM",
+            "DEAD",
+            "WAGE",
+            "WILL"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bath ___",
+          "items": [
+            "TUB",
+            "ROBE",
+            "WATER",
+            "HOUSE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Kitchen ___",
+          "items": [
+            "SINK",
+            "TABLE",
+            "NIGHTMARE",
+            "CONFIDENTIAL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Grand Slam tournaments",
+          "items": [
+            "WIMBLEDON",
+            "US OPEN",
+            "FRENCH OPEN",
+            "AUSTRALIAN OPEN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Open ___",
+          "items": [
+            "MIC",
+            "HOUSE",
+            "DOOR",
+            "HEART"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "French ___",
+          "items": [
+            "FRIES",
+            "KISS",
+            "TOAST",
+            "HORN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "US ___",
+          "items": [
+            "MARSHAL",
+            "OPEN",
+            "ARMY",
+            "PRESIDENT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for sad",
+          "items": [
+            "BLUE",
+            "DOWN",
+            "GLUM",
+            "GLOOMY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Down ___",
+          "items": [
+            "TOWN",
+            "SIZE",
+            "HILL",
+            "STAIRS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Music genres",
+          "items": [
+            "BLUES",
+            "COUNTRY",
+            "JAZZ",
+            "ROCK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Rock ___",
+          "items": [
+            "STAR",
+            "ET",
+            "ER",
+            "SOLID"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things in a forest",
+          "items": [
+            "TREE",
+            "DEER",
+            "MOSS",
+            "FERN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Types of mossy",
+          "items": [
+            "DAMP",
+            "FUZZY",
+            "GREEN",
+            "SOFT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Ferns",
+          "items": [
+            "GULLY",
+            "FERNGULLY",
+            "FERN GROVE",
+            "FERN BRITTON"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Tree ___",
+          "items": [
+            "HOUSE",
+            "HUGGER",
+            "TOP",
+            "LINE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Anatomy",
+          "items": [
+            "HEART",
+            "LUNGS",
+            "LIVER",
+            "KIDNEY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Heart ___",
+          "items": [
+            "BREAK",
+            "BURN",
+            "ACHE",
+            "BEAT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Beat ___",
+          "items": [
+            "BOX",
+            "DOWN",
+            "UP",
+            "ER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Box ___",
+          "items": [
+            "ING",
+            "CAR",
+            "SET",
+            "CUTTER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Soccer leagues",
+          "items": [
+            "MLS",
+            "EPL",
+            "LA LIGA",
+            "BUNDESLIGA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Soccer terms",
+          "items": [
+            "GOAL",
+            "HEADER",
+            "PITCH",
+            "KICK"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Pitch ___",
+          "items": [
+            "BLACK",
+            "FORK",
+            "ER",
+            "PERFECT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Goal ___",
+          "items": [
+            "KEEPER",
+            "POST",
+            "ORIENTED",
+            "LINE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Coffee orders",
+          "items": [
+            "LATTE",
+            "MOCHA",
+            "ESPRESSO",
+            "AMERICANO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Espresso ___",
+          "items": [
+            "MARTINI",
+            "SHOT",
+            "BAR",
+            "MACHINE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Latinos",
+          "items": [
+            "SHAKIRA",
+            "RICKY MARTIN",
+            "JLO",
+            "BAD BUNNY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mocha ___",
+          "items": [
+            "POT",
+            "CHIP",
+            "FRAPP",
+            "JAVA"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Disney movies",
+          "items": [
+            "FROZEN",
+            "TANGLED",
+            "BRAVE",
+            "MULAN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Brave ___",
+          "items": [
+            "HEART",
+            "NEW WORLD",
+            "SOUL",
+            "FACE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Frozen ___",
+          "items": [
+            "YOGURT",
+            "FOOD",
+            "LAKE",
+            "TUNDRA"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "New ___",
+          "items": [
+            "YORK",
+            "YEAR",
+            "WAVE",
+            "COMER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "NBA teams",
+          "items": [
+            "LAKERS",
+            "CELTICS",
+            "BULLS",
+            "HEAT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Heat ___",
+          "items": [
+            "WAVE",
+            "STROKE",
+            "ER",
+            "ED"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bull ___",
+          "items": [
+            "DOG",
+            "HORN",
+            "RUSH",
+            "FROG"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Celtic ___",
+          "items": [
+            "KNOT",
+            "CROSS",
+            "SEA",
+            "MUSIC"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pirate things",
+          "items": [
+            "HOOK",
+            "PARROT",
+            "TREASURE",
+            "SHIP"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Hook ___",
+          "items": [
+            "UP",
+            "ER",
+            "ED",
+            "WORM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Parrot ___",
+          "items": [
+            "FISH",
+            "HEAD",
+            "ING",
+            "Y"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Ship ___",
+          "items": [
+            "WRECK",
+            "MENT",
+            "YARD",
+            "PED"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Apple products",
+          "items": [
+            "IPHONE",
+            "IPAD",
+            "MAC",
+            "WATCH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Mac ___",
+          "items": [
+            "BOOK",
+            "DONALD",
+            "ARENA",
+            "CHEESE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Watch ___",
+          "items": [
+            "DOG",
+            "TOWER",
+            "MAN",
+            "WORD"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pad ___",
+          "items": [
+            "LOCK",
+            "DING",
+            "DLE",
+            "RE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Greek philosophers",
+          "items": [
+            "PLATO",
+            "SOCRATES",
+            "ARISTOTLE",
+            "EPICURUS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Aristos",
+          "items": [
+            "ARI GOLD",
+            "ARISTOCRATS",
+            "ARI MELBER",
+            "ARISTA"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Plato ___",
+          "items": [
+            "NIC",
+            "NIST",
+            "FORM",
+            "O"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mountains",
+          "items": [
+            "EVEREST",
+            "K2",
+            "DENALI",
+            "ELBRUS"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Major rivers",
+          "items": [
+            "NILE",
+            "AMAZON",
+            "DANUBE",
+            "MISSISSIPPI"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Amazon ___",
+          "items": [
+            "PRIME",
+            "WAREHOUSE",
+            "RAINFOREST",
+            "ECHO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Echo ___",
+          "items": [
+            "LOCATION",
+            "CHAMBER",
+            "ED",
+            "ING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Prime ___",
+          "items": [
+            "TIME",
+            "RIB",
+            "NUMBER",
+            "MINISTER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Marvel Avengers",
+          "items": [
+            "IRON MAN",
+            "HULK",
+            "THOR",
+            "BLACK WIDOW"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Iron ___",
+          "items": [
+            "FIST",
+            "WORK",
+            "CLAD",
+            "ORE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Black ___",
+          "items": [
+            "BERRY",
+            "BIRD",
+            "SMITH",
+            "JACK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Widow ___",
+          "items": [
+            "ER",
+            "ED",
+            "S",
+            "PEAK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Greek gods",
+          "items": [
+            "ZEUS",
+            "APOLLO",
+            "ARES",
+            "HERMES"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Apollo ___",
+          "items": [
+            "13",
+            "CREED",
+            "LANDING",
+            "ONIRA"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Ares ___",
+          "items": [
+            "ENA",
+            "MARS",
+            "TARGET",
+            "WAR GOD"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Hermes ___",
+          "items": [
+            "BAG",
+            "SCARF",
+            "BRAND",
+            "MESSENGER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Wrestling moves",
+          "items": [
+            "SUPLEX",
+            "CLOTHESLINE",
+            "PIN",
+            "CHOKE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Pin ___",
+          "items": [
+            "BALL",
+            "POINT",
+            "WHEEL",
+            "CUSHION"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Wheel ___",
+          "items": [
+            "BARROW",
+            "CHAIR",
+            "HOUSE",
+            "SPIN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Choke ___",
+          "items": [
+            "HOLD",
+            "ER",
+            "ED",
+            "UP"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Halloween costumes",
+          "items": [
+            "VAMPIRE",
+            "WITCH",
+            "GHOST",
+            "ZOMBIE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Witch ___",
+          "items": [
+            "CRAFT",
+            "HUNT",
+            "HAZEL",
+            "ER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Ghost ___",
+          "items": [
+            "RIDER",
+            "WRITER",
+            "TOWN",
+            "BUSTER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Vampire ___",
+          "items": [
+            "BAT",
+            "SLAYER",
+            "DIARIES",
+            "WEEKEND"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Song words for love",
+          "items": [
+            "BABY",
+            "HONEY",
+            "DARLING",
+            "SWEETHEART"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Baby ___",
+          "items": [
+            "FACE",
+            "DRIVER",
+            "SITTER",
+            "STEP"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Step ___",
+          "items": [
+            "MOM",
+            "DAD",
+            "SISTER",
+            "BROTHER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Honey ___",
+          "items": [
+            "MOON",
+            "COMB",
+            "DEW",
+            "BEE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things in a gym",
+          "items": [
+            "WEIGHTS",
+            "TREADMILL",
+            "MIRROR",
+            "SAUNA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Mirror ___",
+          "items": [
+            "HOUSE",
+            "BALL",
+            "IMAGE",
+            "ED"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Weight ___",
+          "items": [
+            "LIFTING",
+            "Y",
+            "S",
+            "FUL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Tread ___",
+          "items": [
+            "MILL",
+            "WATER",
+            "MARK",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Crayon colors",
+          "items": [
+            "RED",
+            "BLUE",
+            "GREEN",
+            "PURPLE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Purple things",
+          "items": [
+            "GRAPE",
+            "EGGPLANT",
+            "LILAC",
+            "LAVENDER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Greens",
+          "items": [
+            "GREEN ARROW",
+            "KERMIT",
+            "INCREDIBLE HULK",
+            "SHREK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Blue ___",
+          "items": [
+            "BERRY",
+            "PRINT",
+            "BIRD",
+            "TOOTH"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of music",
+          "items": [
+            "JAZZ",
+            "BLUES",
+            "ROCK",
+            "POP"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Pop ___",
+          "items": [
+            "CORN",
+            "STAR",
+            "UP",
+            "TART"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Tarts",
+          "items": [
+            "LEMON",
+            "JAM",
+            "CUSTARD",
+            "FRUIT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Jam ___",
+          "items": [
+            "SESSION",
+            "PACKED",
+            "BAND",
+            "JAR"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things found in a deli",
+          "items": [
+            "TURKEY",
+            "HAM",
+            "SALAMI",
+            "SWISS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Swiss ___",
+          "items": [
+            "ARMY",
+            "CHEESE",
+            "BANK",
+            "ALPS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Holiday turkeys",
+          "items": [
+            "THANKSGIVING",
+            "CHRISTMAS",
+            "NORMAN",
+            "BUTTERBALL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Ham ___",
+          "items": [
+            "MER",
+            "BURGER",
+            "STER",
+            "LET"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Spaghetti western actors",
+          "items": [
+            "EASTWOOD",
+            "FONDA",
+            "BRONSON",
+            "WALLACH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Forest sounds",
+          "items": [
+            "RUSTLE",
+            "HOWL",
+            "CHIRP",
+            "HOOT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Hoot ___",
+          "items": [
+            "ER",
+            "ED",
+            "ENANNY",
+            "S"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Charles Bronson films",
+          "items": [
+            "DEATH WISH",
+            "ONCE UPON A TIME",
+            "HARD TIMES",
+            "MR MAJESTYK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Wedding vows",
+          "items": [
+            "LOVE",
+            "HONOR",
+            "CHERISH",
+            "OBEY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Honor ___",
+          "items": [
+            "ROLL",
+            "STUDENT",
+            "CODE",
+            "ABLE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Boy bands",
+          "items": [
+            "NSYNC",
+            "BACKSTREET BOYS",
+            "NEW KIDS",
+            "98 DEGREES"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Honors",
+          "items": [
+            "ROCKY",
+            "HONORABLE",
+            "MEDAL",
+            "BLACKMAIL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Friends episode titles",
+          "items": [
+            "THE PILOT",
+            "THE LAST ONE",
+            "THE PROPOSAL",
+            "THE ONE WITH THE BLACKOUT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Last ___",
+          "items": [
+            "NIGHT",
+            "CALL",
+            "SUPPER",
+            "CHANCE"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous proposals",
+          "items": [
+            "BUSINESS",
+            "INDECENT",
+            "ENGAGEMENT",
+            "POLITICAL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Black ___",
+          "items": [
+            "OUT",
+            "JACK",
+            "BERRY",
+            "BIRD"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Olympic medals",
+          "items": [
+            "GOLD",
+            "SILVER",
+            "BRONZE",
+            "PLATINUM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Gold ___",
+          "items": [
+            "FISH",
+            "DIGGER",
+            "FINGER",
+            "RUSH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Silver ___",
+          "items": [
+            "WARE",
+            "FOX",
+            "SCREEN",
+            "BULLET"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Bronze ___",
+          "items": [
+            "AGE",
+            "MEDAL",
+            "STATUE",
+            "TAN"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things that rotate",
+          "items": [
+            "WHEEL",
+            "FAN",
+            "PROPELLER",
+            "GEAR"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Gear ___",
+          "items": [
+            "BOX",
+            "HEAD",
+            "UP",
+            "SHIFT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Fan ___",
+          "items": [
+            "BASE",
+            "CLUB",
+            "BOY",
+            "GIRL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Wheel ___",
+          "items": [
+            "CHAIR",
+            "SPIN",
+            "HOUSE",
+            "BARROW"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Stadium things",
+          "items": [
+            "FIELD",
+            "GOAL",
+            "BENCH",
+            "CROWD"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Bench ___",
+          "items": [
+            "MARK",
+            "WARMER",
+            "PRESS",
+            "ED"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Field ___",
+          "items": [
+            "DAY",
+            "AGENT",
+            "TRIP",
+            "TEST"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Crowd ___",
+          "items": [
+            "FUNDING",
+            "SOURCE",
+            "S",
+            "SURFING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for big",
+          "items": [
+            "HUGE",
+            "LARGE",
+            "GIANT",
+            "VAST"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Giant ___",
+          "items": [
+            "STEP",
+            "KILLER",
+            "SQUID",
+            "PANDA"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Words for small",
+          "items": [
+            "TINY",
+            "WEE",
+            "MICRO",
+            "MINI"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mini ___",
+          "items": [
+            "VAN",
+            "SKIRT",
+            "COOPER",
+            "GOLF"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things you read",
+          "items": [
+            "BOOK",
+            "NEWSPAPER",
+            "MAGAZINE",
+            "SIGN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Sign ___",
+          "items": [
+            "AL",
+            "ATURE",
+            "ED",
+            "UP"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Book ___",
+          "items": [
+            "WORM",
+            "CLUB",
+            "STORE",
+            "CASE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Magazine ___",
+          "items": [
+            "RACK",
+            "STAND",
+            "ARTICLE",
+            "ASSEMBLY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pixar shorts",
+          "items": [
+            "LUXO JR",
+            "TIN TOY",
+            "BOUNDIN",
+            "BAO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Toy ___",
+          "items": [
+            "BOX",
+            "STORY",
+            "SHOP",
+            "R US"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Toys",
+          "items": [
+            "WOODY",
+            "BUZZ",
+            "RAGGEDY ANN",
+            "BARBIE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Story ___",
+          "items": [
+            "LINE",
+            "BOARD",
+            "BOOK",
+            "TELLER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Disney sidekicks",
+          "items": [
+            "DONKEY",
+            "OLAF",
+            "SEBASTIAN",
+            "LUMIERE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Donkey ___",
+          "items": [
+            "KONG",
+            "KICK",
+            "WORK",
+            "ER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Kicks ___",
+          "items": [
+            "BACK",
+            "STARTER",
+            "ASS",
+            "BOXING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Olafs",
+          "items": [
+            "FROZEN",
+            "LARS",
+            "STAVANGER",
+            "ICELAND"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Card movements",
+          "items": [
+            "DEAL",
+            "SHUFFLE",
+            "DRAW",
+            "DISCARD"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Deal ___",
+          "items": [
+            "S",
+            "BREAKER",
+            "NO",
+            "WITH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Draw ___",
+          "items": [
+            "BACK",
+            "ER",
+            "ING",
+            "STRING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "String ___",
+          "items": [
+            "BEAN",
+            "CHEESE",
+            "THEORY",
+            "ALONG"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Star Wars planets",
+          "items": [
+            "TATOOINE",
+            "HOTH",
+            "ENDOR",
+            "DAGOBAH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Star Wars species",
+          "items": [
+            "WOOKIEE",
+            "JAWA",
+            "EWOK",
+            "HUTT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Words inside HOTH",
+          "items": [
+            "HOT",
+            "HO",
+            "HE",
+            "ROT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Hot ___",
+          "items": [
+            "DOG",
+            "SAUCE",
+            "ROD",
+            "TUB"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Olympic events",
+          "items": [
+            "RUNNING",
+            "JUMPING",
+            "SWIMMING",
+            "DIVING"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for ran",
+          "items": [
+            "DASHED",
+            "FLED",
+            "BOLTED",
+            "RACED"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bolt ___",
+          "items": [
+            "FROM THE BLUE",
+            "ACTION",
+            "UP",
+            "UPRIGHT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Race ___",
+          "items": [
+            "TRACK",
+            "HORSE",
+            "CARD",
+            "CAR"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Coffee shop sizes",
+          "items": [
+            "SHORT",
+            "TALL",
+            "GRANDE",
+            "VENTI"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Tall ___",
+          "items": [
+            "TALE",
+            "SHIP",
+            "BOY",
+            "ER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Things sold in cups",
+          "items": [
+            "COFFEE",
+            "TEA",
+            "ICE CREAM",
+            "YOGURT"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Short ___",
+          "items": [
+            "CUT",
+            "STOP",
+            "CAKE",
+            "LIST"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for fight",
+          "items": [
+            "BATTLE",
+            "SCRAP",
+            "BRAWL",
+            "DUEL"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Battle ___",
+          "items": [
+            "FIELD",
+            "CRY",
+            "SHIP",
+            "SCAR"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Battleship pieces",
+          "items": [
+            "CARRIER",
+            "CRUISER",
+            "SUBMARINE",
+            "DESTROYER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Scar ___",
+          "items": [
+            "FACE",
+            "ED",
+            "Y",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Card games",
+          "items": [
+            "UNO",
+            "SOLITAIRE",
+            "BLACKJACK",
+            "HEARTS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Hearts ___",
+          "items": [
+            "BREAK",
+            "FELT",
+            "BEAT",
+            "WORM"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Black ___",
+          "items": [
+            "JACK",
+            "BIRD",
+            "BERRY",
+            "SMITH"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Solo ___",
+          "items": [
+            "IST",
+            "PRENEUR",
+            "MON",
+            "CUP"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Songs that start with 'I'",
+          "items": [
+            "I WALK THE LINE",
+            "I WANT IT ALL",
+            "I WILL ALWAYS LOVE YOU",
+            "I'M YOURS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Beatles songs",
+          "items": [
+            "IMAGINE",
+            "HEY JUDE",
+            "LET IT BE",
+            "YESTERDAY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Want ___",
+          "items": [
+            "AD",
+            "ED",
+            "S",
+            "TON"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Yesterday ___",
+          "items": [
+            "MORNING",
+            "EVENING",
+            "NEWS",
+            "DAY BEFORE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Bedtime sounds",
+          "items": [
+            "YAWN",
+            "SNORE",
+            "SIGH",
+            "BREATH"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Sigh ___",
+          "items": [
+            "NIFICANT",
+            "T",
+            "HING",
+            "NING"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Things in a bedroom",
+          "items": [
+            "BED",
+            "DRESSER",
+            "CLOSET",
+            "NIGHTSTAND"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Breath ___",
+          "items": [
+            "LESS",
+            "ER",
+            "ING",
+            "TAKING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Mountain ranges",
+          "items": [
+            "ROCKIES",
+            "ALPS",
+            "ANDES",
+            "HIMALAYAS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Peaks",
+          "items": [
+            "EVEREST",
+            "K2",
+            "DENALI",
+            "ELBRUS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Alp ___",
+          "items": [
+            "INE",
+            "HABET",
+            "HA",
+            "O"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mountain ___",
+          "items": [
+            "LION",
+            "RANGE",
+            "BIKE",
+            "DEW"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things that pop",
+          "items": [
+            "BUBBLE",
+            "CORN",
+            "PIMPLE",
+            "BALLOON"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Bubble ___",
+          "items": [
+            "GUM",
+            "BATH",
+            "WRAP",
+            "TEA"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Popcorn flavors",
+          "items": [
+            "BUTTER",
+            "CARAMEL",
+            "CHEDDAR",
+            "KETTLE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Balloon ___",
+          "items": [
+            "ANIMAL",
+            "FIESTA",
+            "ED",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Game show hosts",
+          "items": [
+            "ALEX TREBEK",
+            "PAT SAJAK",
+            "STEVE HARVEY",
+            "DREW CAREY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Steves",
+          "items": [
+            "JOBS",
+            "CARELL",
+            "MARTIN",
+            "WONDER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Drew ___",
+          "items": [
+            "BARRYMORE",
+            "BREES",
+            "CAREY",
+            "ED"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Pat ___",
+          "items": [
+            "BENATAR",
+            "ERN",
+            "RIDDICK",
+            "SAJAK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Halloween candy",
+          "items": [
+            "KIT KAT",
+            "SNICKERS",
+            "TWIX",
+            "REESE'S"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Kit ___",
+          "items": [
+            "KAT",
+            "TY",
+            "TEN",
+            "CHEN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Reeses",
+          "items": [
+            "WITHERSPOON",
+            "PIECES",
+            "PEANUT BUTTER CUPS",
+            "CONNERY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Twin ___",
+          "items": [
+            "BED",
+            "CITIES",
+            "TOWERS",
+            "KIE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for hello",
+          "items": [
+            "HI",
+            "HEY",
+            "HELLO",
+            "HOWDY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Hi ___",
+          "items": [
+            "GH",
+            "GHWAY",
+            "TECH",
+            "PPO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Howdy ___",
+          "items": [
+            "DOODY",
+            "PARTNER",
+            "Y",
+            "DOO"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Hello ___",
+          "items": [
+            "KITTY",
+            "DOLLY",
+            "WORLD",
+            "FRESH"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Wedding cake parts",
+          "items": [
+            "TIER",
+            "FROSTING",
+            "TOPPER",
+            "FILLING"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Filling ___",
+          "items": [
+            "STATION",
+            "OUT",
+            "S",
+            "UP"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Topper ___",
+          "items": [
+            "MOST",
+            "WARE",
+            "SISTER",
+            "TURVY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Frost ___",
+          "items": [
+            "BITE",
+            "ED",
+            "Y",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Marvel villains",
+          "items": [
+            "THANOS",
+            "LOKI",
+            "ULTRON",
+            "DOOM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Doom ___",
+          "items": [
+            "SDAY",
+            "ED",
+            "S",
+            "ING"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Lokis",
+          "items": [
+            "SYLVIE",
+            "TOM HIDDLESTON",
+            "MARVEL LOKI",
+            "SCANDINAVIAN GOD"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Thanos ___",
+          "items": [
+            "SNAP",
+            "GAUNTLET",
+            "INFINITY",
+            "GLOVE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Types of cheese",
+          "items": [
+            "CHEDDAR",
+            "SWISS",
+            "BRIE",
+            "FETA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Cheese types (more)",
+          "items": [
+            "GORGONZOLA",
+            "PROVOLONE",
+            "MOZZARELLA",
+            "PARMESAN"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bread types",
+          "items": [
+            "RYE",
+            "SOURDOUGH",
+            "WHEAT",
+            "WHITE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Phys (Greek letter)",
+          "items": [
+            "PHI",
+            "RHO",
+            "PI",
+            "CHI"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Olympic colors",
+          "items": [
+            "BLUE",
+            "YELLOW",
+            "BLACK",
+            "GREEN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Black ___",
+          "items": [
+            "JACK",
+            "BERRY",
+            "BIRD",
+            "SMITH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Greens",
+          "items": [
+            "KERMIT",
+            "GRINCH",
+            "HULK",
+            "SHREK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Yellow ___",
+          "items": [
+            "JACKET",
+            "STONE",
+            "SUBMARINE",
+            "BELLY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "NYC boroughs",
+          "items": [
+            "MANHATTAN",
+            "BROOKLYN",
+            "QUEENS",
+            "BRONX"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Queens",
+          "items": [
+            "ELIZABETH",
+            "MARY",
+            "CLEOPATRA",
+            "VICTORIA"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bronx ___",
+          "items": [
+            "BOMBERS",
+            "TALE",
+            "ZOO",
+            "CHEER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Brooklyn ___",
+          "items": [
+            "BRIDGE",
+            "NETS",
+            "99",
+            "NINE-NINE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Famous chefs",
+          "items": [
+            "JULIA CHILD",
+            "GORDON RAMSAY",
+            "ANTHONY BOURDAIN",
+            "ALICE WATERS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for kid",
+          "items": [
+            "CHILD",
+            "TYKE",
+            "TOT",
+            "YOUTH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Anthony ___",
+          "items": [
+            "HOPKINS",
+            "BOURDAIN",
+            "WEINER",
+            "SOPRANO"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Bourdain shows",
+          "items": [
+            "NO RESERVATIONS",
+            "PARTS UNKNOWN",
+            "A COOK'S TOUR",
+            "KITCHEN CONFIDENTIAL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Beatles albums",
+          "items": [
+            "ABBEY ROAD",
+            "HELP",
+            "LET IT BE",
+            "REVOLVER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Roads",
+          "items": [
+            "ABBEY",
+            "SILK",
+            "FORK",
+            "ROUTE 66"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Help ___",
+          "items": [
+            "FUL",
+            "ER",
+            "ED",
+            "ING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Revolver ___",
+          "items": [
+            "AMMO",
+            "CHAMBER",
+            "BARREL",
+            "HANDLE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Stephen King novels",
+          "items": [
+            "IT",
+            "CARRIE",
+            "SHINING",
+            "CUJO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Pet types",
+          "items": [
+            "DOG",
+            "CAT",
+            "BIRD",
+            "FISH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Cujo ___",
+          "items": [
+            "NOVEL",
+            "KING",
+            "ST BERNARD",
+            "RABID"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Carrie ___",
+          "items": [
+            "UNDERWOOD",
+            "FISHER",
+            "BRADSHAW",
+            "BOMB"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Game of Thrones houses",
+          "items": [
+            "STARK",
+            "LANNISTER",
+            "TARGARYEN",
+            "BARATHEON"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Starks",
+          "items": [
+            "TONY",
+            "NED",
+            "ROBB",
+            "SANSA"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Tony ___",
+          "items": [
+            "AWARDS",
+            "ROBBINS",
+            "BENNETT",
+            "HAWK"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Tony Stark suits",
+          "items": [
+            "MARK 1",
+            "MARK 42",
+            "HULKBUSTER",
+            "BLEEDING EDGE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "NFL teams",
+          "items": [
+            "BEARS",
+            "LIONS",
+            "RAMS",
+            "FALCONS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Lion ___",
+          "items": [
+            "KING",
+            "ESS",
+            "HEART",
+            "FISH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bear ___",
+          "items": [
+            "HUG",
+            "FOOT",
+            "SKIN",
+            "LY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Ram ___",
+          "items": [
+            "BLE",
+            "PAGE",
+            "SHACKLE",
+            "BUNCTIOUS"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Disney parks",
+          "items": [
+            "MAGIC KINGDOM",
+            "EPCOT",
+            "ANIMAL KINGDOM",
+            "HOLLYWOOD STUDIOS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Magic ___",
+          "items": [
+            "WAND",
+            "TRICK",
+            "CARPET",
+            "JOHNSON"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Animal ___",
+          "items": [
+            "FARM",
+            "HOUSE",
+            "ER",
+            "ATIC"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Hollywood ___",
+          "items": [
+            "SIGN",
+            "HILLS",
+            "WALK OF FAME",
+            "BOWL"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pop singers",
+          "items": [
+            "TAYLOR SWIFT",
+            "ARIANA GRANDE",
+            "BILLIE EILISH",
+            "ADELE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for big",
+          "items": [
+            "GRANDE",
+            "HUGE",
+            "VAST",
+            "JUMBO"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Swift ___",
+          "items": [
+            "LY",
+            "CURRENT",
+            "BOAT",
+            "ER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Adele ___",
+          "items": [
+            "19",
+            "21",
+            "25",
+            "30"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Spongebob characters",
+          "items": [
+            "SPONGEBOB",
+            "PATRICK",
+            "SQUIDWARD",
+            "SANDY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Patricks",
+          "items": [
+            "SWAYZE",
+            "STEWART",
+            "ROY ROGERS PARTNER",
+            "SAINT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sandy ___",
+          "items": [
+            "BEACH",
+            "HOOK",
+            "KOUFAX",
+            "CHEEKS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Sponge ___",
+          "items": [
+            "BATH",
+            "CAKE",
+            "WORTHY",
+            "BOB"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Wedding traditions",
+          "items": [
+            "RINGS",
+            "VOWS",
+            "CAKE",
+            "TOAST"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Toast ___",
+          "items": [
+            "MASTER",
+            "ER",
+            "Y",
+            "ED"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Cake types",
+          "items": [
+            "CHEESE",
+            "SPONGE",
+            "ANGEL FOOD",
+            "DEVIL'S FOOD"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Devil's ___",
+          "items": [
+            "ADVOCATE",
+            "FOOD",
+            "TRIANGLE",
+            "NIGHT"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Dinosaurs",
+          "items": [
+            "T-REX",
+            "STEGOSAURUS",
+            "TRICERATOPS",
+            "RAPTOR"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "NBA Raptors players",
+          "items": [
+            "KAWHI",
+            "DERRICK ROSE",
+            "FRED VANVLEET",
+            "KYLE LOWRY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Words for old",
+          "items": [
+            "ANCIENT",
+            "ANTIQUE",
+            "AGED",
+            "ELDERLY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Dragon ___",
+          "items": [
+            "FLY",
+            "FRUIT",
+            "SLAYER",
+            "BORN"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pet store animals",
+          "items": [
+            "FISH",
+            "BIRD",
+            "HAMSTER",
+            "TURTLE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Turtle types",
+          "items": [
+            "SEA",
+            "BOX",
+            "SNAPPING",
+            "PAINTED"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous turtles",
+          "items": [
+            "FRANKLIN",
+            "MICHELANGELO",
+            "DONATELLO",
+            "CECIL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Painted ___",
+          "items": [
+            "DESERT",
+            "LADY",
+            "HORSE",
+            "BLACK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Famous Tom's",
+          "items": [
+            "HANKS",
+            "CRUISE",
+            "BRADY",
+            "HOLLAND"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for jumped",
+          "items": [
+            "LEAPED",
+            "HOPPED",
+            "BOUNDED",
+            "SPRANG"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Holland ___",
+          "items": [
+            "TULIP",
+            "DUTCH",
+            "TUNNEL",
+            "BENJAMIN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Cruise ___",
+          "items": [
+            "SHIP",
+            "CONTROL",
+            "ER",
+            "LINE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things in space",
+          "items": [
+            "STAR",
+            "PLANET",
+            "COMET",
+            "MOON"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Comet ___",
+          "items": [
+            "TAIL",
+            "SHOWER",
+            "HALLEY",
+            "CRASH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Moon ___",
+          "items": [
+            "LIGHT",
+            "WALK",
+            "SHINE",
+            "LANDING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Star ___",
+          "items": [
+            "DUST",
+            "FISH",
+            "WARS",
+            "STRUCK"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Dance styles",
+          "items": [
+            "TANGO",
+            "SALSA",
+            "WALTZ",
+            "HIP HOP"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Salsa ___",
+          "items": [
+            "VERDE",
+            "ROJA",
+            "DANCING",
+            "JAR"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Hip ___",
+          "items": [
+            "HOP",
+            "STER",
+            "BONE",
+            "NESS"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Waltz ___",
+          "items": [
+            "ER",
+            "ED",
+            "ING",
+            "ES"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Wedding flowers",
+          "items": [
+            "ROSE",
+            "LILY",
+            "TULIP",
+            "ORCHID"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Roses",
+          "items": [
+            "BUD",
+            "RED ROSE",
+            "ROSE KENNEDY",
+            "ROSE MARY"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Lily ___",
+          "items": [
+            "PAD",
+            "POND",
+            "WHITE",
+            "ALLEN"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Tulip ___",
+          "items": [
+            "BULB",
+            "FIELD",
+            "FESTIVAL",
+            "NETHERLAND"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Words for ate",
+          "items": [
+            "DEVOURED",
+            "CONSUMED",
+            "INHALED",
+            "WOLFED"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Consumed ___",
+          "items": [
+            "BY",
+            "ER",
+            "ABLE",
+            "PTION"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Wolf ___",
+          "items": [
+            "PACK",
+            "DOWN",
+            "ED",
+            "HOWL"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Inhale ___",
+          "items": [
+            "D",
+            "S",
+            "R",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Computer parts",
+          "items": [
+            "CPU",
+            "GPU",
+            "RAM",
+            "SSD"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for hit",
+          "items": [
+            "BANG",
+            "SLAM",
+            "STRIKE",
+            "BASH"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Bash ___",
+          "items": [
+            "FUL",
+            "ED",
+            "ING",
+            "ER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Slam ___",
+          "items": [
+            "DUNK",
+            "POETRY",
+            "BOOK",
+            "DOWN"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Doctor types",
+          "items": [
+            "MD",
+            "PHD",
+            "DDS",
+            "DVM"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "PhD subjects",
+          "items": [
+            "PHILOSOPHY",
+            "HISTORY",
+            "BIOLOGY",
+            "ECONOMICS"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous MDs",
+          "items": [
+            "DR. HOUSE",
+            "DR. STRANGE",
+            "DR. PHIL",
+            "DR. OZ"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Strange ___",
+          "items": [
+            "RS",
+            "R",
+            "ER",
+            "NESS"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Avengers Endgame deaths",
+          "items": [
+            "IRON MAN",
+            "BLACK WIDOW",
+            "VISION",
+            "THANOS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Black ___",
+          "items": [
+            "BERRY",
+            "BIRD",
+            "SMITH",
+            "WIDOW"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Iron ___",
+          "items": [
+            "FIST",
+            "WORK",
+            "CLAD",
+            "ORE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Vision ___",
+          "items": [
+            "ARY",
+            "S",
+            "BOARD",
+            "QUEST"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Vampire movies",
+          "items": [
+            "BLADE",
+            "NOSFERATU",
+            "INTERVIEW",
+            "DRACULA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Twilight series",
+          "items": [
+            "NEW MOON",
+            "ECLIPSE",
+            "BREAKING DAWN",
+            "TWILIGHT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Blade ___",
+          "items": [
+            "RUNNER",
+            "II",
+            "TRINITY",
+            "SAW"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Interview ___",
+          "items": [
+            "EE",
+            "ER",
+            "WITH THE VAMPIRE",
+            "ING"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things in a kitchen",
+          "items": [
+            "FRIDGE",
+            "STOVE",
+            "SINK",
+            "OVEN"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Sink ___",
+          "items": [
+            "HOLE",
+            "ER",
+            "ING",
+            "S"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Stove ___",
+          "items": [
+            "TOP",
+            "PIPE",
+            "BLACK",
+            "D"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Oven ___",
+          "items": [
+            "MITT",
+            "BAKED",
+            "READY",
+            "ED"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Nicknames for Joseph",
+          "items": [
+            "JOSE",
+            "PEPE",
+            "SEPH",
+            "JOJO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Friends characters",
+          "items": [
+            "JOEY",
+            "ROSS",
+            "CHANDLER",
+            "MONICA"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Joey ___",
+          "items": [
+            "TRIBBIANI",
+            "FATONE",
+            "RAMONE",
+            "DEVITO"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Sloppy ___",
+          "items": [
+            "JOE",
+            "SECONDS",
+            "KISS",
+            "ED"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Things you hammer",
+          "items": [
+            "NAIL",
+            "STAKE",
+            "HORSESHOE",
+            "DENT"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for very small",
+          "items": [
+            "TINY",
+            "WEE",
+            "MICRO",
+            "MINI"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Nail ___",
+          "items": [
+            "POLISH",
+            "BITER",
+            "ED",
+            "FILE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Wee ___",
+          "items": [
+            "KEND",
+            "HOURS",
+            "KLY",
+            "NIE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pirates of the Caribbean",
+          "items": [
+            "JACK",
+            "WILL",
+            "ELIZABETH",
+            "BARBOSSA"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Jacks",
+          "items": [
+            "NICHOLSON",
+            "BLACK",
+            "DANIELS",
+            "SPARROW"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Will ___",
+          "items": [
+            "IAM",
+            "SMITH",
+            "FERRELL",
+            "O THE WISP"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Famous Elizabeths",
+          "items": [
+            "QUEEN",
+            "TAYLOR",
+            "WARREN",
+            "BANKS"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Office tools",
+          "items": [
+            "STAPLER",
+            "PEN",
+            "TAPE",
+            "SCISSORS"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Pen ___",
+          "items": [
+            "CIL",
+            "NY",
+            "TAGON",
+            "DING"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Cut ___",
+          "items": [
+            "OUT",
+            "BACK",
+            "ER",
+            "TER"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Tape ___",
+          "items": [
+            "WORM",
+            "MEASURE",
+            "DECK",
+            "RECORDER"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Marvel teams",
+          "items": [
+            "AVENGERS",
+            "X-MEN",
+            "GUARDIANS",
+            "FANTASTIC FOUR"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Fours",
+          "items": [
+            "FAB FOUR",
+            "BIG FOUR",
+            "FAB 4",
+            "BAND OF 4"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Words for groups",
+          "items": [
+            "GANG",
+            "CREW",
+            "CLAN",
+            "SQUAD"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Fantastic ___",
+          "items": [
+            "MR FOX",
+            "BEASTS",
+            "FOUR",
+            "FILMS"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Spice Girls",
+          "items": [
+            "BABY",
+            "SCARY",
+            "GINGER",
+            "SPORTY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Baby ___",
+          "items": [
+            "FACE",
+            "SITTER",
+            "STEP",
+            "DRIVER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Sporty ___",
+          "items": [
+            "CAR",
+            "Y",
+            "ER",
+            "SPICE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Ginger ___",
+          "items": [
+            "BREAD",
+            "ALE",
+            "ROGERS",
+            "SNAP"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Famous architects",
+          "items": [
+            "FRANK LLOYD WRIGHT",
+            "I.M. PEI",
+            "ZAHA HADID",
+            "FRANK GEHRY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Franks",
+          "items": [
+            "SINATRA",
+            "ZAPPA",
+            "OCEAN",
+            "LLOYD WRIGHT"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Frank ___",
+          "items": [
+            "FURTER",
+            "LY",
+            "NESS",
+            "INCENSE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Ocean ___",
+          "items": [
+            "LINER",
+            "FRONT",
+            "FLOOR",
+            "SIDE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Periodic table",
+          "items": [
+            "GOLD",
+            "SILVER",
+            "IRON",
+            "COPPER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Copper ___",
+          "items": [
+            "HEAD",
+            "WIRE",
+            "TONE",
+            "FIELD"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Police nicknames",
+          "items": [
+            "BOBBY",
+            "FUZZ",
+            "COP",
+            "SMOKEY"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Smokey ___",
+          "items": [
+            "BEAR",
+            "ROBINSON",
+            "MOUNTAIN",
+            "EYES"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Cards in poker",
+          "items": [
+            "FLUSH",
+            "STRAIGHT",
+            "FULL HOUSE",
+            "PAIR"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Pair ___",
+          "items": [
+            "ED",
+            "ING",
+            "S",
+            "UP"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Full ___",
+          "items": [
+            "HOUSE",
+            "TIME",
+            "BACK",
+            "BORE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Straight ___",
+          "items": [
+            "EDGE",
+            "AWAY",
+            "FORWARD",
+            "JACKET"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "James Bond films",
+          "items": [
+            "GOLDFINGER",
+            "CASINO ROYALE",
+            "SKYFALL",
+            "NO TIME TO DIE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for fall",
+          "items": [
+            "DROP",
+            "TUMBLE",
+            "PLUMMET",
+            "DESCEND"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Golden ___",
+          "items": [
+            "GATE",
+            "RETRIEVER",
+            "RULE",
+            "AGE"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Royal ___",
+          "items": [
+            "FLUSH",
+            "TY",
+            "ER",
+            "ITY"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Beatles members",
+          "items": [
+            "JOHN",
+            "PAUL",
+            "GEORGE",
+            "RINGO"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Famous Pauls",
+          "items": [
+            "MCCARTNEY",
+            "RUDD",
+            "NEWMAN",
+            "WALKER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "George ___",
+          "items": [
+            "LUCAS",
+            "CLOONEY",
+            "HARRISON",
+            "WASHINGTON"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "John ___",
+          "items": [
+            "WICK",
+            "WAYNE",
+            "CENA",
+            "LENNON"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Christmas drinks",
+          "items": [
+            "EGGNOG",
+            "HOT COCOA",
+            "MULLED WINE",
+            "CIDER"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Hot ___",
+          "items": [
+            "DOG",
+            "SAUCE",
+            "ROD",
+            "TUB"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Wine types",
+          "items": [
+            "RED",
+            "WHITE",
+            "ROSE",
+            "SPARKLING"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Mulled ___",
+          "items": [
+            "WINE",
+            "ALE",
+            "OVER",
+            "SPICE"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Famous Marleys",
+          "items": [
+            "BOB",
+            "JACOB",
+            "RITA",
+            "ZIGGY"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Bob types",
+          "items": [
+            "HAIR",
+            "UP DOWN",
+            "SLED",
+            "TAIL"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Famous Bobs",
+          "items": [
+            "DYLAN",
+            "ROSS",
+            "SAGET",
+            "NEWHART"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Rita ___",
+          "items": [
+            "HAYWORTH",
+            "ORA",
+            "BOOK",
+            "WILSON"
+          ]
+        }
+      ]
+    },
+    {
+      "groups": [
+        {
+          "color": "yellow",
+          "category": "Pumpkin spice",
+          "items": [
+            "LATTE",
+            "PIE",
+            "BREAD",
+            "COOKIE"
+          ]
+        },
+        {
+          "color": "green",
+          "category": "Words for autumn",
+          "items": [
+            "FALL",
+            "AUTUMN",
+            "HARVEST",
+            "OCTOBER"
+          ]
+        },
+        {
+          "color": "blue",
+          "category": "Latte ___",
+          "items": [
+            "ART",
+            "CUP",
+            "MILK",
+            "ESPRESSO"
+          ]
+        },
+        {
+          "color": "purple",
+          "category": "Cookie ___",
+          "items": [
+            "CRUMBLE",
+            "JAR",
+            "CUTTER",
+            "DOUGH"
+          ]
+        }
+      ]
+    }
+  ]
+}

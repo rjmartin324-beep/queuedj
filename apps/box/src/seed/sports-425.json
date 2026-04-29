@@ -1,0 +1,3827 @@
+[
+  [
+    "How many players are on a basketball team on the court?",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "b",
+    "easy"
+  ],
+  [
+    "How many points is a touchdown worth in American football?",
+    "4",
+    "5",
+    "6",
+    "7",
+    "c",
+    "easy"
+  ],
+  [
+    "How many holes are played in a standard round of golf?",
+    "9",
+    "12",
+    "18",
+    "24",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country invented basketball?",
+    "USA",
+    "Canada",
+    "UK",
+    "Australia",
+    "b",
+    "easy"
+  ],
+  [
+    "How many players are on a soccer team on the field?",
+    "9",
+    "10",
+    "11",
+    "12",
+    "c",
+    "easy"
+  ],
+  [
+    "What sport is played at Wimbledon?",
+    "Badminton",
+    "Squash",
+    "Tennis",
+    "Table Tennis",
+    "c",
+    "easy"
+  ],
+  [
+    "Which sport uses a puck?",
+    "Lacrosse",
+    "Field Hockey",
+    "Ice Hockey",
+    "Polo",
+    "c",
+    "easy"
+  ],
+  [
+    "How many strikes are needed for a strikeout in baseball?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country hosts the Tour de France cycling race?",
+    "Italy",
+    "Spain",
+    "Belgium",
+    "France",
+    "d",
+    "easy"
+  ],
+  [
+    "How many rings are on the Olympic flag?",
+    "4",
+    "5",
+    "6",
+    "7",
+    "b",
+    "easy"
+  ],
+  [
+    "What color is the center of an archery target?",
+    "Red",
+    "Blue",
+    "Yellow",
+    "Gold",
+    "d",
+    "easy"
+  ],
+  [
+    "In which sport do players use a shuttlecock?",
+    "Tennis",
+    "Squash",
+    "Badminton",
+    "Racquetball",
+    "c",
+    "easy"
+  ],
+  [
+    "How long is a marathon in miles (approx)?",
+    "20",
+    "24",
+    "26.2",
+    "28",
+    "c",
+    "easy"
+  ],
+  [
+    "Which sport takes place in a velodrome?",
+    "Running",
+    "Swimming",
+    "Cycling",
+    "Rowing",
+    "c",
+    "easy"
+  ],
+  [
+    "What shape is a baseball diamond?",
+    "Circle",
+    "Square",
+    "Diamond",
+    "Pentagon",
+    "b",
+    "easy"
+  ],
+  [
+    "How many players are on a volleyball team on the court?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country is most associated with sumo wrestling?",
+    "China",
+    "South Korea",
+    "Japan",
+    "Mongolia",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the maximum score in a single frame of bowling?",
+    "20",
+    "25",
+    "30",
+    "36",
+    "c",
+    "easy"
+  ],
+  [
+    "Which sport features a pommel horse?",
+    "Judo",
+    "Gymnastics",
+    "Fencing",
+    "Wrestling",
+    "b",
+    "easy"
+  ],
+  [
+    "How many seconds is the shot clock in NBA basketball?",
+    "20",
+    "24",
+    "28",
+    "30",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the ball called in American football?",
+    "Sphere",
+    "Puck",
+    "Pigskin",
+    "Oval",
+    "c",
+    "easy"
+  ],
+  [
+    "How many laps make up a standard 400m athletics race?",
+    "1",
+    "2",
+    "4",
+    "8",
+    "a",
+    "easy"
+  ],
+  [
+    "What sport is Tiger Woods famous for?",
+    "Tennis",
+    "Golf",
+    "Baseball",
+    "Basketball",
+    "b",
+    "easy"
+  ],
+  [
+    "In soccer, what is it called when a player scores three goals?",
+    "Triple",
+    "Hat-trick",
+    "Treble",
+    "Triplet",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country won the 2018 FIFA World Cup?",
+    "Brazil",
+    "Germany",
+    "France",
+    "Argentina",
+    "c",
+    "easy"
+  ],
+  [
+    "How many sets must a player win in a Wimbledon men's singles match?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "easy"
+  ],
+  [
+    "What does NFL stand for?",
+    "National Football League",
+    "National Field League",
+    "Northern Football League",
+    "National Finals League",
+    "a",
+    "easy"
+  ],
+  [
+    "How many points is a field goal worth in American football?",
+    "1",
+    "2",
+    "3",
+    "6",
+    "c",
+    "easy"
+  ],
+  [
+    "In which sport would you perform a slam dunk?",
+    "Volleyball",
+    "Basketball",
+    "Handball",
+    "Water polo",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the governing body of world soccer called?",
+    "UEFA",
+    "IOC",
+    "FIFA",
+    "CONCACAF",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country is cricket most associated with historically?",
+    "Australia",
+    "England",
+    "India",
+    "West Indies",
+    "b",
+    "easy"
+  ],
+  [
+    "How many players make up a rugby union team?",
+    "13",
+    "14",
+    "15",
+    "16",
+    "c",
+    "easy"
+  ],
+  [
+    "What event combines cross-country skiing and rifle shooting?",
+    "Triathlon",
+    "Decathlon",
+    "Biathlon",
+    "Pentathlon",
+    "c",
+    "easy"
+  ],
+  [
+    "In which sport is a birdie one under par?",
+    "Tennis",
+    "Badminton",
+    "Golf",
+    "Darts",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the highest possible score in a single darts checkout?",
+    "140",
+    "160",
+    "170",
+    "180",
+    "c",
+    "easy"
+  ],
+  [
+    "Which city hosted the 2012 Summer Olympics?",
+    "Paris",
+    "Beijing",
+    "London",
+    "Rio",
+    "c",
+    "easy"
+  ],
+  [
+    "What sport does Serena Williams play?",
+    "Golf",
+    "Tennis",
+    "Badminton",
+    "Squash",
+    "b",
+    "easy"
+  ],
+  [
+    "How many players are on a baseball team on the field?",
+    "7",
+    "8",
+    "9",
+    "10",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the term for a score of zero in tennis?",
+    "Nil",
+    "Zero",
+    "Love",
+    "Blank",
+    "c",
+    "easy"
+  ],
+  [
+    "In boxing, how many rounds are in a world championship fight?",
+    "10",
+    "12",
+    "15",
+    "20",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country has won the most FIFA World Cups?",
+    "Germany",
+    "Argentina",
+    "Italy",
+    "Brazil",
+    "d",
+    "easy"
+  ],
+  [
+    "What color jersey does the leader wear in the Tour de France?",
+    "Red",
+    "Yellow",
+    "Blue",
+    "Green",
+    "b",
+    "easy"
+  ],
+  [
+    "In swimming, what stroke uses both arms simultaneously over the water?",
+    "Backstroke",
+    "Breaststroke",
+    "Freestyle",
+    "Butterfly",
+    "d",
+    "easy"
+  ],
+  [
+    "How long is an NBA game in regulation (minutes)?",
+    "40",
+    "44",
+    "48",
+    "52",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the playing surface in ice hockey called?",
+    "Ring",
+    "Rink",
+    "Court",
+    "Pitch",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country did Usain Bolt represent?",
+    "Trinidad",
+    "Bahamas",
+    "Jamaica",
+    "Barbados",
+    "c",
+    "easy"
+  ],
+  [
+    "In soccer, how many minutes is extra time per half?",
+    "10",
+    "15",
+    "30",
+    "45",
+    "b",
+    "easy"
+  ],
+  [
+    "What does PGA stand for in golf?",
+    "Professional Golf Association",
+    "Professional Golfers' Association",
+    "Players Golf Assembly",
+    "Pro Golfers Alliance",
+    "b",
+    "easy"
+  ],
+  [
+    "What sport features the America's Cup?",
+    "Rowing",
+    "Sailing",
+    "Swimming",
+    "Surfing",
+    "b",
+    "easy"
+  ],
+  [
+    "How many ends are in a standard curling match?",
+    "8",
+    "9",
+    "10",
+    "12",
+    "c",
+    "easy"
+  ],
+  [
+    "In tennis, what score comes after deuce?",
+    "Game",
+    "Advantage",
+    "Break",
+    "Set",
+    "b",
+    "easy"
+  ],
+  [
+    "What does F1 stand for in racing?",
+    "First Formula",
+    "Formula 1",
+    "Formula One",
+    "Fast One",
+    "c",
+    "easy"
+  ],
+  [
+    "How many innings are in a standard baseball game?",
+    "7",
+    "8",
+    "9",
+    "10",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the name of the trophy given to the Super Bowl winner?",
+    "Vince Lombardi Trophy",
+    "Pete Rozelle Trophy",
+    "Halas Trophy",
+    "Commissioner's Trophy",
+    "a",
+    "easy"
+  ],
+  [
+    "Which country hosts the Masters golf tournament?",
+    "Scotland",
+    "England",
+    "USA",
+    "Ireland",
+    "c",
+    "easy"
+  ],
+  [
+    "In which sport is a smash a type of shot?",
+    "Tennis",
+    "Cricket",
+    "Golf",
+    "Bowling",
+    "a",
+    "easy"
+  ],
+  [
+    "How many gold medals did Michael Phelps win in total at the Olympics?",
+    "18",
+    "20",
+    "23",
+    "25",
+    "c",
+    "easy"
+  ],
+  [
+    "What sport is played by the Green Bay Packers?",
+    "Baseball",
+    "Basketball",
+    "American Football",
+    "Ice Hockey",
+    "c",
+    "easy"
+  ],
+  [
+    "How many players are on each side in a polo match?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the name of the trophy in the NHL?",
+    "Presidents' Trophy",
+    "Conn Smythe Trophy",
+    "Stanley Cup",
+    "Hart Trophy",
+    "c",
+    "easy"
+  ],
+  [
+    "In gymnastics, how many events are in a men's all-around?",
+    "4",
+    "5",
+    "6",
+    "7",
+    "c",
+    "easy"
+  ],
+  [
+    "What does NBA stand for?",
+    "National Basketball Association",
+    "National Baseball Association",
+    "North American Basketball Alliance",
+    "National Basketball Alliance",
+    "a",
+    "easy"
+  ],
+  [
+    "What sport is Rafael Nadal famous for?",
+    "Golf",
+    "Cricket",
+    "Tennis",
+    "Squash",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country is home to the All Blacks rugby team?",
+    "Australia",
+    "South Africa",
+    "New Zealand",
+    "Fiji",
+    "c",
+    "easy"
+  ],
+  [
+    "In darts, what is the highest score with three darts?",
+    "120",
+    "150",
+    "170",
+    "180",
+    "d",
+    "easy"
+  ],
+  [
+    "What is the name of the soccer stadium in Barcelona?",
+    "Bernabeu",
+    "Anfield",
+    "Camp Nou",
+    "San Siro",
+    "c",
+    "easy"
+  ],
+  [
+    "In tennis, a Grand Slam refers to winning how many majors in a year?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "c",
+    "easy"
+  ],
+  [
+    "How many times has Brazil won the FIFA World Cup?",
+    "3",
+    "4",
+    "5",
+    "6",
+    "c",
+    "easy"
+  ],
+  [
+    "What animal is on the Chicago Bulls NBA logo?",
+    "Bear",
+    "Bull",
+    "Bison",
+    "Ox",
+    "b",
+    "easy"
+  ],
+  [
+    "In cricket, how many runs is a six?",
+    "4",
+    "5",
+    "6",
+    "8",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country has won the most Olympic gold medals overall?",
+    "Russia",
+    "China",
+    "USA",
+    "Germany",
+    "c",
+    "easy"
+  ],
+  [
+    "What sport is played at Augusta National?",
+    "Tennis",
+    "Golf",
+    "Polo",
+    "Croquet",
+    "b",
+    "easy"
+  ],
+  [
+    "Which team does Cristiano Ronaldo play for internationally?",
+    "Spain",
+    "Brazil",
+    "Portugal",
+    "Italy",
+    "c",
+    "easy"
+  ],
+  [
+    "What is a bogey in golf?",
+    "One under par",
+    "Even par",
+    "One over par",
+    "Two over par",
+    "c",
+    "easy"
+  ],
+  [
+    "In which sport is a pin knocked down?",
+    "Baseball",
+    "Cricket",
+    "Bowling",
+    "Billiards",
+    "c",
+    "easy"
+  ],
+  [
+    "Which city hosted the 2016 Summer Olympics?",
+    "Tokyo",
+    "London",
+    "Rio de Janeiro",
+    "Sydney",
+    "c",
+    "easy"
+  ],
+  [
+    "What does MVP stand for in sports?",
+    "Most Valuable Player",
+    "Most Voted Player",
+    "Maximum Victory Points",
+    "Most Vital Performer",
+    "a",
+    "easy"
+  ],
+  [
+    "What sport is LeBron James associated with?",
+    "Football",
+    "Baseball",
+    "Basketball",
+    "Boxing",
+    "c",
+    "easy"
+  ],
+  [
+    "In soccer, what is it when a player uses their head to hit the ball?",
+    "Header",
+    "Nodder",
+    "Headshot",
+    "Crown",
+    "a",
+    "easy"
+  ],
+  [
+    "How many players per team are on the field in American football?",
+    "9",
+    "10",
+    "11",
+    "12",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country won the 2022 FIFA World Cup?",
+    "France",
+    "Brazil",
+    "Argentina",
+    "Portugal",
+    "c",
+    "easy"
+  ],
+  [
+    "What does MLB stand for?",
+    "Major League Baseball",
+    "Minor League Baseball",
+    "Master Level Baseball",
+    "Maximum League Baseball",
+    "a",
+    "easy"
+  ],
+  [
+    "In soccer, which player wears the number 1 jersey traditionally?",
+    "Striker",
+    "Midfielder",
+    "Goalkeeper",
+    "Defender",
+    "c",
+    "easy"
+  ],
+  [
+    "How many players are in a cricket team?",
+    "9",
+    "10",
+    "11",
+    "12",
+    "c",
+    "easy"
+  ],
+  [
+    "What country is home to Formula 1 team Ferrari?",
+    "Germany",
+    "France",
+    "Italy",
+    "Spain",
+    "c",
+    "easy"
+  ],
+  [
+    "In volleyball, how many contacts is each team allowed before returning the ball?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the first event in a mens decathlon?",
+    "Long jump",
+    "Shot put",
+    "100m sprint",
+    "High jump",
+    "c",
+    "easy"
+  ],
+  [
+    "Which city hosts the annual Boston Marathon?",
+    "New York",
+    "Chicago",
+    "Boston",
+    "Philadelphia",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the color of a tennis ball used in professional matches?",
+    "White",
+    "Orange",
+    "Yellow-green",
+    "Lime",
+    "c",
+    "easy"
+  ],
+  [
+    "In rugby, how many points is a try worth?",
+    "3",
+    "4",
+    "5",
+    "6",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country's team is known as the Springboks in rugby?",
+    "Australia",
+    "New Zealand",
+    "England",
+    "South Africa",
+    "d",
+    "easy"
+  ],
+  [
+    "What is par in golf?",
+    "Expected strokes for a hole",
+    "Penalty stroke",
+    "Total score",
+    "Minimum distance",
+    "a",
+    "easy"
+  ],
+  [
+    "How long is an Olympic swimming pool in meters?",
+    "25",
+    "50",
+    "75",
+    "100",
+    "b",
+    "easy"
+  ],
+  [
+    "What does KO mean in boxing?",
+    "Keep On",
+    "Knock Out",
+    "King's Order",
+    "Knockout Off",
+    "b",
+    "easy"
+  ],
+  [
+    "In cricket, how many balls are bowled in one over?",
+    "4",
+    "5",
+    "6",
+    "8",
+    "c",
+    "easy"
+  ],
+  [
+    "Which sport is played by the Chicago Cubs?",
+    "Basketball",
+    "Ice Hockey",
+    "Baseball",
+    "Football",
+    "c",
+    "easy"
+  ],
+  [
+    "Who holds the record for most Grand Slam tennis titles (men) as of 2023?",
+    "Roger Federer",
+    "Rafael Nadal",
+    "Novak Djokovic",
+    "Pete Sampras",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the nickname of the Brazilian national soccer team?",
+    "The Eagles",
+    "The Samba Stars",
+    "The Selecao",
+    "The Yellow Canaries",
+    "c",
+    "easy"
+  ],
+  [
+    "In which sport is the butterfly stroke used?",
+    "Surfing",
+    "Synchronized swimming",
+    "Swimming",
+    "Water polo",
+    "c",
+    "easy"
+  ],
+  [
+    "How many points is a three-pointer worth in basketball?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "easy"
+  ],
+  [
+    "Which golfer is nicknamed The Golden Bear?",
+    "Arnold Palmer",
+    "Jack Nicklaus",
+    "Tiger Woods",
+    "Gary Player",
+    "b",
+    "easy"
+  ],
+  [
+    "How many players are on a water polo team in the pool?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country won the first Rugby World Cup in 1987?",
+    "Australia",
+    "New Zealand",
+    "South Africa",
+    "England",
+    "b",
+    "easy"
+  ],
+  [
+    "In F1 racing, how many points does the race winner receive?",
+    "20",
+    "25",
+    "30",
+    "40",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country does soccer star Lionel Messi represent?",
+    "Spain",
+    "Brazil",
+    "Argentina",
+    "Uruguay",
+    "c",
+    "easy"
+  ],
+  [
+    "In which city is Yankee Stadium located?",
+    "Boston",
+    "Chicago",
+    "Los Angeles",
+    "New York",
+    "d",
+    "easy"
+  ],
+  [
+    "What is a strike in bowling?",
+    "Knocking all pins on the first ball",
+    "Knocking all pins on second ball",
+    "Missing all pins",
+    "Splitting pins",
+    "a",
+    "easy"
+  ],
+  [
+    "Which country's women's team won the 2015 Women's World Cup?",
+    "Germany",
+    "Japan",
+    "Canada",
+    "USA",
+    "d",
+    "easy"
+  ],
+  [
+    "In track and field, what event involves throwing a heavy metal ball?",
+    "Discus throw",
+    "Hammer throw",
+    "Shot put",
+    "Javelin throw",
+    "c",
+    "easy"
+  ],
+  [
+    "How many players are on each team in an ice hockey game?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "b",
+    "easy"
+  ],
+  [
+    "Which city hosted the 2020 Summer Olympics held in 2021?",
+    "Paris",
+    "Tokyo",
+    "Seoul",
+    "Beijing",
+    "b",
+    "easy"
+  ],
+  [
+    "In American football, how many points is a safety worth?",
+    "1",
+    "2",
+    "3",
+    "4",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the name of the French Open tennis tournament's surface?",
+    "Grass",
+    "Carpet",
+    "Clay",
+    "Hard court",
+    "c",
+    "easy"
+  ],
+  [
+    "Who won the 2019 FIFA Women's World Cup?",
+    "Germany",
+    "Japan",
+    "England",
+    "USA",
+    "d",
+    "easy"
+  ],
+  [
+    "In boxing, what weight class is Muhammad Ali known for competing in?",
+    "Light heavyweight",
+    "Heavyweight",
+    "Cruiserweight",
+    "Super heavyweight",
+    "b",
+    "easy"
+  ],
+  [
+    "How many sets are in a women's Wimbledon singles match?",
+    "3",
+    "4",
+    "5",
+    "6",
+    "a",
+    "easy"
+  ],
+  [
+    "What is the term for a golfer finishing one shot under par?",
+    "Eagle",
+    "Birdie",
+    "Bogey",
+    "Par",
+    "b",
+    "easy"
+  ],
+  [
+    "In soccer, what is a penalty shootout used to decide?",
+    "Regular time result",
+    "A draw after extra time",
+    "A red card appeal",
+    "Goal difference",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country is home to La Liga soccer?",
+    "Italy",
+    "Germany",
+    "Spain",
+    "France",
+    "c",
+    "easy"
+  ],
+  [
+    "In rowing, how many rowers are in a coxed eight?",
+    "6",
+    "7",
+    "8",
+    "9",
+    "c",
+    "easy"
+  ],
+  [
+    "What is the standard distance of the 100m sprint?",
+    "80m",
+    "90m",
+    "100m",
+    "110m",
+    "c",
+    "easy"
+  ],
+  [
+    "In track cycling, what shape is the velodrome track?",
+    "Oval",
+    "Circle",
+    "Rectangle",
+    "Triangle",
+    "a",
+    "easy"
+  ],
+  [
+    "Which sport uses the term love for a zero score?",
+    "Squash",
+    "Badminton",
+    "Tennis",
+    "Table Tennis",
+    "c",
+    "easy"
+  ],
+  [
+    "How many events are in a triathlon?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the name of the New Zealand rugby team?",
+    "Springboks",
+    "Wallabies",
+    "All Blacks",
+    "Lions",
+    "c",
+    "easy"
+  ],
+  [
+    "In soccer, what is the goalkeeper area called?",
+    "Danger zone",
+    "Goal area",
+    "Six-yard box",
+    "Penalty box",
+    "c",
+    "easy"
+  ],
+  [
+    "What sport does the Dallas Cowboys play?",
+    "Baseball",
+    "Basketball",
+    "American Football",
+    "Ice Hockey",
+    "c",
+    "easy"
+  ],
+  [
+    "In bowling, what is it called when you get a spare followed by a strike?",
+    "Turkey",
+    "Double",
+    "Spare bonus",
+    "Split",
+    "b",
+    "easy"
+  ],
+  [
+    "What color is the uniform of the Brazil national soccer team?",
+    "White and blue",
+    "Green and white",
+    "Yellow and green",
+    "Blue and yellow",
+    "c",
+    "easy"
+  ],
+  [
+    "In track and field, what event involves jumping over a bar?",
+    "Long jump",
+    "Triple jump",
+    "High jump",
+    "Pole vault",
+    "c",
+    "easy"
+  ],
+  [
+    "Which country hosts the Daytona 500 race?",
+    "Canada",
+    "UK",
+    "Germany",
+    "USA",
+    "d",
+    "easy"
+  ],
+  [
+    "How many periods are in an ice hockey game?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "easy"
+  ],
+  [
+    "What is the name of a fencing weapon with a triangular blade?",
+    "Foil",
+    "Epee",
+    "Sabre",
+    "Rapier",
+    "b",
+    "easy"
+  ],
+  [
+    "In tennis, what does it mean to serve an ace?",
+    "The ball hits the net",
+    "The opponent cannot return the serve",
+    "The server wins the game",
+    "A second serve fault",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country is home to Sumo wrestling's Yokozuna (grand champion) rank?",
+    "China",
+    "Japan",
+    "Mongolia",
+    "South Korea",
+    "b",
+    "easy"
+  ],
+  [
+    "What sport uses the term Grand Prix?",
+    "Cycling",
+    "Motorsport",
+    "Horse racing",
+    "All of the above",
+    "d",
+    "easy"
+  ],
+  [
+    "In cricket, what is the fielding position directly behind the batsman?",
+    "Square leg",
+    "Fine leg",
+    "Slip",
+    "Wicket keeper",
+    "d",
+    "easy"
+  ],
+  [
+    "How many players are on each team in flag football?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "easy"
+  ],
+  [
+    "What does DNS stand for in track and field?",
+    "Did Not Score",
+    "Did Not Start",
+    "Did Not Sprint",
+    "Did Not Submit",
+    "b",
+    "easy"
+  ],
+  [
+    "Which sport features a 'bully-off' to restart play?",
+    "Lacrosse",
+    "Field Hockey",
+    "Polo",
+    "Rugby",
+    "b",
+    "easy"
+  ],
+  [
+    "Which country won the first modern Olympic Games in 1896?",
+    "USA",
+    "France",
+    "Greece",
+    "Germany",
+    "c",
+    "medium"
+  ],
+  [
+    "Who was the first player to win five Ballon d'Or awards?",
+    "Cristiano Ronaldo",
+    "Zinedine Zidane",
+    "Ronaldo Nazario",
+    "Lionel Messi",
+    "d",
+    "medium"
+  ],
+  [
+    "Which team has won the most NBA championships?",
+    "LA Lakers",
+    "Chicago Bulls",
+    "Boston Celtics",
+    "Golden State Warriors",
+    "c",
+    "medium"
+  ],
+  [
+    "In tennis, which surface is the US Open played on?",
+    "Grass",
+    "Clay",
+    "Hard court",
+    "Carpet",
+    "c",
+    "medium"
+  ],
+  [
+    "Which boxer was known as The Greatest?",
+    "Joe Frazier",
+    "George Foreman",
+    "Mike Tyson",
+    "Muhammad Ali",
+    "d",
+    "medium"
+  ],
+  [
+    "How many home runs did Babe Ruth hit in his career?",
+    "600",
+    "660",
+    "714",
+    "762",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country has won the most Rugby World Cup titles?",
+    "Australia",
+    "New Zealand",
+    "South Africa",
+    "England",
+    "b",
+    "medium"
+  ],
+  [
+    "Who won the 2023 Wimbledon men's singles title?",
+    "Novak Djokovic",
+    "Carlos Alcaraz",
+    "Daniil Medvedev",
+    "Jannik Sinner",
+    "b",
+    "medium"
+  ],
+  [
+    "In which country was the 2022 FIFA World Cup held?",
+    "Saudi Arabia",
+    "UAE",
+    "Qatar",
+    "Bahrain",
+    "c",
+    "medium"
+  ],
+  [
+    "Which F1 driver has won the most World Championships?",
+    "Ayrton Senna",
+    "Michael Schumacher",
+    "Lewis Hamilton",
+    "Sebastian Vettel",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the maximum number of clubs allowed in a golf bag?",
+    "12",
+    "14",
+    "16",
+    "18",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country hosted the 1936 Summer Olympics?",
+    "Italy",
+    "France",
+    "Germany",
+    "Austria",
+    "c",
+    "medium"
+  ],
+  [
+    "Who holds the record for most points scored in a single NBA game?",
+    "Kobe Bryant",
+    "LeBron James",
+    "Wilt Chamberlain",
+    "Michael Jordan",
+    "c",
+    "medium"
+  ],
+  [
+    "Which team did LeBron James win his first NBA title with?",
+    "Cleveland Cavaliers",
+    "LA Lakers",
+    "Miami Heat",
+    "Boston Celtics",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the most famous horse race in the USA?",
+    "Preakness Stakes",
+    "Belmont Stakes",
+    "Kentucky Derby",
+    "Breeders' Cup",
+    "c",
+    "medium"
+  ],
+  [
+    "What does MMA stand for?",
+    "Mixed Martial Arts",
+    "Mixed Match Athletics",
+    "Maximum Martial Arts",
+    "Master Martial Alliance",
+    "a",
+    "medium"
+  ],
+  [
+    "Which athlete holds the 100m world record as of 2023?",
+    "Yohan Blake",
+    "Tyson Gay",
+    "Usain Bolt",
+    "Christian Coleman",
+    "c",
+    "medium"
+  ],
+  [
+    "How many times did Michael Jordan win the NBA MVP award?",
+    "3",
+    "4",
+    "5",
+    "6",
+    "c",
+    "medium"
+  ],
+  [
+    "In cricket, what is it called when a batsman is dismissed for zero?",
+    "Nil",
+    "Blank",
+    "Duck",
+    "Goose egg",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country won the most medals at the 2020 Tokyo Olympics?",
+    "China",
+    "Russia",
+    "USA",
+    "Great Britain",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the name of the famous cycling race that ends on the Champs-Elysees?",
+    "Giro d'Italia",
+    "Vuelta a Espana",
+    "Paris-Roubaix",
+    "Tour de France",
+    "d",
+    "medium"
+  ],
+  [
+    "Which tennis player has won the most French Open titles (men) as of 2023?",
+    "Roger Federer",
+    "Bjorn Borg",
+    "Rafael Nadal",
+    "Novak Djokovic",
+    "c",
+    "medium"
+  ],
+  [
+    "Who scored the Hand of God goal in the 1986 World Cup?",
+    "Pele",
+    "Diego Maradona",
+    "Ronaldo",
+    "Zico",
+    "b",
+    "medium"
+  ],
+  [
+    "Which team won the FIFA World Cup in 2010?",
+    "Brazil",
+    "Argentina",
+    "Spain",
+    "Germany",
+    "c",
+    "medium"
+  ],
+  [
+    "How many majors did Tiger Woods win in his career?",
+    "10",
+    "12",
+    "14",
+    "15",
+    "d",
+    "medium"
+  ],
+  [
+    "Which country invented rugby football?",
+    "Scotland",
+    "Wales",
+    "Ireland",
+    "England",
+    "d",
+    "medium"
+  ],
+  [
+    "In soccer, which club is known as Los Blancos?",
+    "FC Barcelona",
+    "Atletico Madrid",
+    "Real Madrid",
+    "Valencia",
+    "c",
+    "medium"
+  ],
+  [
+    "How many times did Pete Sampras win Wimbledon?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "medium"
+  ],
+  [
+    "Which team won Super Bowl LIV (54)?",
+    "Kansas City Chiefs",
+    "San Francisco 49ers",
+    "Tampa Bay Buccaneers",
+    "New England Patriots",
+    "a",
+    "medium"
+  ],
+  [
+    "Who was the first player to score 100 points in a single NBA game?",
+    "Michael Jordan",
+    "Kareem Abdul-Jabbar",
+    "Wilt Chamberlain",
+    "Elgin Baylor",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country has won the most Davis Cup tennis titles?",
+    "Australia",
+    "USA",
+    "Spain",
+    "Sweden",
+    "b",
+    "medium"
+  ],
+  [
+    "Who was the first unseeded player to win Wimbledon mens singles?",
+    "Goran Ivanisevic",
+    "John McEnroe",
+    "Boris Becker",
+    "Pat Cash",
+    "a",
+    "medium"
+  ],
+  [
+    "How many Grand Slam titles did Serena Williams win?",
+    "19",
+    "21",
+    "23",
+    "25",
+    "c",
+    "medium"
+  ],
+  [
+    "In which sport is sticky wicket a term?",
+    "Rugby",
+    "Polo",
+    "Cricket",
+    "Hockey",
+    "c",
+    "medium"
+  ],
+  [
+    "Which boxer held all four major heavyweight titles simultaneously?",
+    "Lennox Lewis",
+    "Evander Holyfield",
+    "Mike Tyson",
+    "Wladimir Klitschko",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the distance of a standard Olympic marathon?",
+    "40km",
+    "42.195km",
+    "44km",
+    "45km",
+    "b",
+    "medium"
+  ],
+  [
+    "In F1, what flag signals the end of the race?",
+    "Red",
+    "Blue",
+    "Yellow",
+    "Checkered",
+    "d",
+    "medium"
+  ],
+  [
+    "Who won the 2023 NBA Finals?",
+    "Miami Heat",
+    "Boston Celtics",
+    "Milwaukee Bucks",
+    "Denver Nuggets",
+    "d",
+    "medium"
+  ],
+  [
+    "Which hockey team has won the most Stanley Cups?",
+    "Detroit Red Wings",
+    "Toronto Maple Leafs",
+    "Montreal Canadiens",
+    "Edmonton Oilers",
+    "c",
+    "medium"
+  ],
+  [
+    "In golf, what is the Masters tournament known for awarding the winner?",
+    "Silver trophy",
+    "Green jacket",
+    "Gold medal",
+    "Champion's belt",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country won the 2019 Rugby World Cup?",
+    "Australia",
+    "New Zealand",
+    "South Africa",
+    "England",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the name of cricket's most prestigious test series between England and Australia?",
+    "The Ashes",
+    "The Crown",
+    "The Anglo Test",
+    "The Empire Cup",
+    "a",
+    "medium"
+  ],
+  [
+    "Who holds the mens 100m world record of 9.58 seconds?",
+    "Tyson Gay",
+    "Asafa Powell",
+    "Usain Bolt",
+    "Justin Gatlin",
+    "c",
+    "medium"
+  ],
+  [
+    "How many times did Ayrton Senna win the F1 World Championship?",
+    "1",
+    "2",
+    "3",
+    "4",
+    "c",
+    "medium"
+  ],
+  [
+    "Which NFL team has the most Super Bowl wins?",
+    "San Francisco 49ers",
+    "New England Patriots",
+    "Dallas Cowboys",
+    "Pittsburgh Steelers",
+    "b",
+    "medium"
+  ],
+  [
+    "Who won the women's singles at Wimbledon in 2023?",
+    "Aryna Sabalenka",
+    "Elena Rybakina",
+    "Iga Swiatek",
+    "Marketa Vondrousova",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the name of the international governing body of cricket?",
+    "ICC",
+    "ECB",
+    "BCCI",
+    "BCB",
+    "a",
+    "medium"
+  ],
+  [
+    "Which F1 team has won the most constructors' championships?",
+    "McLaren",
+    "Williams",
+    "Ferrari",
+    "Mercedes",
+    "c",
+    "medium"
+  ],
+  [
+    "In American football, how many timeouts does each team get per half?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "medium"
+  ],
+  [
+    "Who broke Roger Federer's record of 20 Grand Slam titles first?",
+    "Novak Djokovic",
+    "Rafael Nadal",
+    "Daniil Medvedev",
+    "Andy Murray",
+    "b",
+    "medium"
+  ],
+  [
+    "Which team won the 2021 Super Bowl?",
+    "Kansas City Chiefs",
+    "Green Bay Packers",
+    "Tampa Bay Buccaneers",
+    "Buffalo Bills",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the name of the top division in Spanish football?",
+    "Serie A",
+    "Bundesliga",
+    "La Liga",
+    "Primeira Liga",
+    "c",
+    "medium"
+  ],
+  [
+    "How many cards can a player receive before being sent off in soccer?",
+    "One red",
+    "Two yellows",
+    "Two reds",
+    "Three yellows",
+    "b",
+    "medium"
+  ],
+  [
+    "Which driver won the 2021 F1 World Championship?",
+    "Lewis Hamilton",
+    "Charles Leclerc",
+    "Max Verstappen",
+    "Valtteri Bottas",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country's team is known as Les Bleus in soccer?",
+    "Belgium",
+    "France",
+    "Canada",
+    "Switzerland",
+    "b",
+    "medium"
+  ],
+  [
+    "Who holds the most points in NHL history?",
+    "Bobby Orr",
+    "Mario Lemieux",
+    "Wayne Gretzky",
+    "Gordie Howe",
+    "c",
+    "medium"
+  ],
+  [
+    "In rugby league, how many players are on each team?",
+    "11",
+    "12",
+    "13",
+    "14",
+    "c",
+    "medium"
+  ],
+  [
+    "Which golfer won the 2023 US Open?",
+    "Jon Rahm",
+    "Rory McIlroy",
+    "Scottie Scheffler",
+    "Wyndham Clark",
+    "d",
+    "medium"
+  ],
+  [
+    "What does OBP stand for in baseball?",
+    "On Base Percentage",
+    "Official Batting Pace",
+    "Out Ball Percentage",
+    "Official Base Play",
+    "a",
+    "medium"
+  ],
+  [
+    "Which country hosted the 2014 FIFA World Cup?",
+    "Argentina",
+    "Colombia",
+    "Brazil",
+    "Chile",
+    "c",
+    "medium"
+  ],
+  [
+    "Who has scored the most goals in the English Premier League?",
+    "Frank Lampard",
+    "Thierry Henry",
+    "Wayne Rooney",
+    "Alan Shearer",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the term for a perfect game in bowling?",
+    "Perfection",
+    "300",
+    "Twelve-pack",
+    "Strike out",
+    "b",
+    "medium"
+  ],
+  [
+    "Which Olympic event involves firing a rifle while on skis?",
+    "Pentathlon",
+    "Triathlon",
+    "Biathlon",
+    "Heptathlon",
+    "c",
+    "medium"
+  ],
+  [
+    "In cricket, how many runs is a boundary when the ball reaches the fence on the ground?",
+    "4",
+    "5",
+    "6",
+    "8",
+    "a",
+    "medium"
+  ],
+  [
+    "Which team has won the most Champions League titles in soccer?",
+    "Barcelona",
+    "Bayern Munich",
+    "AC Milan",
+    "Real Madrid",
+    "d",
+    "medium"
+  ],
+  [
+    "What year did the NBA three-point line first appear?",
+    "1975",
+    "1979",
+    "1982",
+    "1986",
+    "b",
+    "medium"
+  ],
+  [
+    "In American football, what is a Hail Mary pass?",
+    "A long desperation pass",
+    "A short passing play",
+    "A running play from center",
+    "A trick play",
+    "a",
+    "medium"
+  ],
+  [
+    "Which country won the most gold medals at the 1996 Atlanta Olympics?",
+    "China",
+    "Russia",
+    "Germany",
+    "USA",
+    "d",
+    "medium"
+  ],
+  [
+    "Who was the last player to win tennis' Calendar Grand Slam (men's)?",
+    "Pete Sampras",
+    "Andre Agassi",
+    "Rod Laver",
+    "Jimmy Connors",
+    "c",
+    "medium"
+  ],
+  [
+    "Which soccer player won the most Ballon d'Or awards as of 2023?",
+    "Cristiano Ronaldo",
+    "Ronaldo Nazario",
+    "Zinedine Zidane",
+    "Lionel Messi",
+    "d",
+    "medium"
+  ],
+  [
+    "How many wickets fall in one innings at most in cricket?",
+    "9",
+    "10",
+    "11",
+    "12",
+    "b",
+    "medium"
+  ],
+  [
+    "Which cyclist has won the most Tour de France titles officially?",
+    "Bernard Hinault",
+    "Eddy Merckx",
+    "Chris Froome",
+    "Miguel Indurain",
+    "b",
+    "medium"
+  ],
+  [
+    "In the NHL, what is an assist?",
+    "Blocking a shot",
+    "A pass leading to a goal",
+    "Winning a faceoff",
+    "Penalty kill",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country's national team won football's Euro 2020 played in 2021?",
+    "England",
+    "France",
+    "Italy",
+    "Spain",
+    "c",
+    "medium"
+  ],
+  [
+    "In basketball, what is the three-second rule about?",
+    "Shot clock",
+    "Staying in the key",
+    "In-bounds time",
+    "Free throw time",
+    "b",
+    "medium"
+  ],
+  [
+    "Who won the 2022 F1 World Championship?",
+    "Lewis Hamilton",
+    "Charles Leclerc",
+    "Sergio Perez",
+    "Max Verstappen",
+    "d",
+    "medium"
+  ],
+  [
+    "Which sport uses chukkas as its time periods?",
+    "Rugby",
+    "Polo",
+    "Cricket",
+    "Lacrosse",
+    "b",
+    "medium"
+  ],
+  [
+    "How many players are in a netball team?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "medium"
+  ],
+  [
+    "In cricket, how many stumps are in a wicket?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "medium"
+  ],
+  [
+    "Who holds the record for most Olympic medals (men)?",
+    "Carl Lewis",
+    "Usain Bolt",
+    "Michael Phelps",
+    "Mark Spitz",
+    "c",
+    "medium"
+  ],
+  [
+    "Which team won the 2023 Super Bowl?",
+    "Buffalo Bills",
+    "Philadelphia Eagles",
+    "Kansas City Chiefs",
+    "Cincinnati Bengals",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the court surface at the Australian Open?",
+    "Grass",
+    "Clay",
+    "Hardcourt",
+    "Carpet",
+    "c",
+    "medium"
+  ],
+  [
+    "In American football, what is a punt?",
+    "A kick to gain field position",
+    "A snap to the quarterback",
+    "A running play",
+    "A blocked kick",
+    "a",
+    "medium"
+  ],
+  [
+    "Which country's women's soccer team dominated the 2019 Women's World Cup?",
+    "Germany",
+    "England",
+    "USA",
+    "France",
+    "c",
+    "medium"
+  ],
+  [
+    "In boxing, who did Muhammad Ali defeat to win his first world heavyweight title?",
+    "Joe Frazier",
+    "George Foreman",
+    "Sonny Liston",
+    "Floyd Patterson",
+    "c",
+    "medium"
+  ],
+  [
+    "Which NBA team drafted LeBron James in 2003?",
+    "Cleveland Cavaliers",
+    "Miami Heat",
+    "LA Lakers",
+    "Orlando Magic",
+    "a",
+    "medium"
+  ],
+  [
+    "In rugby union, what is a drop goal worth?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "medium"
+  ],
+  [
+    "Who won the 2021 Masters golf tournament?",
+    "Jon Rahm",
+    "Bryson DeChambeau",
+    "Hideki Matsuyama",
+    "Dustin Johnson",
+    "c",
+    "medium"
+  ],
+  [
+    "In tennis, at which tournament are players required to wear white clothing?",
+    "US Open",
+    "Australian Open",
+    "French Open",
+    "Wimbledon",
+    "d",
+    "medium"
+  ],
+  [
+    "Which player has scored the most goals in the UEFA Champions League?",
+    "Thierry Henry",
+    "Karim Benzema",
+    "Lionel Messi",
+    "Cristiano Ronaldo",
+    "d",
+    "medium"
+  ],
+  [
+    "Which football club has the most English Premier League titles?",
+    "Arsenal",
+    "Chelsea",
+    "Manchester United",
+    "Liverpool",
+    "c",
+    "medium"
+  ],
+  [
+    "In which year did Roger Federer first win Wimbledon?",
+    "2001",
+    "2003",
+    "2005",
+    "2007",
+    "b",
+    "medium"
+  ],
+  [
+    "What term describes a golfer finishing a hole in two shots under par?",
+    "Birdie",
+    "Eagle",
+    "Albatross",
+    "Condor",
+    "b",
+    "medium"
+  ],
+  [
+    "In soccer, what is the minimum number of players required to start a match?",
+    "7",
+    "8",
+    "9",
+    "10",
+    "a",
+    "medium"
+  ],
+  [
+    "Which sprinter won back-to-back Olympic 100m gold medals in 2008 and 2012?",
+    "Asafa Powell",
+    "Yohan Blake",
+    "Usain Bolt",
+    "Justin Gatlin",
+    "c",
+    "medium"
+  ],
+  [
+    "Who holds the record for most wickets in a single Test innings?",
+    "Shane Warne",
+    "Muttiah Muralitharan",
+    "Jim Laker",
+    "Anil Kumble",
+    "c",
+    "medium"
+  ],
+  [
+    "What is the name of the penalty area in soccer?",
+    "Box",
+    "Zone",
+    "Penalty rectangle",
+    "D-zone",
+    "a",
+    "medium"
+  ],
+  [
+    "Which country's women's team won the 2023 Women's World Cup?",
+    "USA",
+    "England",
+    "Spain",
+    "Australia",
+    "c",
+    "medium"
+  ],
+  [
+    "What year did South Africa first win the Rugby World Cup?",
+    "1991",
+    "1995",
+    "1999",
+    "2003",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country has won the most Olympic archery gold medals?",
+    "South Korea",
+    "USA",
+    "China",
+    "Japan",
+    "a",
+    "medium"
+  ],
+  [
+    "Who was the first athlete to run a sub-4-minute mile?",
+    "Jim Ryun",
+    "Sebastian Coe",
+    "Roger Bannister",
+    "Herb Elliott",
+    "c",
+    "medium"
+  ],
+  [
+    "In baseball, what pitch was outlawed due to use of foreign substance?",
+    "Curveball",
+    "Knuckleball",
+    "Spitball",
+    "Slider",
+    "c",
+    "medium"
+  ],
+  [
+    "How many gold medals did the USA win at the 1984 Los Angeles Olympics?",
+    "47",
+    "63",
+    "83",
+    "99",
+    "c",
+    "medium"
+  ],
+  [
+    "Which team won the FIFA World Cup in 2006?",
+    "Brazil",
+    "France",
+    "Italy",
+    "Germany",
+    "c",
+    "medium"
+  ],
+  [
+    "Which NFL player holds the record for most receiving touchdowns?",
+    "Randy Moss",
+    "Jerry Rice",
+    "Terrell Owens",
+    "Cris Carter",
+    "b",
+    "medium"
+  ],
+  [
+    "How many times has New Zealand's All Blacks won the Rugby World Cup?",
+    "2",
+    "3",
+    "4",
+    "5",
+    "b",
+    "medium"
+  ],
+  [
+    "Which driver won the 2020 F1 World Championship?",
+    "Valtteri Bottas",
+    "Lewis Hamilton",
+    "Max Verstappen",
+    "Charles Leclerc",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country won the first Cricket World Cup in 1975?",
+    "Australia",
+    "West Indies",
+    "India",
+    "England",
+    "b",
+    "medium"
+  ],
+  [
+    "What year did the AFL and NFL merge?",
+    "1966",
+    "1970",
+    "1974",
+    "1978",
+    "b",
+    "medium"
+  ],
+  [
+    "Who was the first player in history to win a Golden Slam in tennis?",
+    "Steffi Graf",
+    "Martina Navratilova",
+    "Monica Seles",
+    "Billie Jean King",
+    "a",
+    "medium"
+  ],
+  [
+    "What year did the Miracle on Ice ice hockey upset take place?",
+    "1976",
+    "1978",
+    "1980",
+    "1984",
+    "c",
+    "medium"
+  ],
+  [
+    "Which team won the 2016 NBA Finals?",
+    "Golden State Warriors",
+    "Cleveland Cavaliers",
+    "Oklahoma City Thunder",
+    "Miami Heat",
+    "b",
+    "medium"
+  ],
+  [
+    "In which year did the Chicago Cubs break their 108-year World Series drought?",
+    "2014",
+    "2015",
+    "2016",
+    "2017",
+    "c",
+    "medium"
+  ],
+  [
+    "Which team scored the most goals in a single Premier League season?",
+    "Arsenal",
+    "Manchester City",
+    "Chelsea",
+    "Liverpool",
+    "b",
+    "medium"
+  ],
+  [
+    "Who holds the record for most points in a single NHL season?",
+    "Mario Lemieux",
+    "Gordie Howe",
+    "Wayne Gretzky",
+    "Bobby Orr",
+    "c",
+    "medium"
+  ],
+  [
+    "In the 1970 World Cup, who was named the tournament's best player?",
+    "Pele",
+    "Gerson",
+    "Jairzinho",
+    "Carlos Alberto",
+    "a",
+    "medium"
+  ],
+  [
+    "What is the record for most consecutive Wimbledon mens singles titles?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "medium"
+  ],
+  [
+    "How many Grand Slam titles did Andre Agassi win?",
+    "6",
+    "7",
+    "8",
+    "9",
+    "c",
+    "medium"
+  ],
+  [
+    "Who holds the record for most runs in Test cricket?",
+    "Ricky Ponting",
+    "Sachin Tendulkar",
+    "Brian Lara",
+    "Jacques Kallis",
+    "b",
+    "medium"
+  ],
+  [
+    "What is the world record distance for the mens pole vault (approx)?",
+    "5.71m",
+    "5.94m",
+    "6.21m",
+    "6.45m",
+    "c",
+    "medium"
+  ],
+  [
+    "In soccer, how many goals did Eusebio score at the 1966 World Cup?",
+    "6",
+    "7",
+    "9",
+    "11",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country has the most Olympic Games hosted?",
+    "USA",
+    "France",
+    "UK",
+    "Germany",
+    "a",
+    "medium"
+  ],
+  [
+    "Which soccer club won the 2022-23 UEFA Champions League?",
+    "Real Madrid",
+    "Manchester City",
+    "Bayern Munich",
+    "Inter Milan",
+    "b",
+    "medium"
+  ],
+  [
+    "In which sport is the Solheim Cup contested?",
+    "Golf",
+    "Tennis",
+    "Swimming",
+    "Gymnastics",
+    "a",
+    "medium"
+  ],
+  [
+    "Who was the first Australian to win the Tour de France?",
+    "Cadel Evans",
+    "Chris Froome",
+    "Mark Cavendish",
+    "Simon Gerrans",
+    "a",
+    "medium"
+  ],
+  [
+    "In which sport is 'icing' a violation?",
+    "Curling",
+    "Ice Hockey",
+    "Figure Skating",
+    "Speed Skating",
+    "b",
+    "medium"
+  ],
+  [
+    "Who won the 2022 Wimbledon men's singles title?",
+    "Novak Djokovic",
+    "Nick Kyrgios",
+    "Rafael Nadal",
+    "Stefanos Tsitsipas",
+    "a",
+    "medium"
+  ],
+  [
+    "How many gold medals did the USA win at the 2016 Rio Olympics?",
+    "36",
+    "40",
+    "46",
+    "51",
+    "c",
+    "medium"
+  ],
+  [
+    "In baseball, what does ERA stand for?",
+    "Extra Run Average",
+    "Earned Run Average",
+    "Expected Run Aggregate",
+    "Error Rate Average",
+    "b",
+    "medium"
+  ],
+  [
+    "Which country won the 2021 Rugby World Cup (Lions Tour) decisive Test Series?",
+    "South Africa",
+    "British and Irish Lions",
+    "New Zealand",
+    "Australia",
+    "a",
+    "medium"
+  ],
+  [
+    "Who won the 2022 Masters golf tournament?",
+    "Jordan Spieth",
+    "Scottie Scheffler",
+    "Rory McIlroy",
+    "Jon Rahm",
+    "b",
+    "medium"
+  ],
+  [
+    "In tennis, which player won the most US Open titles (men)?",
+    "Pete Sampras",
+    "Roger Federer",
+    "Novak Djokovic",
+    "Jimmy Connors",
+    "d",
+    "medium"
+  ],
+  [
+    "In cricket, which country won the 2019 ICC World Cup?",
+    "India",
+    "Australia",
+    "New Zealand",
+    "England",
+    "d",
+    "medium"
+  ],
+  [
+    "What is the scoring system called in F1 that awards points to the top 10 finishers?",
+    "Points ladder",
+    "Constructor points",
+    "FIA points system",
+    "Standard points",
+    "c",
+    "medium"
+  ],
+  [
+    "Which country finished as runner-up in the 2018 FIFA World Cup?",
+    "Belgium",
+    "Brazil",
+    "Croatia",
+    "England",
+    "c",
+    "medium"
+  ],
+  [
+    "In American football, what is the line of scrimmage?",
+    "The goal line",
+    "Where play begins each down",
+    "The 50-yard line",
+    "The end zone boundary",
+    "b",
+    "medium"
+  ],
+  [
+    "Who won the 2023 French Open men's singles?",
+    "Carlos Alcaraz",
+    "Casper Ruud",
+    "Novak Djokovic",
+    "Stefanos Tsitsipas",
+    "c",
+    "medium"
+  ],
+  [
+    "In which sport is the Wightman Cup competed?",
+    "Golf",
+    "Tennis",
+    "Squash",
+    "Badminton",
+    "b",
+    "medium"
+  ],
+  [
+    "Who was named MVP of the 2023 Super Bowl?",
+    "Patrick Mahomes",
+    "Travis Kelce",
+    "Jalen Hurts",
+    "Tyreek Hill",
+    "a",
+    "medium"
+  ],
+  [
+    "In cricket, what is a 'golden duck'?",
+    "Being dismissed for zero on the first ball",
+    "Scoring 50 on the first ball",
+    "A catch on the boundary",
+    "A six off the last ball",
+    "a",
+    "medium"
+  ],
+  [
+    "In which year was the first modern Olympic marathon run in Athens?",
+    "1894",
+    "1896",
+    "1900",
+    "1904",
+    "b",
+    "hard"
+  ],
+  [
+    "Which player holds the record for most Test cricket centuries?",
+    "Ricky Ponting",
+    "Sachin Tendulkar",
+    "Jacques Kallis",
+    "Brian Lara",
+    "b",
+    "hard"
+  ],
+  [
+    "How many consecutive games did Cal Ripken Jr. play in MLB?",
+    "2,130",
+    "2,362",
+    "2,632",
+    "2,890",
+    "c",
+    "hard"
+  ],
+  [
+    "In which year did Brazil host its first FIFA World Cup?",
+    "1946",
+    "1950",
+    "1954",
+    "1958",
+    "b",
+    "hard"
+  ],
+  [
+    "Which jockey rode Secretariat to the 1973 Triple Crown?",
+    "Steve Cauthen",
+    "Ron Turcotte",
+    "Eddie Arcaro",
+    "Bill Shoemaker",
+    "b",
+    "hard"
+  ],
+  [
+    "Who missed the decisive penalty in the 1994 World Cup final shootout?",
+    "Roberto Baggio",
+    "Romario",
+    "Bebeto",
+    "Mazinho",
+    "a",
+    "hard"
+  ],
+  [
+    "How many gold medals did Mark Spitz win at the 1972 Munich Olympics?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "hard"
+  ],
+  [
+    "Which team has won the most UEFA Champions League titles?",
+    "Bayern Munich",
+    "AC Milan",
+    "Liverpool",
+    "Real Madrid",
+    "d",
+    "hard"
+  ],
+  [
+    "What was Wayne Gretzky's career goals total?",
+    "801",
+    "833",
+    "894",
+    "921",
+    "c",
+    "hard"
+  ],
+  [
+    "Which city hosted the 1968 Summer Olympics where the Fosbury Flop debuted?",
+    "Mexico City",
+    "Tokyo",
+    "Rome",
+    "Montreal",
+    "a",
+    "hard"
+  ],
+  [
+    "In cricket, who took all 10 wickets in an innings against India in 1999?",
+    "Shane Warne",
+    "Muttiah Muralitharan",
+    "Anil Kumble",
+    "Glenn McGrath",
+    "c",
+    "hard"
+  ],
+  [
+    "How many wins did Ayrton Senna have in F1?",
+    "41",
+    "51",
+    "65",
+    "77",
+    "b",
+    "hard"
+  ],
+  [
+    "What year did the AFL and NFL formally merge into one league?",
+    "1966",
+    "1970",
+    "1974",
+    "1978",
+    "b",
+    "hard"
+  ],
+  [
+    "Which country finished third at the 2002 FIFA World Cup?",
+    "England",
+    "Senegal",
+    "Turkey",
+    "South Korea",
+    "d",
+    "hard"
+  ],
+  [
+    "In 1966, which country beat West Germany to win the FIFA World Cup?",
+    "Brazil",
+    "Argentina",
+    "England",
+    "Italy",
+    "c",
+    "hard"
+  ],
+  [
+    "What is the highest individual score in a One Day International cricket match?",
+    "194",
+    "200",
+    "209",
+    "219",
+    "d",
+    "hard"
+  ],
+  [
+    "How many times did Pele win the FIFA World Cup?",
+    "1",
+    "2",
+    "3",
+    "4",
+    "c",
+    "hard"
+  ],
+  [
+    "Who was the first woman to break the 10-second barrier in the 100m?",
+    "Florence Griffith-Joyner",
+    "Marion Jones",
+    "Christine Arron",
+    "Evelyn Ashford",
+    "a",
+    "hard"
+  ],
+  [
+    "Which country boycotted the 1980 Moscow Olympics?",
+    "China",
+    "West Germany",
+    "France",
+    "USA",
+    "d",
+    "hard"
+  ],
+  [
+    "Who holds the record for most Rugby World Cup tries scored?",
+    "Bryan Habana",
+    "Jonah Lomu",
+    "Jonny Wilkinson",
+    "David Campese",
+    "a",
+    "hard"
+  ],
+  [
+    "In which year did Tiger Woods win all four major golf titles consecutively?",
+    "1999-2000",
+    "2000-2001",
+    "2001-2002",
+    "2002-2003",
+    "b",
+    "hard"
+  ],
+  [
+    "In athletics, who broke the long jump world record at the 1968 Mexico Olympics?",
+    "Carl Lewis",
+    "Ralph Boston",
+    "Bob Beamon",
+    "Jesse Owens",
+    "c",
+    "hard"
+  ],
+  [
+    "Who holds the record for most wickets in Test cricket?",
+    "Shane Warne",
+    "Glenn McGrath",
+    "Muttiah Muralitharan",
+    "Wasim Akram",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country beat the USA at the 1988 Olympics in basketball to end their gold streak?",
+    "USSR",
+    "Yugoslavia",
+    "Brazil",
+    "Spain",
+    "b",
+    "hard"
+  ],
+  [
+    "In which year did Muhammad Ali reclaim the heavyweight title from George Foreman?",
+    "1972",
+    "1974",
+    "1976",
+    "1978",
+    "b",
+    "hard"
+  ],
+  [
+    "How many wickets did Shane Warne take in his Test career?",
+    "619",
+    "678",
+    "708",
+    "739",
+    "c",
+    "hard"
+  ],
+  [
+    "Which American football team won Super Bowl I?",
+    "Kansas City Chiefs",
+    "Green Bay Packers",
+    "Dallas Cowboys",
+    "Oakland Raiders",
+    "b",
+    "hard"
+  ],
+  [
+    "In cycling, how many stages does the Tour de France typically have?",
+    "18",
+    "19",
+    "21",
+    "23",
+    "c",
+    "hard"
+  ],
+  [
+    "How many consecutive World Series did the New York Yankees win starting in 1949?",
+    "3",
+    "4",
+    "5",
+    "6",
+    "c",
+    "hard"
+  ],
+  [
+    "Which boxer had a fight called the Thrilla in Manila?",
+    "George Foreman vs Ali",
+    "Joe Frazier vs Ali",
+    "Larry Holmes vs Ali",
+    "Ken Norton vs Ali",
+    "b",
+    "hard"
+  ],
+  [
+    "Who hit the Shot Heard Round the World in 1951 baseball?",
+    "Mickey Mantle",
+    "Bobby Thomson",
+    "Willie Mays",
+    "Duke Snider",
+    "b",
+    "hard"
+  ],
+  [
+    "In rugby, who holds the record for most Test tries scored?",
+    "Jonah Lomu",
+    "Bryan Habana",
+    "Christian Cullen",
+    "Doug Howlett",
+    "b",
+    "hard"
+  ],
+  [
+    "Both drivers who died at the 1994 San Marino Grand Prix were?",
+    "Senna and Lauda",
+    "Senna and Ratzenberger",
+    "Ratzenberger and Berger",
+    "Senna and Berger",
+    "b",
+    "hard"
+  ],
+  [
+    "What was the final score of the 1954 World Cup final (West Germany vs Hungary)?",
+    "2-2",
+    "3-2",
+    "4-2",
+    "5-3",
+    "c",
+    "hard"
+  ],
+  [
+    "Who won golf's original Grand Slam (all four major titles) in 1930?",
+    "Ben Hogan",
+    "Bobby Jones",
+    "Gene Sarazen",
+    "Walter Hagen",
+    "b",
+    "hard"
+  ],
+  [
+    "In which year did Pete Sampras win his last Grand Slam title?",
+    "2000",
+    "2001",
+    "2002",
+    "2003",
+    "c",
+    "hard"
+  ],
+  [
+    "Who holds the career record for most stolen bases in MLB?",
+    "Lou Brock",
+    "Rickey Henderson",
+    "Tim Raines",
+    "Vince Coleman",
+    "b",
+    "hard"
+  ],
+  [
+    "In 1986, Diego Maradona scored his Goal of the Century against which country?",
+    "Germany",
+    "Brazil",
+    "England",
+    "Belgium",
+    "c",
+    "hard"
+  ],
+  [
+    "How many times did Novak Djokovic win the Australian Open as of 2023?",
+    "7",
+    "8",
+    "9",
+    "10",
+    "d",
+    "hard"
+  ],
+  [
+    "What year did the International Tennis Federation introduce the tiebreak?",
+    "1968",
+    "1970",
+    "1975",
+    "1979",
+    "b",
+    "hard"
+  ],
+  [
+    "In cycling, who was stripped of seven Tour de France titles for doping?",
+    "Jan Ullrich",
+    "Alberto Contador",
+    "Lance Armstrong",
+    "Bjarne Riis",
+    "c",
+    "hard"
+  ],
+  [
+    "How many points does a try score in rugby league?",
+    "4",
+    "5",
+    "6",
+    "7",
+    "c",
+    "hard"
+  ],
+  [
+    "Which player scored the winner in the 1999 Champions League final for Manchester United?",
+    "David Beckham",
+    "Andy Cole",
+    "Ole Gunnar Solskjaer",
+    "Teddy Sheringham",
+    "c",
+    "hard"
+  ],
+  [
+    "In which year was the first FIFA Women's World Cup held?",
+    "1987",
+    "1989",
+    "1991",
+    "1993",
+    "c",
+    "hard"
+  ],
+  [
+    "Which NFL team holds the record for most Super Bowl wins as of 2023?",
+    "San Francisco 49ers",
+    "New England Patriots",
+    "Dallas Cowboys",
+    "Pittsburgh Steelers",
+    "b",
+    "hard"
+  ],
+  [
+    "In cycling, who won the Tour de France five consecutive times legitimately?",
+    "Bernard Hinault",
+    "Miguel Indurain",
+    "Eddy Merckx",
+    "Jacques Anquetil",
+    "b",
+    "hard"
+  ],
+  [
+    "Who hit 73 home runs in a single MLB season (the current official record)?",
+    "Sammy Sosa",
+    "Mark McGwire",
+    "Barry Bonds",
+    "Ken Griffey Jr.",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country won the 1958 FIFA World Cup?",
+    "Sweden",
+    "Brazil",
+    "Argentina",
+    "France",
+    "b",
+    "hard"
+  ],
+  [
+    "In which year did the Boston Red Sox end their 86-year World Series drought?",
+    "2002",
+    "2004",
+    "2006",
+    "2008",
+    "b",
+    "hard"
+  ],
+  [
+    "Who holds the world record in mens long jump set at the 1968 Olympics?",
+    "Carl Lewis",
+    "Jesse Owens",
+    "Bob Beamon",
+    "Mike Powell",
+    "c",
+    "hard"
+  ],
+  [
+    "Which golfer has the most major championships wins?",
+    "Tiger Woods",
+    "Jack Nicklaus",
+    "Arnold Palmer",
+    "Sam Snead",
+    "b",
+    "hard"
+  ],
+  [
+    "In F1, which team did Lewis Hamilton win his first championship with?",
+    "Mercedes",
+    "Ferrari",
+    "McLaren",
+    "Williams",
+    "c",
+    "hard"
+  ],
+  [
+    "What was Michael Schumacher's record number of F1 victories?",
+    "68",
+    "72",
+    "91",
+    "100",
+    "c",
+    "hard"
+  ],
+  [
+    "In cricket, who scored 501 not out in a first-class match?",
+    "Brian Lara",
+    "Hanif Mohammad",
+    "Don Bradman",
+    "Len Hutton",
+    "a",
+    "hard"
+  ],
+  [
+    "Which team won the first NBA championship in 1947?",
+    "Philadelphia Warriors",
+    "New York Knicks",
+    "Chicago Stags",
+    "Boston Celtics",
+    "a",
+    "hard"
+  ],
+  [
+    "What year did baseball first use the designated hitter in the American League?",
+    "1969",
+    "1971",
+    "1973",
+    "1975",
+    "c",
+    "hard"
+  ],
+  [
+    "Who holds the record for most World Cup appearances (men's soccer)?",
+    "Lothar Matthaus",
+    "Pele",
+    "Cafu",
+    "Hassan Al-Haydos",
+    "a",
+    "hard"
+  ],
+  [
+    "In F1, who holds the record for most pole positions?",
+    "Michael Schumacher",
+    "Ayrton Senna",
+    "Lewis Hamilton",
+    "Sebastian Vettel",
+    "c",
+    "hard"
+  ],
+  [
+    "How many goals did Ronaldo (Brazil) score at the 2002 World Cup?",
+    "6",
+    "7",
+    "8",
+    "9",
+    "c",
+    "hard"
+  ],
+  [
+    "Which soccer team won the first two Women's World Cup tournaments?",
+    "Germany",
+    "USA",
+    "China",
+    "Norway",
+    "b",
+    "hard"
+  ],
+  [
+    "In baseball, who holds the single-season strikeout record as a pitcher?",
+    "Randy Johnson",
+    "Nolan Ryan",
+    "Sandy Koufax",
+    "Bob Gibson",
+    "b",
+    "hard"
+  ],
+  [
+    "How many times did Jack Nicklaus win The Masters?",
+    "4",
+    "5",
+    "6",
+    "7",
+    "c",
+    "hard"
+  ],
+  [
+    "Who holds the record for most points scored in the NBA Finals single series?",
+    "Jerry West",
+    "LeBron James",
+    "Elgin Baylor",
+    "Michael Jordan",
+    "d",
+    "hard"
+  ],
+  [
+    "What year did cricket's first Test match take place?",
+    "1870",
+    "1877",
+    "1880",
+    "1885",
+    "b",
+    "hard"
+  ],
+  [
+    "In athletics, who holds the women's marathon world record as of 2023?",
+    "Paula Radcliffe",
+    "Brigid Kosgei",
+    "Tigst Assefa",
+    "Mary Keitany",
+    "c",
+    "hard"
+  ],
+  [
+    "How many ATP singles titles did Roger Federer win in his career?",
+    "95",
+    "99",
+    "103",
+    "107",
+    "c",
+    "hard"
+  ],
+  [
+    "Who was the first player to win Wimbledon from a wild card entry?",
+    "Ivo Karlovic",
+    "Goran Ivanisevic",
+    "John McEnroe",
+    "Henri Leconte",
+    "b",
+    "hard"
+  ],
+  [
+    "In basketball, how many times did Bill Russell win the NBA title?",
+    "8",
+    "9",
+    "10",
+    "11",
+    "d",
+    "hard"
+  ],
+  [
+    "What is the record for most consecutive Grand Prix wins in F1?",
+    "7",
+    "8",
+    "9",
+    "11",
+    "c",
+    "hard"
+  ],
+  [
+    "Which cricketer took a hat-trick in the 1999 Cricket World Cup semi-final?",
+    "Shaun Pollock",
+    "Shane Warne",
+    "Wasim Akram",
+    "Glenn McGrath",
+    "c",
+    "hard"
+  ],
+  [
+    "In boxing, who beat Evander Holyfield for the heavyweight title in 1994?",
+    "Lennox Lewis",
+    "Mike Tyson",
+    "Riddick Bowe",
+    "Michael Moorer",
+    "d",
+    "hard"
+  ],
+  [
+    "Which team holds the record for most consecutive NHL Stanley Cup wins?",
+    "Edmonton Oilers",
+    "Detroit Red Wings",
+    "Montreal Canadiens",
+    "Toronto Maple Leafs",
+    "c",
+    "hard"
+  ],
+  [
+    "In the 2002 NBA Draft, who was picked first overall?",
+    "Yao Ming",
+    "Jay Williams",
+    "Dajuan Wagner",
+    "Mike Dunleavy Jr.",
+    "a",
+    "hard"
+  ],
+  [
+    "How many times did Steffi Graf win Wimbledon?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "hard"
+  ],
+  [
+    "What was the score in the 2019 Rugby World Cup final (South Africa vs England)?",
+    "32-12",
+    "30-15",
+    "28-14",
+    "32-16",
+    "a",
+    "hard"
+  ],
+  [
+    "Which country won the 1954 FIFA World Cup as major underdogs?",
+    "Brazil",
+    "Hungary",
+    "West Germany",
+    "Austria",
+    "c",
+    "hard"
+  ],
+  [
+    "What was the Golden State Warriors' record when they set the single-season wins record in 2015-16?",
+    "72-10",
+    "73-9",
+    "74-8",
+    "70-12",
+    "b",
+    "hard"
+  ],
+  [
+    "In boxing, who bit off part of Evander Holyfield's ear in 1997?",
+    "Lennox Lewis",
+    "Mike Tyson",
+    "Riddick Bowe",
+    "George Foreman",
+    "b",
+    "hard"
+  ],
+  [
+    "Who holds the record for most career strikeouts in MLB pitching history?",
+    "Roger Clemens",
+    "Randy Johnson",
+    "Nolan Ryan",
+    "Steve Carlton",
+    "c",
+    "hard"
+  ],
+  [
+    "Which athlete won the heptathlon gold at two consecutive Olympics (1988 and 1992)?",
+    "Heike Drechsler",
+    "Jackie Joyner-Kersee",
+    "Sabine Braun",
+    "Jane Frederick",
+    "b",
+    "hard"
+  ],
+  [
+    "What year did the IOC first allow professional athletes to compete in the Olympics?",
+    "1980",
+    "1984",
+    "1988",
+    "1992",
+    "d",
+    "hard"
+  ],
+  [
+    "In what year was the first Super Bowl played?",
+    "1965",
+    "1967",
+    "1969",
+    "1971",
+    "b",
+    "hard"
+  ],
+  [
+    "Who holds the record for most stolen bases in a single MLB season?",
+    "Lou Brock",
+    "Rickey Henderson",
+    "Vince Coleman",
+    "Tim Raines",
+    "b",
+    "hard"
+  ],
+  [
+    "Which F1 driver won four consecutive championships from 2010-2013?",
+    "Kimi Raikkonen",
+    "Fernando Alonso",
+    "Sebastian Vettel",
+    "Jenson Button",
+    "c",
+    "hard"
+  ],
+  [
+    "What year did Steffi Graf achieve the Golden Slam (all four majors plus Olympics)?",
+    "1986",
+    "1988",
+    "1990",
+    "1992",
+    "b",
+    "hard"
+  ],
+  [
+    "Which sprinter set the 200m world record of 19.19 seconds?",
+    "Michael Johnson",
+    "Frank Fredericks",
+    "Usain Bolt",
+    "Yohan Blake",
+    "c",
+    "hard"
+  ],
+  [
+    "In cricket, who holds the record for highest score in a Test innings?",
+    "Don Bradman",
+    "Brian Lara",
+    "Hanif Mohammad",
+    "Len Hutton",
+    "b",
+    "hard"
+  ],
+  [
+    "What was the Test batting average of Don Bradman?",
+    "95.14",
+    "99.01",
+    "99.94",
+    "101.20",
+    "c",
+    "hard"
+  ],
+  [
+    "Which boxer had a fight called the Rumble in the Jungle?",
+    "Joe Frazier vs Ali",
+    "George Foreman vs Ali",
+    "Sonny Liston vs Ali",
+    "Ken Norton vs Ali",
+    "b",
+    "hard"
+  ],
+  [
+    "In which year did Jesse Owens win his four gold medals at the Olympics?",
+    "1932",
+    "1936",
+    "1940",
+    "1944",
+    "b",
+    "hard"
+  ],
+  [
+    "Who was the first woman to officially run the Boston Marathon?",
+    "Bobbi Gibb",
+    "Nina Kuscsik",
+    "Kathrine Switzer",
+    "Sara Mae Berman",
+    "c",
+    "hard"
+  ],
+  [
+    "In baseball, how many times did Cy Young win 20 or more games in a season?",
+    "11",
+    "14",
+    "16",
+    "18",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country won the Copa America the most times?",
+    "Brazil",
+    "Argentina",
+    "Uruguay",
+    "Chile",
+    "c",
+    "hard"
+  ],
+  [
+    "In the NBA, who holds the record for most triple-doubles in a career?",
+    "Magic Johnson",
+    "Oscar Robertson",
+    "LeBron James",
+    "Russell Westbrook",
+    "d",
+    "hard"
+  ],
+  [
+    "Who holds the record for most Grand Slam singles wins on the women's side?",
+    "Martina Navratilova",
+    "Chris Evert",
+    "Steffi Graf",
+    "Margaret Court",
+    "d",
+    "hard"
+  ],
+  [
+    "In F1, which circuit is known as the Temple of Speed?",
+    "Spa",
+    "Suzuka",
+    "Monza",
+    "Silverstone",
+    "c",
+    "hard"
+  ],
+  [
+    "How many times did Michael Schumacher win the F1 World Championship?",
+    "5",
+    "6",
+    "7",
+    "8",
+    "c",
+    "hard"
+  ],
+  [
+    "Which pitcher has the most career wins in MLB history?",
+    "Roger Clemens",
+    "Warren Spahn",
+    "Cy Young",
+    "Walter Johnson",
+    "c",
+    "hard"
+  ],
+  [
+    "What was the final score of the 1970 World Cup final (Brazil vs Italy)?",
+    "3-1",
+    "4-1",
+    "4-2",
+    "5-2",
+    "b",
+    "hard"
+  ],
+  [
+    "In Rugby Union, who holds the record for most Test points scored?",
+    "Jonny Wilkinson",
+    "Dan Carter",
+    "Andrew Mehrtens",
+    "Neil Jenkins",
+    "b",
+    "hard"
+  ],
+  [
+    "Which Olympic city first used the torch relay tradition?",
+    "Los Angeles 1932",
+    "Amsterdam 1928",
+    "Berlin 1936",
+    "London 1948",
+    "c",
+    "hard"
+  ],
+  [
+    "In tennis, who was the last man to win three consecutive Wimbledon titles before Federer?",
+    "John McEnroe",
+    "Ivan Lendl",
+    "Bjorn Borg",
+    "Pete Sampras",
+    "c",
+    "hard"
+  ],
+  [
+    "In MLB, who holds the record for most consecutive games with a hit?",
+    "Ty Cobb",
+    "Pete Rose",
+    "Joe DiMaggio",
+    "Ted Williams",
+    "c",
+    "hard"
+  ],
+  [
+    "What year was the first FIFA World Cup held?",
+    "1926",
+    "1928",
+    "1930",
+    "1932",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country beat England to win the 2003 Rugby World Cup?",
+    "New Zealand",
+    "South Africa",
+    "France",
+    "Australia",
+    "d",
+    "hard"
+  ],
+  [
+    "In boxing, what was the first fight between Ali and Frazier called?",
+    "Fight of the Century",
+    "Thriller in Manila",
+    "Rumble in the Jungle",
+    "Battle of the Century",
+    "a",
+    "hard"
+  ],
+  [
+    "Who was the first player to win Wimbledon five consecutive times (open era)?",
+    "John McEnroe",
+    "Pete Sampras",
+    "Bjorn Borg",
+    "Roger Federer",
+    "c",
+    "hard"
+  ],
+  [
+    "Which NFL team went 16-0 in the regular season in 2007?",
+    "Indianapolis Colts",
+    "New England Patriots",
+    "San Diego Chargers",
+    "Green Bay Packers",
+    "b",
+    "hard"
+  ],
+  [
+    "In which year was the first Ashes cricket series played?",
+    "1877",
+    "1880",
+    "1882",
+    "1885",
+    "c",
+    "hard"
+  ],
+  [
+    "Who holds the record for most career home runs in MLB?",
+    "Hank Aaron",
+    "Babe Ruth",
+    "Barry Bonds",
+    "Alex Rodriguez",
+    "c",
+    "hard"
+  ],
+  [
+    "What country won the 2004 Olympic men's basketball tournament defeating the USA?",
+    "France",
+    "Argentina",
+    "Spain",
+    "Lithuania",
+    "b",
+    "hard"
+  ],
+  [
+    "Which tennis player won 18 consecutive Grand Slam titles matches in a single year?",
+    "Novak Djokovic",
+    "Roger Federer",
+    "Rafael Nadal",
+    "Steffi Graf",
+    "b",
+    "hard"
+  ],
+  [
+    "In cricket, how many balls did Sachin Tendulkar face in his entire Test career (approx)?",
+    "25,000",
+    "29,437",
+    "32,641",
+    "35,000",
+    "c",
+    "hard"
+  ],
+  [
+    "Who was the first player to score 50 goals in an NHL season?",
+    "Maurice Richard",
+    "Mike Bossy",
+    "Phil Esposito",
+    "Bobby Hull",
+    "a",
+    "hard"
+  ],
+  [
+    "What year did the NBA introduce the salary cap?",
+    "1980",
+    "1982",
+    "1984",
+    "1986",
+    "c",
+    "hard"
+  ],
+  [
+    "Which country has hosted the most Summer Olympic Games?",
+    "USA",
+    "France",
+    "UK",
+    "Germany",
+    "a",
+    "hard"
+  ],
+  [
+    "In the 1986 World Cup final, who scored for West Germany?",
+    "Rummenigge and Voller",
+    "Maradona and Burruchaga",
+    "Rummenigge and Brehme",
+    "Lothar Matthaus alone",
+    "a",
+    "hard"
+  ],
+  [
+    "What is the record for most goals scored by a team in a single FIFA World Cup?",
+    "10",
+    "12",
+    "16",
+    "18",
+    "d",
+    "hard"
+  ],
+  [
+    "Which country's team won the first two ICC Cricket World Cups?",
+    "England",
+    "West Indies",
+    "India",
+    "Australia",
+    "b",
+    "hard"
+  ],
+  [
+    "In American football, who holds the NFL record for most career passing yards?",
+    "Brett Favre",
+    "Drew Brees",
+    "Tom Brady",
+    "Peyton Manning",
+    "c",
+    "hard"
+  ],
+  [
+    "What year was the first Ryder Cup golf competition held?",
+    "1922",
+    "1927",
+    "1931",
+    "1935",
+    "b",
+    "hard"
+  ],
+  [
+    "In boxing, in what year did Mike Tyson become the youngest heavyweight champion?",
+    "1984",
+    "1986",
+    "1988",
+    "1990",
+    "b",
+    "hard"
+  ],
+  [
+    "In which year did the first Cricket Test match between India and Pakistan take place?",
+    "1947",
+    "1952",
+    "1954",
+    "1956",
+    "b",
+    "hard"
+  ],
+  [
+    "Who scored the most points in a single Olympic basketball game?",
+    "Oscar Robertson",
+    "Larry Bird",
+    "Drazen Petrovic",
+    "Dan Peterson",
+    "a",
+    "hard"
+  ],
+  [
+    "How many times did Ayrton Senna win the Monaco Grand Prix?",
+    "4",
+    "5",
+    "6",
+    "7",
+    "c",
+    "hard"
+  ],
+  [
+    "In rugby union, who holds the record for most points in a single World Cup?",
+    "Jonny Wilkinson",
+    "Dan Carter",
+    "Grant Fox",
+    "Thierry Lacroix",
+    "c",
+    "hard"
+  ],
+  [
+    "Which team won the inaugural Indian Premier League (IPL) cricket tournament in 2008?",
+    "Mumbai Indians",
+    "Chennai Super Kings",
+    "Rajasthan Royals",
+    "Delhi Daredevils",
+    "c",
+    "hard"
+  ],
+  [
+    "In F1, which circuit has the most corners?",
+    "Spa-Francorchamps",
+    "Circuit of the Americas",
+    "Suzuka",
+    "Nurburgring Nordschleife",
+    "d",
+    "hard"
+  ],
+  [
+    "Who was the youngest player to win the Masters golf tournament?",
+    "Seve Ballesteros",
+    "Jack Nicklaus",
+    "Tiger Woods",
+    "Jordan Spieth",
+    "c",
+    "hard"
+  ],
+  [
+    "What was the record for most consecutive Wimbledon women's singles titles (open era)?",
+    "6",
+    "8",
+    "9",
+    "11",
+    "b",
+    "hard"
+  ],
+  [
+    "In cricket, who holds the record for most sixes hit in Test cricket?",
+    "Chris Gayle",
+    "Brendon McCullum",
+    "Adam Gilchrist",
+    "Brian Lara",
+    "a",
+    "hard"
+  ],
+  [
+    "Which country won the first Olympic men's volleyball gold medal in 1964?",
+    "USA",
+    "Brazil",
+    "Japan",
+    "Soviet Union",
+    "c",
+    "hard"
+  ],
+  [
+    "In the NHL, how many players are in the Hockey Hall of Fame as of 2023 (approx)?",
+    "200",
+    "250",
+    "300",
+    "450",
+    "d",
+    "hard"
+  ],
+  [
+    "Who set the world record for the 400m hurdles at the 2021 Tokyo Olympics?",
+    "Edwin Moses",
+    "Kevin Young",
+    "Karsten Warholm",
+    "Dai Greene",
+    "c",
+    "hard"
+  ],
+  [
+    "In soccer, which country won the most Olympic gold medals in football?",
+    "Brazil",
+    "Argentina",
+    "Hungary",
+    "Uruguay",
+    "c",
+    "hard"
+  ],
+  [
+    "Which F1 team did Ayrton Senna drive for when he won his first title?",
+    "Williams",
+    "Ferrari",
+    "Lotus",
+    "McLaren",
+    "d",
+    "hard"
+  ],
+  [
+    "What was the total distance of the 2023 Tour de France?",
+    "3,404km",
+    "3,534km",
+    "3,601km",
+    "3,728km",
+    "a",
+    "hard"
+  ],
+  [
+    "In American football, who holds the record for most touchdowns in a single season?",
+    "Tom Brady",
+    "Dan Marino",
+    "Peyton Manning",
+    "Brett Favre",
+    "c",
+    "hard"
+  ],
+  [
+    "Which city hosted the first Pan American Games in 1951?",
+    "Havana",
+    "Buenos Aires",
+    "Mexico City",
+    "Lima",
+    "b",
+    "hard"
+  ],
+  [
+    "In cricket, who was the first bowler to take 600 Test wickets?",
+    "Shane Warne",
+    "Muttiah Muralitharan",
+    "Glenn McGrath",
+    "Courtney Walsh",
+    "a",
+    "hard"
+  ],
+  [
+    "What was Wilt Chamberlain's exact rebounding average in the 1960-61 NBA season?",
+    "24.7",
+    "26.4",
+    "27.2",
+    "29.0",
+    "c",
+    "extreme"
+  ],
+  [
+    "In the 1954 World Cup, Switzerland beat Austria by what historic scoreline?",
+    "7-3",
+    "7-5",
+    "8-4",
+    "9-3",
+    "b",
+    "extreme"
+  ],
+  [
+    "Which F1 driver won the 1979 World Championship with Ferrari after Niki Lauda left?",
+    "Gilles Villeneuve",
+    "Jody Scheckter",
+    "Carlos Reutemann",
+    "Alan Jones",
+    "b",
+    "extreme"
+  ],
+  [
+    "What exact distance did Bob Beamon jump to set the world record at Mexico 1968?",
+    "8.89m",
+    "8.90m",
+    "8.91m",
+    "8.95m",
+    "b",
+    "extreme"
+  ],
+  [
+    "In Test cricket, how many balls did Hanif Mohammad face in his record 337 innings vs West Indies in 1958?",
+    "860",
+    "877",
+    "900",
+    "999",
+    "b",
+    "extreme"
+  ]
+]

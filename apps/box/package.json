@@ -1,0 +1,25 @@
+{
+  "name": "@partyglue/box",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PartyGlue Box — local WebSocket game server for Fire HD8 / Termux",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc && node -e \"require('fs').cpSync('src/seed','dist/seed',{recursive:true,filter:f=>!f.endsWith('.ts')})\"",
+    "start": "node --max-old-space-size=256 dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx src/seed-trivia.ts",
+    "seed:wyr": "tsx src/seed-wyr.ts"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "nanoid": "^3.3.7"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.0"
+  }
+}
