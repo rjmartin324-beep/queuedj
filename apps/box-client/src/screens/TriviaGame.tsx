@@ -313,14 +313,24 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
       <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
       <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
 
-      <div className="trivia-header">
-        <span className="q-progress">Q {questionIndex + 1}/{totalInRound}</span>
-        {tournament && <span className="round-badge">{roundName}</span>}
-        <span className="answered-count">{answeredCount}/{totalPlayers} ✓</span>
+      {/* Flagship gameshow header — broadcast banner with round in lights */}
+      <div className="trivia-flagship-header">
+        <div className="trivia-flagship-bulbs trivia-flagship-bulbs-top" aria-hidden>
+          {Array.from({ length: 14 }).map((_, i) => <span key={i} className="trivia-flagship-bulb" style={{ animationDelay: `${i * 0.12}s` }} />)}
+        </div>
+        <div className="trivia-flagship-row">
+          <span className="trivia-flagship-q">Q {questionIndex + 1}<span className="trivia-flagship-q-of">/{totalInRound}</span></span>
+          <span className="trivia-flagship-title">{tournament ? roundName : "TRIVIA"}</span>
+          <span className="trivia-flagship-answered">{answeredCount}/{totalPlayers}</span>
+        </div>
+        <div className="trivia-flagship-bulbs trivia-flagship-bulbs-bottom" aria-hidden>
+          {Array.from({ length: 14 }).map((_, i) => <span key={i} className="trivia-flagship-bulb" style={{ animationDelay: `${(13 - i) * 0.12}s` }} />)}
+        </div>
       </div>
 
       {question && (
-        <div className="question-card">
+        <div className="question-card question-card-flagship" key={`q-${questionIndex}-${round}`}>
+          <div className="question-spotlight" aria-hidden />
           <div className={`question-category cat-${CAT_SLUG[question.category] ?? "general-knowledge"}`}>
             {question.category}
           </div>

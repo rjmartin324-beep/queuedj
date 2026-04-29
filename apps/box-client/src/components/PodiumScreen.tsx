@@ -36,9 +36,9 @@ export default function PodiumScreen({ scores, guestId, roomId, isHost }: Props)
   return (
     <div className="podium-screen">
       <div className="podium-header">
-        <div className="podium-label">FINAL SCORE</div>
+        <div className="podium-label">CHAMPION OF THE BOX</div>
         <div className="podium-winner">{sorted[0]?.displayName}</div>
-        <div className="podium-winner-score">{sorted[0]?.score.toLocaleString()}</div>
+        <div className="podium-winner-score">{sorted[0]?.score.toLocaleString()} pts</div>
       </div>
 
       <div className="podium-list">

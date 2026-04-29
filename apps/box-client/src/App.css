@@ -1047,6 +1047,89 @@ button {
   font-weight: 600;
 }
 
+/* ─── Trivia FLAGSHIP header — gameshow broadcast banner ────────────────── */
+
+.trivia-flagship-header {
+  position: relative;
+  padding: 8px 16px 10px;
+  background:
+    linear-gradient(180deg, rgba(91, 43, 214, 0.18) 0%, rgba(44, 21, 116, 0.18) 100%);
+  border-bottom: 2px solid rgba(255, 200, 100, 0.3);
+  box-shadow: inset 0 -1px 0 rgba(255, 200, 100, 0.18);
+}
+
+/* Lit-bulb chase running across top + bottom of the banner */
+.trivia-flagship-bulbs {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+  height: 6px;
+}
+.trivia-flagship-bulbs-top    { margin-bottom: 6px; }
+.trivia-flagship-bulbs-bottom { margin-top: 6px; }
+.trivia-flagship-bulb {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 200, 100, 0.25);
+  box-shadow: 0 0 4px rgba(255, 200, 100, 0.3);
+  animation: bulb-chase 1.4s ease-in-out infinite;
+}
+@keyframes bulb-chase {
+  0%, 100% { background: rgba(255, 200, 100, 0.25); box-shadow: 0 0 4px rgba(255, 200, 100, 0.3); }
+  50%      { background: #FFD773;                     box-shadow: 0 0 12px rgba(255, 200, 100, 0.95), 0 0 20px rgba(255, 200, 100, 0.5); }
+}
+
+.trivia-flagship-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px;
+}
+.trivia-flagship-q {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: 0.04em;
+  color: #FFD773;
+  text-shadow: 0 0 12px rgba(255, 200, 100, 0.55), 0 1px 0 rgba(0,0,0,0.5);
+  line-height: 1;
+}
+.trivia-flagship-q-of {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 700;
+  margin-left: 1px;
+}
+.trivia-flagship-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: 0.18em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.6),
+    0 0 18px rgba(180, 130, 255, 0.85),
+    0 2px 0 rgba(0,0,0,0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trivia-flagship-answered {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 200, 100, 0.12);
+  border: 1px solid rgba(255, 200, 100, 0.32);
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
 .round-badge {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
@@ -1471,6 +1554,122 @@ button {
   color: var(--text-muted);
   font-size: 0.9rem;
   text-align: center;
+}
+
+/* ─── Trivia FLAGSHIP polish — round transitions, podium, cut-scenes ──────── */
+
+/* Round-end transition gets the lit-bulb + neon "ROUND N OF 5" treatment */
+.round-end-screen {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(180, 130, 255, 0.18) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 200, 100, 0.10) 0%, transparent 50%),
+    var(--bg);
+}
+.round-end-badge {
+  background: rgba(255, 200, 100, 0.10);
+  border: 1px solid rgba(255, 200, 100, 0.4);
+  color: #FFD773;
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.32em;
+  font-size: 0.85rem;
+  padding: 6px 18px;
+  text-shadow: 0 0 8px rgba(255, 200, 100, 0.5);
+  text-transform: uppercase;
+}
+.round-end-name {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 7vw, 3.2rem) !important;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.6),
+    0 0 22px rgba(180, 130, 255, 0.85),
+    0 0 44px rgba(180, 130, 255, 0.5),
+    0 2px 0 rgba(0,0,0,0.5);
+}
+
+/* Podium — flagship "CHAMPION OF THE BOX" treatment */
+.podium-screen {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 200, 100, 0.20) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 80%, rgba(180, 130, 255, 0.14) 0%, transparent 55%),
+    var(--bg);
+}
+.podium-label {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: 0.42em !important;
+  font-size: 0.85rem !important;
+  color: #FFD773 !important;
+  text-shadow: 0 0 12px rgba(255, 200, 100, 0.6);
+  text-transform: uppercase;
+}
+.podium-winner {
+  font-size: clamp(2.4rem, 9vw, 3.6rem) !important;
+  letter-spacing: 0.04em;
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.7),
+    0 0 28px rgba(255, 200, 100, 0.9),
+    0 0 56px rgba(255, 200, 100, 0.5),
+    0 2px 0 rgba(0,0,0,0.5);
+  animation: podium-winner-glow 3s ease-in-out infinite;
+}
+@keyframes podium-winner-glow {
+  0%, 100% { filter: brightness(1); }
+  50%      { filter: brightness(1.15); }
+}
+.podium-winner-score {
+  font-family: var(--font-display);
+  font-size: 1.8rem !important;
+  letter-spacing: 0.04em;
+  color: #FFD773 !important;
+  text-shadow: 0 0 16px rgba(255, 200, 100, 0.7);
+}
+.podium-row.top-row {
+  background: linear-gradient(180deg, rgba(255, 200, 100, 0.18) 0%, rgba(255, 200, 100, 0.04) 100%);
+  border-color: #FFD773;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 0 0 1px rgba(255, 200, 100, 0.25),
+    0 6px 22px rgba(255, 200, 100, 0.18);
+}
+
+/* Cut-scene callouts — beefed up for flagship show feel.
+   Stronger neon glow, stage-curtain stripe behind the text, slight pulse. */
+.cutscene-overlay {
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0,0,0,0.0) 0,
+      rgba(0,0,0,0.0) 16px,
+      rgba(0,0,0,0.18) 16px,
+      rgba(0,0,0,0.18) 17px),
+    rgba(8, 6, 18, 0.96);
+}
+.cutscene-pulse {
+  width: 460px;
+  height: 460px;
+  background:
+    radial-gradient(circle, rgba(180, 130, 255, 0.22) 0%, transparent 50%),
+    radial-gradient(circle, rgba(255, 200, 100, 0.18) 0%, transparent 70%);
+  filter: blur(10px);
+}
+.cutscene-text {
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.6),
+    0 0 28px rgba(180, 130, 255, 0.95),
+    0 0 60px rgba(180, 130, 255, 0.6),
+    0 0 100px rgba(255, 200, 100, 0.35),
+    0 2px 0 rgba(0,0,0,0.5);
+  animation:
+    cs-scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+    cs-flicker 1.2s ease-in-out 0.4s 2;
+}
+@keyframes cs-flicker {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  20%      { opacity: 0.85; transform: scale(0.99); }
+  40%      { opacity: 1;    transform: scale(1.02); }
 }
 
 /* ─── Answer section wrapper (timer + grid together) ─────────────────────── */
@@ -4225,6 +4424,47 @@ button {
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
 }
 
+/* Flagship treatment: stage-spotlight beam sweeps across each new question */
+.question-card-flagship {
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 200, 100, 0.10) 0%, transparent 60%),
+    linear-gradient(165deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.015) 100%);
+  border-bottom: 2px solid rgba(255, 200, 100, 0.28);
+  animation: question-card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes question-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.question-spotlight {
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(105deg,
+    transparent 0%,
+    rgba(255, 220, 130, 0.0) 30%,
+    rgba(255, 220, 130, 0.18) 50%,
+    rgba(255, 220, 130, 0.0) 70%,
+    transparent 100%);
+  pointer-events: none;
+  animation: spotlight-sweep 1.2s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+  z-index: 0;
+}
+@keyframes spotlight-sweep {
+  from { left: -60%; opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  to   { left: 110%;  opacity: 0; }
+}
+.question-card-flagship .question-category,
+.question-card-flagship .question-text {
+  position: relative;
+  z-index: 1;
+}
+
 /* Next button: refined Apple-style, accent color, with subtle glow */
 .next-btn {
   background: linear-gradient(180deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 88%, #000) 100%);
@@ -4601,8 +4841,52 @@ button {
 .exp-tile-color:nth-child(9) { animation-delay: 0.34s; }
 
 /* Per-game palettes — gradients + glow color */
-.exp-color-trivia      { background: linear-gradient(155deg, #5B2BD6 0%, #2C1574 50%, #120743 100%); }
-.exp-color-trivia .exp-card-glow      { background: rgba(140, 90, 255, 0.55); }
+/* Trivia — flagship game-show card. Stage curtain stripe overlay over the
+   purple gradient. "PRIME TIME · STUDIO 1" eyebrow. Brass-frame bottom accent.
+   Description hidden — title carries it. */
+.exp-color-trivia {
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0,0,0,0.0) 0,
+      rgba(0,0,0,0.0) 16px,
+      rgba(0,0,0,0.10) 16px,
+      rgba(0,0,0,0.10) 17px,
+      rgba(0,0,0,0.0) 17px,
+      rgba(0,0,0,0.0) 18px,
+      rgba(0,0,0,0.06) 18px,
+      rgba(0,0,0,0.06) 19px),
+    linear-gradient(155deg, #5B2BD6 0%, #2C1574 50%, #120743 100%);
+}
+.exp-color-trivia .exp-card-glow      { background: rgba(180, 130, 255, 0.6); }
+.exp-color-trivia .exp-desc-color     { display: none; }
+.exp-color-trivia::before {
+  content: "PRIME TIME · STUDIO 1";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  color: rgba(255, 220, 130, 0.85);
+  text-shadow: 0 0 8px rgba(255, 200, 100, 0.6), 0 1px 0 rgba(0,0,0,0.55);
+  z-index: 1;
+}
+.exp-color-trivia::after {
+  content: "";
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: linear-gradient(90deg,
+    rgba(255, 200, 100, 0) 0%,
+    rgba(255, 200, 100, 0.85) 50%,
+    rgba(255, 200, 100, 0) 100%);
+  box-shadow: 0 0 12px rgba(255, 200, 100, 0.5);
+  z-index: 1;
+  pointer-events: none;
+}
 
 .exp-color-wyr         { background: linear-gradient(155deg, #E0413B 0%, #8E1A2C 50%, #3A0810 100%); }
 .exp-color-wyr .exp-card-glow         { background: rgba(255, 100, 100, 0.50); }
@@ -4750,10 +5034,37 @@ button {
 .exp-title-trivia {
   font-family: var(--font-display);
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.20em;
   font-weight: 900;
-  font-size: 1.7rem;
-  text-shadow: 0 0 14px rgba(180,130,255,0.55), 0 1px 2px rgba(0,0,0,0.5);
+  font-size: 2.1rem;
+  color: #FFFFFF;
+  line-height: 0.95;
+  text-shadow:
+    0 0 4px #FFFFFF,
+    0 0 12px rgba(220, 170, 255, 0.95),
+    0 0 28px rgba(180, 130, 255, 0.85),
+    0 2px 0 rgba(0,0,0,0.5);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+  animation: trivia-neon-flicker 4s steps(20) infinite;
+}
+@keyframes trivia-neon-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    text-shadow:
+      0 0 4px #FFFFFF,
+      0 0 12px rgba(220, 170, 255, 0.95),
+      0 0 28px rgba(180, 130, 255, 0.85),
+      0 2px 0 rgba(0,0,0,0.5);
+    opacity: 1;
+  }
+  20%, 24%, 55% {
+    text-shadow:
+      0 0 2px #FFFFFF,
+      0 0 6px rgba(220, 170, 255, 0.5),
+      0 2px 0 rgba(0,0,0,0.5);
+    opacity: 0.86;
+  }
 }
 .exp-title-wyr {
   font-family: var(--font-display);

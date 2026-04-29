@@ -40,7 +40,7 @@ export default function RoundEndScreen({ round, roundName, scores, isHost, draft
   return (
     <div className="round-end-screen">
       <div className="round-end-header">
-        <div className="round-end-badge">Round {round}</div>
+        <div className="round-end-badge">ROUND {round} OF 5</div>
         <h2 className="round-end-name">{roundName}</h2>
         <p className="round-end-hint">Round complete</p>
       </div>
