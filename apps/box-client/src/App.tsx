@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useRoom } from "./useRoom";
 import { haptic } from "./haptics";
@@ -267,6 +267,49 @@ const EXPERIENCES: Experience[] = [
   },
 ];
 
+// ─── Mode Carousel — single-card carousel; reusable across all 9 games ──────
+
+function ModeCarousel({ mode, setMode }: { mode: PlayMode; setMode: (m: PlayMode) => void }) {
+  const idx = Math.max(0, MODES.findIndex(m => m.id === mode));
+  const touchStartX = useRef<number | null>(null);
+
+  function go(delta: number) {
+    haptic.tap();
+    const next = (idx + delta + MODES.length) % MODES.length;
+    setMode(MODES[next].id);
+  }
+  function onTouchStart(e: React.TouchEvent) { touchStartX.current = e.touches[0].clientX; }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) go(dx > 0 ? -1 : 1);
+    touchStartX.current = null;
+  }
+
+  const cur = MODES[idx];
+  return (
+    <div className="mode-carousel">
+      <button className="mode-carousel-arrow" aria-label="Previous mode" onClick={() => go(-1)}>‹</button>
+      <div className="mode-carousel-card"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        key={cur.id}>
+        <span className="mode-carousel-icon">{cur.icon}</span>
+        <span className="mode-carousel-label">{cur.label}</span>
+        <span className="mode-carousel-desc">{cur.desc}</span>
+      </div>
+      <button className="mode-carousel-arrow" aria-label="Next mode" onClick={() => go(1)}>›</button>
+      <div className="mode-carousel-dots">
+        {MODES.map((m, i) => (
+          <span key={m.id}
+            className={`mode-carousel-dot ${i === idx ? "active" : ""}`}
+            onClick={() => { haptic.tap(); setMode(m.id); }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PartyRoomView({ roomHook, onClose }: { roomHook: ReturnType<typeof useRoom>; onClose: () => void }) {
   const { error, createRoom, joinRoom } = roomHook;
   const urlCode = new URLSearchParams(window.location.search).get("join") ?? "";
@@ -360,17 +403,7 @@ function PartyRoomView({ roomHook, onClose }: { roomHook: ReturnType<typeof useR
           </div>
 
           <div className="form-section-label">MODE</div>
-          <div className="mode-grid">
-            {MODES.map(m => (
-              <button key={m.id}
-                className={`mode-tile ${mode === m.id ? "mode-selected" : ""}`}
-                onClick={() => { haptic.tap(); setMode(m.id); }}>
-                <span className="mode-icon">{m.icon}</span>
-                <span className="mode-label">{m.label}</span>
-                <span className="mode-desc">{m.desc}</span>
-              </button>
-            ))}
-          </div>
+          <ModeCarousel mode={mode} setMode={setMode} />
 
           <input className="name-input" placeholder="Your name"
             value={displayName} maxLength={20}

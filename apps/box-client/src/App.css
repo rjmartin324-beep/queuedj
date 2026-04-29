@@ -544,6 +544,101 @@ button {
   line-height: 1.3;
 }
 
+/* ─── Mode carousel — single card, swipe or arrows to switch ───────────────── */
+
+.mode-carousel {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.mode-carousel-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: rgba(255,255,255,0.85);
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+}
+.mode-carousel-arrow:hover  { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.28); }
+.mode-carousel-arrow:active { transform: scale(0.92); }
+
+.mode-carousel-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+  padding: 26px 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 140px;
+  justify-content: center;
+  user-select: none;
+  touch-action: pan-y;
+  animation: modeCardIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modeCardIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.mode-carousel-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.mode-carousel-label {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.mode-carousel-desc {
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1.4;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.mode-carousel-dots {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  padding-top: 6px;
+}
+.mode-carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.mode-carousel-dot.active {
+  background: var(--accent);
+  width: 24px;
+  border-radius: 4px;
+}
+
 .lets-go-btn {
   width: 100%;
   padding: 16px;
@@ -2838,6 +2933,489 @@ button {
   margin-top: 1px;
 }
 
+/* ─── The Draft — NFL Draft Board + War Room Desk theme ────────────────────── */
+
+.thedraft-game {
+  min-height: 100vh;
+  padding: 0 0 32px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 13px,
+      rgba(255,255,255,0.02) 13px,
+      rgba(255,255,255,0.02) 14px
+    ),
+    linear-gradient(180deg, #1a0512 0%, #0a0208 60%, #050102 100%);
+}
+
+/* NFL-style broadcast header */
+.thedraft-header {
+  text-align: center;
+  padding: 22px 20px 18px;
+  border-bottom: 2px solid rgba(246,200,66,0.25);
+  background: linear-gradient(180deg, rgba(246,200,66,0.06) 0%, transparent 100%);
+}
+.thedraft-header-eyebrow {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.thedraft-header-title {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  letter-spacing: 0.02em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  line-height: 0.95;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.6), 0 0 30px rgba(246,200,66,0.35);
+}
+.thedraft-header-scenario {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* Draft Board — main visual element, fills as picks land */
+.thedraft-board {
+  padding: 18px 16px 8px;
+}
+.thedraft-board-label {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.84rem;
+  letter-spacing: 0.36em;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.thedraft-board-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.thedraft-slot {
+  display: grid;
+  grid-template-columns: 50px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  transition: all 0.22s ease;
+}
+.thedraft-slot-filled {
+  background: rgba(246,200,66,0.06);
+  border-color: rgba(246,200,66,0.18);
+}
+.thedraft-slot-on-clock {
+  background: rgba(246,200,66,0.16);
+  border-color: rgba(246,200,66,0.55);
+  box-shadow: 0 0 24px rgba(246,200,66,0.25);
+  animation: clockPulse 1.6s ease-in-out infinite;
+}
+@keyframes clockPulse {
+  0%, 100% { box-shadow: 0 0 24px rgba(246,200,66,0.25); }
+  50%      { box-shadow: 0 0 36px rgba(246,200,66,0.5); }
+}
+.thedraft-slot-num {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 1.6rem;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.thedraft-slot-meta { display: flex; flex-direction: column; gap: 2px; }
+.thedraft-slot-round {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.thedraft-slot-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+.thedraft-slot-pick {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.9);
+  text-align: right;
+  text-transform: uppercase;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.thedraft-slot:not(.thedraft-slot-filled):not(.thedraft-slot-on-clock) .thedraft-slot-pick {
+  color: rgba(255,255,255,0.25);
+}
+.thedraft-slot-on-clock .thedraft-slot-pick { color: var(--accent); }
+
+/* Waiting state — for everyone NOT on the clock */
+.thedraft-waiting {
+  text-align: center;
+  padding: 32px 24px;
+  margin: 8px 16px 0;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+}
+.thedraft-waiting-eyebrow {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0.36em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.thedraft-waiting-name {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 2rem;
+  color: #FFFFFF;
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.thedraft-waiting-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+
+/* War Room Desk — only the drafter sees this */
+.war-room-desk {
+  position: relative;
+  margin: 12px 16px 0;
+  padding: 24px 22px 22px;
+  border-radius: 16px;
+  border: 1px solid rgba(180, 140, 80, 0.25);
+  background:
+    /* faint wood grain */
+    repeating-linear-gradient(
+      90deg,
+      rgba(70, 40, 20, 0.0) 0px,
+      rgba(70, 40, 20, 0.0) 80px,
+      rgba(70, 40, 20, 0.06) 81px,
+      rgba(70, 40, 20, 0.0) 82px
+    ),
+    /* warm desk surface tint */
+    linear-gradient(180deg, rgba(60, 35, 15, 0.18) 0%, rgba(40, 25, 10, 0.22) 100%);
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,225,180,0.06), 0 6px 30px rgba(0,0,0,0.4);
+}
+.war-room-papers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.war-room-paper {
+  position: absolute;
+  background: linear-gradient(135deg, rgba(255,250,235,0.07) 0%, rgba(220,210,180,0.04) 100%);
+  border: 1px solid rgba(255,245,220,0.12);
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35), inset 0 0 14px rgba(0,0,0,0.18);
+}
+/* Add subtle "lines on the paper" via background gradient */
+.war-room-paper::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0, transparent 8px,
+      rgba(120,100,70,0.18) 8px, rgba(120,100,70,0.18) 9px
+    );
+  border-radius: 1px;
+}
+
+.war-room-content {
+  position: relative;
+  z-index: 1;
+}
+.war-room-eyebrow {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.74rem;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-align: center;
+}
+.war-room-title {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.6);
+}
+
+.war-room-custom {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.war-room-custom-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(246,200,66,0.4);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.war-room-custom-input::placeholder { color: rgba(255,255,255,0.45); font-style: italic; }
+.war-room-custom-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.09); }
+.war-room-custom-submit {
+  background: var(--accent);
+  color: #1a1300;
+  border: none;
+  border-radius: 10px;
+  padding: 0 20px;
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-style: italic;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+}
+.war-room-custom-submit:disabled { opacity: 0.35; cursor: default; }
+.war-room-custom-submit:not(:disabled):active { transform: scale(0.96); }
+
+.war-room-suggested-label {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.74rem;
+  letter-spacing: 0.32em;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.war-room-suggested {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.war-room-pick-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  padding: 14px 12px;
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.war-room-pick-btn:hover  { border-color: rgba(246,200,66,0.55); background: rgba(246,200,66,0.06); }
+.war-room-pick-btn:active { transform: scale(0.97); }
+
+.war-room-more {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(246,200,66,0.45);
+  color: var(--accent);
+  border-radius: 10px;
+  padding: 12px;
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.war-room-more:hover  { background: rgba(246,200,66,0.08); border-style: solid; }
+.war-room-more:active { transform: scale(0.98); }
+
+/* ─── The Draft — peer voting (3 points per voter) ─────────────────────────── */
+
+.draft-voting { padding: 16px; max-width: 540px; margin: 0 auto; }
+
+.draft-voting-header {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 18px 16px 14px;
+  border-bottom: 2px solid rgba(246,200,66,0.25);
+  background: linear-gradient(180deg, rgba(246,200,66,0.06) 0%, transparent 100%);
+  border-radius: 12px 12px 0 0;
+}
+.draft-voting-eyebrow {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0.36em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.draft-voting-title {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 2rem;
+  letter-spacing: 0.02em;
+  color: #FFFFFF;
+  margin-top: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 0 24px rgba(246,200,66,0.3);
+}
+.draft-voting-remaining {
+  margin-top: 8px;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+.draft-voting-remaining strong {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-style: italic;
+  font-size: 1.4rem;
+  color: var(--accent);
+  margin-left: 6px;
+}
+.draft-voting-sub {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+.draft-vote-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px 16px 12px;
+  margin-bottom: 10px;
+}
+.draft-vote-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+.draft-vote-card-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.draft-vote-pick {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.draft-vote-pick-custom {
+  border-color: rgba(246,200,66,0.4);
+  background: rgba(246,200,66,0.08);
+  font-style: italic;
+}
+.draft-vote-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.draft-vote-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  padding: 12px 0;
+  color: rgba(255,255,255,0.85);
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.draft-vote-btn:disabled { opacity: 0.3; cursor: default; }
+.draft-vote-btn:not(:disabled):hover { border-color: rgba(246,200,66,0.55); }
+.draft-vote-btn:not(:disabled):active { transform: scale(0.95); }
+.draft-vote-btn-selected {
+  background: var(--accent);
+  color: #1a1300;
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(246,200,66,0.45);
+}
+
+.draft-voting-submit {
+  width: 100%;
+  margin-top: 14px;
+  background: var(--accent);
+  color: #1a1300;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 1.2rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.12s;
+}
+.draft-voting-submit:disabled { opacity: 0.4; cursor: default; background: rgba(246,200,66,0.4); }
+.draft-voting-submit:not(:disabled):hover { background: #FFD773; }
+.draft-voting-submit:not(:disabled):active { transform: scale(0.98); }
+
+/* Reveal sub-text shown above ratings */
+.draft-reveal-sub {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: -8px 0 16px;
+  font-style: italic;
+}
+
 /* ─── The Draft — premium "show" look (no clip art, type-driven) ───────────── */
 
 /* Marquee — replaces the question-card; reads like a draft event banner */
@@ -3768,8 +4346,47 @@ button {
 .exp-color-geoguesser  { background: linear-gradient(155deg, #2B6CB0 0%, #1A6E5E 50%, #062828 100%); }
 .exp-color-geoguesser .exp-card-glow  { background: rgba(80, 180, 200, 0.50); }
 
-.exp-color-thedraft    { background: linear-gradient(155deg, #D14080 0%, #6E1A4C 50%, #2A0820 100%); }
+/* The Draft — pink gradient + faint horizontal "draft board" sort lines layered on top.
+   Eyebrow "ROUND 1 · PICK 01" rendered via ::before pseudo for the broadcast feel.
+   Description line hidden — title carries it. */
+.exp-color-thedraft {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 11px,
+      rgba(255,255,255,0.045) 11px,
+      rgba(255,255,255,0.045) 12px
+    ),
+    linear-gradient(155deg, #D14080 0%, #6E1A4C 50%, #2A0820 100%);
+}
 .exp-color-thedraft .exp-card-glow    { background: rgba(220, 100, 160, 0.50); }
+.exp-color-thedraft .exp-desc-color   { display: none; }
+.exp-color-thedraft::before {
+  content: "ROUND 1 · PICK 01";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.62);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  z-index: 1;
+}
+.exp-color-thedraft::after {
+  content: "";
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(246,200,66,0.7) 0%, rgba(246,200,66,0.0) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
 
 .exp-color-draw        { background: linear-gradient(155deg, #F08C28 0%, #934010 50%, #2C1408 100%); }
 .exp-color-draw .exp-card-glow        { background: rgba(255, 160, 80, 0.55); }
@@ -3836,12 +4453,23 @@ button {
   font-size: 1.5rem;
   letter-spacing: 0.04em;
 }
+/* The Draft — NFL Draft broadcast typography. Heavy condensed italic sans, inspired
+   by the NFL DRAFT mark but using free system fonts (Impact / Bebas Neue / Arial Narrow). */
 .exp-title-thedraft {
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 700;
-  font-size: 1.55rem;
-  font-variant: small-caps;
-  letter-spacing: 0.05em;
+  font-family: Impact, "Bebas Neue", "Arial Narrow", "Helvetica Inserat", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 2.1rem;
+  letter-spacing: 0.01em;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.5),
+    0 0 24px rgba(246,200,66,0.28);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .exp-title-draw {
   font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", "Segoe Print", cursive;
@@ -3853,34 +4481,57 @@ button {
   text-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.35);
 }
 
-/* ─── Rules / Summary modal ──────────────────────────────────────────────── */
+/* ─── Rules / Summary modal — BOTTOM SHEET ─────────────────────────────────
+   Slides up from bottom of viewport. Anchored to the bottom edge so it feels
+   like a draft prospect card flipping up off the table. Scroll within the
+   sheet to read full content; tap backdrop to dismiss. */
 .rules-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.66);
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.62);
+  backdrop-filter: blur(6px);
   z-index: 400;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: 16px;
-  animation: fadeIn 0.2s ease;
+  padding: 0;
+  animation: fadeIn 0.22s ease;
 }
 
 .rules-modal {
   position: relative;
   width: 100%;
-  max-width: 460px;
-  border-radius: 22px;
+  max-width: 540px;
+  max-height: 88vh;
+  border-radius: 22px 22px 0 0;
   border: 1px solid rgba(255,255,255,0.12);
-  padding: 26px 24px 22px;
+  border-bottom: none;
+  padding: 18px 24px 22px;
   color: #FFFFFF;
-  overflow: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.18),
-    0 24px 60px rgba(0,0,0,0.55);
-  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    0 -24px 60px rgba(0,0,0,0.55);
+  animation: sheetUp 0.34s cubic-bezier(0.16, 1, 0.3, 1);
   /* uses the same .exp-color-X gradient classes for background */
+}
+
+/* drag handle indicator at the top of the sheet */
+.rules-modal::before {
+  content: "";
+  display: block;
+  width: 42px;
+  height: 4px;
+  margin: 0 auto 14px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.32);
+  flex-shrink: 0;
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 .rules-modal-glow {
   position: absolute;

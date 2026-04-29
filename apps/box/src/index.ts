@@ -612,8 +612,20 @@ wss.on("connection", (ws, req) => {
           if (!result.done) setTimeout(() => { const s = geoguesser.showQuestion(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
           else rooms.endRound(msg.roomId);
         } else if (room.experience === "thedraft") {
-          const s = thedraft.endGame(msg.roomId);
-          if (s) { broadcast(msg.roomId, { type: "game:state", state: s }); rooms.endRound(msg.roomId); }
+          // The Draft has a 3-step end: reveal → voting → game_over.
+          // host:next_question advances reveal → voting (or → game_over for 1 player).
+          // From voting, the transition to game_over is automatic when all submit.
+          const cur = thedraft.getState(msg.roomId);
+          if (cur?.phase === "reveal") {
+            const s = thedraft.openVoting(msg.roomId);
+            if (s) {
+              broadcast(msg.roomId, { type: "game:state", state: s });
+              if (s.phase === "game_over") rooms.endRound(msg.roomId);
+            }
+          } else {
+            const s = thedraft.endGame(msg.roomId);
+            if (s) { broadcast(msg.roomId, { type: "game:state", state: s }); rooms.endRound(msg.roomId); }
+          }
         } else if (room.experience === "draw") {
           const result = draw.advance(msg.roomId);
           if (!result) break;
@@ -832,6 +844,14 @@ wss.on("connection", (ws, req) => {
             if (!name) break;
             const state = thedraft.pickCustom(msg.roomId, msg.guestId, name);
             if (state) broadcast(msg.roomId, { type: "game:state", state });
+          } else if (msg.action === "draft:submit_votes") {
+            const votes = (msg.payload as any)?.votes as Record<string, number>;
+            if (!votes || typeof votes !== "object") break;
+            const state = thedraft.submitVotes(msg.roomId, msg.guestId, votes);
+            if (state) {
+              broadcast(msg.roomId, { type: "game:state", state });
+              if (state.phase === "game_over") rooms.endRound(msg.roomId);
+            }
           }
         } else if (room.experience === "draw") {
           // Drawer-only actions: stroke + clear. Anyone-can guess.

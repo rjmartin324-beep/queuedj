@@ -6,7 +6,7 @@ interface DraftItem { id: string; name: string; emoji: string; value: number; }
 interface DraftScenario { id: number; title: string; subtitle: string; items: DraftItem[]; }
 
 export interface DraftScore { guestId: string; displayName: string; score: number; picks: DraftItem[]; }
-export type DraftPhase = "drafting" | "reveal" | "game_over";
+export type DraftPhase = "drafting" | "reveal" | "voting" | "game_over";
 
 export interface DraftState {
   sessionId: string;
@@ -20,6 +20,9 @@ export interface DraftState {
   scores: DraftScore[];
   mode: PlayMode;
   passOrder: string[];
+  // Peer-vote scoring (added 2026-04-29). Each voter gets 3 points to distribute.
+  votes: Record<string, Record<string, number>>;     // voterId → { recipientId: points }
+  votesSubmitted: Record<string, boolean>;           // voterId → has locked in
 }
 
 const SCENARIOS: DraftScenario[] = scenarioData.scenarios.map((s, i) => ({
@@ -71,6 +74,8 @@ export function startGame(roomId: string, mode: PlayMode, members: Array<{ guest
     scores: members.map(m => ({ guestId: m.guestId, displayName: m.displayName, score: 0, picks: [] })),
     mode,
     passOrder: members.map(m => m.guestId),
+    votes: {},
+    votesSubmitted: {},
   };
   sessions.set(roomId, state);
   return state;
@@ -113,10 +118,69 @@ export function pickCustom(roomId: string, guestId: string, rawName: string): Dr
 function revealDraft(roomId: string): DraftState {
   const state = sessions.get(roomId)!;
   state.phase = "reveal";
+  // Hidden values still tallied so the reveal can show "official rating" as flavor.
+  // Final score (post-voting) overwrites this.
   for (const s of state.scores) {
     s.score = s.picks.reduce((sum, item) => sum + item.value, 0);
   }
   state.scores.sort((a, b) => b.score - a.score);
+  return state;
+}
+
+// Reveal → Voting (or game_over if only 1 player). Called via host:next_question.
+export function openVoting(roomId: string): DraftState | null {
+  const state = sessions.get(roomId);
+  if (!state || state.phase !== "reveal") return null;
+  // 1-player game has nobody to vote for → straight to game_over
+  if (state.scores.length <= 1) {
+    state.phase = "game_over";
+    return state;
+  }
+  state.phase = "voting";
+  state.votes = {};
+  state.votesSubmitted = {};
+  // Reset score to 0; final score = peer votes received
+  for (const s of state.scores) s.score = 0;
+  return state;
+}
+
+// Each voter calls this once with their full 3-point distribution.
+// votes shape: { recipientGuestId: pointsForThem }, total must equal 3.
+export function submitVotes(
+  roomId: string,
+  voterId: string,
+  votes: Record<string, number>,
+): DraftState | null {
+  const state = sessions.get(roomId);
+  if (!state || state.phase !== "voting") return null;
+  if (state.votesSubmitted[voterId]) return null;
+
+  // Validation
+  const total = Object.values(votes).reduce((a, b) => a + b, 0);
+  if (total !== 3) return null;
+  const playerIds = new Set(state.scores.map(s => s.guestId));
+  for (const [rid, pts] of Object.entries(votes)) {
+    if (rid === voterId) return null;          // no self-voting
+    if (!playerIds.has(rid)) return null;       // recipient must exist
+    if (!Number.isInteger(pts) || pts < 0 || pts > 3) return null;
+  }
+
+  state.votes[voterId] = votes;
+  state.votesSubmitted[voterId] = true;
+
+  // If all members have submitted, tally and transition to game_over
+  const allDone = state.scores.every(s => state.votesSubmitted[s.guestId]);
+  if (allDone) {
+    for (const s of state.scores) s.score = 0;
+    for (const voterVotes of Object.values(state.votes)) {
+      for (const [rid, pts] of Object.entries(voterVotes)) {
+        const score = state.scores.find(x => x.guestId === rid);
+        if (score) score.score += pts;
+      }
+    }
+    state.scores.sort((a, b) => b.score - a.score);
+    state.phase = "game_over";
+  }
   return state;
 }
 
