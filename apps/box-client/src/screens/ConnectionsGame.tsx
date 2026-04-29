@@ -7,7 +7,8 @@ import CutScene from "../components/CutScene";
 
 interface Props { guestId: string; roomId: string; isHost: boolean; gameState: any; }
 
-const COLOR_LABELS = { yellow: "⭐ Easy", green: "🟢 Medium", blue: "🔵 Hard", purple: "🟣 Expert" };
+// NYT-style tier labels. No emojis (clip-art was stripped throughout).
+const COLOR_LABELS = { yellow: "EASY", green: "MEDIUM", blue: "HARD", purple: "EXPERT" };
 const COLOR_BG = { yellow: "#7B6B00", green: "#1A5C2A", blue: "#0A3060", purple: "#4B1A7B" };
 const COLOR_BORDER = { yellow: "#F5C842", green: "#4ADE80", blue: "#60A5FA", purple: "#A78BFA" };
 
@@ -87,16 +88,22 @@ export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: 
   });
 
   return (
-    <div className="trivia-game" style={{ padding: "0 0 24px" }}>
+    <div className="conn-game">
       <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
       <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
-      <div className="trivia-header">
-        <span className="q-progress">CONNECTIONS</span>
-        <span className="answered-count">{attemptsLeft} attempts left</span>
-      </div>
 
-      <div style={{ padding: "8px 16px", fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center" }}>
-        Find 4 groups of 4. Tap tiles, then submit.
+      {/* Custom header — NYT-puzzle reverent typography + strikes indicator */}
+      <div className="conn-header">
+        <div className="conn-header-eyebrow">FIND THE CONNECTIONS</div>
+        <div className="conn-header-title">CONNECTIONS</div>
+        <div className="conn-strikes" aria-label={`${attemptsLeft} of 4 strikes remaining`}>
+          {[0, 1, 2, 3].map(i => (
+            <span key={i}
+              className={`conn-strike ${i < (myPlayer?.attempts ?? 0) ? "conn-strike-used" : ""}`}>
+              {i < (myPlayer?.attempts ?? 0) ? "✕" : "●"}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Found groups */}

@@ -2762,6 +2762,71 @@ button {
 
 /* ─── Connections ──────────────────────────────────────────────────────────── */
 
+/* Game container with subtle dot-grid puzzle backdrop */
+.conn-game {
+  min-height: 100vh;
+  padding: 0 0 24px;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,0.018) 1.2px, transparent 1.2px) 0 0/26px 26px,
+    var(--bg);
+}
+
+/* NYT-puzzle-reverent header — display title with chromatic shadow + strikes */
+.conn-header {
+  text-align: center;
+  padding: 22px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, transparent 100%);
+}
+.conn-header-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.74rem;
+  letter-spacing: 0.36em;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.conn-header-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.9rem, 6.5vw, 2.6rem);
+  letter-spacing: 0.02em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow:
+     2px 0 0 rgba(245,200,66,0.6),
+    -2px 0 0 rgba(167,139,250,0.6),
+    0 2px 0 rgba(0,0,0,0.5);
+}
+.conn-strikes {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+.conn-strike {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.55);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: all 0.22s ease;
+}
+.conn-strike-used {
+  background: rgba(220, 60, 80, 0.2);
+  border-color: rgba(220, 60, 80, 0.6);
+  color: #ff8090;
+  box-shadow: 0 0 14px rgba(220, 60, 80, 0.35);
+}
+
 .conn-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -4488,8 +4553,44 @@ button {
 .exp-color-rankit      { background: linear-gradient(155deg, #2BA84B 0%, #14642C 50%, #062814 100%); }
 .exp-color-rankit .exp-card-glow      { background: rgba(80, 220, 120, 0.45); }
 
-.exp-color-connections { background: linear-gradient(155deg, #C58A1F 0%, #6E3F8C 50%, #1F2050 100%); }
+/* Connections — NYT-puzzle reverence. 4×4 dot-grid overlay reads as puzzle
+   tiles; bottom 4-tier color bar previews the difficulty palette. */
+.exp-color-connections {
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,0.07) 1.5px, transparent 1.5px) 0 0/30px 30px,
+    linear-gradient(155deg, #C58A1F 0%, #6E3F8C 50%, #1F2050 100%);
+}
 .exp-color-connections .exp-card-glow { background: rgba(160, 100, 200, 0.50); }
+.exp-color-connections .exp-desc-color { display: none; }
+.exp-color-connections::before {
+  content: "PUZZLE №01";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.62);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  z-index: 1;
+}
+.exp-color-connections::after {
+  content: "";
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  height: 4px;
+  background: linear-gradient(90deg,
+    #F5C842 0%, #F5C842 25%,
+    #4ADE80 25%, #4ADE80 50%,
+    #60A5FA 50%, #60A5FA 75%,
+    #A78BFA 75%, #A78BFA 100%);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 2px;
+}
 
 /* GeoGuesser — vintage atlas + map-graticule overlay. Diagonal cross-hatch
    reads as cartographer's lat/long lines. Eyebrow "EXPEDITION №01" via ::before.
@@ -4628,12 +4729,18 @@ button {
 .exp-title-connections {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 1.5rem;
+  font-size: 1.9rem;
   letter-spacing: 0.02em;
+  line-height: 1;
+  color: #FFFFFF;
+  text-transform: uppercase;
   text-shadow:
-     1.5px 0 0 rgba(255,200,60,0.55),
-    -1.5px 0 0 rgba(180,100,220,0.55),
-    0 1px 2px rgba(0,0,0,0.45);
+     2px 0 0 rgba(245,200,66,0.7),
+    -2px 0 0 rgba(167,139,250,0.7),
+    0 2px 0 rgba(0,0,0,0.5);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .exp-title-geoguesser {
   font-family: Georgia, "Times New Roman", serif;
