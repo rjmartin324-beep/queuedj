@@ -549,7 +549,7 @@ wss.on("connection", (ws, req) => {
 
         } else if (room.experience === "thedraft") {
           const members = rooms.getMembers(msg.roomId);
-          const state = thedraft.startGame(msg.roomId, room.mode, members);
+          const state = thedraft.startGame(msg.roomId, room.mode, members, msg.rounds ?? 2);
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcast(msg.roomId, { type: "game:state", state });
 

@@ -887,6 +887,7 @@ function CustomDeckBuilder() {
 function WaitingRoom({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
   const { room, you, members, guestId, error, startGame, kickGuest, transferToken } = roomHook;
   const [loading, setLoading] = useState(false);
+  const [draftRounds, setDraftRounds] = useState(2);
   const isHost = you?.role === "host";
 
   useEffect(() => { if (error) setLoading(false); }, [error]);
@@ -958,9 +959,29 @@ function WaitingRoom({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
 
       {error && <p className="error">{error}</p>}
 
+      {isHost && room.experience === "thedraft" && (
+        <div className="draft-rounds-picker">
+          <div className="draft-rounds-label">ROUNDS</div>
+          <div className="draft-rounds-options">
+            {[2, 3, 5].map(n => (
+              <button key={n}
+                className={`draft-rounds-option ${draftRounds === n ? "draft-rounds-active" : ""}`}
+                onClick={() => { haptic.tap(); setDraftRounds(n); }}>
+                {n}
+              </button>
+            ))}
+          </div>
+          <div className="draft-rounds-hint">Each player picks {draftRounds} time{draftRounds === 1 ? "" : "s"}</div>
+        </div>
+      )}
+
       {isHost && (
         <button className="start-btn"
-          onClick={() => { haptic.heavy(); setLoading(true); startGame(); }}
+          onClick={() => {
+            haptic.heavy();
+            setLoading(true);
+            startGame(false, room.experience === "thedraft" ? draftRounds : undefined);
+          }}
           disabled={members.length < 1 || loading}>
           {loading ? "Starting…" : "Start Game"}
         </button>

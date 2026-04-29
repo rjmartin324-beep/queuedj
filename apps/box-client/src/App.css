@@ -3407,6 +3407,61 @@ button {
 .draft-voting-submit:not(:disabled):hover { background: #FFD773; }
 .draft-voting-submit:not(:disabled):active { transform: scale(0.98); }
 
+/* Rounds picker — shown to host in WaitingRoom for The Draft only */
+.draft-rounds-picker {
+  margin: 14px 0 6px;
+  padding: 14px 16px;
+  background: rgba(246,200,66,0.04);
+  border: 1px solid rgba(246,200,66,0.2);
+  border-radius: 12px;
+  text-align: center;
+}
+.draft-rounds-label {
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0.36em;
+  color: var(--accent);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.draft-rounds-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 240px;
+  margin: 0 auto;
+}
+.draft-rounds-option {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 10px;
+  padding: 14px 0;
+  color: rgba(255,255,255,0.8);
+  font-family: Impact, "Bebas Neue", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.draft-rounds-option:hover  { border-color: rgba(246,200,66,0.5); }
+.draft-rounds-option:active { transform: scale(0.96); }
+.draft-rounds-active {
+  background: var(--accent);
+  color: #1a1300;
+  border-color: var(--accent);
+  box-shadow: 0 0 18px rgba(246,200,66,0.4);
+}
+.draft-rounds-hint {
+  margin-top: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
 /* Reveal sub-text shown above ratings */
 .draft-reveal-sub {
   text-align: center;

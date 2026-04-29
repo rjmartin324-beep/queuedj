@@ -150,9 +150,9 @@ export function useRoom() {
     socket.send({ type: "room:join", guestId: state.guestId, displayName, code: code.toUpperCase() });
   }, [state.guestId]);
 
-  const startGame = useCallback((tournament = false) => {
+  const startGame = useCallback((tournament = false, rounds?: number) => {
     if (!state.room) return;
-    socket.send({ type: "host:start", guestId: state.guestId, roomId: state.room.id, tournament });
+    socket.send({ type: "host:start", guestId: state.guestId, roomId: state.room.id, tournament, rounds });
   }, [state.guestId, state.room]);
 
   const kickGuest = useCallback((targetGuestId: string) => {

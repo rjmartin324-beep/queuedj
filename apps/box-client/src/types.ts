@@ -29,7 +29,7 @@ export type ClientMessage =
   | { type: "room:create"; guestId: string; displayName: string; mode: PlayMode; experience: string }
   | { type: "room:join";   guestId: string; displayName: string; code: string }
   | { type: "room:leave";  guestId: string; roomId: string }
-  | { type: "host:start";  guestId: string; roomId: string; tournament?: boolean }
+  | { type: "host:start";  guestId: string; roomId: string; tournament?: boolean; rounds?: number }
   | { type: "host:kick";   guestId: string; roomId: string; targetGuestId: string }
   | { type: "host:end_round"; guestId: string; roomId: string }
   | { type: "host:play_again"; guestId: string; roomId: string }

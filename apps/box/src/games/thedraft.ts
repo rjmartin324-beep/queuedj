@@ -23,6 +23,7 @@ export interface DraftState {
   // Peer-vote scoring (added 2026-04-29). Each voter gets 3 points to distribute.
   votes: Record<string, Record<string, number>>;     // voterId → { recipientId: points }
   votesSubmitted: Record<string, boolean>;           // voterId → has locked in
+  rounds: number;                                    // 2 / 3 / 5 — host-configured
 }
 
 const SCENARIOS: DraftScenario[] = scenarioData.scenarios.map((s, i) => ({
@@ -53,10 +54,16 @@ function buildDraftOrder(guestIds: string[], picksEach: number): string[] {
 
 const sessions = new Map<string, DraftState>();
 
-export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): DraftState {
+export function startGame(
+  roomId: string,
+  mode: PlayMode,
+  members: Array<{ guestId: string; displayName: string }>,
+  rounds: number = 2,
+): DraftState {
   const sessionId = nanoid(12);
   const scenario = shuffle(SCENARIOS)[0];
-  const picksEach = 2;
+  // Clamp to allowed values; fall back to 2 if anything weird arrives
+  const picksEach = [2, 3, 5].includes(rounds) ? rounds : 2;
   const guestIds = members.map(m => m.guestId);
   const draftOrder = buildDraftOrder(guestIds, picksEach);
   const picks: Record<string, string[]> = {};
@@ -76,6 +83,7 @@ export function startGame(roomId: string, mode: PlayMode, members: Array<{ guest
     passOrder: members.map(m => m.guestId),
     votes: {},
     votesSubmitted: {},
+    rounds: picksEach,
   };
   sessions.set(roomId, state);
   return state;
