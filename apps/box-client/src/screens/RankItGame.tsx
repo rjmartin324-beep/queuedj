@@ -71,70 +71,112 @@ export default function RankItGame({ guestId, roomId, isHost, gameState }: Props
   const totalPlayers = scores?.length ?? 0;
   const items: string[] = challenge?.items ?? [];
 
+  // Pool = items not yet placed in order
+  const pool: string[] = items.filter(it => !order.includes(it));
+  const totalSlots = items.length;
+  const correctOrder: string[] = challenge?.correct ?? [];
+
   return (
-    <div className="trivia-game">
+    <div className="rankit-game">
       <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
       <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
-      <div className="trivia-header">
-        <span className="q-progress">Q {questionIndex + 1}/{totalQuestions}</span>
-        <span className="round-badge">RANK IT</span>
-        <span className="answered-count">{answeredCount}/{totalPlayers} ✓</span>
+
+      {/* Late-show chyron header */}
+      <div className="rankit-flagship-header">
+        <div className="rankit-flagship-eyebrow">CHALLENGE №{String(questionIndex + 1).padStart(2, "0")} OF {String(totalQuestions).padStart(2, "0")} · LIVE</div>
+        <div className="rankit-flagship-title">RANK IT</div>
+        <div className="rankit-flagship-meta">
+          <span className="rankit-flagship-bulb" />
+          <span>{answeredCount}/{totalPlayers} LOCKED</span>
+        </div>
       </div>
 
       {challenge && (
-        <div className="question-card">
-          <div className="question-category cat-general-knowledge">RANK IT</div>
-          <div className="question-text">{challenge.question}</div>
-          <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: 8 }}>
-            {!submitted && !isReveal ? "Tap items in order — first tap = #1" : ""}
-          </div>
+        <div className="rankit-prompt-panel">
+          <div className="rankit-prompt-eyebrow">RANK THESE BY</div>
+          <div className="rankit-prompt-text">{challenge.question}</div>
         </div>
       )}
 
-      <div className="answer-section">
-        {phase === "question" && <TimerBar deadline={deadline} timeLimit={timeLimit} onExpire={isHost ? () => socket.send({ type: "host:end_round", guestId, roomId } as any) : undefined} />}
+      {phase === "question" && <TimerBar deadline={deadline} timeLimit={timeLimit} onExpire={isHost ? () => socket.send({ type: "host:end_round", guestId, roomId } as any) : undefined} />}
 
-        <div className="rankit-grid">
-          {items.map(item => {
-            const pos = order.indexOf(item);
-            const hasPos = pos !== -1;
-            const correctPos = isReveal ? challenge.correct.indexOf(item) : -1;
-            const myPos = order.indexOf(item);
-            const correct = isReveal && myPos !== -1 && challenge.correct[myPos] === item;
-
+      {/* RANKED SLOTS — fills top-down as items get tapped */}
+      {!isReveal && (
+        <div className="rankit-slots">
+          {Array.from({ length: totalSlots }).map((_, i) => {
+            const placed = order[i];
             return (
-              <button key={item}
-                className={`rankit-item ${hasPos && !isReveal ? "rankit-selected" : ""} ${isReveal && correct ? "rankit-correct" : ""} ${isReveal && myPos !== -1 && !correct ? "rankit-wrong" : ""}`}
-                onClick={() => !isReveal && tap(item)}
-                disabled={submitted || isReveal}>
-                {hasPos && !isReveal && <span className="rankit-pos-badge">{pos + 1}</span>}
-                {isReveal && <span className="rankit-pos-badge">{correctPos + 1}</span>}
-                <span className="rankit-item-name">{item}</span>
+              <button
+                key={i}
+                className={`rankit-slot ${placed ? "rankit-slot-filled" : ""}`}
+                onClick={() => placed && !submitted && setOrder(o => o.filter(x => x !== placed))}
+                disabled={!placed || submitted}>
+                <span className="rankit-slot-num">#{i + 1}</span>
+                <span className="rankit-slot-content">
+                  {placed ?? <span className="rankit-slot-empty">— empty —</span>}
+                </span>
+                {placed && !submitted && <span className="rankit-slot-remove">✕</span>}
               </button>
             );
           })}
         </div>
+      )}
 
-        {!isReveal && submitted && (
-          <div style={{ textAlign: "center", color: "var(--text-muted)", padding: "12px 0", fontSize: "0.9rem" }}>
-            🔒 Locked in: {order.join(" → ")}
+      {/* ITEM POOL — tap to place into next available slot */}
+      {!isReveal && pool.length > 0 && (
+        <div className="rankit-pool-section">
+          <div className="rankit-pool-label">TAP TO RANK ({pool.length} LEFT)</div>
+          <div className="rankit-pool">
+            {pool.map(item => (
+              <button key={item}
+                className="rankit-pool-item"
+                onClick={() => !submitted && tap(item)}
+                disabled={submitted}>
+                {item}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
+      )}
 
-        {isReveal && challenge && (
-          <div className="reveal-overlay">
-            <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", textAlign: "center", marginBottom: 8 }}>Correct order:</div>
-            <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
-              {challenge.correct.map((item: string, i: number) => (
-                <div key={item} style={{ background: "var(--surface)", borderRadius: 8, padding: "6px 12px", fontSize: "0.85rem" }}>
-                  <span style={{ color: "var(--accent)", fontWeight: 700 }}>{i + 1}.</span> {item}
+      {!isReveal && submitted && (
+        <div className="rankit-locked">
+          <span className="rankit-locked-eyebrow">BALLOT LOCKED</span>
+          <span className="rankit-locked-sub">Waiting for the rest of the room…</span>
+        </div>
+      )}
+
+      {/* REVEAL — slot machine: positions reveal top-down */}
+      {isReveal && challenge && (
+        <div className="rankit-reveal">
+          <div className="rankit-reveal-eyebrow">THE OFFICIAL RANKING</div>
+          <div className="rankit-reveal-list">
+            {correctOrder.map((item: string, i: number) => {
+              const myItem = submissions?.[guestId]?.[i];
+              const correct = myItem === item;
+              return (
+                <div
+                  key={item}
+                  className={`rankit-reveal-row ${correct ? "rankit-reveal-correct" : myItem ? "rankit-reveal-wrong" : "rankit-reveal-missed"}`}
+                  style={{ animationDelay: `${i * 0.18}s` }}>
+                  <span className="rankit-reveal-num">#{i + 1}</span>
+                  <span className="rankit-reveal-name">{item}</span>
+                  <span className="rankit-reveal-status">
+                    {correct ? "+250" : myItem ? `you: ${myItem}` : "—"}
+                  </span>
                 </div>
-              ))}
-            </div>
-            {isHost && <div className="host-controls"><button className="next-btn" onClick={next}>{questionIndex + 1 >= totalQuestions ? "See Final Scores →" : "Next →"}</button></div>}
+              );
+            })}
           </div>
-        )}
-      </div>
+          {isHost && (
+            <div className="host-controls" style={{ marginTop: 16 }}>
+              <button className="next-btn" onClick={next}>
+                {questionIndex + 1 >= totalQuestions ? "See Final Scores →" : "Next →"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

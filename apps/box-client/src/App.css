@@ -3776,6 +3776,339 @@ button {
   line-height: 1.3;
 }
 
+/* ─── Rank It FLAGSHIP — Top 10 leaderboard show ─────────────────────────── */
+
+.rankit-game {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0 0 24px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(80, 220, 120, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 220, 130, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #06180c 0%, #030a05 60%, #010402 100%);
+}
+
+/* Late-show chyron header — green base, gold lights */
+.rankit-flagship-header {
+  text-align: center;
+  padding: 20px 20px 14px;
+  border-bottom: 2px solid rgba(255, 220, 130, 0.32);
+  background: linear-gradient(180deg, rgba(43, 168, 75, 0.12) 0%, transparent 100%);
+}
+.rankit-flagship-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.74rem;
+  letter-spacing: 0.32em;
+  color: #FFD773;
+  text-shadow: 0 0 10px rgba(255, 200, 100, 0.55);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.rankit-flagship-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.2rem, 7.5vw, 3rem);
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-thickness: 4px;
+  text-underline-offset: 8px;
+  text-decoration-color: #FFD773;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.7),
+    0 0 22px rgba(120, 240, 130, 0.95),
+    0 0 44px rgba(80, 220, 120, 0.5),
+    0 2px 0 rgba(0,0,0,0.5);
+  line-height: 1;
+}
+.rankit-flagship-meta {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  color: #C0F8C0;
+  text-transform: uppercase;
+  background: rgba(80, 220, 120, 0.10);
+  border: 1px solid rgba(80, 220, 120, 0.4);
+  border-radius: 4px;
+  padding: 4px 12px;
+}
+.rankit-flagship-bulb {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FF4040;
+  box-shadow: 0 0 8px rgba(255, 80, 80, 0.95);
+  animation: rankit-blink 1.2s steps(2) infinite;
+}
+@keyframes rankit-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* Prompt panel */
+.rankit-prompt-panel {
+  margin: 14px 16px 8px;
+  padding: 18px 20px;
+  background: rgba(80, 220, 120, 0.05);
+  border: 2px solid rgba(80, 220, 120, 0.25);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 14px rgba(0,0,0,0.4);
+}
+.rankit-prompt-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.72rem;
+  letter-spacing: 0.36em;
+  color: #FFD773;
+  text-shadow: 0 0 8px rgba(255, 200, 100, 0.5);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.rankit-prompt-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.2rem, 4.5vw, 1.8rem);
+  color: #FFFFFF;
+  line-height: 1.2;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+}
+
+/* Slots — your ranking, fills top-down */
+.rankit-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px 8px;
+}
+.rankit-slot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  cursor: default;
+  transition: all 0.18s ease;
+  min-height: 52px;
+  text-align: left;
+}
+.rankit-slot.rankit-slot-filled {
+  background: linear-gradient(180deg, rgba(80, 220, 120, 0.16) 0%, rgba(43, 168, 75, 0.08) 100%);
+  border-color: rgba(80, 220, 120, 0.55);
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 0 16px rgba(80, 220, 120, 0.18),
+    0 4px 12px rgba(0,0,0,0.4);
+}
+.rankit-slot.rankit-slot-filled:hover  { transform: translateY(-1px); }
+.rankit-slot.rankit-slot-filled:active { transform: scale(0.99); }
+.rankit-slot-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.8rem;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: #FFD773;
+  text-shadow: 0 0 12px rgba(255, 200, 100, 0.6), 0 2px 0 rgba(0,0,0,0.55);
+  text-align: center;
+}
+.rankit-slot:not(.rankit-slot-filled) .rankit-slot-num {
+  color: rgba(255,255,255,0.18);
+  text-shadow: none;
+}
+.rankit-slot-content {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.2;
+}
+.rankit-slot-empty {
+  color: rgba(255,255,255,0.18);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rankit-slot-remove {
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.38);
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+/* Item pool */
+.rankit-pool-section { padding: 8px 16px 12px; }
+.rankit-pool-label {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.74rem;
+  letter-spacing: 0.32em;
+  color: #C0F8C0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.rankit-pool {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.rankit-pool-item {
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
+  padding: 14px 12px;
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 4px 10px rgba(0,0,0,0.35);
+}
+.rankit-pool-item:hover  { border-color: rgba(80, 220, 120, 0.6); background: rgba(80, 220, 120, 0.08); }
+.rankit-pool-item:active { transform: scale(0.97); }
+
+/* Locked-in state */
+.rankit-locked {
+  margin: 16px 16px 0;
+  padding: 18px 20px;
+  border: 2px solid rgba(80, 220, 120, 0.5);
+  border-radius: 12px;
+  background: rgba(80, 220, 120, 0.08);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 0 22px rgba(80, 220, 120, 0.18);
+}
+.rankit-locked-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.32em;
+  color: #C0F8C0;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(80, 220, 120, 0.55);
+}
+.rankit-locked-sub {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* SLOT-MACHINE REVEAL — top-down cascade with glow */
+.rankit-reveal {
+  padding: 14px 16px 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+.rankit-reveal-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.84rem;
+  letter-spacing: 0.36em;
+  color: #FFD773;
+  text-shadow: 0 0 12px rgba(255, 200, 100, 0.55);
+  text-align: center;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.rankit-reveal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rankit-reveal-row {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  opacity: 0;
+  transform: translateY(-12px);
+  animation: slot-machine-drop 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.4);
+}
+@keyframes slot-machine-drop {
+  0%   { opacity: 0; transform: translateY(-16px) scale(0.96); }
+  60%  { transform: translateY(2px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.rankit-reveal-row.rankit-reveal-correct {
+  border-color: rgba(80, 220, 120, 0.65);
+  background: linear-gradient(180deg, rgba(80, 220, 120, 0.18) 0%, rgba(43, 168, 75, 0.08) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 0 24px rgba(80, 220, 120, 0.35),
+    0 6px 14px rgba(0,0,0,0.4);
+}
+.rankit-reveal-row.rankit-reveal-wrong {
+  border-color: rgba(255, 100, 100, 0.4);
+  background: rgba(255, 100, 100, 0.06);
+}
+.rankit-reveal-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.9rem;
+  color: #FFD773;
+  text-shadow: 0 0 14px rgba(255, 200, 100, 0.7), 0 2px 0 rgba(0,0,0,0.55);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-align: center;
+}
+.rankit-reveal-row.rankit-reveal-correct .rankit-reveal-num {
+  color: #6EE89A;
+  text-shadow: 0 0 14px rgba(80, 220, 120, 0.85), 0 2px 0 rgba(0,0,0,0.55);
+}
+.rankit-reveal-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #FFFFFF;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+.rankit-reveal-status {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.55);
+  text-align: right;
+}
+.rankit-reveal-row.rankit-reveal-correct .rankit-reveal-status {
+  color: #6EE89A;
+  font-size: 1.1rem;
+  text-shadow: 0 0 8px rgba(80, 220, 120, 0.55);
+}
+.rankit-reveal-row.rankit-reveal-wrong .rankit-reveal-status {
+  color: rgba(255, 160, 160, 0.65);
+  font-style: italic;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
 /* ─── Connections ──────────────────────────────────────────────────────────── */
 
 /* Game container — green chalkboard backdrop. Chalk-dust streaks across the
@@ -5995,8 +6328,45 @@ button {
   pointer-events: none;
 }
 
-.exp-color-rankit      { background: linear-gradient(155deg, #2BA84B 0%, #14642C 50%, #062814 100%); }
+/* Rank It — Top 10 leaderboard. Existing green gradient + horizontal rule
+   lines reading as ranked rows, "TOP 10 · LIVE" eyebrow, gold lights bar
+   at bottom. Description hidden. */
+.exp-color-rankit {
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 21px,
+      rgba(255, 220, 130, 0.05) 21px, rgba(255, 220, 130, 0.05) 22px),
+    linear-gradient(155deg, #2BA84B 0%, #14642C 50%, #062814 100%);
+}
 .exp-color-rankit .exp-card-glow      { background: rgba(80, 220, 120, 0.45); }
+.exp-color-rankit .exp-desc-color     { display: none; }
+.exp-color-rankit::before {
+  content: "TOP 10 · LIVE";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.7rem;
+  letter-spacing: 0.28em;
+  color: rgba(255, 220, 130, 0.95);
+  text-shadow: 0 0 8px rgba(255, 200, 100, 0.6), 0 1px 0 rgba(0,0,0,0.55);
+  z-index: 1;
+}
+.exp-color-rankit::after {
+  content: "● ● ● ● ● ● ● ●";
+  position: absolute;
+  bottom: 8px;
+  left: 14px;
+  right: 14px;
+  font-size: 0.5rem;
+  letter-spacing: 0.4em;
+  color: rgba(255, 220, 130, 0.9);
+  text-shadow: 0 0 8px rgba(255, 200, 100, 0.7);
+  text-align: center;
+  z-index: 1;
+  pointer-events: none;
+}
 
 /* Connections — NYT-puzzle reverence. 4×4 dot-grid overlay reads as puzzle
    tiles; bottom 4-tier color bar previews the difficulty palette. */
@@ -6256,13 +6626,22 @@ button {
 .exp-title-rankit {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 1.55rem;
+  font-size: 2.1rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   text-decoration: underline;
-  text-decoration-thickness: 3px;
-  text-underline-offset: 6px;
-  text-decoration-color: rgba(255,255,255,0.55);
+  text-decoration-thickness: 4px;
+  text-underline-offset: 8px;
+  text-decoration-color: #FFD773;
+  color: #FFFFFF;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.7),
+    0 0 18px rgba(120, 240, 130, 0.95),
+    0 0 36px rgba(80, 220, 120, 0.6),
+    0 2px 0 rgba(0,0,0,0.5);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .exp-title-connections {
   font-family: var(--font-display);
