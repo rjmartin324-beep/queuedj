@@ -151,7 +151,7 @@ export type ClientMessage =
   | { type: "host:force_end"; guestId: string; roomId: string }
   | { type: "host:pick_category"; guestId: string; roomId: string; category: TriviaCategory }
   | { type: "host:claim_transfer"; guestId: string; roomId: string; token: string }
-  | { type: "game:answer"; guestId: string; roomId: string; answer: TriviaAnswer }
+  | { type: "game:answer"; guestId: string; roomId: string; answer: TriviaAnswer; questionId?: number }
   | { type: "game:action"; guestId: string; roomId: string; action: string; payload: unknown }
   | { type: "ping" };
 

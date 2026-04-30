@@ -67,7 +67,7 @@ export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }
   function vote(v: "a" | "b") {
     haptic.lock();
     setLocalVote(v);
-    socket.send({ type: "game:action", guestId, roomId, action: "wyr:vote", payload: { vote: v } } as any);
+    socket.send({ type: "game:action", guestId, roomId, action: "wyr:vote", payload: { vote: v, promptId: gameState?.prompt?.id } } as any);
   }
 
   function next() {

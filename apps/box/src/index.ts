@@ -50,6 +50,40 @@ const BODY_SIZE_LIMIT = 65_536; // 64 KB
 // ─── Socket registry — guestId → WebSocket ───────────────────────────────────
 const sockets = new Map<string, WebSocket>();
 
+// ─── Per-room timers — keyed by `${roomId}:${tag}` ───────────────────────────
+// Replaces raw setTimeout for any room-scoped scheduling: deadline auto-reveal
+// watchdogs and post-action intro delays. Without this, a stale timer from
+// question N can fire during question N+1 and force-reveal it after only a
+// fraction of the real time (the original "timer decay" bug). Each (room, tag)
+// slot can hold at most one pending timer.
+const roomTimers = new Map<string, ReturnType<typeof setTimeout>>();
+function setRoomTimer(roomId: string, tag: string, delayMs: number, fn: () => void): void {
+  const key = `${roomId}:${tag}`;
+  const prev = roomTimers.get(key);
+  if (prev) clearTimeout(prev);
+  const t = setTimeout(() => {
+    roomTimers.delete(key);
+    fn();
+  }, delayMs);
+  roomTimers.set(key, t);
+}
+function clearRoomTimer(roomId: string, tag: string): void {
+  const key = `${roomId}:${tag}`;
+  const t = roomTimers.get(key);
+  if (t) clearTimeout(t);
+  roomTimers.delete(key);
+}
+function clearAllRoomTimers(roomId: string): void {
+  const prefix = roomId + ":";
+  for (const key of [...roomTimers.keys()]) {
+    if (key.startsWith(prefix)) {
+      const t = roomTimers.get(key);
+      if (t) clearTimeout(t);
+      roomTimers.delete(key);
+    }
+  }
+}
+
 function send(ws: WebSocket, msg: ServerMessage): void {
   if (ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(msg));
@@ -71,14 +105,16 @@ function showAndBroadcastQuestion(roomId: string): void {
   if (!q) return;
   broadcast(roomId, { type: "game:state", state: q });
   if (q.deadline) {
-    const delay = q.deadline - Date.now() + 1500;
-    setTimeout(() => {
+    const delay = Math.max(q.deadline - Date.now() + 1500, 500);
+    setRoomTimer(roomId, "trivia:reveal", delay, () => {
       const state = trivia.getState(roomId);
       if (state?.phase === "question") {
         const revealed = trivia.revealAnswers(roomId);
         if (revealed) broadcast(roomId, { type: "game:state", state: revealed });
       }
-    }, Math.max(delay, 500));
+    });
+  } else {
+    clearRoomTimer(roomId, "trivia:reveal");
   }
 }
 
@@ -93,18 +129,75 @@ function broadcastDrawState(roomId: string): void {
   }
 }
 
+// Generic auto-reveal helper — schedule a per-room watchdog to fire reveal()
+// at deadline+1.5s if the phase is still "question". Without this, if the host
+// walks away and not all players answer, the round hangs forever.
+function scheduleAutoReveal(
+  roomId: string,
+  tag: string,
+  deadline: number | null,
+  reveal: () => unknown,
+): void {
+  if (!deadline) { clearRoomTimer(roomId, tag); return; }
+  const delay = Math.max(deadline - Date.now() + 1500, 500);
+  setRoomTimer(roomId, tag, delay, () => {
+    const result = reveal();
+    if (result) broadcast(roomId, { type: "game:state", state: result as any });
+  });
+}
+
+function showAndBroadcastGuesstimate(roomId: string): void {
+  const s = guesstimate.showQuestion(roomId);
+  if (!s) return;
+  broadcast(roomId, { type: "game:state", state: s });
+  scheduleAutoReveal(roomId, "guesstimate:reveal", s.deadline ?? null, () => {
+    const cur = guesstimate.getState(roomId);
+    return cur?.phase === "question" ? guesstimate.revealGuesses(roomId) : null;
+  });
+}
+
+function showAndBroadcastBuzzer(roomId: string): void {
+  const s = buzzer.showQuestion(roomId);
+  if (!s) return;
+  broadcast(roomId, { type: "game:state", state: s });
+  scheduleAutoReveal(roomId, "buzzer:reveal", s.deadline ?? null, () => {
+    const cur = buzzer.getState(roomId);
+    return cur?.phase === "question" ? buzzer.revealAnswers(roomId) : null;
+  });
+}
+
+function showAndBroadcastRankIt(roomId: string): void {
+  const s = rankit.showChallenge(roomId);
+  if (!s) return;
+  broadcast(roomId, { type: "game:state", state: s });
+  scheduleAutoReveal(roomId, "rankit:reveal", s.deadline ?? null, () => {
+    const cur = rankit.getState(roomId);
+    return cur?.phase === "question" ? rankit.revealResults(roomId) : null;
+  });
+}
+
+function showAndBroadcastGeoGuesser(roomId: string): void {
+  const s = geoguesser.showQuestion(roomId);
+  if (!s) return;
+  broadcast(roomId, { type: "game:state", state: s });
+  scheduleAutoReveal(roomId, "geoguesser:reveal", s.deadline ?? null, () => {
+    const cur = geoguesser.getState(roomId);
+    return cur?.phase === "question" ? geoguesser.revealAnswers(roomId) : null;
+  });
+}
+
 // Show next WYR prompt and schedule 30s watchdog
 function showAndBroadcastPrompt(roomId: string): void {
   const state = wyr.showPrompt(roomId);
   if (!state) return;
   broadcast(roomId, { type: "game:state", state });
-  setTimeout(() => {
+  setRoomTimer(roomId, "wyr:reveal", 30_000, () => {
     const current = wyr.getState(roomId);
     if (current?.phase === "question") {
       const revealed = wyr.revealVotes(roomId);
       if (revealed) broadcast(roomId, { type: "game:state", state: revealed });
     }
-  }, 30_000);
+  });
 }
 
 // ─── HTTP Server ──────────────────────────────────────────────────────────────
@@ -469,7 +562,7 @@ wss.on("connection", (ws, req) => {
         if (leavingRoom && leavingRoom.hostGuestId === msg.guestId) {
           broadcast(msg.roomId, { type: "room:closed" });
           rooms.closeRoom(msg.roomId);
-          trivia.cleanup(msg.roomId); wyr.cleanup(msg.roomId);
+          clearAllRoomTimers(msg.roomId); trivia.cleanup(msg.roomId); wyr.cleanup(msg.roomId);
           guesstimate.cleanup(msg.roomId); buzzer.cleanup(msg.roomId);
           rankit.cleanup(msg.roomId); connections.cleanup(msg.roomId);
           geoguesser.cleanup(msg.roomId); thedraft.cleanup(msg.roomId);
@@ -498,7 +591,7 @@ wss.on("connection", (ws, req) => {
           const state = trivia.startGame(msg.roomId, room.mode, msg.tournament === true, members);
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcast(msg.roomId, { type: "game:state", state });
-          setTimeout(() => showAndBroadcastQuestion(msg.roomId), 1000);
+          setRoomTimer(msg.roomId, "trivia:intro", 1000, () => showAndBroadcastQuestion(msg.roomId));
 
         } else if (room.experience === "wyr") {
           // Guard: refuse start if WYR prompts are empty
@@ -510,14 +603,14 @@ wss.on("connection", (ws, req) => {
           const state = wyr.startGame(msg.roomId, room.mode, members);
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcast(msg.roomId, { type: "game:state", state });
-          setTimeout(() => showAndBroadcastPrompt(msg.roomId), 1000);
+          setRoomTimer(msg.roomId, "wyr:intro", 1000, () => showAndBroadcastPrompt(msg.roomId));
 
         } else if (room.experience === "guesstimate") {
           const members = rooms.getMembers(msg.roomId);
           const state = guesstimate.startGame(msg.roomId, room.mode, members);
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcast(msg.roomId, { type: "game:state", state });
-          setTimeout(() => { const s = guesstimate.showQuestion(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          setRoomTimer(msg.roomId, "guesstimate:intro", 1000, () => showAndBroadcastGuesstimate(msg.roomId));
 
         } else if (room.experience === "buzzer") {
           if (db.triviaQuestionCount() === 0) { send(ws, { type: "room:error", code: "NO_QUESTIONS", message: "Question bank empty — run: npm run seed" }); return; }
@@ -525,14 +618,14 @@ wss.on("connection", (ws, req) => {
           const state = buzzer.startGame(msg.roomId, room.mode, members);
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcast(msg.roomId, { type: "game:state", state });
-          setTimeout(() => { const s = buzzer.showQuestion(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          setRoomTimer(msg.roomId, "buzzer:intro", 1000, () => showAndBroadcastBuzzer(msg.roomId));
 
         } else if (room.experience === "rankit") {
           const members = rooms.getMembers(msg.roomId);
           const state = rankit.startGame(msg.roomId, room.mode, members);
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcast(msg.roomId, { type: "game:state", state });
-          setTimeout(() => { const s = rankit.showChallenge(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          setRoomTimer(msg.roomId, "rankit:intro", 1000, () => showAndBroadcastRankIt(msg.roomId));
 
         } else if (room.experience === "connections") {
           const members = rooms.getMembers(msg.roomId);
@@ -545,7 +638,7 @@ wss.on("connection", (ws, req) => {
           const state = geoguesser.startGame(msg.roomId, room.mode, members);
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcast(msg.roomId, { type: "game:state", state });
-          setTimeout(() => { const s = geoguesser.showQuestion(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          setRoomTimer(msg.roomId, "geoguesser:intro", 1000, () => showAndBroadcastGeoGuesser(msg.roomId));
 
         } else if (room.experience === "thedraft") {
           const members = rooms.getMembers(msg.roomId);
@@ -572,35 +665,36 @@ wss.on("connection", (ws, req) => {
           return;
         }
         if (room.experience === "trivia") {
+          clearRoomTimer(msg.roomId, "trivia:reveal");
           const currentState = trivia.getState(msg.roomId);
           if (currentState?.phase === "round_end") {
             currentState.phase = "countdown";
             broadcast(msg.roomId, { type: "game:state", state: currentState });
-            setTimeout(() => showAndBroadcastQuestion(msg.roomId), 1000);
+            setRoomTimer(msg.roomId, "trivia:intro", 1000, () => showAndBroadcastQuestion(msg.roomId));
             break;
           }
           const result = trivia.advance(msg.roomId);
           if (!result) break;
           broadcast(msg.roomId, { type: "game:state", state: result.state });
-          if (!result.done && !result.roundOver) setTimeout(() => showAndBroadcastQuestion(msg.roomId), 1000);
+          if (!result.done && !result.roundOver) setRoomTimer(msg.roomId, "trivia:intro", 1000, () => showAndBroadcastQuestion(msg.roomId));
           if (result.done) rooms.endRound(msg.roomId);
         } else if (room.experience === "guesstimate") {
           const result = guesstimate.advance(msg.roomId);
           if (!result) break;
           broadcast(msg.roomId, { type: "game:state", state: result.state });
-          if (!result.done) setTimeout(() => { const s = guesstimate.showQuestion(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          if (!result.done) setRoomTimer(msg.roomId, "guesstimate:intro", 1000, () => showAndBroadcastGuesstimate(msg.roomId));
           else rooms.endRound(msg.roomId);
         } else if (room.experience === "buzzer") {
           const result = buzzer.advance(msg.roomId);
           if (!result) break;
           broadcast(msg.roomId, { type: "game:state", state: result.state });
-          if (!result.done) setTimeout(() => { const s = buzzer.showQuestion(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          if (!result.done) setRoomTimer(msg.roomId, "buzzer:intro", 1000, () => showAndBroadcastBuzzer(msg.roomId));
           else rooms.endRound(msg.roomId);
         } else if (room.experience === "rankit") {
           const result = rankit.advance(msg.roomId);
           if (!result) break;
           broadcast(msg.roomId, { type: "game:state", state: result.state });
-          if (!result.done) setTimeout(() => { const s = rankit.showChallenge(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          if (!result.done) setRoomTimer(msg.roomId, "rankit:intro", 1000, () => showAndBroadcastRankIt(msg.roomId));
           else rooms.endRound(msg.roomId);
         } else if (room.experience === "connections") {
           const s = connections.endGame(msg.roomId);
@@ -609,7 +703,7 @@ wss.on("connection", (ws, req) => {
           const result = geoguesser.advance(msg.roomId);
           if (!result) break;
           broadcast(msg.roomId, { type: "game:state", state: result.state });
-          if (!result.done) setTimeout(() => { const s = geoguesser.showQuestion(msg.roomId); if (s) broadcast(msg.roomId, { type: "game:state", state: s }); }, 1000);
+          if (!result.done) setRoomTimer(msg.roomId, "geoguesser:intro", 1000, () => showAndBroadcastGeoGuesser(msg.roomId));
           else rooms.endRound(msg.roomId);
         } else if (room.experience === "thedraft") {
           // The Draft has a 3-step end: reveal → voting → game_over.
@@ -683,6 +777,19 @@ wss.on("connection", (ws, req) => {
         const room = rooms.findRoom(msg.roomId);
         if (!room) break;
         if (room.experience === "trivia") {
+          // Membership gate — drop answers from anyone not currently in the room
+          // (handles kicked players, stale tabs, and leftover sockets).
+          const memberIds = rooms.getMembers(msg.roomId).map(m => m.guestId);
+          if (!memberIds.includes(msg.guestId)) break;
+
+          // Question identity gate — reject stale answers buffered from a previous
+          // question that arrived after the next question started (the "ghost
+          // answer" symptom). Older clients won't send questionId; in that case we
+          // can't validate, so we accept and rely on the once-per-guest guard.
+          const pre = trivia.getState(msg.roomId);
+          if (msg.questionId !== undefined && pre?.question?.id !== msg.questionId) break;
+          if (pre?.phase !== "question") break;
+
           const result = trivia.submitAnswer(msg.roomId, msg.guestId, msg.answer);
           if (!result) break;
           const state = result.state;
@@ -690,7 +797,6 @@ wss.on("connection", (ws, req) => {
           // Use CURRENT room members (not state.scores, which can include departed players)
           // intersected with non-eliminated. If a member left mid-question, allAnswered fires
           // as soon as the remaining present non-eliminated players have all submitted.
-          const memberIds = rooms.getMembers(msg.roomId).map(m => m.guestId);
           const eliminated = new Set(state.scores.filter(s => s.eliminated).map(s => s.guestId));
           const activeRequired = memberIds.filter(id => !eliminated.has(id));
           const allAnswered = activeRequired.length > 0 && activeRequired.every(id => state.answers[id]);
@@ -705,6 +811,7 @@ wss.on("connection", (ws, req) => {
               trivia.nextPassTurn(msg.roomId);
               broadcast(msg.roomId, { type: "game:state", state: trivia.getState(msg.roomId)! });
             } else {
+              clearRoomTimer(msg.roomId, "trivia:reveal");
               const revealed = trivia.revealAnswers(msg.roomId);
               if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
             }
@@ -712,6 +819,7 @@ wss.on("connection", (ws, req) => {
             const sanitized = { ...state, answers: Object.fromEntries(Object.keys(state.answers).map(k => [k, "answered"])) };
             broadcast(msg.roomId, { type: "game:state", state: sanitized });
             if (allAnswered) {
+              clearRoomTimer(msg.roomId, "trivia:reveal");
               const revealed = trivia.revealAnswers(msg.roomId);
               if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
             }
@@ -731,18 +839,28 @@ wss.on("connection", (ws, req) => {
           if (action === "wyr:vote") {
             const vote = payload?.vote;
             if (vote !== "a" && vote !== "b") break;
+
+            // Membership gate — drop votes from non-members (kicked, stale tabs)
+            const memberIds = rooms.getMembers(msg.roomId).map(m => m.guestId);
+            if (!memberIds.includes(msg.guestId)) break;
+
+            // Prompt identity gate — reject buffered votes from a previous prompt
+            // arriving after we've moved on (parallel to trivia's questionId guard).
+            const pre = wyr.getState(msg.roomId);
+            if (payload?.promptId !== undefined && pre?.prompt?.id !== payload.promptId) break;
+            if (pre?.phase !== "question") break;
+
             const result = wyr.submitVote(msg.roomId, msg.guestId, vote);
             if (!result) break;
 
-            // Use current room members, not stale scores list
-            const activeIds = rooms.getMembers(msg.roomId).map(m => m.guestId);
-            const allVoted = activeIds.length > 0 && activeIds.every(id => result.state.votes[id]);
+            const allVoted = memberIds.length > 0 && memberIds.every(id => result.state.votes[id]);
 
             if (result.state.mode === "pass_tablet") {
               if (!allVoted) {
                 wyr.nextPassTurn(msg.roomId);
                 broadcast(msg.roomId, { type: "game:state", state: wyr.getState(msg.roomId)! });
               } else {
+                clearRoomTimer(msg.roomId, "wyr:reveal");
                 const revealed = wyr.revealVotes(msg.roomId);
                 if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
               }
@@ -750,6 +868,7 @@ wss.on("connection", (ws, req) => {
               const maskedState = { ...result.state, votes: Object.fromEntries(Object.keys(result.state.votes).map(k => [k, "voted"])) };
               broadcast(msg.roomId, { type: "game:state", state: maskedState });
               if (allVoted) {
+                clearRoomTimer(msg.roomId, "wyr:reveal");
                 const revealed = wyr.revealVotes(msg.roomId);
                 if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
               }
@@ -761,7 +880,7 @@ wss.on("connection", (ws, req) => {
             if (!result) break;
             broadcast(msg.roomId, { type: "game:state", state: result.state });
             if (!result.done) {
-              setTimeout(() => showAndBroadcastPrompt(msg.roomId), 1000);
+              setRoomTimer(msg.roomId, "wyr:intro", 1000, () => showAndBroadcastPrompt(msg.roomId));
             } else {
               rooms.endRound(msg.roomId);
             }
@@ -776,7 +895,7 @@ wss.on("connection", (ws, req) => {
             const allGuessed = activeIds.every(id => state.guesses[id] !== undefined);
             const masked = { ...state, guesses: Object.fromEntries(Object.keys(state.guesses).map(k => [k, "guessed"])) };
             broadcast(msg.roomId, { type: "game:state", state: masked });
-            if (allGuessed) { const revealed = guesstimate.revealGuesses(msg.roomId); if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed }); }
+            if (allGuessed) { clearRoomTimer(msg.roomId, "guesstimate:reveal"); const revealed = guesstimate.revealGuesses(msg.roomId); if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed }); }
           }
         } else if (room.experience === "buzzer") {
           if (msg.action === "buzz:buzz") {
@@ -797,7 +916,7 @@ wss.on("connection", (ws, req) => {
             const activeIds = rooms.getMembers(msg.roomId).map(m => m.guestId);
             const allDone = activeIds.every(id => state.submissions[id]);
             broadcast(msg.roomId, { type: "game:state", state: { ...state, submissions: Object.fromEntries(Object.keys(state.submissions).map(k => [k, "submitted"])) } });
-            if (allDone) { const revealed = rankit.revealResults(msg.roomId); if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed }); }
+            if (allDone) { clearRoomTimer(msg.roomId, "rankit:reveal"); const revealed = rankit.revealResults(msg.roomId); if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed }); }
           }
         } else if (room.experience === "connections") {
           if (msg.action === "conn:submit") {
@@ -826,6 +945,7 @@ wss.on("connection", (ws, req) => {
             const masked = { ...state, pins: Object.fromEntries(Object.keys(state.pins).map(k => [k, "pinned"])) };
             broadcast(msg.roomId, { type: "game:state", state: masked });
             if (allPinned) {
+              clearRoomTimer(msg.roomId, "geoguesser:reveal");
               const revealed = geoguesser.revealAnswers(msg.roomId);
               if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
             }
@@ -894,30 +1014,36 @@ wss.on("connection", (ws, req) => {
           return;
         }
         if (room.experience === "trivia") {
+          clearRoomTimer(msg.roomId, "trivia:reveal");
           const state = trivia.getState(msg.roomId);
           if (state?.phase === "question") {
             const revealed = trivia.revealAnswers(msg.roomId);
             if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
           }
         } else if (room.experience === "wyr") {
+          clearRoomTimer(msg.roomId, "wyr:reveal");
           const state = wyr.getState(msg.roomId);
           if (state?.phase === "question") {
             const revealed = wyr.revealVotes(msg.roomId);
             if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
           }
         } else if (room.experience === "guesstimate") {
+          clearRoomTimer(msg.roomId, "guesstimate:reveal");
           const s = guesstimate.getState(msg.roomId);
           if (s?.phase === "question") { const r = guesstimate.revealGuesses(msg.roomId); if (r) broadcast(msg.roomId, { type: "game:state", state: r }); }
         } else if (room.experience === "buzzer") {
+          clearRoomTimer(msg.roomId, "buzzer:reveal");
           const s = buzzer.getState(msg.roomId);
           if (s?.phase === "question" || s?.phase === "buzzed") { const r = buzzer.revealAnswers(msg.roomId); if (r) broadcast(msg.roomId, { type: "game:state", state: r }); }
         } else if (room.experience === "rankit") {
+          clearRoomTimer(msg.roomId, "rankit:reveal");
           const s = rankit.getState(msg.roomId);
           if (s?.phase === "question") { const r = rankit.revealResults(msg.roomId); if (r) broadcast(msg.roomId, { type: "game:state", state: r }); }
         } else if (room.experience === "connections") {
           const s = connections.forceReveal(msg.roomId);
           if (s) broadcast(msg.roomId, { type: "game:state", state: s });
         } else if (room.experience === "geoguesser") {
+          clearRoomTimer(msg.roomId, "geoguesser:reveal");
           const s = geoguesser.getState(msg.roomId);
           if (s?.phase === "question") {
             const r = geoguesser.revealAnswers(msg.roomId);
@@ -984,7 +1110,7 @@ wss.on("connection", (ws, req) => {
           send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Only the host can restart" });
           return;
         }
-        trivia.cleanup(msg.roomId); wyr.cleanup(msg.roomId);
+        clearAllRoomTimers(msg.roomId); trivia.cleanup(msg.roomId); wyr.cleanup(msg.roomId);
         guesstimate.cleanup(msg.roomId); buzzer.cleanup(msg.roomId);
         rankit.cleanup(msg.roomId); connections.cleanup(msg.roomId);
         geoguesser.cleanup(msg.roomId); thedraft.cleanup(msg.roomId);
@@ -1029,7 +1155,7 @@ wss.on("connection", (ws, req) => {
       if (room.hostGuestId === gid) {
         broadcast(rid, { type: "room:closed" });
         rooms.closeRoom(rid);
-        trivia.cleanup(rid); wyr.cleanup(rid);
+        clearAllRoomTimers(rid); trivia.cleanup(rid); wyr.cleanup(rid);
         guesstimate.cleanup(rid); buzzer.cleanup(rid);
         rankit.cleanup(rid); connections.cleanup(rid);
         geoguesser.cleanup(rid); thedraft.cleanup(rid);

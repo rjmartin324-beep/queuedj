@@ -207,7 +207,7 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
     setLockedAnswer(answer);
     playSound("answer-lock");
     haptic.lock();
-    socket.send({ type: "game:answer", guestId, roomId, answer } as any);
+    socket.send({ type: "game:answer", guestId, roomId, answer, questionId: gameState?.question?.id } as any);
     if (Date.now() - questionStartRef.current < 2000) {
       fastAnswerRef.current = true;
     }
