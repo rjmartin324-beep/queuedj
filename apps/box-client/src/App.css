@@ -242,14 +242,27 @@ button {
   border: 1px solid rgba(255,255,255,0.12);
 }
 
-/* ─── Category colors ─────────────────────────────────────────────────────── */
-.cat-general-knowledge { background: rgba(124,58,237,0.18); border-color: rgba(124,58,237,0.5); color: #c4b5fd; }
-.cat-science-nature    { background: rgba(5,150,105,0.18);  border-color: rgba(5,150,105,0.5);  color: #6ee7b7; }
-.cat-history           { background: rgba(217,119,6,0.18);  border-color: rgba(217,119,6,0.5);  color: #fcd34d; }
-.cat-pop-culture       { background: rgba(219,39,119,0.18); border-color: rgba(219,39,119,0.5); color: #f9a8d4; }
-.cat-sports            { background: rgba(37,99,235,0.18);  border-color: rgba(37,99,235,0.5);  color: #93c5fd; }
-.cat-geography         { background: rgba(8,145,178,0.18);  border-color: rgba(8,145,178,0.5);  color: #67e8f9; }
-.cat-movies-tv         { background: rgba(220,38,38,0.18);  border-color: rgba(220,38,38,0.5);  color: #fca5a5; }
+/* ─── Trivial Pursuit-aligned category palette ─────────────────────────────
+   Pop Culture = pink, Sports = orange, History = yellow, Science = blue,
+   General Knowledge = purple, Movies & TV = red, Geography = green.
+   Same palette is applied to .question-card.cat-X below for full-card tinting. */
+.cat-general-knowledge { background: rgba(168,85,247,0.18); border-color: rgba(168,85,247,0.5); color: #d8b4fe; }
+.cat-science-nature    { background: rgba(59,130,246,0.18); border-color: rgba(59,130,246,0.5); color: #93c5fd; }
+.cat-history           { background: rgba(234,179,8,0.18);  border-color: rgba(234,179,8,0.5);  color: #fde047; }
+.cat-pop-culture       { background: rgba(236,72,153,0.18); border-color: rgba(236,72,153,0.5); color: #f9a8d4; }
+.cat-sports            { background: rgba(249,115,22,0.18); border-color: rgba(249,115,22,0.5); color: #fdba74; }
+.cat-geography         { background: rgba(16,185,129,0.18); border-color: rgba(16,185,129,0.5); color: #6ee7b7; }
+.cat-movies-tv         { background: rgba(239,68,68,0.18);  border-color: rgba(239,68,68,0.5);  color: #fca5a5; }
+
+/* Question card tint — same palette, applied to the card body for that
+   "the whole card belongs to this category" feel, like a TP wedge. */
+.question-card.cat-general-knowledge { background: linear-gradient(180deg, rgba(168,85,247,0.22), rgba(168,85,247,0.10)); border-color: rgba(168,85,247,0.55); }
+.question-card.cat-science-nature    { background: linear-gradient(180deg, rgba(59,130,246,0.22), rgba(59,130,246,0.10)); border-color: rgba(59,130,246,0.55); }
+.question-card.cat-history           { background: linear-gradient(180deg, rgba(234,179,8,0.22),  rgba(234,179,8,0.10));  border-color: rgba(234,179,8,0.6); }
+.question-card.cat-pop-culture       { background: linear-gradient(180deg, rgba(236,72,153,0.22), rgba(236,72,153,0.10)); border-color: rgba(236,72,153,0.55); }
+.question-card.cat-sports            { background: linear-gradient(180deg, rgba(249,115,22,0.22), rgba(249,115,22,0.10)); border-color: rgba(249,115,22,0.6); }
+.question-card.cat-geography         { background: linear-gradient(180deg, rgba(16,185,129,0.22), rgba(16,185,129,0.10)); border-color: rgba(16,185,129,0.55); }
+.question-card.cat-movies-tv         { background: linear-gradient(180deg, rgba(239,68,68,0.22),  rgba(239,68,68,0.10));  border-color: rgba(239,68,68,0.55); }
 
 @keyframes score-pop {
   0% {

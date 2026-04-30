@@ -329,7 +329,7 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
       </div>
 
       {question && (
-        <div className="question-card question-card-flagship" key={`q-${questionIndex}-${round}`}>
+        <div className={`question-card question-card-flagship cat-${CAT_SLUG[question.category] ?? "general-knowledge"}`} key={`q-${questionIndex}-${round}`}>
           <div className="question-spotlight" aria-hidden />
           <div className={`question-category cat-${CAT_SLUG[question.category] ?? "general-knowledge"}`}>
             {question.category}
