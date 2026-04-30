@@ -117,4 +117,15 @@ export function advance(roomId: string): { state: RankItState; done: boolean } |
   return { state, done: false };
 }
 
-export function cleanup(roomId: string): void { sessions.delete(roomId); banks.delete(roomId); }
+export function cleanup(roomId: string): void {
+  const state = sessions.get(roomId);
+  if (state) {
+    try {
+      db.persistScores(state.sessionId, state.scores.map(s => ({
+        guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0,
+      })));
+    } catch {}
+  }
+  sessions.delete(roomId);
+  banks.delete(roomId);
+}

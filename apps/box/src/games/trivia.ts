@@ -330,6 +330,15 @@ export function nextPassTurn(roomId: string): TriviaGameState | null {
 
 export function cleanup(roomId: string): void {
   const state = sessions.get(roomId);
-  if (state) questionBanks.delete(state.sessionId);
+  if (state) {
+    // Best-effort score persistence — catches force-end / room-close paths
+    // that don't reach natural game_over. UPSERT-safe if game_over already persisted.
+    try {
+      db.persistScores(state.sessionId, state.scores.map(s => ({
+        guestId: s.guestId, displayName: s.displayName, score: s.score, correct: s.correct, wrong: s.wrong,
+      })));
+    } catch {}
+    questionBanks.delete(state.sessionId);
+  }
   sessions.delete(roomId);
 }

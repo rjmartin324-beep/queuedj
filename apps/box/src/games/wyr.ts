@@ -157,6 +157,14 @@ export function nextPassTurn(roomId: string): WYRGameState | null {
 }
 
 export function cleanup(roomId: string): void {
+  const state = sessions.get(roomId);
+  if (state) {
+    try {
+      db.persistScores(state.sessionId, state.scores.map(s => ({
+        guestId: s.guestId, displayName: s.displayName, score: s.score, correct: s.bold, wrong: s.safe,
+      })));
+    } catch {}
+  }
   sessions.delete(roomId);
   sessionPrompts.delete(roomId);
 }
