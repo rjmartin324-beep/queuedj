@@ -19,7 +19,15 @@ export default function RankItGame({ guestId, roomId, isHost, gameState }: Props
   const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
+  // Streak: consecutive perfect orders + bottom-third scores
+  const perfectStreakRef = useRef(0);
+  const bottomStreakRef = useRef(0);
+  const shownThisGameRef = useRef<Set<string>>(new Set());
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
+  }
   useEffect(() => {
     if (!gameState) return;
     if (phase === prevPhaseRef.current) return;
@@ -32,7 +40,22 @@ export default function RankItGame({ guestId, roomId, isHost, gameState }: Props
       const correct: string[] | undefined = challenge?.correct;
       if (mySub && correct) {
         const exact = mySub.length === correct.length && mySub.every((x, i) => x === correct[i]);
-        if (exact) showCutScene("PERFECT ORDER", "peak");
+        // Track streaks
+        if (exact) { perfectStreakRef.current += 1; bottomStreakRef.current = 0; }
+        else {
+          perfectStreakRef.current = 0;
+          // Bottom-third heuristic: if at least half the items are out of place
+          const offByLot = mySub.filter((x, i) => x !== correct[i]).length;
+          if (mySub.length > 0 && offByLot / mySub.length >= 0.6) bottomStreakRef.current += 1;
+          else bottomStreakRef.current = 0;
+        }
+        // Streak callouts — peak first
+        if (perfectStreakRef.current === 8) { showCutScene("RANKING GOD", "peak"); return; }
+        if (perfectStreakRef.current === 5) { showCutScene("SAVANT", "overlay"); return; }
+        if (perfectStreakRef.current === 3) { showCutScene("DIALED IN", "banner"); return; }
+        if (bottomStreakRef.current === 3) { showCutScene("BACKWARDS", "banner"); return; }
+        // Default per-question
+        if (exact) showCutScene("PERFECT ORDER", "overlay");
       }
     }
     if (phase === "game_over") {

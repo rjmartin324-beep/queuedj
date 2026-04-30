@@ -141,6 +141,12 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
       showCutScene("FINAL DROP", "banner");
     }
     if (phase === "reveal") {
+      // Defensive logging — capture what we render at reveal so we can diagnose
+      // any "Wall of China = Japan" style mismatch reports. Logs to console + server.
+      try {
+        // eslint-disable-next-line no-console
+        console.log(`[geo-reveal] q.id=${question?.id} location="${question?.location}" country="${question?.country}" lat=${question?.lat} lng=${question?.lng}`);
+      } catch { /* ignore */ }
       const myDist: number | undefined = distances?.[guestId];
       if (myDist !== undefined) {
         // Streak tracking

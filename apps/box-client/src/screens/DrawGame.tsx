@@ -74,20 +74,63 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
   const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
+  // Streak tracking
+  const guessStreakRef = useRef(0);   // consecutive rounds I guessed correctly
+  const drawerStreakRef = useRef(0);  // consecutive drawings everyone guessed (when I'm drawer)
+  const lastRoundIWasGuesserRef = useRef<number>(-1);
+  const shownThisGameRef = useRef<Set<string>>(new Set());
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
+  }
   useEffect(() => {
     if (!gameState) return;
     if (phase !== prevPhaseRef.current) {
       prevPhaseRef.current = phase;
       if (phase === "drawing" && roundIndex === totalRounds - 1) showCutScene("FINAL ROUND", "banner");
+      // On reveal phase, check if drawing was a hit (everyone guessed)
+      if (phase === "reveal") {
+        const totalGuessers = (scores?.length ?? 0) - 1; // everyone except drawer
+        const guessedBy = (gameState as any)?.guessedBy?.length ?? 0;
+        const drawerSucceeded = totalGuessers > 0 && guessedBy >= totalGuessers;
+        const iWasDrawer = (gameState as any)?.drawerId === guestId;
+        if (iWasDrawer) {
+          if (drawerSucceeded) {
+            drawerStreakRef.current += 1;
+            // Drawer streak callouts
+            if (drawerStreakRef.current === 3) { showCutScene("ARTIST", "overlay"); }
+            else { showCutScene("PICASSO", "banner"); }
+          } else {
+            drawerStreakRef.current = 0;
+          }
+        }
+        // Track guesser streak (if I was a guesser this round and I got it)
+        const iWasGuesser = !iWasDrawer;
+        if (iWasGuesser) {
+          if (guessedIt) {
+            guessStreakRef.current += 1;
+            if (guessStreakRef.current === 5) { showCutScene("DRAWING ORACLE", "overlay"); }
+            else if (guessStreakRef.current === 3) { showCutScene("EAGLE EYE", "banner"); }
+          } else {
+            guessStreakRef.current = 0;
+          }
+          lastRoundIWasGuesserRef.current = roundIndex;
+        }
+      }
       if (phase === "game_over") {
+        // Perfect vision: guessed every round you were a guesser
+        const totalGuesserRounds = (totalRounds ?? 0) - 1; // assumed: I drew once, guessed the rest
+        if (totalGuesserRounds > 0 && guessStreakRef.current === totalGuesserRounds) {
+          showCutScene("PERFECT VISION", "peak");
+        }
         const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
         if (sorted[0]?.guestId === guestId) showCutScene("WINNER", "overlay");
       }
     }
   }, [phase]);
 
-  // Fire GOT IT when a guess hits during drawing
+  // Fire GOT IT when a guess hits during drawing (the moment of guessing)
   useEffect(() => {
     if (guessedIt) showCutScene("GOT IT", "banner");
   }, [guessedIt]);

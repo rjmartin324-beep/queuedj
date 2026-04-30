@@ -19,7 +19,16 @@ export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: 
   const cutSeqRef = useRef(0);
   const prevFoundRef = useRef<number>(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
+  // Streak tracking: consecutive groups found WITHOUT a wrong attempt in between.
+  const cleanGroupsRef = useRef(0);
+  const wrongAttemptsRef = useRef(0);
+  const purpleFoundFirstRef = useRef<boolean | null>(null); // null = unknown, true = was first
+  const shownThisGameRef = useRef<Set<string>>(new Set());
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
+  }
   const { phase, tiles, puzzle, players, scores } = gameState ?? {};
 
   const myPlayer = players?.[guestId];
@@ -34,11 +43,31 @@ export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: 
           setTimeout(() => setShake(false), 500);
           haptic.wrong();
           setSelected([]);
-          showCutScene("WRONG GROUP", "banner");
+          // Track wrong-attempt streak for CRACKED callout
+          wrongAttemptsRef.current += 1;
+          cleanGroupsRef.current = 0; // any miss breaks the clean-sweep streak
+          if (wrongAttemptsRef.current === 3) {
+            showCutScene("CRACKED", "banner");
+          } else {
+            showCutScene("WRONG GROUP", "banner");
+          }
         } else {
           haptic.correct();
           setSelected([]);
-          // Color-tier callout — purple is the trickiest
+          // Track clean-sweep streak (consecutive correct without misses)
+          cleanGroupsRef.current += 1;
+          // Was purple found FIRST (before any other group)?
+          if (msg.payload.color === "purple" && purpleFoundFirstRef.current === null) {
+            purpleFoundFirstRef.current = true;
+            showCutScene("DIABOLICAL", "overlay");
+            return;
+          }
+          // Mark first-found-color so subsequent purples aren't "first"
+          if (purpleFoundFirstRef.current === null) purpleFoundFirstRef.current = false;
+          // Streak callouts
+          if (cleanGroupsRef.current === 4) { showCutScene("FLAWLESS PUZZLE", "peak"); return; }
+          if (cleanGroupsRef.current === 2) { showCutScene("CLEAN SWEEP", "banner"); return; }
+          // Color-tier callout — purple is the trickiest (still fires if not the diabolical first)
           if (msg.payload.color === "purple") showCutScene("EXPERT GROUP", "overlay");
           else if (msg.payload.color === "blue") showCutScene("HARD GROUP", "banner");
         }

@@ -151,8 +151,15 @@ export default function TheDraftGame({ guestId, roomId, isHost, gameState }: Pro
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevPickRef = useRef<number>(-1);
+  // Streak tracking for peer-vote results (only meaningful in multi-round draft)
+  const voteWinStreakRef = useRef(0);
+  const shownThisGameRef = useRef<Set<string>>(new Set());
 
-  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
+  }
 
   // Phase cutscenes
   useEffect(() => {
@@ -160,9 +167,28 @@ export default function TheDraftGame({ guestId, roomId, isHost, gameState }: Pro
     if (phase !== prevPhaseRef.current) {
       prevPhaseRef.current = phase;
       if (phase === "reveal") showCutScene("BIG REVEAL", "overlay");
-      if (phase === "game_over") {
-        const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-        if (sorted[0]?.guestId === guestId) showCutScene("DRAFT KING", "overlay");
+      if (phase === "voting" || phase === "game_over") {
+        // Check if my pick won most votes (only meaningful at game_over with final vote tally)
+        if (phase === "game_over") {
+          const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
+          const myScore = scores?.find((s: any) => s.guestId === guestId)?.score ?? 0;
+          const topScore = sorted[0]?.score ?? 0;
+          const iAmTop = sorted[0]?.guestId === guestId;
+          if (iAmTop && myScore === topScore) {
+            voteWinStreakRef.current += 1;
+            if (voteWinStreakRef.current === 2) {
+              showCutScene("TASTE MAKER", "overlay");
+            } else {
+              showCutScene("CROWD FAVORITE", "banner");
+            }
+          } else if (myScore === 0 && topScore > 0) {
+            showCutScene("READ THE ROOM", "banner");
+            voteWinStreakRef.current = 0;
+          } else {
+            voteWinStreakRef.current = 0;
+          }
+          if (iAmTop) showCutScene("DRAFT KING", "overlay");
+        }
       }
     }
   }, [phase]);
