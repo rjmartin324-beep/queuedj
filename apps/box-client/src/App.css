@@ -30,15 +30,41 @@
   to { transform: rotate(360deg); }
 }
 
+/* Fixed: removed translate(-50%, -50%) which was clipping multi-word
+   text like "DING DING DING" because parent uses position:relative,
+   not absolute. Just scale + opacity for the entrance. */
 @keyframes cs-scale-in {
-  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.65); }
-  60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
-  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  0%   { opacity: 0; transform: scale(0.65); }
+  60%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
+/* Pulse ring stays absolutely positioned, so its translate is correct. */
 @keyframes cs-pulse-ring {
   0%   { transform: translate(-50%, -50%) scale(0.4); opacity: 0.7; }
   100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+/* Banner slide-in from top — used for tier="banner" cut scenes (3-streak, group callouts) */
+@keyframes cs-banner-slide {
+  0%   { opacity: 0; transform: translateY(-100%); }
+  15%  { opacity: 1; transform: translateY(0); }
+  85%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-100%); }
+}
+
+/* Screen shake for peak tier — used for UNSTOPPABLE / FLAWLESS / UNTOUCHED / TRAINWRECK */
+@keyframes cs-peak-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-4px, 2px); }
+  20% { transform: translate(4px, -2px); }
+  30% { transform: translate(-3px, -3px); }
+  40% { transform: translate(3px, 3px); }
+  50% { transform: translate(-2px, 2px); }
+  60% { transform: translate(2px, -2px); }
+  70% { transform: translate(-3px, 1px); }
+  80% { transform: translate(1px, -3px); }
+  90% { transform: translate(-1px, 1px); }
 }
 
 @keyframes q-enter {
@@ -1799,23 +1825,65 @@ button {
   }
 }
 
-/* ─── Cut Scene overlay ───────────────────────────────────────────────────── */
+/* ─── Cut Scene system — 3 tiers (banner / overlay / peak) ──────────────── */
 
-.cutscene-overlay {
+/* Base — every cut scene container */
+.cutscene {
   position: fixed;
-  inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.93);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
 }
 
-.cutscene-overlay.cs-in  { opacity: 1; }
-.cutscene-overlay.cs-out { opacity: 0; }
+.cutscene.cs-in  { opacity: 1; }
+.cutscene.cs-out { opacity: 0; }
 
+/* Tier 1 — Banner: slide in from top, narrow strip, no full overlay.
+   Used for: ON FIRE (3-streak), GUTTER BALL (3-wrong), all 7 group callouts. */
+.cutscene.cs-banner {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: auto;
+  height: auto;
+  padding: 1.2rem 1.5rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0.92), rgba(0,0,0,0.78));
+  border-bottom: 2px solid var(--accent);
+  animation: cs-banner-slide 1.5s ease-in-out forwards;
+}
+
+.cutscene.cs-banner .cutscene-text {
+  font-size: clamp(1.5rem, 5.5vw, 2.6rem);
+  letter-spacing: 0.10em;
+}
+
+/* Tier 2 — Overlay: full-screen takeover, current default.
+   Used for: KOBE (5-streak), BRICK CITY (5-wrong), WINNER, COMEBACK KID, DAGGER. */
+.cutscene.cs-overlay {
+  inset: 0;
+  background: rgba(0, 0, 0, 0.93);
+}
+
+/* Tier 3 — Peak: full-screen + screen shake + extra emphasis.
+   Used for: UNSTOPPABLE (8-streak), TRAINWRECK (8-wrong), FLAWLESS, UNTOUCHED. */
+.cutscene.cs-peak {
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(80,0,40,0.6), rgba(0,0,0,0.95));
+  animation: cs-peak-shake 0.55s ease-in-out 2;
+}
+
+.cutscene.cs-peak .cutscene-text {
+  font-size: clamp(2.6rem, 11vw, 6rem);
+  text-shadow:
+    0 0 40px rgba(255,80,80,0.9),
+    0 0 80px rgba(255,80,80,0.5),
+    0 0 120px rgba(246,224,94,0.4);
+}
+
+/* Pulse ring (overlay + peak only — banner skips it via component). */
 .cutscene-pulse {
   position: absolute;
   top: 50%;
@@ -1827,6 +1895,8 @@ button {
   animation: cs-pulse-ring 1.6s ease-out infinite;
 }
 
+/* The actual text — relative positioning, scale-in animation (DING bug fixed:
+   no more translate(-50%, -50%) which was clipping multi-word callouts). */
 .cutscene-text {
   position: relative;
   font-family: var(--font-display);
@@ -1836,13 +1906,12 @@ button {
   line-height: 1.05;
   color: var(--accent);
   text-align: center;
-  padding: 0 24px;
+  padding: 0 1.5rem;
   max-width: min(96vw, 900px);
   word-break: keep-all;
   overflow-wrap: break-word;
   text-shadow: 0 0 30px rgba(246,224,94,0.6), 0 0 60px rgba(246,224,94,0.3);
   animation: cs-scale-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  padding: 0 1.5rem;
 }
 
 /* ─── Connection screens ──────────────────────────────────────────────────── */

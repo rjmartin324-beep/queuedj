@@ -37,7 +37,7 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
   const [lockedAnswer, setLockedAnswer] = useState<TriviaAnswer | null>(null);
   const [revealPhase, setRevealPhase] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [scoreDelta, setScoreDelta] = useState(0);
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const timerRefs = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   function clearTimers() {
@@ -66,10 +66,18 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
   const fastAnswerRef = useRef(false);
   const cutSeqRef = useRef(0);
   const shownRoundCutSceneRef = useRef<string | null>(null); // prevents repeat per-round cut scenes
-  const wrongStreakRef = useRef(0); // for GUTTER BALL callout
+  const wrongStreakRef = useRef(0); // for GUTTER BALL / BRICK CITY / TRAINWRECK callout
+  // Frequency limits per spec: overlay-tier = once per round, peak-tier = once per game
+  const shownThisRoundRef = useRef<Set<string>>(new Set());
+  const shownThisGameRef = useRef<Set<string>>(new Set());
 
-  function showCutScene(name: string) {
-    setCutScene({ name, seq: ++cutSeqRef.current });
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    // Frequency gate
+    if (tier === "overlay" && shownThisRoundRef.current.has(name)) return;
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "overlay") shownThisRoundRef.current.add(name);
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
   }
 
   useEffect(() => {
@@ -87,7 +95,7 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
       questionStartRef.current = Date.now();
       fastAnswerRef.current = false;
       if (gameState.questionIndex === gameState.totalInRound - 1) {
-        showCutScene("FINAL QUESTION");
+        showCutScene("FINAL QUESTION", "banner");
       }
     }
 
@@ -101,20 +109,37 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
       // SUDDEN DEATH only fires once per round, not before every question
       if (gameState.roundName === "Sudden Death" && shownRoundCutSceneRef.current !== "Sudden Death") {
         shownRoundCutSceneRef.current = "Sudden Death";
-        showCutScene("SUDDEN DEATH");
+        showCutScene("SUDDEN DEATH", "overlay");
       }
     }
 
     if (phase === "round_end") {
       playSound("round-end");
       shownRoundCutSceneRef.current = null; // reset for next round
-      showCutScene("ROUND COMPLETE");
+      shownThisRoundRef.current.clear(); // overlay-tier callouts can fire again
+      showCutScene("ROUND COMPLETE", "banner");
     }
 
     if (phase === "game_over") {
       playSound("podium-1st");
       const sorted = [...(gameState.scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-      if (sorted[0]?.guestId === guestId) showCutScene("WINNER");
+      if (sorted[0]?.guestId === guestId) {
+        // Pick the right end-game callout by margin / perfection
+        const myScore = sorted[0]?.score ?? 0;
+        const second = sorted[1]?.score ?? 0;
+        const margin = myScore - second;
+        const me = sorted.find((s: any) => s.guestId === guestId);
+        const wrongCount = me?.wrong ?? 0;
+        const correctCount = me?.correct ?? 0;
+        // Perfect game: never missed
+        if (wrongCount === 0 && correctCount > 0) showCutScene("UNTOUCHED", "peak");
+        // Blowout: 2000+ point margin
+        else if (margin >= 2000) showCutScene("FLAWLESS", "peak");
+        // Close win: <500 margin
+        else if (margin < 500) showCutScene("CLUTCH", "overlay");
+        // Default solid win
+        else showCutScene("WINNER", "overlay");
+      }
     }
   }, [gameState?.phase]);
 
@@ -131,38 +156,25 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
       if (iGotItRight) {
         streakRef.current += 1;
         wrongStreakRef.current = 0;
-        if (fastAnswerRef.current) {
-          showCutScene("KOBE");
-          return;
-        }
       } else {
         streakRef.current = 0;
         wrongStreakRef.current += 1;
-        if (wrongStreakRef.current === 3) {
-          showCutScene("GUTTER BALL");
-          return;
-        }
       }
 
       const totalPlayers = gameState.scores?.length ?? 0;
       const correctCount = Object.values(answers).filter((a) => a === correct).length;
+      const wrongCount = Object.values(answers).filter((a) => a && a !== correct).length;
 
-      if (totalPlayers >= 2 && correctCount === 0) {
-        showCutScene("NOBODY KNOWS ANYTHING");
-        return;
-      }
-      if (totalPlayers >= 2 && correctCount === totalPlayers) {
-        showCutScene("PERFECT ROUND");
-        return;
-      }
-      if (streakRef.current === 5) {
-        showCutScene("LANE 9 IS BURNING");
-        return;
-      }
-      if (streakRef.current === 3) {
-        showCutScene("TURKEY");
-        return;
-      }
+      // Priority: peak > overlay > banner. Earlier returns = bigger moments win.
+
+      // PEAK TIER — rarest, biggest impact, once per game per name
+      if (streakRef.current === 8) { showCutScene("UNSTOPPABLE", "peak"); return; }
+      if (wrongStreakRef.current === 8) { showCutScene("TRAINWRECK", "peak"); return; }
+
+      // OVERLAY TIER — once per round per name, full-screen takeover
+      if (streakRef.current === 5) { showCutScene("KOBE", "overlay"); return; }
+      if (wrongStreakRef.current === 5) { showCutScene("BRICK CITY", "overlay"); return; }
+      // Comeback / split-conversion still earn the overlay
       if (gameState.scores && prevScoresRef.current.length >= 3) {
         const sortedPrev = [...prevScoresRef.current].sort((a: any, b: any) => b.score - a.score);
         const sortedNow  = [...gameState.scores].sort((a: any, b: any) => b.score - a.score);
@@ -171,14 +183,32 @@ export default function TriviaGame({ guestId, roomId, roomMode, isHost, displayN
         const prevMyScore = prevScoresRef.current.find((s: any) => s.guestId === guestId)?.score ?? 0;
         const prevLeader = sortedPrev[0]?.score ?? 0;
         const gapClosed = (prevLeader - prevMyScore) >= 3000 && nowRank <= 2;
-        if (gapClosed) {
-          showCutScene("SPLIT CONVERSION");
-          return;
-        }
+        if (gapClosed) { showCutScene("SPLIT CONVERSION", "overlay"); return; }
         if (nowRank <= 3 && prevRank >= sortedPrev.length && prevRank > nowRank + 1) {
-          showCutScene("COMEBACK KID");
-          return;
+          showCutScene("COMEBACK KID", "overlay"); return;
         }
+      }
+
+      // BANNER TIER — fires freely, lighter touch
+      if (streakRef.current === 3) { showCutScene("ON FIRE", "banner"); return; }
+      if (wrongStreakRef.current === 3) { showCutScene("GUTTER BALL", "banner"); return; }
+
+      // Group / room callouts — also banner tier
+      if (totalPlayers >= 2 && correctCount === 0) { showCutScene("NOBODY KNOWS ANYTHING", "banner"); return; }
+      if (totalPlayers >= 2 && correctCount === totalPlayers) { showCutScene("PERFECT ROUND", "banner"); return; }
+      // LONE WOLF — exactly one player got it right, and there are 3+ players (otherwise meaningless)
+      if (totalPlayers >= 3 && correctCount === 1) { showCutScene("LONE WOLF", "banner"); return; }
+      // PEER PRESSURE — exactly one player got it wrong
+      if (totalPlayers >= 3 && wrongCount === 1) { showCutScene("PEER PRESSURE", "banner"); return; }
+      // GROUPTHINK — everyone picked the same WRONG answer
+      const allAnsweredValues = Object.values(answers).filter((a) => typeof a === "string" && a !== correct) as string[];
+      if (totalPlayers >= 3 && allAnsweredValues.length === totalPlayers && new Set(allAnsweredValues).size === 1) {
+        showCutScene("GROUPTHINK", "banner"); return;
+      }
+
+      // BUZZER BEATER — fast + correct (replaces old KOBE-on-fast pattern)
+      if (iGotItRight && fastAnswerRef.current) {
+        showCutScene("BUZZER BEATER", "banner"); return;
       }
     }
   }, [revealPhase]);
