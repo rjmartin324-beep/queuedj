@@ -16,28 +16,28 @@ export default function RankItGame({ guestId, roomId, isHost, gameState }: Props
   useEffect(() => { setOrder([]); setSubmitted(false); }, [questionIndex]);
 
   // Cutscenes
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
   useEffect(() => {
     if (!gameState) return;
     if (phase === prevPhaseRef.current) return;
     prevPhaseRef.current = phase;
     if (phase === "question" && questionIndex === totalQuestions - 1) {
-      showCutScene("FINAL RANKING");
+      showCutScene("FINAL RANKING", "banner");
     }
     if (phase === "reveal") {
       const mySub: string[] | undefined = submissions?.[guestId];
       const correct: string[] | undefined = challenge?.correct;
       if (mySub && correct) {
         const exact = mySub.length === correct.length && mySub.every((x, i) => x === correct[i]);
-        if (exact) showCutScene("PERFECT ORDER");
+        if (exact) showCutScene("PERFECT ORDER", "peak");
       }
     }
     if (phase === "game_over") {
       const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-      if (sorted[0]?.guestId === guestId) showCutScene("WINNER");
+      if (sorted[0]?.guestId === guestId) showCutScene("WINNER", "overlay");
     }
   }, [phase]);
 

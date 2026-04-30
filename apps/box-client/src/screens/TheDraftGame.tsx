@@ -147,22 +147,22 @@ export default function TheDraftGame({ guestId, roomId, isHost, gameState }: Pro
   }
 
   // Cutscenes
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevPickRef = useRef<number>(-1);
 
-  function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
 
   // Phase cutscenes
   useEffect(() => {
     if (!gameState) return;
     if (phase !== prevPhaseRef.current) {
       prevPhaseRef.current = phase;
-      if (phase === "reveal") showCutScene("BIG REVEAL");
+      if (phase === "reveal") showCutScene("BIG REVEAL", "overlay");
       if (phase === "game_over") {
         const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-        if (sorted[0]?.guestId === guestId) showCutScene("DRAFT KING");
+        if (sorted[0]?.guestId === guestId) showCutScene("DRAFT KING", "overlay");
       }
     }
   }, [phase]);
@@ -172,7 +172,7 @@ export default function TheDraftGame({ guestId, roomId, isHost, gameState }: Pro
   const isMyTurn = currentPickerId === guestId;
   useEffect(() => {
     if (currentPick !== prevPickRef.current && phase === "drafting" && isMyTurn) {
-      showCutScene("ON THE CLOCK");
+      showCutScene("ON THE CLOCK", "banner");
     }
     prevPickRef.current = currentPick;
   }, [currentPick, phase, isMyTurn]);

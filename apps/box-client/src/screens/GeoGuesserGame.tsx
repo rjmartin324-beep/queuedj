@@ -63,10 +63,10 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
   const isReveal = phase === "reveal";
 
   // Cutscene state
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
 
   // Reset between questions — including zoom/pan
   useEffect(() => {
@@ -131,20 +131,20 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
     if (phase === "reveal") { setZoom(1); setPanX(0); setPanY(0); }
 
     if (phase === "question" && questionIndex === totalQuestions - 1) {
-      showCutScene("FINAL DROP");
+      showCutScene("FINAL DROP", "banner");
     }
     if (phase === "reveal") {
       const myDist: number | undefined = distances?.[guestId];
       if (myDist !== undefined) {
-        if (myDist < 50) showCutScene("PINPOINT");
-        else if (myDist < 250) showCutScene("DEAD ON");
-        else if (myDist < 1000) showCutScene("CLOSE CALL");
-        else if (myDist > 12000) showCutScene("WAY OFF");
+        if (myDist < 50) showCutScene("PINPOINT", "peak");
+        else if (myDist < 250) showCutScene("DEAD ON", "overlay");
+        else if (myDist < 1000) showCutScene("CLOSE CALL", "banner");
+        else if (myDist > 12000) showCutScene("WAY OFF", "banner");
       }
     }
     if (phase === "game_over") {
       const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-      if (sorted[0]?.guestId === guestId) showCutScene("WORLD CHAMP");
+      if (sorted[0]?.guestId === guestId) showCutScene("WORLD CHAMP", "overlay");
     }
   }, [phase]);
 

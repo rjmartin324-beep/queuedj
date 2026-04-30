@@ -71,25 +71,25 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
   useEffect(() => { setStrokes([]); setGuessLog([]); setGuessedIt(false); setGuessInput(""); }, [roundIndex]);
 
   // Cutscenes
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
   useEffect(() => {
     if (!gameState) return;
     if (phase !== prevPhaseRef.current) {
       prevPhaseRef.current = phase;
-      if (phase === "drawing" && roundIndex === totalRounds - 1) showCutScene("FINAL ROUND");
+      if (phase === "drawing" && roundIndex === totalRounds - 1) showCutScene("FINAL ROUND", "banner");
       if (phase === "game_over") {
         const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-        if (sorted[0]?.guestId === guestId) showCutScene("WINNER");
+        if (sorted[0]?.guestId === guestId) showCutScene("WINNER", "overlay");
       }
     }
   }, [phase]);
 
-  // Fire MASTERPIECE when a guess hits during drawing
+  // Fire GOT IT when a guess hits during drawing
   useEffect(() => {
-    if (guessedIt) showCutScene("GOT IT");
+    if (guessedIt) showCutScene("GOT IT", "banner");
   }, [guessedIt]);
 
   function getPos(e: React.TouchEvent | React.MouseEvent, canvas: HTMLCanvasElement): [number, number] {

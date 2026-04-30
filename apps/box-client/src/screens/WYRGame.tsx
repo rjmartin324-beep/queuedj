@@ -15,14 +15,14 @@ interface Props {
 }
 
 export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }: Props) {
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const [localVote, setLocalVote] = useState<"a" | "b" | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevScoresRef = useRef<any[]>([]);
 
-  function showCutScene(name: string) {
-    setCutScene({ name, seq: ++cutSeqRef.current });
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
   }
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }
       prevScoresRef.current = gameState.scores ?? [];
       setLocalVote(null);
       if (gameState.questionIndex === gameState.totalQuestions - 1) {
-        showCutScene("FINAL DILEMMA");
+        showCutScene("FINAL DILEMMA", "banner");
       }
     }
 
@@ -47,14 +47,14 @@ export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }
       const myVote = votes[guestId];
 
       if (total >= 2 && aCount === bCount) {
-        showCutScene("DEAD SPLIT");
+        showCutScene("DEAD SPLIT", "banner");
       } else if (total >= 4 && (aCount === 0 || bCount === 0)) {
-        showCutScene("UNANIMOUS");
+        showCutScene("UNANIMOUS", "overlay");
       } else if (total >= 4 && (aCount / total >= 0.8 || bCount / total >= 0.8)) {
-        showCutScene("LANDSLIDE");
+        showCutScene("LANDSLIDE", "banner");
       } else if (myVote && total >= 2) {
         const majority = aCount > bCount ? "a" : "b";
-        if (myVote !== majority) showCutScene("BOLD PICK");
+        if (myVote !== majority) showCutScene("BOLD PICK", "banner");
       }
     }
 

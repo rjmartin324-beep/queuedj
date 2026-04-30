@@ -17,29 +17,29 @@ export default function GuessimateGame({ guestId, roomId, isHost, gameState }: P
   useEffect(() => { setInput(""); setSubmitted(false); }, [questionIndex]);
 
   // Cutscenes
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevScoreRef = useRef<number>(0);
-  function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
   useEffect(() => {
     if (!gameState) return;
     if (phase !== prevPhaseRef.current) {
       prevPhaseRef.current = phase;
       if (phase === "question" && questionIndex === totalQuestions - 1) {
-        showCutScene("LAST GUESS");
+        showCutScene("LAST GUESS", "banner");
       }
       if (phase === "reveal") {
         const myScore = scores?.find((s: any) => s.guestId === guestId)?.score ?? 0;
         const delta = myScore - prevScoreRef.current;
         prevScoreRef.current = myScore;
-        if (delta >= 950) showCutScene("BULLSEYE");
-        else if (delta >= 800) showCutScene("DEAD ON");
-        else if (delta < 100) showCutScene("WAY OFF");
+        if (delta >= 950) showCutScene("BULLSEYE", "overlay");
+        else if (delta >= 800) showCutScene("DEAD ON", "banner");
+        else if (delta < 100) showCutScene("WAY OFF", "banner");
       }
       if (phase === "game_over") {
         const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-        if (sorted[0]?.guestId === guestId) showCutScene("WINNER");
+        if (sorted[0]?.guestId === guestId) showCutScene("WINNER", "overlay");
       }
     }
   }, [phase]);

@@ -15,11 +15,11 @@ const COLOR_BORDER = { yellow: "#F5C842", green: "#4ADE80", blue: "#60A5FA", pur
 export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: Props) {
   const [selected, setSelected] = useState<string[]>([]);
   const [shake, setShake] = useState(false);
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevFoundRef = useRef<number>(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
   const { phase, tiles, puzzle, players, scores } = gameState ?? {};
 
   const myPlayer = players?.[guestId];
@@ -34,13 +34,13 @@ export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: 
           setTimeout(() => setShake(false), 500);
           haptic.wrong();
           setSelected([]);
-          showCutScene("WRONG GROUP");
+          showCutScene("WRONG GROUP", "banner");
         } else {
           haptic.correct();
           setSelected([]);
           // Color-tier callout — purple is the trickiest
-          if (msg.payload.color === "purple") showCutScene("EXPERT GROUP");
-          else if (msg.payload.color === "blue") showCutScene("HARD GROUP");
+          if (msg.payload.color === "purple") showCutScene("EXPERT GROUP", "overlay");
+          else if (msg.payload.color === "blue") showCutScene("HARD GROUP", "banner");
         }
       }
     });
@@ -50,15 +50,15 @@ export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: 
   useEffect(() => {
     if (!gameState) return;
     const found = (players?.[guestId]?.found ?? []).length;
-    if (found === 4 && prevFoundRef.current !== 4) showCutScene("PUZZLE SOLVED");
-    else if (found === 3 && prevFoundRef.current !== 3) showCutScene("ONE MORE");
+    if (found === 4 && prevFoundRef.current !== 4) showCutScene("PUZZLE SOLVED", "overlay");
+    else if (found === 3 && prevFoundRef.current !== 3) showCutScene("ONE MORE", "banner");
     prevFoundRef.current = found;
 
     if (phase !== prevPhaseRef.current) {
       prevPhaseRef.current = phase;
       if (phase === "game_over") {
         const sorted = [...(scores ?? [])].sort((a: any, b: any) => b.score - a.score);
-        if (sorted[0]?.guestId === guestId) showCutScene("WINNER");
+        if (sorted[0]?.guestId === guestId) showCutScene("WINNER", "overlay");
       }
     }
   }, [players, phase]);

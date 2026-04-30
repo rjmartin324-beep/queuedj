@@ -12,12 +12,12 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
   const { phase, question, scores, questionIndex, totalQuestions, deadline, timeLimit,
           buzzedBy, lockedOut, correctAnswer } = gameState ?? {};
   const [myAnswer, setMyAnswer] = useState<string | null>(null);
-  const [cutScene, setCutScene] = useState<{ name: string; seq: number } | null>(null);
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevBuzzedRef = useRef<string | null>(null);
 
-  function showCutScene(name: string) { setCutScene({ name, seq: ++cutSeqRef.current }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
 
   useEffect(() => { setMyAnswer(null); }, [questionIndex]);
 
@@ -27,14 +27,15 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
     if (phase === prevPhaseRef.current && buzzedBy === prevBuzzedRef.current) return;
     if (phase === "buzzed" && buzzedBy && buzzedBy !== prevBuzzedRef.current) {
       const name = scores?.find((s: any) => s.guestId === buzzedBy)?.displayName ?? "?";
-      showCutScene(`⚡ ${name.toUpperCase()}!`);
+      showCutScene(`⚡ ${name.toUpperCase()}!`, "banner");
     }
     if (phase === "reveal" && prevPhaseRef.current === "buzzed") {
       // Was the buzzer right or wrong?
       const last = scores?.find((s: any) => s.guestId === prevBuzzedRef.current);
       if (last) {
         // Score went up = right; flat or down = wrong
-        showCutScene(correctAnswer && myAnswer === correctAnswer ? "DING DING DING" : "WHIFF");
+        const gotIt = correctAnswer && myAnswer === correctAnswer;
+        showCutScene(gotIt ? "DING DING DING" : "WHIFF", gotIt ? "overlay" : "banner");
       }
     }
     if (phase === "game_over") {
@@ -42,7 +43,7 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
       if (sorted[0]?.guestId === guestId) showCutScene("WINNER");
     }
     if (questionIndex === totalQuestions - 1 && phase === "question") {
-      showCutScene("FINAL QUESTION");
+      showCutScene("FINAL QUESTION", "banner");
     }
     prevPhaseRef.current = phase ?? null;
     prevBuzzedRef.current = buzzedBy ?? null;
