@@ -1,0 +1,34 @@
+{
+  "boardSize": 12,
+  "shipColors": ["black", "red", "brown", "white", "yellow", "green-faded", "gray-faded"],
+  "shipNamesByColor": {
+    "black":        ["The Pequod", "The Cain", "The Onyx Reaper"],
+    "red":          ["The Crimson Tide", "The Bloodspar", "The Vermilion"],
+    "brown":        ["The Workhorse", "The Bramblewood", "The Drift"],
+    "white":        ["The Captain's Prize", "The Albatross", "The Bonewhite"],
+    "yellow":       ["The Fortune Hunter", "The Goldhook", "The Lantern"],
+    "green-faded":  ["The Spectral", "The Briny Curse", "The Algae-Cloak"],
+    "gray-faded":   ["The Wraith", "The Sun-Bleached", "The Lost-At-Sea"]
+  },
+  "whaleStartingHP": 5,
+  "shipStartingHP": 3,
+  "whaleMoveRange": 2,
+  "shipMoveRange": 2,
+  "harpoonRange": 3,
+  "ramRange": 1,
+  "turnSeconds": 25,
+  "harborCells": [[5, 11], [6, 11]],
+  "centerIslandCells": [[4, 5], [5, 5], [6, 5], [7, 5]],
+  "scatteredIslandCells": [[2, 3], [9, 4], [3, 8], [8, 9]],
+  "whaleStart": { "x": 6, "y": 1 },
+  "whaleTaunts": [
+    "From hell's heart I stab at thee.",
+    "Towards thee I roll, thou all-destroying but unconquering whale.",
+    "I'll chase him round Good Hope, and round the Horn.",
+    "The deep has a long memory.",
+    "Your harpoons sing to me. Sing on.",
+    "Salt and silence. That is all you'll find.",
+    "I am the abyss made flesh.",
+    "Your captain warned you. He should have listened to himself."
+  ]
+}

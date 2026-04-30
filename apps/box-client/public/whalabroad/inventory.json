@@ -1,0 +1,26 @@
+{
+  "note": "Sheets are sprite atlases — render with ctx.drawImage(sheet, sx, sy, sw, sh, dx, dy, dw, dh). Cell coordinates below are first-pass guesses derived from full-image pixel dimensions divided by visible grid; verify by drawing each rect into a debug canvas before relying on them. The 'visualLayout' field is the row/column intent, not a final authority.",
+  "sheets": {
+    "ship-black-sheet.png":       { "size": [1440, 2912], "visualLayout": "4 cols × 6 rows = 24 cells (8 facings × 3 HP states). Rows 1-2 = full health (N/NE/E/SE then S/SW/W/NW), 3-4 = damaged, 5-6 = critical.", "cellGuess": [360, 485], "flavor": "standard dark whaler" },
+    "ship-red-sheet.png":         { "size": [1440, 2912], "visualLayout": "same as ship-black", "cellGuess": [360, 485], "flavor": "vibrant red, fresh paint" },
+    "ship-brown-sheet.png":       { "size": [1440, 2912], "visualLayout": "same as ship-black", "cellGuess": [360, 485], "flavor": "warm brown merchant workhorse" },
+    "ship-white-sheet.png":       { "size": [1440, 2912], "visualLayout": "same as ship-black", "cellGuess": [360, 485], "flavor": "clean cream, captain's prize" },
+    "ship-yellow-sheet.png":      { "size": [1440, 2912], "visualLayout": "same as ship-black", "cellGuess": [360, 485], "flavor": "golden / fortune hunter" },
+    "ship-green-faded-sheet.png": { "size": [1440, 2912], "visualLayout": "same as ship-black, but desaturated mossy green with eerie lime glow when wounded", "cellGuess": [360, 485], "flavor": "GHOST SHIP — Flying Dutchman vibe, 'The Spectral'" },
+    "ship-gray-faded-sheet.png":  { "size": [1440, 2912], "visualLayout": "same as ship-black, but washed-out near-translucent gray", "cellGuess": [360, 485], "flavor": "PHANTOM — sun-bleached, 'The Wraith'" },
+
+    "whale-swim-grid-v1.png":   { "size": [1440, 2914], "visualLayout": "4 cols × 6 rows = 24 cells (8 facings × 3 HP states, fire-themed critical — DEPRECATED in favor of whale-damage-grid)", "cellGuess": [360, 486] },
+    "whale-swim-grid-v2.png":   { "size": [720, 1456],  "visualLayout": "2 cols × 4 rows = 8 cells, alive-only standalone swim pose", "cellGuess": [360, 364] },
+    "whale-damage-grid.png":    { "size": [881, 1785],  "visualLayout": "4 cols × 6 rows = 24 cells (8 facings × 3 HP states with proper blood damage). Replaces v1.", "cellGuess": [220, 297] },
+
+    "whale-master-sheet.png":   { "size": [1600, 2656], "visualLayout": "Top: 8 facings towing grid (2 rows × 4 cols). Middle: 3 cutscene panels (ramming strike, dead prize on bottom, bubbles & debris). Bottom: isolated whale carcass + isolated ship.", "cellGuess": null },
+    "whale-breach-anim.png":    { "size": [1536, 2752], "visualLayout": "Top panel: hidden-underwater silhouette + bubble hint. Below: 3-frame breach animation (rise → mid → splash).", "cellGuess": null },
+    "whale-breach-cinematic.png": { "size": [1536, 2752], "visualLayout": "5-frame dramatic breach cinematic (full-jump arc → fall → mega-splash → settle).", "cellGuess": null },
+    "whale-ram-anim.png":       { "size": [1536, 2752], "visualLayout": "Top: 2 frames underwater silhouette approaching barrel. Below: 3 frames surface → ram → settle.", "cellGuess": null },
+    "whale-idle-side.png":      { "size": [1440, 2914], "visualLayout": "Single isolated alive whale, side profile.", "cellGuess": null },
+    "whale-idle-surfaced.png":  { "size": [1440, 2914], "visualLayout": "Single half-submerged whale with water-line, mood shot.", "cellGuess": null },
+
+    "board-tiles-v1.png":  { "size": [2752, 1536], "visualLayout": "v1, non-arctic. 4 water tiles + 3 islands + 2 center islands + harbor (1 wide composition) + 1 frame piece. FALLBACK — v2 supersedes.", "cellGuess": null },
+    "board-tiles-v2.png":  { "size": [1678, 937],  "visualLayout": "v2 ARCTIC THEME, canonical. 4 water tiles + 4 islands + 2 center islands (skull + rocky) + 2 separate harbor tiles + multi-piece edge/corner frame.", "cellGuess": null }
+  }
+}

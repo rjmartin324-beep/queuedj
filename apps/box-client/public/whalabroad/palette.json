@@ -1,0 +1,34 @@
+{
+  "name": "Whalabroad — Locked Palette",
+  "note": "Hand-sampled from the existing whale + ship + arctic-tile sheets. Hand this list to Gemini in every future Whalabroad asset prompt: 'Use only these 24 colors.' Order is grouped by purpose, not by frequency.",
+  "colors": {
+    "sea_abyss":       "#0d1418",
+    "sea_deep":        "#162230",
+    "sea_slate":       "#1f3142",
+    "sea_choppy":      "#2c4a5e",
+    "sea_highlight":   "#3d6a82",
+
+    "hull_charcoal":   "#1a1410",
+    "hull_walnut":     "#3a2a1c",
+    "hull_driftwood":  "#5c4429",
+    "hull_oak":        "#86643c",
+    "hull_light":      "#b08855",
+
+    "sail_cream":      "#e8dcb8",
+    "sail_parchment":  "#d2c294",
+    "bone_white":      "#c9c2b0",
+    "pale_gray":       "#a89e8b",
+    "shadow_gray":     "#7d7567",
+
+    "snow_pure":       "#ffffff",
+    "ice_pale_blue":   "#dbe7ee",
+    "ice_mid":         "#a8c0d0",
+
+    "blood_oxidized":  "#7a2c1f",
+    "rust_copper":     "#a8503a",
+    "blood_dark":      "#5a1a10",
+    "lantern_gold":    "#d9a649",
+    "smoke_gray":      "#3a3a3a",
+    "warm_shadow":     "#5e5852"
+  }
+}

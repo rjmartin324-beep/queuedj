@@ -28,6 +28,10 @@ export default defineConfig({
       workbox: {
         // Cache all assets for fully offline play
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,woff2,mp3}"],
+        // Whalabroad sprite sheets are huge (4-8 MB each) and only needed
+        // when that game is played — exclude from precache. They'll load on
+        // demand from the tablet over LAN when the game starts.
+        globIgnores: ["**/whalabroad/raw/**"],
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,

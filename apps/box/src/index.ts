@@ -13,6 +13,7 @@ import * as connections from "./games/connections";
 import * as geoguesser from "./games/geoguesser";
 import * as thedraft from "./games/thedraft";
 import * as draw from "./games/draw";
+import * as whalabroad from "./games/whalabroad";
 import * as db from "./db";
 
 const PORT = parseInt(process.env.PORT ?? "8080", 10);
@@ -662,6 +663,16 @@ wss.on("connection", (ws, req) => {
           broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
           broadcastDrawState(msg.roomId);
 
+        } else if (room.experience === "whalabroad") {
+          const members = rooms.getMembers(msg.roomId);
+          try {
+            const state = whalabroad.startGame(msg.roomId, room.mode, members);
+            broadcast(msg.roomId, { type: "room:phase_changed", phase: "playing" });
+            broadcast(msg.roomId, { type: "game:state", state });
+          } catch (e) {
+            send(ws, { type: "room:error", code: "WHALABROAD_START_FAILED", message: String((e as Error).message ?? e) });
+          }
+
         } else {
           broadcast(msg.roomId, { type: "room:phase_changed", phase: rooms.findRoom(msg.roomId)!.phase });
         }
@@ -1049,6 +1060,50 @@ wss.on("connection", (ws, req) => {
             const state = draw.revealRound(msg.roomId);
             if (state) broadcast(msg.roomId, { type: "game:state", state });
           }
+        } else if (room.experience === "whalabroad") {
+          if (!isMember(msg.roomId, msg.guestId)) break;
+          const payload = (msg.payload ?? {}) as Record<string, unknown>;
+
+          if (msg.action === "whalabroad:volunteer_whale") {
+            const s = whalabroad.volunteerForWhale(msg.roomId, msg.guestId);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+
+          } else if (msg.action === "whalabroad:unvolunteer_whale") {
+            const s = whalabroad.unvolunteerForWhale(msg.roomId, msg.guestId);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+
+          } else if (msg.action === "whalabroad:commit_lobby") {
+            if (room.hostGuestId !== msg.guestId) {
+              send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Host only" });
+              break;
+            }
+            const s = whalabroad.commitLobby(msg.roomId);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+            else send(ws, { type: "room:error", code: "WHALABROAD_LOBBY_INVALID", message: "Need at least 2 whalers + 1 whale" });
+
+          } else if (msg.action === "whalabroad:whale_action") {
+            const action = payload as unknown as whalabroad.WhalePending;
+            const s = whalabroad.submitWhaleAction(msg.roomId, msg.guestId, action);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+
+          } else if (msg.action === "whalabroad:ship_action") {
+            const action = payload as unknown as whalabroad.ShipPending;
+            const s = whalabroad.submitShipAction(msg.roomId, msg.guestId, action);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+
+          } else if (msg.action === "whalabroad:resolve_turn") {
+            // Host-triggered turn resolution; auto-timer can also call this.
+            if (room.hostGuestId !== msg.guestId) {
+              send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Host only" });
+              break;
+            }
+            const s = whalabroad.resolveTurn(msg.roomId);
+            if (s) {
+              broadcast(msg.roomId, { type: "game:state", state: s });
+              if (s.phase === "game_over") rooms.endRound(msg.roomId);
+            }
+          }
+
         } else {
           broadcast(msg.roomId, { type: "game:event", event: msg.action, payload: msg.payload });
         }
@@ -1190,6 +1245,14 @@ wss.on("connection", (ws, req) => {
             broadcastDrawState(msg.roomId);
           }
         }
+        else if (room.experience === "whalabroad") {
+          const s = whalabroad.getState(msg.roomId);
+          if (s) {
+            s.phase = "game_over";
+            try { db.persistScores(s.sessionId, s.scores.map(x => ({ guestId: x.guestId, displayName: x.displayName, score: x.score, correct: 0, wrong: 0 }))); } catch {}
+            broadcast(msg.roomId, { type: "game:state", state: s });
+          }
+        }
         rooms.endRound(msg.roomId);
         break;
       }
@@ -1204,7 +1267,7 @@ wss.on("connection", (ws, req) => {
         guesstimate.cleanup(msg.roomId); buzzer.cleanup(msg.roomId);
         rankit.cleanup(msg.roomId); connections.cleanup(msg.roomId);
         geoguesser.cleanup(msg.roomId); thedraft.cleanup(msg.roomId);
-        draw.cleanup(msg.roomId);
+        draw.cleanup(msg.roomId); whalabroad.cleanup(msg.roomId);
         rooms.resetRoom(msg.roomId);
         broadcast(msg.roomId, { type: "room:phase_changed", phase: "lobby" });
         broadcast(msg.roomId, { type: "room:members", members: rooms.getMembers(msg.roomId) });
