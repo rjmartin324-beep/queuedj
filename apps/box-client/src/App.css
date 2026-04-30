@@ -5810,8 +5810,46 @@ button {
   pointer-events: none;
 }
 
-.exp-color-draw        { background: linear-gradient(155deg, #F08C28 0%, #934010 50%, #2C1408 100%); }
+/* Draw It — sketchpad / Post-It note. Existing orange gradient + tilted
+   ruled-paper line overlay, "SKETCHPAD №01" eyebrow, marker-line bottom.
+   Description hidden — title carries it. */
+.exp-color-draw {
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 17px,
+      rgba(255, 255, 255, 0.04) 17px, rgba(255, 255, 255, 0.04) 18px),
+    linear-gradient(155deg, #F08C28 0%, #934010 50%, #2C1408 100%);
+}
 .exp-color-draw .exp-card-glow        { background: rgba(255, 160, 80, 0.55); }
+.exp-color-draw .exp-desc-color       { display: none; }
+.exp-color-draw::before {
+  content: "SKETCHPAD №01";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", cursive;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 240, 220, 0.85);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.55);
+  z-index: 1;
+  transform: rotate(-2deg);
+}
+.exp-color-draw::after {
+  content: "";
+  position: absolute;
+  bottom: 14px;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  background: rgba(255, 240, 220, 0.7);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(255, 200, 130, 0.5);
+  transform: rotate(-1deg);
+  z-index: 1;
+  pointer-events: none;
+}
 
 /* Per-game title typography. The card no longer carries an emoji — the title
    itself has to read like the game. Each game gets a distinct treatment using
@@ -5957,11 +5995,263 @@ button {
 .exp-title-draw {
   font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", "Segoe Print", cursive;
   font-weight: 700;
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   display: inline-block;
   transform: rotate(-3deg);
   transform-origin: left center;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.35);
+  color: #FFF0DC;
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.5),
+    0 3px 10px rgba(0,0,0,0.4),
+    0 0 18px rgba(255, 180, 100, 0.45);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+/* ─── Draw It FLAGSHIP — Post-It note canvas + sketchpad theme ────────────── */
+
+.draw-game {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0 0 24px;
+  background:
+    /* faint ruled-paper horizontal lines for sketchpad feel */
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 24px,
+      rgba(60, 40, 20, 0.06) 24px, rgba(60, 40, 20, 0.06) 25px),
+    /* warm cork-board base */
+    radial-gradient(ellipse at 50% 0%, rgba(220, 160, 100, 0.10) 0%, transparent 60%),
+    linear-gradient(180deg, #1f140a 0%, #150d05 60%, #0a0603 100%);
+}
+
+/* Flagship sketchpad header */
+.draw-flagship-header {
+  text-align: center;
+  padding: 22px 20px 16px;
+  border-bottom: 2px solid rgba(255, 180, 100, 0.32);
+  background: linear-gradient(180deg, rgba(240, 140, 40, 0.10) 0%, transparent 100%);
+}
+.draw-flagship-eyebrow {
+  font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", cursive;
+  font-weight: 700;
+  font-size: 0.84rem;
+  letter-spacing: 0.05em;
+  color: #FFD0A0;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  text-transform: uppercase;
+  transform: rotate(-1deg);
+  margin-bottom: 4px;
+  display: inline-block;
+}
+.draw-flagship-title {
+  font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", cursive;
+  font-weight: 700;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  color: #FFF0DC;
+  text-shadow:
+    0 2px 0 rgba(0,0,0,0.5),
+    0 4px 12px rgba(0,0,0,0.4),
+    0 0 24px rgba(255, 180, 100, 0.45);
+  line-height: 1;
+  display: inline-block;
+  transform: rotate(-2deg);
+}
+.draw-flagship-meta {
+  margin-top: 10px;
+  font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", cursive;
+  font-size: 0.92rem;
+  color: rgba(255, 230, 200, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.draw-flagship-drawer {
+  font-weight: 700;
+  color: #FFD773;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+.draw-flagship-divider { color: rgba(255, 230, 200, 0.4); }
+.draw-flagship-status { font-style: italic; }
+
+/* Drawer's word panel — looks like marker on a torn paper strip */
+.draw-word-panel {
+  margin: 14px 16px 6px;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, #FFE680 0%, #F9D964 100%);
+  border-radius: 4px;
+  text-align: center;
+  transform: rotate(-0.8deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 6px 16px rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.draw-word-eyebrow {
+  font-family: "Comic Sans MS", "Marker Felt", cursive;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #5a3010;
+  opacity: 0.6;
+}
+.draw-word-marker {
+  font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", cursive;
+  font-size: clamp(1.6rem, 5.5vw, 2.4rem);
+  font-weight: 700;
+  color: #1F1A0E;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-transform: lowercase;
+}
+
+/* Non-drawer status */
+.draw-watching-panel {
+  text-align: center;
+  font-family: "Comic Sans MS", "Marker Felt", cursive;
+  padding: 12px 20px;
+  font-size: 1rem;
+  color: rgba(255, 230, 200, 0.75);
+  font-style: italic;
+}
+
+/* The Post-It note canvas — yellow paper, slight tilt, taped to the board */
+.postit-wrap {
+  position: relative;
+  margin: 18px 16px 12px;
+  padding: 14px 14px 22px;
+  background: linear-gradient(180deg, #FFED88 0%, #F9D964 100%);
+  border-radius: 3px;
+  transform: rotate(-1.2deg);
+  box-shadow:
+    /* shadow under the note (deeper at bottom-right where it lifts) */
+    0 1px 2px rgba(0,0,0,0.18),
+    0 6px 14px rgba(0,0,0,0.4),
+    8px 16px 24px rgba(0,0,0,0.35),
+    /* paper highlight at top */
+    inset 0 1px 0 rgba(255,255,255,0.5);
+  /* slight curl on bottom-right corner via ::after */
+}
+/* Curl on bottom-right corner */
+.postit-wrap::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg,
+    transparent 0%,
+    transparent 50%,
+    rgba(0,0,0,0.18) 50%,
+    rgba(220,180,80,0.6) 70%,
+    rgba(255, 240, 160, 0.85) 100%);
+  border-bottom-right-radius: 3px;
+  pointer-events: none;
+}
+/* Tape strip at the top */
+.postit-tape {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(2deg);
+  width: 96px;
+  height: 22px;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.55) 0%,
+    rgba(220,220,220,0.45) 100%);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+/* The actual canvas — fills the Post-It interior, marker-friendly */
+.postit-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #FFE680;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  touch-action: none;
+}
+
+/* Guess log under the Post-It */
+.draw-guess-log {
+  padding: 4px 18px 6px;
+  max-height: 90px;
+  overflow-y: auto;
+  font-family: "Comic Sans MS", "Marker Felt", cursive;
+}
+.draw-guess-line {
+  font-size: 0.86rem;
+  padding: 2px 0;
+  letter-spacing: 0.02em;
+}
+.draw-guess-correct {
+  color: #6EE89A;
+  font-weight: 700;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+}
+.draw-guess-wrong {
+  color: rgba(255, 230, 200, 0.4);
+  font-style: italic;
+}
+
+/* Reveal phase — bigger marker word panel + scoreboard */
+.draw-reveal {
+  padding: 18px 16px 16px;
+}
+.draw-reveal-word-panel {
+  margin: 0 0 16px;
+  padding: 22px 24px;
+  background: linear-gradient(180deg, #FFE680 0%, #F9D964 100%);
+  border-radius: 4px;
+  text-align: center;
+  transform: rotate(-1deg);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.5),
+    0 8px 22px rgba(0,0,0,0.45),
+    8px 16px 24px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+}
+.draw-reveal-word-panel::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 108px;
+  height: 22px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(220,220,220,0.45) 100%);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+}
+.draw-reveal-eyebrow {
+  font-family: "Comic Sans MS", "Marker Felt", cursive;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #5a3010;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+.draw-reveal-marker {
+  font-family: "Comic Sans MS", "Marker Felt", "Bradley Hand", cursive;
+  font-size: clamp(2.2rem, 8vw, 3.4rem);
+  font-weight: 700;
+  color: #1F1A0E;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: lowercase;
 }
 
 /* ─── Rules / Summary modal — BOTTOM SHEET ─────────────────────────────────

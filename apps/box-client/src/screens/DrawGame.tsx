@@ -16,8 +16,11 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
   const [guessInput, setGuessInput] = useState("");
   const [guessLog, setGuessLog] = useState<{ name: string; guess: string; correct: boolean }[]>([]);
   const [guessedIt, setGuessedIt] = useState(false);
-  const color = "#FFFFFF";
-  const strokeWidth = 4;
+  // Post-It theme: dark marker on yellow paper
+  const POSTIT_BG = "#FFE680";
+  const MARKER = "#1F1A0E";
+  const color = MARKER;
+  const strokeWidth = 5;
 
   const { phase, roundIndex, totalRounds, drawerId, word, scores } = gameState ?? {};
   const isDrawer = drawerId === guestId;
@@ -29,7 +32,7 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
         if (msg.event === "draw:stroke") {
           const pts: [number, number][] = msg.payload?.points ?? [];
           if (pts.length > 0) {
-            setStrokes(s => [...s, { points: pts, color: "#FFFFFF", width: 4 }]);
+            setStrokes(s => [...s, { points: pts, color: MARKER, width: strokeWidth }]);
           }
         } else if (msg.event === "draw:clear") {
           setStrokes([]);
@@ -50,7 +53,7 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.fillStyle = "#1A1A2E";
+    ctx.fillStyle = POSTIT_BG;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     for (const stroke of strokes) {
       if (stroke.points.length < 2) continue;
@@ -144,7 +147,7 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
     setStrokes([]);
     socket.send({ type: "game:action", guestId, roomId, action: "draw:clear", payload: {} } as any);
     const canvas = canvasRef.current;
-    if (canvas) { const ctx = canvas.getContext("2d")!; ctx.fillStyle = "#1A1A2E"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+    if (canvas) { const ctx = canvas.getContext("2d")!; ctx.fillStyle = POSTIT_BG; ctx.fillRect(0, 0, canvas.width, canvas.height); }
   }
 
   function revealRound() { socket.send({ type: "game:action", guestId, roomId, action: "draw:reveal", payload: {} } as any); }
@@ -162,57 +165,66 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
   const drawerName = scores?.find((s: any) => s.guestId === drawerId)?.displayName ?? "?";
 
   return (
-    <div className="trivia-game" style={{ userSelect: "none" }}>
+    <div className="draw-game" style={{ userSelect: "none" }}>
       <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase}
         onForceReveal={() => socket.send({ type: "host:end_round", guestId, roomId } as any)}
         onNext={() => socket.send({ type: "host:next_question", guestId, roomId } as any)}
       />
       <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
-      <div className="trivia-header">
-        <span className="q-progress">Round {roundIndex + 1}/{totalRounds}</span>
-        <span className="round-badge">DRAW</span>
-        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{drawerName} draws</span>
+
+      {/* Flagship sketchpad header */}
+      <div className="draw-flagship-header">
+        <div className="draw-flagship-eyebrow">SKETCHPAD · ROUND {roundIndex + 1} OF {totalRounds}</div>
+        <div className="draw-flagship-title">DRAW IT</div>
+        <div className="draw-flagship-meta">
+          <span className="draw-flagship-drawer">{drawerName}</span>
+          <span className="draw-flagship-divider">·</span>
+          <span className="draw-flagship-status">{isDrawer ? "you're up" : "is drawing"}</span>
+        </div>
       </div>
 
       {isDrawer && phase === "drawing" && (
-        <div style={{ textAlign: "center", padding: "10px 20px 4px", background: "rgba(246,200,66,0.12)", borderBottom: "1px solid rgba(246,200,66,0.2)" }}>
-          <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Draw this word:</span>
-          <div style={{ fontFamily: "var(--font-display)", fontSize: "2rem", fontWeight: 900, color: "var(--accent)", letterSpacing: "0.08em" }}>{word}</div>
+        <div className="draw-word-panel">
+          <span className="draw-word-eyebrow">DRAW THIS:</span>
+          <span className="draw-word-marker">{word}</span>
         </div>
       )}
 
       {!isDrawer && phase === "drawing" && (
-        <div style={{ textAlign: "center", padding: "6px 20px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
-          {guessedIt ? "✓ You got it!" : `${drawerName} is drawing…`}
+        <div className="draw-watching-panel">
+          {guessedIt ? "✓ YOU GOT IT!" : `${drawerName} is drawing…`}
         </div>
       )}
 
-      {/* Canvas */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
-        <canvas
-          ref={canvasRef}
-          width={600}
-          height={380}
-          style={{ width: "100%", height: "auto", display: "block", background: "#1A1A2E", touchAction: "none" }}
-          onMouseDown={startDraw}
-          onMouseMove={moveDraw}
-          onMouseUp={endDraw}
-          onTouchStart={startDraw}
-          onTouchMove={moveDraw}
-          onTouchEnd={endDraw}
-        />
+      {/* Post-It canvas — yellow paper, dark marker, tape strip, slight tilt */}
+      {phase === "drawing" && (
+        <div className="postit-wrap">
+          <span className="postit-tape" aria-hidden />
+          <canvas
+            ref={canvasRef}
+            className="postit-canvas"
+            width={600}
+            height={380}
+            onMouseDown={startDraw}
+            onMouseMove={moveDraw}
+            onMouseUp={endDraw}
+            onTouchStart={startDraw}
+            onTouchMove={moveDraw}
+            onTouchEnd={endDraw}
+          />
+        </div>
+      )}
 
-        {/* Guess log for non-drawers */}
-        {!isDrawer && guessLog.length > 0 && (
-          <div style={{ padding: "4px 12px", maxHeight: 80, overflowY: "auto" }}>
-            {guessLog.slice(-5).map((entry, i) => (
-              <div key={i} style={{ fontSize: "0.78rem", color: entry.correct ? "#4ADE80" : "rgba(255,255,255,0.35)" }}>
-                {entry.correct ? `✓ ${entry.name} guessed it!` : entry.guess}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Guess log for non-drawers */}
+      {phase === "drawing" && !isDrawer && guessLog.length > 0 && (
+        <div className="draw-guess-log">
+          {guessLog.slice(-5).map((entry, i) => (
+            <div key={i} className={`draw-guess-line ${entry.correct ? "draw-guess-correct" : "draw-guess-wrong"}`}>
+              {entry.correct ? `✓ ${entry.name} got it!` : entry.guess}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Controls */}
       {isDrawer && phase === "drawing" && (
@@ -234,10 +246,10 @@ export default function DrawGame({ guestId, roomId, isHost, gameState }: Props) 
       )}
 
       {phase === "reveal" && (
-        <div style={{ padding: "16px 20px" }}>
-          <div style={{ textAlign: "center", marginBottom: 12 }}>
-            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>The word was:</div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", fontWeight: 900, color: "var(--accent)" }}>{word}</div>
+        <div className="draw-reveal">
+          <div className="draw-reveal-word-panel">
+            <span className="draw-reveal-eyebrow">THE WORD WAS</span>
+            <span className="draw-reveal-marker">{word}</span>
           </div>
           {scores?.map((s: any, i: number) => (
             <div key={s.guestId} className={`scoreboard-row ${s.guestId === guestId ? "is-me" : ""}`} style={{ marginBottom: 8 }}>
