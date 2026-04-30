@@ -16,8 +16,19 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevBuzzedRef = useRef<string | null>(null);
+  // Streak tracking — buzz-correct chain
+  const buzzStreakRef = useRef(0);
+  const whiffStreakRef = useRef(0);
+  const shownThisRoundRef = useRef<Set<string>>(new Set());
+  const shownThisGameRef = useRef<Set<string>>(new Set());
 
-  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "overlay" && shownThisRoundRef.current.has(name)) return;
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "overlay") shownThisRoundRef.current.add(name);
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
+  }
 
   useEffect(() => { setMyAnswer(null); }, [questionIndex]);
 
@@ -33,8 +44,21 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
       // Was the buzzer right or wrong?
       const last = scores?.find((s: any) => s.guestId === prevBuzzedRef.current);
       if (last) {
-        // Score went up = right; flat or down = wrong
+        const iWasBuzzer = prevBuzzedRef.current === guestId;
         const gotIt = correctAnswer && myAnswer === correctAnswer;
+        // Track streaks ONLY for the player who buzzed (resets if you whiff or someone else buzzed)
+        if (iWasBuzzer) {
+          if (gotIt) { buzzStreakRef.current += 1; whiffStreakRef.current = 0; }
+          else { buzzStreakRef.current = 0; whiffStreakRef.current += 1; }
+        } else if (last && gotIt === false) {
+          // Someone else whiffed; doesn't affect MY streaks
+        }
+        // Streak callouts (only fires on my own buzzes, by design)
+        if (iWasBuzzer && buzzStreakRef.current === 8) { showCutScene("BUZZ MASTER", "peak"); return; }
+        if (iWasBuzzer && buzzStreakRef.current === 5) { showCutScene("KING OF THE BUZZER", "overlay"); return; }
+        if (iWasBuzzer && buzzStreakRef.current === 3) { showCutScene("ON THE BUZZER", "banner"); return; }
+        if (iWasBuzzer && whiffStreakRef.current === 3) { showCutScene("BUZZ HAPPY", "banner"); return; }
+        // Default reveal callout
         showCutScene(gotIt ? "DING DING DING" : "WHIFF", gotIt ? "overlay" : "banner");
       }
     }

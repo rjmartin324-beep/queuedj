@@ -66,7 +66,14 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
   const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak" } | null>(null);
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
-  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
+  const pinpointStreakRef = useRef(0);
+  const wayoffStreakRef = useRef(0);
+  const shownThisGameRef = useRef<Set<string>>(new Set());
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
+  }
 
   // Reset between questions — including zoom/pan
   useEffect(() => {
@@ -136,6 +143,16 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
     if (phase === "reveal") {
       const myDist: number | undefined = distances?.[guestId];
       if (myDist !== undefined) {
+        // Streak tracking
+        if (myDist < 250) { pinpointStreakRef.current += 1; wayoffStreakRef.current = 0; }
+        else if (myDist > 12000) { pinpointStreakRef.current = 0; wayoffStreakRef.current += 1; }
+        else { pinpointStreakRef.current = 0; wayoffStreakRef.current = 0; }
+        // Streak callouts — peak first
+        if (pinpointStreakRef.current === 8) { showCutScene("COMPASS", "peak"); return; }
+        if (pinpointStreakRef.current === 5) { showCutScene("GLOBETROTTER", "overlay"); return; }
+        if (pinpointStreakRef.current === 3) { showCutScene("NAVIGATOR", "banner"); return; }
+        if (wayoffStreakRef.current === 3) { showCutScene("LOST", "banner"); return; }
+        // Default per-question
         if (myDist < 50) showCutScene("PINPOINT", "peak");
         else if (myDist < 250) showCutScene("DEAD ON", "overlay");
         else if (myDist < 1000) showCutScene("CLOSE CALL", "banner");

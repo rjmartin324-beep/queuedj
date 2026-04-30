@@ -20,8 +20,14 @@ export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevScoresRef = useRef<any[]>([]);
+  // Streak tracking — psychic = matching majority, contrarian = minority
+  const psychicStreakRef = useRef(0);
+  const contrarianStreakRef = useRef(0);
+  const shownThisGameRef = useRef<Set<string>>(new Set());
 
   function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "peak") shownThisGameRef.current.add(name);
     setCutScene({ name, seq: ++cutSeqRef.current, tier });
   }
 
@@ -46,6 +52,23 @@ export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }
       const total = aCount + bCount;
       const myVote = votes[guestId];
 
+      // Track streaks (only meaningful if there's a clear majority + I voted)
+      if (myVote && total >= 3 && aCount !== bCount) {
+        const majority = aCount > bCount ? "a" : "b";
+        if (myVote === majority) { psychicStreakRef.current += 1; contrarianStreakRef.current = 0; }
+        else { psychicStreakRef.current = 0; contrarianStreakRef.current += 1; }
+      } else {
+        // tie or no vote — don't break streak, just no progress
+      }
+
+      // Streak callouts — peak first
+      if (psychicStreakRef.current === 8) { showCutScene("GROUP PROPHET", "peak"); return; }
+      if (psychicStreakRef.current === 5) { showCutScene("HIVE MIND", "overlay"); return; }
+      if (psychicStreakRef.current === 3) { showCutScene("PSYCHIC", "banner"); return; }
+      if (contrarianStreakRef.current === 5) { showCutScene("LONE VOICE", "overlay"); return; }
+      if (contrarianStreakRef.current === 3) { showCutScene("CONTRARIAN", "banner"); return; }
+
+      // Group / room callouts (existing)
       if (total >= 2 && aCount === bCount) {
         showCutScene("DEAD SPLIT", "banner");
       } else if (total >= 4 && (aCount === 0 || bCount === 0)) {

@@ -21,7 +21,14 @@ export default function GuessimateGame({ guestId, roomId, isHost, gameState }: P
   const cutSeqRef = useRef(0);
   const prevPhaseRef = useRef<string | null>(null);
   const prevScoreRef = useRef<number>(0);
-  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") { setCutScene({ name, seq: ++cutSeqRef.current, tier }); }
+  const bullseyeStreakRef = useRef(0);
+  const wayoffStreakRef = useRef(0);
+  const shownThisGameRef = useRef<Set<string>>(new Set());
+  function showCutScene(name: string, tier: "banner" | "overlay" | "peak" = "overlay") {
+    if (tier === "peak" && shownThisGameRef.current.has(name)) return;
+    if (tier === "peak") shownThisGameRef.current.add(name);
+    setCutScene({ name, seq: ++cutSeqRef.current, tier });
+  }
   useEffect(() => {
     if (!gameState) return;
     if (phase !== prevPhaseRef.current) {
@@ -33,6 +40,16 @@ export default function GuessimateGame({ guestId, roomId, isHost, gameState }: P
         const myScore = scores?.find((s: any) => s.guestId === guestId)?.score ?? 0;
         const delta = myScore - prevScoreRef.current;
         prevScoreRef.current = myScore;
+        // Streak tracking
+        if (delta >= 950) { bullseyeStreakRef.current += 1; wayoffStreakRef.current = 0; }
+        else if (delta < 100) { bullseyeStreakRef.current = 0; wayoffStreakRef.current += 1; }
+        else { bullseyeStreakRef.current = 0; wayoffStreakRef.current = 0; }
+        // Streak callouts — peak tier first (rarer), then overlay, then banner
+        if (bullseyeStreakRef.current === 8) { showCutScene("NUMERICAL GENIUS", "peak"); return; }
+        if (bullseyeStreakRef.current === 5) { showCutScene("ORACLE", "overlay"); return; }
+        if (bullseyeStreakRef.current === 3) { showCutScene("SHARPSHOOTER", "banner"); return; }
+        if (wayoffStreakRef.current === 3) { showCutScene("WAY OFF AGAIN", "banner"); return; }
+        // Default per-question callouts
         if (delta >= 950) showCutScene("BULLSEYE", "overlay");
         else if (delta >= 800) showCutScene("DEAD ON", "banner");
         else if (delta < 100) showCutScene("WAY OFF", "banner");
