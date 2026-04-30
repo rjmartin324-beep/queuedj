@@ -314,7 +314,7 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
     if (!pin || submitted) return;
     haptic.lock();
     setSubmitted(true);
-    socket.send({ type: "game:action", guestId, roomId, action: "geo:pin", payload: { lat: pin.lat, lng: pin.lng } } as any);
+    socket.send({ type: "game:action", guestId, roomId, action: "geo:pin", payload: { lat: pin.lat, lng: pin.lng, questionId: question?.id } } as any);
   }
 
   function next() { socket.send({ type: "host:next_question", guestId, roomId } as any); }

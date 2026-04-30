@@ -66,7 +66,7 @@ export default function GuessimateGame({ guestId, roomId, isHost, gameState }: P
     if (isNaN(n)) return;
     haptic.lock();
     setSubmitted(true);
-    socket.send({ type: "game:action", guestId, roomId, action: "guess:submit", payload: { guess: n } } as any);
+    socket.send({ type: "game:action", guestId, roomId, action: "guess:submit", payload: { guess: n, questionId: question?.id } } as any);
   }
 
   function next() { socket.send({ type: "host:next_question", guestId, roomId } as any); }

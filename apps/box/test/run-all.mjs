@@ -48,21 +48,29 @@ const SCRIPTS = [
 function runScript(scriptName, roundNum) {
   return new Promise((resolve) => {
     const scriptPath = join(__dirname, scriptName);
-    const child = spawn("node", [
+    // Use process.execPath (absolute Node binary path) instead of bare "node".
+    // Fixes "spawn EPERM" on some Windows hosts where bare "node" can't be
+    // resolved from PATH or AntiVirus blocks the lookup. windowsHide: true
+    // suppresses the brief console flash on Windows.
+    const child = spawn(process.execPath, [
       scriptPath,
       "--games", String(GAMES_PER_ROUND),
       "--host", HOST,
       "--port", String(PORT),
-    ], { stdio: ["ignore", "pipe", "pipe"] });
+    ], { stdio: ["ignore", "pipe", "pipe"], windowsHide: true });
 
     let out = "";
     let err = "";
+    let spawnError = null;
+    child.on("error", (e) => { spawnError = e; });
     child.stdout.on("data", (b) => { out += b.toString(); });
     child.stderr.on("data", (b) => { err += b.toString(); });
     child.on("close", (code) => {
       // Extract last "VERDICT" line for terse summary
       const verdictMatch = out.match(/VERDICT: ([^\n]+)/);
-      const verdict = verdictMatch ? verdictMatch[1] : (code === 0 ? "(no verdict — exit 0)" : `(no verdict — exit ${code})`);
+      const verdict = spawnError
+        ? `(spawn error: ${spawnError.code ?? spawnError.message})`
+        : (verdictMatch ? verdictMatch[1] : (code === 0 ? "(no verdict — exit 0)" : `(no verdict — exit ${code})`));
       resolve({ scriptName, code, out, err, verdict });
     });
   });

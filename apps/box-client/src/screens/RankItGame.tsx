@@ -76,7 +76,7 @@ export default function RankItGame({ guestId, roomId, isHost, gameState }: Props
         const finalOrder = [...order, item];
         setSubmitted(true);
         haptic.lock();
-        socket.send({ type: "game:action", guestId, roomId, action: "rank:submit", payload: { order: finalOrder } } as any);
+        socket.send({ type: "game:action", guestId, roomId, action: "rank:submit", payload: { order: finalOrder, challengeId: challenge?.id } } as any);
       }
     }
   }

@@ -35,12 +35,19 @@ export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: 
   const foundColors: string[] = myPlayer?.found ?? [];
   const attemptsLeft = 4 - (myPlayer?.attempts ?? 0);
 
+  // Track the shake timer so it can be cancelled on unmount (prevents setting
+  // state after the component is gone, which would log a React warning and
+  // could leak references in long sessions).
+  const shakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current); }, []);
+
   useEffect(() => {
     return socket.on((msg: any) => {
       if (msg.type === "game:event" && msg.event === "conn:result") {
         if (!msg.payload.correct) {
           setShake(true);
-          setTimeout(() => setShake(false), 500);
+          if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current);
+          shakeTimerRef.current = setTimeout(() => { setShake(false); shakeTimerRef.current = null; }, 500);
           haptic.wrong();
           setSelected([]);
           // Track wrong-attempt streak for CRACKED callout

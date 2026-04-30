@@ -67,6 +67,13 @@ function setRoomTimer(roomId: string, tag: string, delayMs: number, fn: () => vo
   }, delayMs);
   roomTimers.set(key, t);
 }
+// Shared membership gate — every game:action handler should call this before
+// dispatching to a game module. Drops messages where guestId isn't currently
+// in the room (handles kicked players, stale tabs, leftover sockets — same
+// vector as the trivia ghost-answer bug fixed earlier today).
+function isMember(roomId: string, guestId: string): boolean {
+  return rooms.getMembers(roomId).some(m => m.guestId === guestId);
+}
 function clearRoomTimer(roomId: string, tag: string): void {
   const key = `${roomId}:${tag}`;
   const t = roomTimers.get(key);
@@ -534,6 +541,9 @@ wss.on("connection", (ws, req) => {
           return;
         }
         connectedRoomId = result.room.id;
+        // Cancel any pending disconnect grace timer for this guest in this room
+        // (handles reconnect — ensures the room doesn't get cleaned up after they reconnect)
+        clearRoomTimer(result.room.id, `disconnect-grace:${msg.guestId}`);
         send(ws, { type: "room:joined", room: result.room, you: result.member, members: rooms.getMembers(result.room.id) });
         broadcast(result.room.id, { type: "room:member_joined", member: result.member }, msg.guestId);
 
@@ -887,7 +897,13 @@ wss.on("connection", (ws, req) => {
           }
         } else if (room.experience === "guesstimate") {
           if (msg.action === "guess:submit") {
-            const guess = Number((msg.payload as any)?.guess);
+            // Membership + question-id + phase guards (parallels the trivia ghost-answer fix)
+            if (!isMember(msg.roomId, msg.guestId)) break;
+            const pre = guesstimate.getState(msg.roomId);
+            if (pre?.phase !== "question") break;
+            const payload = msg.payload as any;
+            if (payload?.questionId !== undefined && pre?.question?.id !== payload.questionId) break;
+            const guess = Number(payload?.guess);
             if (isNaN(guess)) break;
             const state = guesstimate.submitGuess(msg.roomId, msg.guestId, guess);
             if (!state) break;
@@ -898,18 +914,30 @@ wss.on("connection", (ws, req) => {
             if (allGuessed) { clearRoomTimer(msg.roomId, "guesstimate:reveal"); const revealed = guesstimate.revealGuesses(msg.roomId); if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed }); }
           }
         } else if (room.experience === "buzzer") {
+          if (!isMember(msg.roomId, msg.guestId)) break;
           if (msg.action === "buzz:buzz") {
+            const pre = buzzer.getState(msg.roomId);
+            if (pre?.phase !== "question") break;
             const state = buzzer.buzz(msg.roomId, msg.guestId);
             if (state) broadcast(msg.roomId, { type: "game:state", state });
           } else if (msg.action === "buzz:answer") {
             const answer = (msg.payload as any)?.answer as string;
             if (!["a","b","c","d"].includes(answer)) break;
+            const pre = buzzer.getState(msg.roomId);
+            if (pre?.phase !== "buzzed") break;
+            // Only the player who currently holds the buzz can submit an answer
+            if (pre?.buzzedBy !== msg.guestId) break;
             const state = buzzer.submitAnswer(msg.roomId, msg.guestId, answer as any);
             if (state) broadcast(msg.roomId, { type: "game:state", state });
           }
         } else if (room.experience === "rankit") {
           if (msg.action === "rank:submit") {
-            const order = (msg.payload as any)?.order as string[];
+            if (!isMember(msg.roomId, msg.guestId)) break;
+            const pre = rankit.getState(msg.roomId);
+            if (pre?.phase !== "question") break;
+            const payload = msg.payload as any;
+            if (payload?.challengeId !== undefined && pre?.challenge?.id !== payload.challengeId) break;
+            const order = payload?.order as string[];
             if (!Array.isArray(order)) break;
             const state = rankit.submitRanking(msg.roomId, msg.guestId, order);
             if (!state) break;
@@ -920,6 +948,9 @@ wss.on("connection", (ws, req) => {
           }
         } else if (room.experience === "connections") {
           if (msg.action === "conn:submit") {
+            if (!isMember(msg.roomId, msg.guestId)) break;
+            const pre = connections.getState(msg.roomId);
+            if (pre?.phase !== "question") break;
             const tiles = (msg.payload as any)?.tiles as string[];
             if (!Array.isArray(tiles) || tiles.length !== 4) break;
             const result = connections.submitGroup(msg.roomId, msg.guestId, tiles);
@@ -934,8 +965,13 @@ wss.on("connection", (ws, req) => {
           }
         } else if (room.experience === "geoguesser") {
           if (msg.action === "geo:pin") {
-            const lat = Number((msg.payload as any)?.lat);
-            const lng = Number((msg.payload as any)?.lng);
+            if (!isMember(msg.roomId, msg.guestId)) break;
+            const pre = geoguesser.getState(msg.roomId);
+            if (pre?.phase !== "question") break;
+            const payload = msg.payload as any;
+            if (payload?.questionId !== undefined && pre?.question?.id !== payload.questionId) break;
+            const lat = Number(payload?.lat);
+            const lng = Number(payload?.lng);
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) break;
             const state = geoguesser.submitPin(msg.roomId, msg.guestId, lat, lng);
             if (!state) break;
@@ -954,17 +990,27 @@ wss.on("connection", (ws, req) => {
             geoguesser.submitAnswer(msg.roomId, msg.guestId, (msg.payload as any)?.answer ?? "");
           }
         } else if (room.experience === "thedraft") {
+          if (!isMember(msg.roomId, msg.guestId)) break;
           if (msg.action === "draft:pick") {
+            const pre = thedraft.getState(msg.roomId);
+            if (pre?.phase !== "drafting") break;
+            // Only the player on the clock can pick
+            if (pre?.draftOrder?.[pre.currentPick] !== msg.guestId) break;
             const itemId = (msg.payload as any)?.itemId as string;
             if (!itemId) break;
             const state = thedraft.pickItem(msg.roomId, msg.guestId, itemId);
             if (state) broadcast(msg.roomId, { type: "game:state", state });
           } else if (msg.action === "draft:custom_pick") {
+            const pre = thedraft.getState(msg.roomId);
+            if (pre?.phase !== "drafting") break;
+            if (pre?.draftOrder?.[pre.currentPick] !== msg.guestId) break;
             const name = (msg.payload as any)?.name as string;
             if (!name) break;
             const state = thedraft.pickCustom(msg.roomId, msg.guestId, name);
             if (state) broadcast(msg.roomId, { type: "game:state", state });
           } else if (msg.action === "draft:submit_votes") {
+            const pre = thedraft.getState(msg.roomId);
+            if (pre?.phase !== "voting") break;
             const votes = (msg.payload as any)?.votes as Record<string, number>;
             if (!votes || typeof votes !== "object") break;
             const state = thedraft.submitVotes(msg.roomId, msg.guestId, votes);
@@ -974,6 +1020,7 @@ wss.on("connection", (ws, req) => {
             }
           }
         } else if (room.experience === "draw") {
+          if (!isMember(msg.roomId, msg.guestId)) break;
           // Drawer-only actions: stroke + clear. Anyone-can guess.
           const drawState = draw.getState(msg.roomId);
           const isDrawer = drawState?.drawerId === msg.guestId;
@@ -1147,9 +1194,12 @@ wss.on("connection", (ws, req) => {
     const gid = connectedGuestId;
     const rid = connectedRoomId;
 
-    setTimeout(() => {
+    // Disconnect grace — give the player 15s to reconnect before we kick them
+    // out / close the room. Tracked via roomTimers so it gets cancelled if the
+    // room closes for any other reason during the grace window.
+    if (!rid) return;
+    setRoomTimer(rid, `disconnect-grace:${gid}`, 15_000, () => {
       if (sockets.has(gid)) return;
-      if (!rid) return;
       const room = rooms.findRoom(rid);
       if (!room) return;
       if (room.hostGuestId === gid) {
@@ -1170,7 +1220,7 @@ wss.on("connection", (ws, req) => {
           if (advanced) broadcast(rid, { type: "game:state", state: advanced });
         }
       }
-    }, 15_000);
+    });
   });
 });
 
