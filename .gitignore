@@ -26,3 +26,7 @@ apps/box/partyglue.db-wal
 apps/box/*.db
 apps/box/*.db-shm
 apps/box/*.db-wal
+
+# Editor / tooling
+.claude/
+graphify-out/
