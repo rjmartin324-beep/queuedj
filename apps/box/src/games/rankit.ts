@@ -83,6 +83,17 @@ export function showChallenge(roomId: string): RankItState | null {
 export function submitRanking(roomId: string, guestId: string, order: string[]): RankItState | null {
   const state = sessions.get(roomId);
   if (!state || state.phase !== "question" || state.submissions[guestId]) return null;
+  if (!state.challenge) return null;
+  // Validation: order MUST be an exact permutation of the challenge's items.
+  // Without this, a malicious or malformed client could submit arbitrary strings
+  // and the scoring loop would silently score 0 (or worse, match coincidentally).
+  const items = state.challenge.items;
+  if (!Array.isArray(order) || order.length !== items.length) return null;
+  const itemSet = new Set(items);
+  const orderSet = new Set(order);
+  if (orderSet.size !== order.length) return null;        // no duplicates
+  if (orderSet.size !== itemSet.size) return null;        // same count of unique values
+  for (const x of order) if (!itemSet.has(x)) return null; // every value is a real item
   state.submissions[guestId] = order;
   return state;
 }
@@ -109,7 +120,9 @@ export function advance(roomId: string): { state: RankItState; done: boolean } |
   state.questionIndex++;
   if (state.questionIndex >= state.totalQuestions) {
     state.phase = "game_over";
-    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    try {
+      db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    } catch (e) { console.error("[rankit] persistScores failed at game_over:", e); }
     return { state, done: true };
   }
   state.phase = "countdown";

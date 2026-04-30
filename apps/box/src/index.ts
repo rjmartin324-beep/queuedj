@@ -850,9 +850,8 @@ wss.on("connection", (ws, req) => {
             const vote = payload?.vote;
             if (vote !== "a" && vote !== "b") break;
 
-            // Membership gate — drop votes from non-members (kicked, stale tabs)
-            const memberIds = rooms.getMembers(msg.roomId).map(m => m.guestId);
-            if (!memberIds.includes(msg.guestId)) break;
+            // Use shared isMember() helper for policy consistency across all games
+            if (!isMember(msg.roomId, msg.guestId)) break;
 
             // Prompt identity gate — reject buffered votes from a previous prompt
             // arriving after we've moved on (parallel to trivia's questionId guard).
@@ -863,6 +862,7 @@ wss.on("connection", (ws, req) => {
             const result = wyr.submitVote(msg.roomId, msg.guestId, vote);
             if (!result) break;
 
+            const memberIds = rooms.getMembers(msg.roomId).map(m => m.guestId);
             const allVoted = memberIds.length > 0 && memberIds.every(id => result.state.votes[id]);
 
             if (result.state.mode === "pass_tablet") {
@@ -986,7 +986,8 @@ wss.on("connection", (ws, req) => {
               if (revealed) broadcast(msg.roomId, { type: "game:state", state: revealed });
             }
           } else if (msg.action === "geo:answer") {
-            // legacy text-clue path — still tolerated but no-op
+            // legacy text-clue path — still tolerated but no-op. Gate for consistency.
+            if (!isMember(msg.roomId, msg.guestId)) break;
             geoguesser.submitAnswer(msg.roomId, msg.guestId, (msg.payload as any)?.answer ?? "");
           }
         } else if (room.experience === "thedraft") {
@@ -1137,15 +1138,57 @@ wss.on("connection", (ws, req) => {
             broadcast(msg.roomId, { type: "game:state", state: s });
           }
         }
-        else if (room.experience === "guesstimate")  setGameOver(guesstimate.getState(msg.roomId));
-        else if (room.experience === "buzzer")       setGameOver(buzzer.getState(msg.roomId));
-        else if (room.experience === "rankit")       setGameOver(rankit.getState(msg.roomId));
-        else if (room.experience === "connections")  setGameOver(connections.getState(msg.roomId));
-        else if (room.experience === "geoguesser")   setGameOver(geoguesser.getState(msg.roomId));
-        else if (room.experience === "thedraft")     setGameOver(thedraft.getState(msg.roomId));
+        else if (room.experience === "guesstimate") {
+          const s = guesstimate.getState(msg.roomId);
+          if (s) {
+            s.phase = "game_over";
+            try { db.persistScores(s.sessionId, s.scores.map(x => ({ guestId: x.guestId, displayName: x.displayName, score: x.score, correct: 0, wrong: 0 }))); } catch {}
+            broadcast(msg.roomId, { type: "game:state", state: s });
+          }
+        }
+        else if (room.experience === "buzzer") {
+          const s = buzzer.getState(msg.roomId);
+          if (s) {
+            s.phase = "game_over";
+            try { db.persistScores(s.sessionId, s.scores.map(x => ({ guestId: x.guestId, displayName: x.displayName, score: x.score, correct: x.correct, wrong: x.wrong }))); } catch {}
+            broadcast(msg.roomId, { type: "game:state", state: s });
+          }
+        }
+        else if (room.experience === "rankit") {
+          const s = rankit.getState(msg.roomId);
+          if (s) {
+            s.phase = "game_over";
+            try { db.persistScores(s.sessionId, s.scores.map(x => ({ guestId: x.guestId, displayName: x.displayName, score: x.score, correct: 0, wrong: 0 }))); } catch {}
+            broadcast(msg.roomId, { type: "game:state", state: s });
+          }
+        }
+        else if (room.experience === "connections") {
+          const s = connections.getState(msg.roomId);
+          if (s) {
+            s.phase = "game_over";
+            try { db.persistScores(s.sessionId, s.scores.map(x => ({ guestId: x.guestId, displayName: x.displayName, score: x.score, correct: 0, wrong: 0 }))); } catch {}
+            broadcast(msg.roomId, { type: "game:state", state: s });
+          }
+        }
+        else if (room.experience === "geoguesser") {
+          const s = geoguesser.getState(msg.roomId);
+          if (s) {
+            s.phase = "game_over";
+            try { db.persistScores(s.sessionId, s.scores.map(x => ({ guestId: x.guestId, displayName: x.displayName, score: x.score, correct: 0, wrong: 0 }))); } catch {}
+            broadcast(msg.roomId, { type: "game:state", state: s });
+          }
+        }
+        else if (room.experience === "thedraft") {
+          // TheDraft is intentionally not persisted (peer-vote game, not points-comparable)
+          setGameOver(thedraft.getState(msg.roomId));
+        }
         else if (room.experience === "draw") {
           const s = draw.getState(msg.roomId);
-          if (s) { s.phase = "game_over"; broadcastDrawState(msg.roomId); }
+          if (s) {
+            s.phase = "game_over";
+            try { db.persistScores(s.sessionId, s.scores.map(x => ({ guestId: x.guestId, displayName: x.displayName, score: x.score, correct: 0, wrong: 0 }))); } catch {}
+            broadcastDrawState(msg.roomId);
+          }
         }
         rooms.endRound(msg.roomId);
         break;

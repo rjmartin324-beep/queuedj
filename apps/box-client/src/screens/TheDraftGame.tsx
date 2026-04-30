@@ -126,6 +126,24 @@ export default function TheDraftGame({ guestId, roomId, isHost, gameState }: Pro
   const [customText, setCustomText] = useState("");
   const [myVotes, setMyVotes] = useState<Record<string, number>>({});
 
+  // Reset vote allocations whenever a NEW voting phase begins (replay or new
+  // game in the same mounted component). Without this, stale votes from a
+  // previous round can persist into a new voting screen.
+  const lastVotingScenarioRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (phase === "voting") {
+      const scenarioId = scenario?.id ?? null;
+      if (lastVotingScenarioRef.current !== scenarioId) {
+        setMyVotes({});
+        setCustomText("");
+        lastVotingScenarioRef.current = scenarioId;
+      }
+    } else if (phase === "drafting" || phase === "lobby") {
+      // New game cycle — clear last-voting tracker so next voting phase resets cleanly
+      lastVotingScenarioRef.current = null;
+    }
+  }, [phase, scenario?.id]);
+
   function pick(itemId: string) {
     haptic.heavy();
     socket.send({ type: "game:action", guestId, roomId, action: "draft:pick", payload: { itemId } } as any);

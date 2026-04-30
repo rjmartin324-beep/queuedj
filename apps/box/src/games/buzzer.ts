@@ -111,7 +111,9 @@ export function advance(roomId: string): { state: BuzzerState; done: boolean } |
   state.questionIndex++;
   if (state.questionIndex >= state.totalQuestions) {
     state.phase = "game_over";
-    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: s.correct, wrong: s.wrong })));
+    try {
+      db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: s.correct, wrong: s.wrong })));
+    } catch (e) { console.error("[buzzer] persistScores failed at game_over:", e); }
     return { state, done: true };
   }
   state.phase = "countdown";

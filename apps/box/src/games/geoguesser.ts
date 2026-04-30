@@ -202,8 +202,11 @@ export function revealAnswers(roomId: string): GeoGuesserState | null {
   for (const s of state.scores) {
     const pin = state.pins[s.guestId];
     if (!pin) {
-      // No pin = max distance penalty (treat as 20,000 km)
+      // No pin = max distance penalty (treat as 20,000 km). Apply to BOTH the
+      // per-round distance display AND the running totalDistanceKm so players
+      // who skip pinning get penalized in cumulative stats too.
       state.distances[s.guestId] = 20000;
+      s.totalDistanceKm += 20000;
       continue;
     }
     const km = haversineKm(pin, { lat: fullQ.lat, lng: fullQ.lng });
@@ -226,7 +229,9 @@ export function advance(roomId: string): { state: GeoGuesserState; done: boolean
   state.questionIndex++;
   if (state.questionIndex >= state.totalQuestions) {
     state.phase = "game_over";
-    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    try {
+      db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    } catch (e) { console.error("[geoguesser] persistScores failed at game_over:", e); }
     return { state, done: true };
   }
   state.phase = "countdown";

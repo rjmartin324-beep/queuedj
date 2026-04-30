@@ -58,8 +58,17 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
   } | null>(null);
   const dragStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
   const lastTapRef = useRef<number>(0); // for double-tap detection
+  // Track the single-tap deferred-pin timer so it can be cleared on unmount or
+  // question change (was untracked — could fire dropPinAt() after the component
+  // is gone or on a stale question).
+  const tapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current); }, []);
 
   const { phase, question, scores, questionIndex, totalQuestions, deadline, timeLimit, pins, distances } = gameState ?? {};
+
+  // Reset tap timer on question change (cancels any pending pin drop from a tap
+  // that happened just before the question advanced)
+  useEffect(() => { if (tapTimeoutRef.current) { clearTimeout(tapTimeoutRef.current); tapTimeoutRef.current = null; } }, [questionIndex]);
   const isReveal = phase === "reveal";
 
   // Cutscene state
@@ -261,7 +270,9 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
             // Single tap → drop pin (after a short delay so a double-tap can override)
             const tx = t.clientX, ty = t.clientY;
             lastTapRef.current = now;
-            setTimeout(() => {
+            if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+            tapTimeoutRef.current = setTimeout(() => {
+              tapTimeoutRef.current = null;
               if (lastTapRef.current === now) dropPinAt(tx, ty);
             }, 280);
           }

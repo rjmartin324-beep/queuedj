@@ -1,357 +1,1769 @@
 {
   "questions": [
-    {"question":"How tall is the Eiffel Tower in meters?","answer":330,"unit":"m"},
-    {"question":"How many bones are in the adult human body?","answer":206,"unit":"bones"},
-    {"question":"What year was the first iPhone released?","answer":2007,"unit":""},
-    {"question":"How many keys are on a standard piano?","answer":88,"unit":"keys"},
-    {"question":"What year did World War II end?","answer":1945,"unit":""},
-    {"question":"How tall is Mount Everest in meters?","answer":8849,"unit":"m"},
-    {"question":"How many hours are in a week?","answer":168,"unit":"hrs"},
-    {"question":"How many teeth does a healthy adult human have?","answer":32,"unit":"teeth"},
-    {"question":"How many countries are in the United Nations?","answer":193,"unit":"countries"},
-    {"question":"What year was Google founded?","answer":1998,"unit":""},
-    {"question":"How many calories are in a Big Mac?","answer":550,"unit":"kcal"},
-    {"question":"How many official languages does South Africa have?","answer":11,"unit":"languages"},
-    {"question":"What is the wingspan of a Boeing 747 in meters?","answer":64,"unit":"m"},
-    {"question":"How many feet tall is the Statue of Liberty (base to torch)?","answer":305,"unit":"ft"},
-    {"question":"How many episodes were in the first season of Friends?","answer":24,"unit":"episodes"},
-    {"question":"What is the boiling point of water in Fahrenheit?","answer":212,"unit":"°F"},
-    {"question":"How many planets are in the Solar System?","answer":8,"unit":"planets"},
-    {"question":"How many seasons of The Simpsons aired?","answer":35,"unit":"seasons"},
-    {"question":"How many countries does the Equator pass through?","answer":13,"unit":"countries"},
-    {"question":"What year was Wikipedia launched?","answer":2001,"unit":""},
-    {"question":"How long is the Great Wall of China in km?","answer":21196,"unit":"km"},
-    {"question":"How many time zones does Russia span?","answer":11,"unit":"zones"},
-    {"question":"How many feet is a NBA basketball hoop?","answer":10,"unit":"ft"},
-    {"question":"How fast does light travel in km per second?","answer":299792,"unit":"km/s"},
-    {"question":"How many rings are on the Olympic flag?","answer":5,"unit":"rings"},
-    {"question":"How many Wonders of the Ancient World were there?","answer":7,"unit":"wonders"},
-    {"question":"How many hearts does an octopus have?","answer":3,"unit":"hearts"},
-    {"question":"How many strings does a standard guitar have?","answer":6,"unit":"strings"},
-    {"question":"How many holes are on a standard golf course?","answer":18,"unit":"holes"},
-    {"question":"What year did the Berlin Wall fall?","answer":1989,"unit":""},
-    {"question":"How many bones are in the human hand?","answer":27,"unit":"bones"},
-    {"question":"How long is a marathon in miles?","answer":26.2,"unit":"mi"},
-    {"question":"How long is the Nile River in km?","answer":6650,"unit":"km"},
-    {"question":"How many minutes in a day?","answer":1440,"unit":"min"},
-    {"question":"How tall is the Burj Khalifa in meters?","answer":828,"unit":"m"},
-    {"question":"What year was Facebook founded?","answer":2004,"unit":""},
-    {"question":"How many seconds in an hour?","answer":3600,"unit":"sec"},
-    {"question":"How many US states share a border with Canada?","answer":13,"unit":"states"},
-    {"question":"How many letters are in the English alphabet?","answer":26,"unit":"letters"},
-    {"question":"How many vertices does a soccer ball have?","answer":60,"unit":"vertices"},
-    {"question":"How many countries are in Europe?","answer":44,"unit":"countries"},
-    {"question":"How many countries are in Africa?","answer":54,"unit":"countries"},
-    {"question":"How many countries are in Asia?","answer":48,"unit":"countries"},
-    {"question":"How many countries are in South America?","answer":12,"unit":"countries"},
-    {"question":"How many countries are in North America?","answer":23,"unit":"countries"},
-    {"question":"How many years did the Hundred Years War last?","answer":116,"unit":"years"},
-    {"question":"How many people walked on the Moon?","answer":12,"unit":"people"},
-    {"question":"What year was the Eiffel Tower completed?","answer":1889,"unit":""},
-    {"question":"How tall is Mount Fuji in meters?","answer":3776,"unit":"m"},
-    {"question":"How many books in the Harry Potter series?","answer":7,"unit":"books"},
-    {"question":"How many Marvel Cinematic Universe films through Endgame?","answer":22,"unit":"films"},
-    {"question":"How many books in the Bible?","answer":66,"unit":"books"},
-    {"question":"How many chromosomes in a human cell?","answer":46,"unit":"chromosomes"},
-    {"question":"What year did Titanic sink?","answer":1912,"unit":""},
-    {"question":"How many seasons of Game of Thrones?","answer":8,"unit":"seasons"},
-    {"question":"How many minutes in a soccer match (regulation)?","answer":90,"unit":"min"},
-    {"question":"How many quarters in NBA basketball?","answer":4,"unit":"quarters"},
-    {"question":"What year was the Declaration of Independence signed?","answer":1776,"unit":""},
-    {"question":"How many ribs are in a typical human body?","answer":24,"unit":"ribs"},
-    {"question":"How many inches are in a yard?","answer":36,"unit":"in"},
-    {"question":"How many days are in a leap year?","answer":366,"unit":"days"},
-    {"question":"How many Academy Awards has Meryl Streep been nominated for?","answer":21,"unit":"noms"},
-    {"question":"What year was the first airplane flight (Wright brothers)?","answer":1903,"unit":""},
-    {"question":"How many countries are members of NATO?","answer":32,"unit":"members"},
-    {"question":"How many days does it take Mars to orbit the Sun?","answer":687,"unit":"days"},
-    {"question":"How many years is one full Mercury orbit?","answer":88,"unit":"days"},
-    {"question":"How many Justices on the US Supreme Court?","answer":9,"unit":"justices"},
-    {"question":"How many US Presidents have there been?","answer":46,"unit":"presidents"},
-    {"question":"How many countries are in the European Union?","answer":27,"unit":"countries"},
-    {"question":"How many films are in the Star Wars main saga?","answer":9,"unit":"films"},
-    {"question":"How many months have 31 days?","answer":7,"unit":"months"},
-    {"question":"What year was the printing press invented?","answer":1440,"unit":""},
-    {"question":"What year did Shakespeare die?","answer":1616,"unit":""},
-    {"question":"How long does a giraffe sleep per day in hours?","answer":2,"unit":"hrs"},
-    {"question":"What year was the Internet invented (TCP/IP)?","answer":1983,"unit":""},
-    {"question":"How many points is a touchdown in NFL?","answer":6,"unit":"pts"},
-    {"question":"What year was YouTube founded?","answer":2005,"unit":""},
-    {"question":"How many Tony Awards has Audra McDonald won?","answer":6,"unit":"awards"},
-    {"question":"How many siblings did Beethoven have?","answer":6,"unit":"siblings"},
-    {"question":"How tall is the Empire State Building in feet?","answer":1454,"unit":"ft"},
-    {"question":"How many UNESCO World Heritage Sites does Italy have?","answer":59,"unit":"sites"},
-    {"question":"How many Disney Princesses are there in the official lineup?","answer":12,"unit":"princesses"},
-    {"question":"How many seconds long is the average commercial?","answer":30,"unit":"sec"},
-    {"question":"How many calories in an avocado?","answer":234,"unit":"kcal"},
-    {"question":"How many gallons in a barrel of oil?","answer":42,"unit":"gal"},
-    {"question":"How many years was the longest lifetime ever recorded?","answer":122,"unit":"years"},
-    {"question":"How many countries does the Amazon rainforest span?","answer":9,"unit":"countries"},
-    {"question":"How many letters in the Hawaiian alphabet?","answer":13,"unit":"letters"},
-    {"question":"How long is a typical pencil in centimeters?","answer":19,"unit":"cm"},
-    {"question":"How many sheets of toilet paper does the average person use per day?","answer":57,"unit":"sheets"},
-    {"question":"How many US dollars in 1 troy ounce of gold (2024 avg)?","answer":2030,"unit":"USD"},
-    {"question":"How many liters in a gallon (US)?","answer":3.785,"unit":"L"},
-    {"question":"How many seconds did the longest hold-your-breath record last?","answer":1389,"unit":"sec"},
-    {"question":"How many Best Picture Oscars has Steven Spielberg won?","answer":1,"unit":"oscars"},
-    {"question":"How many wonders of the modern world?","answer":7,"unit":"wonders"},
-    {"question":"How many states does Brazil have?","answer":26,"unit":"states"},
-    {"question":"What year did the Ottoman Empire end?","answer":1922,"unit":""},
-    {"question":"What year was Elvis Presley born?","answer":1935,"unit":""},
-    {"question":"How many keys on a typical keyboard (QWERTY)?","answer":104,"unit":"keys"},
-    {"question":"How many years did the Roman Empire last (West)?","answer":503,"unit":"years"},
-    {"question":"How many milliliters in a US tablespoon?","answer":15,"unit":"mL"},
-    {"question":"How many minutes does the longest movie last (Logistics)?","answer":51420,"unit":"min"},
-    {"question":"What year was the World Wide Web invented?","answer":1989,"unit":""},
-    {"question":"How many gold medals did Michael Phelps win?","answer":23,"unit":"medals"},
-    {"question":"How many feet is a 10-story building?","answer":105,"unit":"ft"},
-    {"question":"How many football players are on the field per team in NFL?","answer":11,"unit":"players"},
-    {"question":"How many Pokemon were in the original Red/Blue games?","answer":151,"unit":"pokemon"},
-    {"question":"How long is the average human pregnancy in weeks?","answer":40,"unit":"weeks"},
-    {"question":"How many sides does a stop sign have?","answer":8,"unit":"sides"},
-    {"question":"What is the speed of sound in m/s (sea level, 20°C)?","answer":343,"unit":"m/s"},
-    {"question":"How many books did J.R.R. Tolkien write in The Lord of the Rings?","answer":3,"unit":"books"},
-    {"question":"How many strings does a standard violin have?","answer":4,"unit":"strings"},
-    {"question":"How many days does a Venus orbit take in Earth days?","answer":225,"unit":"days"},
-    {"question":"What year was the first Super Bowl played?","answer":1967,"unit":""},
-    {"question":"How many seasons of Seinfeld?","answer":9,"unit":"seasons"},
-    {"question":"How tall is a giraffe in feet on average?","answer":18,"unit":"ft"},
-    {"question":"How many years did the Cold War last?","answer":45,"unit":"years"},
-    {"question":"How many soccer matches in a World Cup tournament?","answer":64,"unit":"matches"},
-    {"question":"How many bytes in a kilobyte?","answer":1024,"unit":"bytes"},
-    {"question":"What year did Concorde retire?","answer":2003,"unit":""},
-    {"question":"How many people fit in the Roman Colosseum?","answer":50000,"unit":"people"},
-    {"question":"What year was Tesla Motors founded?","answer":2003,"unit":""},
-    {"question":"How many Earth days is one Saturn day?","answer":0.45,"unit":"days"},
-    {"question":"How many calories in a tablespoon of olive oil?","answer":119,"unit":"kcal"},
-    {"question":"What year was the Mona Lisa painted?","answer":1503,"unit":""},
-    {"question":"How many pages in War and Peace?","answer":1225,"unit":"pages"},
-    {"question":"How many feet long is a great white shark on average?","answer":15,"unit":"ft"},
-    {"question":"What year did Apollo 11 land on the moon?","answer":1969,"unit":""},
-    {"question":"How tall is the Statue of Liberty's torch in feet?","answer":30,"unit":"ft"},
-    {"question":"How many gallons does a standard bathtub hold?","answer":80,"unit":"gal"},
-    {"question":"How many people lived in the Roman Empire at its peak?","answer":70000000,"unit":"people"},
-    {"question":"How many years between Halley's Comet appearances?","answer":76,"unit":"years"},
-    {"question":"How many states/territories were in the Roman Empire at peak?","answer":47,"unit":"provinces"},
-    {"question":"What year did the printing press first arrive in Europe (Gutenberg)?","answer":1440,"unit":""},
-    {"question":"How many cards in a standard deck (no jokers)?","answer":52,"unit":"cards"},
-    {"question":"How many holes does a Polo Mint have?","answer":1,"unit":"hole"},
-    {"question":"How many sides does a cube have?","answer":6,"unit":"sides"},
-    {"question":"How many wheels does a bus typically have?","answer":6,"unit":"wheels"},
-    {"question":"How many days are between Christmas and New Year's?","answer":7,"unit":"days"},
-    {"question":"What year was the Statue of Liberty dedicated?","answer":1886,"unit":""},
-    {"question":"How many countries are landlocked?","answer":44,"unit":"countries"},
-    {"question":"How many minutes in 24 hours?","answer":1440,"unit":"min"},
-    {"question":"How many decks of cards does a casino blackjack shoe usually use?","answer":6,"unit":"decks"},
-    {"question":"How many Stanley Cups have the Montreal Canadiens won?","answer":24,"unit":"cups"},
-    {"question":"How many Tour de France races has Lance Armstrong won (vacated)?","answer":7,"unit":"wins"},
-    {"question":"How many gold medals did the USA win in the 2024 Olympics?","answer":40,"unit":"medals"},
-    {"question":"How many countries border Russia?","answer":14,"unit":"countries"},
-    {"question":"What year did the French Revolution begin?","answer":1789,"unit":""},
-    {"question":"How many islands make up Japan?","answer":6852,"unit":"islands"},
-    {"question":"How many seasons does Friends have?","answer":10,"unit":"seasons"},
-    {"question":"How long is the Trans-Siberian Railway in km?","answer":9289,"unit":"km"},
-    {"question":"How many countries have a McDonald's?","answer":119,"unit":"countries"},
-    {"question":"What year was the Hubble Space Telescope launched?","answer":1990,"unit":""},
-    {"question":"How many billion dollars did Avatar gross worldwide?","answer":2.92,"unit":"billion"},
-    {"question":"How many gallons of water does an average bathtub hold?","answer":80,"unit":"gal"},
-    {"question":"How many Pokémon as of Generation 9 (Scarlet/Violet)?","answer":1025,"unit":"pokemon"},
-    {"question":"How many years did the Renaissance last (approximately)?","answer":300,"unit":"years"},
-    {"question":"How many countries are in OPEC?","answer":13,"unit":"countries"},
-    {"question":"How many seasons of The Office (US) aired?","answer":9,"unit":"seasons"},
-    {"question":"How many original Power Rangers were there?","answer":5,"unit":"rangers"},
-    {"question":"How many calories in a slice of cheese pizza?","answer":285,"unit":"kcal"},
-    {"question":"How many time zones are in the contiguous US?","answer":4,"unit":"zones"},
-    {"question":"How many wars has Switzerland fought in since 1815?","answer":0,"unit":"wars"},
-    {"question":"How many days a year do cherry blossoms bloom on average?","answer":7,"unit":"days"},
-    {"question":"What year was the Empire State Building built?","answer":1931,"unit":""},
-    {"question":"How many words in the average dictionary?","answer":171476,"unit":"words"},
-    {"question":"What year did Queen Elizabeth II's reign begin?","answer":1952,"unit":""},
-    {"question":"How many minutes is a halftime show in the Super Bowl?","answer":13,"unit":"min"},
-    {"question":"How tall in feet is the Hollywood sign?","answer":45,"unit":"ft"},
-    {"question":"How many liters of blood in an adult human?","answer":5,"unit":"L"},
-    {"question":"What year was the Internet domain name system (DNS) introduced?","answer":1983,"unit":""},
-    {"question":"How many hairs on average does a human head have?","answer":100000,"unit":"hairs"},
-    {"question":"How many breaths does an adult take per minute?","answer":16,"unit":"breaths"},
-    {"question":"How many beats per minute is a typical resting heart rate?","answer":70,"unit":"bpm"},
-    {"question":"How many countries make up the United Kingdom?","answer":4,"unit":"countries"},
-    {"question":"How many original Mario games for Nintendo NES?","answer":3,"unit":"games"},
-    {"question":"What year was the steam engine invented (Newcomen)?","answer":1712,"unit":""},
-    {"question":"How many Best Director Oscars did Alfred Hitchcock win?","answer":0,"unit":"oscars"},
-    {"question":"How many sides does a stop octagon have?","answer":8,"unit":"sides"},
-    {"question":"How many neighborhoods in NYC's 5 boroughs combined?","answer":300,"unit":"hoods"},
-    {"question":"How many Greek letters are there?","answer":24,"unit":"letters"},
-    {"question":"How many countries in CONCACAF (soccer)?","answer":41,"unit":"countries"},
-    {"question":"How many soccer balls fit in the Goodyear Blimp?","answer":350000,"unit":"balls"},
-    {"question":"How many Beatles songs are in the band's catalog?","answer":213,"unit":"songs"},
-    {"question":"How many chemical elements are there (as of 2024)?","answer":118,"unit":"elements"},
-    {"question":"How many MLB teams are there?","answer":30,"unit":"teams"},
-    {"question":"How many NHL teams are there?","answer":32,"unit":"teams"},
-    {"question":"How many NBA teams are there?","answer":30,"unit":"teams"},
-    {"question":"How many NFL teams are there?","answer":32,"unit":"teams"},
-    {"question":"How many MLS teams are there (2024)?","answer":29,"unit":"teams"},
-    {"question":"How many countries have hosted the Summer Olympics?","answer":18,"unit":"countries"},
-    {"question":"What year did India gain independence from Britain?","answer":1947,"unit":""},
-    {"question":"How many countries played in the first FIFA World Cup (1930)?","answer":13,"unit":"countries"},
-    {"question":"How many gallons of water in an Olympic swimming pool?","answer":660000,"unit":"gal"},
-    {"question":"What year was the first Apple Macintosh released?","answer":1984,"unit":""},
-    {"question":"How many countries does the Mediterranean Sea touch?","answer":21,"unit":"countries"},
-    {"question":"How many people have stood on the Moon?","answer":12,"unit":"people"},
-    {"question":"How many continents are there?","answer":7,"unit":"continents"},
-    {"question":"How many oceans are there?","answer":5,"unit":"oceans"},
-    {"question":"How many wonders of the natural world?","answer":7,"unit":"wonders"},
-    {"question":"How many tea bags does the UK consume per day?","answer":100000000,"unit":"tea bags"},
-    {"question":"How many subway stations does NYC have?","answer":472,"unit":"stations"},
-    {"question":"How many countries have a population over 100 million?","answer":15,"unit":"countries"},
-    {"question":"How many calories in a banana?","answer":105,"unit":"kcal"},
-    {"question":"How many calories in a slice of pizza on average?","answer":285,"unit":"kcal"},
-    {"question":"How many days does it take to walk 100 miles at average pace?","answer":4,"unit":"days"},
-    {"question":"How many Disney parks worldwide?","answer":12,"unit":"parks"},
-    {"question":"How many Olympic sports are in the Summer Games?","answer":32,"unit":"sports"},
-    {"question":"What year was the Internet (ARPANET) launched?","answer":1969,"unit":""},
-    {"question":"How many Spotify monthly active users (2024)?","answer":640000000,"unit":"users"},
-    {"question":"How many YouTube hours uploaded per minute?","answer":500,"unit":"hours"},
-    {"question":"How many cells in the human body (estimate)?","answer":37200000000000,"unit":"cells"},
-    {"question":"How many trees on Earth (estimate)?","answer":3000000000000,"unit":"trees"},
-    {"question":"How tall is the Eiffel Tower in feet?","answer":1083,"unit":"ft"},
-    {"question":"How many years did Alexander the Great's empire last after his death?","answer":17,"unit":"years"},
-    {"question":"How many years did it take to build the Great Pyramid of Giza?","answer":20,"unit":"years"},
-    {"question":"How many words per minute does the average person type?","answer":40,"unit":"wpm"},
-    {"question":"How many gallons of oil does the US consume per day?","answer":18000000,"unit":"gal"},
-    {"question":"How many ships in the British Royal Navy at peak (1944)?","answer":900,"unit":"ships"},
-    {"question":"How many islands make up the Philippines?","answer":7641,"unit":"islands"},
-    {"question":"How many islands make up Indonesia?","answer":17500,"unit":"islands"},
-    {"question":"How many countries have nuclear weapons?","answer":9,"unit":"countries"},
-    {"question":"How many states does Mexico have?","answer":31,"unit":"states"},
-    {"question":"How many provinces does Canada have?","answer":10,"unit":"provinces"},
-    {"question":"How many countries does the Sahara Desert span?","answer":11,"unit":"countries"},
-    {"question":"What year did the Cold War end?","answer":1991,"unit":""},
-    {"question":"How many Star Wars films exist (theatrical, 2024)?","answer":12,"unit":"films"},
-    {"question":"How long is the longest river in the United States in km?","answer":3767,"unit":"km"},
-    {"question":"How many countries make up the Caribbean?","answer":13,"unit":"countries"},
-    {"question":"How many calories does walking 1 mile burn (avg adult)?","answer":100,"unit":"kcal"},
-    {"question":"How many letters in the Russian alphabet?","answer":33,"unit":"letters"},
-    {"question":"How long is the longest tennis match ever played in hours?","answer":11,"unit":"hrs"},
-    {"question":"What year was the discovery of penicillin?","answer":1928,"unit":""},
-    {"question":"How many Christmas songs has Mariah Carey released?","answer":15,"unit":"songs"},
-    {"question":"How many times has Halley's Comet been seen since 240 BC?","answer":30,"unit":"times"},
-    {"question":"How many MLB World Series have the Yankees won?","answer":27,"unit":"titles"},
-    {"question":"How many gallons of water can a fire hydrant deliver per minute?","answer":1500,"unit":"gpm"},
-    {"question":"What year was Twitter founded?","answer":2006,"unit":""},
-    {"question":"What year was Instagram founded?","answer":2010,"unit":""},
-    {"question":"What year was Netflix founded?","answer":1997,"unit":""},
-    {"question":"What year was TikTok launched globally?","answer":2018,"unit":""},
-    {"question":"What year was Bitcoin created?","answer":2009,"unit":""},
-    {"question":"What year was the Beatles' last live concert?","answer":1969,"unit":""},
-    {"question":"How many seasons of Breaking Bad?","answer":5,"unit":"seasons"},
-    {"question":"How many seasons of Stranger Things (planned through finale)?","answer":5,"unit":"seasons"},
-    {"question":"How many films in the Mission Impossible series?","answer":7,"unit":"films"},
-    {"question":"How many Sherlock Holmes stories did Arthur Conan Doyle write?","answer":60,"unit":"stories"},
-    {"question":"How many seasons of Doctor Who (since 2005)?","answer":14,"unit":"seasons"},
-    {"question":"What year was Harry Potter and the Sorcerer's Stone published?","answer":1997,"unit":""},
-    {"question":"How many countries have hosted the World Cup more than once?","answer":7,"unit":"countries"},
-    {"question":"How many UNESCO sites does China have?","answer":56,"unit":"sites"},
-    {"question":"How many bones does a baby have at birth?","answer":270,"unit":"bones"},
-    {"question":"How many muscles do humans have?","answer":650,"unit":"muscles"},
-    {"question":"How many buttons on an Xbox controller?","answer":11,"unit":"buttons"},
-    {"question":"How many keys are on a flute?","answer":16,"unit":"keys"},
-    {"question":"How many letters in the longest English word (pneumonoultramicroscopicsilicovolcanoconiosis)?","answer":45,"unit":"letters"},
-    {"question":"How many Star Trek films have been made?","answer":13,"unit":"films"},
-    {"question":"How many Beatles albums (UK studio)?","answer":12,"unit":"albums"},
-    {"question":"What year did the Roman Empire fall (West)?","answer":476,"unit":""},
-    {"question":"How many bones does a giraffe have in its neck?","answer":7,"unit":"bones"},
-    {"question":"How many Saturday Night Live episodes have aired?","answer":950,"unit":"episodes"},
-    {"question":"How many fingers does Mickey Mouse have?","answer":4,"unit":"fingers"},
-    {"question":"How many hours of sleep does the average adult need?","answer":8,"unit":"hrs"},
-    {"question":"How many seconds is the world record for 100m sprint?","answer":9.58,"unit":"sec"},
-    {"question":"How many countries are in the Commonwealth?","answer":56,"unit":"countries"},
-    {"question":"How long is the average commercial flight?","answer":2,"unit":"hrs"},
-    {"question":"How many Best Picture Oscars has Marvel won?","answer":0,"unit":"oscars"},
-    {"question":"How many countries does the Trans-Siberian railway pass through?","answer":1,"unit":"country"},
-    {"question":"What year was the European Union formed?","answer":1993,"unit":""},
-    {"question":"What year did the Cold War start?","answer":1947,"unit":""},
-    {"question":"How tall is a Christmas tree at Rockefeller Center on average (ft)?","answer":78,"unit":"ft"},
-    {"question":"How many countries have nuclear power plants?","answer":31,"unit":"countries"},
-    {"question":"How many years did the Tang dynasty last?","answer":289,"unit":"years"},
-    {"question":"How long is a typical English Premier League match?","answer":90,"unit":"min"},
-    {"question":"How many Marvel movies are in Phase Four?","answer":18,"unit":"films"},
-    {"question":"How many U.S. states have a coastline?","answer":23,"unit":"states"},
-    {"question":"How many calories in 100g of dark chocolate?","answer":546,"unit":"kcal"},
-    {"question":"How long is the Trans-Atlantic cable in miles?","answer":1900,"unit":"mi"},
-    {"question":"How many Earth-orbits did Yuri Gagarin make in 1961?","answer":1,"unit":"orbit"},
-    {"question":"How many films won 11 Oscars (most ever)?","answer":3,"unit":"films"},
-    {"question":"How many gold medals has Usain Bolt won?","answer":8,"unit":"medals"},
-    {"question":"What year did Disney's Steamboat Willie premiere?","answer":1928,"unit":""},
-    {"question":"How many books in The Chronicles of Narnia?","answer":7,"unit":"books"},
-    {"question":"How many movies has Tom Cruise been in?","answer":50,"unit":"films"},
-    {"question":"What year was the first Toy Story released?","answer":1995,"unit":""},
-    {"question":"How many fingers/toes does a normal human have?","answer":20,"unit":"digits"},
-    {"question":"How many vertices in a soccer ball?","answer":60,"unit":"vertices"},
-    {"question":"How many wedding vows in a typical Christian ceremony?","answer":4,"unit":"vows"},
-    {"question":"How many miles can a Tesla Model S go on a charge (max range)?","answer":405,"unit":"mi"},
-    {"question":"How many albums has Taylor Swift released?","answer":11,"unit":"albums"},
-    {"question":"How many number-one Billboard hits did Michael Jackson have?","answer":13,"unit":"hits"},
-    {"question":"What year did the iPhone get an App Store?","answer":2008,"unit":""},
-    {"question":"How many years did the Soviet Union exist?","answer":69,"unit":"years"},
-    {"question":"How many years did the Berlin Wall stand?","answer":28,"unit":"years"},
-    {"question":"How many countries took part in the first Olympics in Athens 1896?","answer":14,"unit":"countries"},
-    {"question":"What year was the first Crusade?","answer":1095,"unit":""},
-    {"question":"How many seasons of South Park?","answer":27,"unit":"seasons"},
-    {"question":"How many GoPro models have been released?","answer":24,"unit":"models"},
-    {"question":"How many flags are in the United Nations?","answer":193,"unit":"flags"},
-    {"question":"How many countries does the Equator cross in Africa?","answer":7,"unit":"countries"},
-    {"question":"How long does it take light from the Sun to reach Earth?","answer":8.3,"unit":"min"},
-    {"question":"How many years did Queen Victoria reign?","answer":63,"unit":"years"},
-    {"question":"What year was Oxford University founded?","answer":1096,"unit":""},
-    {"question":"How many calories in an Oreo cookie?","answer":53,"unit":"kcal"},
-    {"question":"How many days does Mars take to rotate once?","answer":1.03,"unit":"days"},
-    {"question":"How many hours is Saturn's day?","answer":11,"unit":"hrs"},
-    {"question":"How many moons does Jupiter have (confirmed)?","answer":95,"unit":"moons"},
-    {"question":"How many moons does Saturn have (confirmed)?","answer":146,"unit":"moons"},
-    {"question":"How many UNESCO sites are in Spain?","answer":50,"unit":"sites"},
-    {"question":"How many UNESCO sites are in France?","answer":52,"unit":"sites"},
-    {"question":"What year was the iPhone X released?","answer":2017,"unit":""},
-    {"question":"How many gallons of milk does the average dairy cow produce per day?","answer":7.5,"unit":"gal"},
-    {"question":"How many states does the Mississippi River touch?","answer":10,"unit":"states"},
-    {"question":"How many oceans border the USA?","answer":3,"unit":"oceans"},
-    {"question":"How many seasons of NCIS?","answer":21,"unit":"seasons"},
-    {"question":"How many calories in a glass of orange juice?","answer":110,"unit":"kcal"},
-    {"question":"What year did the first Apple Watch ship?","answer":2015,"unit":""},
-    {"question":"How many countries does Antarctica border (territorial claims)?","answer":7,"unit":"claims"},
-    {"question":"What year was the first Walkman released?","answer":1979,"unit":""},
-    {"question":"How many kilometers tall is the troposphere?","answer":12,"unit":"km"},
-    {"question":"How many liters of saliva does an adult produce per day?","answer":1.5,"unit":"L"},
-    {"question":"How many days did the longest siege in history last?","answer":900,"unit":"days"},
-    {"question":"What year did the first ATM open?","answer":1967,"unit":""},
-    {"question":"How many years did the Ottoman Empire last?","answer":624,"unit":"years"},
-    {"question":"How long is the Channel Tunnel in km?","answer":50,"unit":"km"},
-    {"question":"What year was Watergate?","answer":1972,"unit":""},
-    {"question":"How many Best Actor Oscars has Daniel Day-Lewis won?","answer":3,"unit":"oscars"},
-    {"question":"What year did Mt. Everest first get summited (Hillary)?","answer":1953,"unit":""},
-    {"question":"What year was the Suez Canal opened?","answer":1869,"unit":""},
-    {"question":"What year did the Panama Canal open?","answer":1914,"unit":""},
-    {"question":"How many cars does Tesla produce per year (2023)?","answer":1800000,"unit":"cars"},
-    {"question":"What year was Boeing founded?","answer":1916,"unit":""},
-    {"question":"How many GBs in a typical 4K film?","answer":50,"unit":"GB"},
-    {"question":"How many Super Bowls did Tom Brady win?","answer":7,"unit":"wins"},
-    {"question":"What year did Google IPO?","answer":2004,"unit":""},
-    {"question":"How many pages in the longest book (Remembrance of Things Past)?","answer":4215,"unit":"pages"},
-    {"question":"How long is the longest celebrity marriage in years (oldest still going)?","answer":80,"unit":"years"},
-    {"question":"How many tea cups can be made from 1 lb of tea?","answer":200,"unit":"cups"},
-    {"question":"How long is the Underground in London in km?","answer":402,"unit":"km"},
-    {"question":"How many people speak Mandarin Chinese natively?","answer":920000000,"unit":"people"},
-    {"question":"How many people speak Spanish worldwide?","answer":485000000,"unit":"people"},
-    {"question":"What year did The Beatles break up?","answer":1970,"unit":""},
-    {"question":"How many films in the John Wick series?","answer":4,"unit":"films"},
-    {"question":"What year was Costco founded?","answer":1976,"unit":""},
-    {"question":"What year was Walmart founded?","answer":1962,"unit":""},
-    {"question":"How many calories in a McDonald's regular fries?","answer":230,"unit":"kcal"},
-    {"question":"How long is the NYC Marathon course in km?","answer":42.2,"unit":"km"},
-    {"question":"What year did the Rolling Stones form?","answer":1962,"unit":""},
-    {"question":"What year did the Empire State Building open?","answer":1931,"unit":""},
-    {"question":"What year was Harry Potter Studio Tour opened?","answer":2012,"unit":""},
-    {"question":"How long is a regulation NBA basketball court in feet?","answer":94,"unit":"ft"},
-    {"question":"How long is a regulation soccer pitch in meters?","answer":100,"unit":"m"},
-    {"question":"How long is an Olympic-sized swimming pool in meters?","answer":50,"unit":"m"}
+    {
+      "question": "How tall is the Eiffel Tower in meters?",
+      "answer": 330,
+      "unit": "m"
+    },
+    {
+      "question": "How many bones are in the adult human body?",
+      "answer": 206,
+      "unit": "bones"
+    },
+    {
+      "question": "What year was the first iPhone released?",
+      "answer": 2007,
+      "unit": "year"
+    },
+    {
+      "question": "How many keys are on a standard piano?",
+      "answer": 88,
+      "unit": "keys"
+    },
+    {
+      "question": "What year did World War II end?",
+      "answer": 1945,
+      "unit": "year"
+    },
+    {
+      "question": "How tall is Mount Everest in meters?",
+      "answer": 8849,
+      "unit": "m"
+    },
+    {
+      "question": "How many hours are in a week?",
+      "answer": 168,
+      "unit": "hrs"
+    },
+    {
+      "question": "How many teeth does a healthy adult human have?",
+      "answer": 32,
+      "unit": "teeth"
+    },
+    {
+      "question": "How many countries are in the United Nations?",
+      "answer": 193,
+      "unit": "countries"
+    },
+    {
+      "question": "What year was Google founded?",
+      "answer": 1998,
+      "unit": "year"
+    },
+    {
+      "question": "How many calories are in a Big Mac?",
+      "answer": 550,
+      "unit": "kcal"
+    },
+    {
+      "question": "How many official languages does South Africa have?",
+      "answer": 11,
+      "unit": "languages"
+    },
+    {
+      "question": "What is the wingspan of a Boeing 747 in meters?",
+      "answer": 64,
+      "unit": "m"
+    },
+    {
+      "question": "How many feet tall is the Statue of Liberty (base to torch)?",
+      "answer": 305,
+      "unit": "ft"
+    },
+    {
+      "question": "How many episodes were in the first season of Friends?",
+      "answer": 24,
+      "unit": "episodes"
+    },
+    {
+      "question": "What is the boiling point of water in Fahrenheit?",
+      "answer": 212,
+      "unit": "°F"
+    },
+    {
+      "question": "How many planets are in the Solar System?",
+      "answer": 8,
+      "unit": "planets"
+    },
+    {
+      "question": "How many seasons of The Simpsons aired?",
+      "answer": 35,
+      "unit": "seasons"
+    },
+    {
+      "question": "How many countries does the Equator pass through?",
+      "answer": 13,
+      "unit": "countries"
+    },
+    {
+      "question": "What year was Wikipedia launched?",
+      "answer": 2001,
+      "unit": "year"
+    },
+    {
+      "question": "How long is the Great Wall of China in km?",
+      "answer": 21196,
+      "unit": "km"
+    },
+    {
+      "question": "How many time zones does Russia span?",
+      "answer": 11,
+      "unit": "zones"
+    },
+    {
+      "question": "How many feet is a NBA basketball hoop?",
+      "answer": 10,
+      "unit": "ft"
+    },
+    {
+      "question": "How fast does light travel in km per second?",
+      "answer": 299792,
+      "unit": "km/s"
+    },
+    {
+      "question": "How many rings are on the Olympic flag?",
+      "answer": 5,
+      "unit": "rings"
+    },
+    {
+      "question": "How many Wonders of the Ancient World were there?",
+      "answer": 7,
+      "unit": "wonders"
+    },
+    {
+      "question": "How many hearts does an octopus have?",
+      "answer": 3,
+      "unit": "hearts"
+    },
+    {
+      "question": "How many strings does a standard guitar have?",
+      "answer": 6,
+      "unit": "strings"
+    },
+    {
+      "question": "How many holes are on a standard golf course?",
+      "answer": 18,
+      "unit": "holes"
+    },
+    {
+      "question": "What year did the Berlin Wall fall?",
+      "answer": 1989,
+      "unit": "year"
+    },
+    {
+      "question": "How many bones are in the human hand?",
+      "answer": 27,
+      "unit": "bones"
+    },
+    {
+      "question": "How long is a marathon in miles?",
+      "answer": 26.2,
+      "unit": "mi"
+    },
+    {
+      "question": "How long is the Nile River in km?",
+      "answer": 6650,
+      "unit": "km"
+    },
+    {
+      "question": "How many minutes in a day?",
+      "answer": 1440,
+      "unit": "min"
+    },
+    {
+      "question": "How tall is the Burj Khalifa in meters?",
+      "answer": 828,
+      "unit": "m"
+    },
+    {
+      "question": "What year was Facebook founded?",
+      "answer": 2004,
+      "unit": "year"
+    },
+    {
+      "question": "How many seconds in an hour?",
+      "answer": 3600,
+      "unit": "sec"
+    },
+    {
+      "question": "How many US states share a border with Canada?",
+      "answer": 13,
+      "unit": "states"
+    },
+    {
+      "question": "How many letters are in the English alphabet?",
+      "answer": 26,
+      "unit": "letters"
+    },
+    {
+      "question": "How many vertices does a soccer ball have?",
+      "answer": 60,
+      "unit": "vertices"
+    },
+    {
+      "question": "How many countries are in Europe?",
+      "answer": 44,
+      "unit": "countries"
+    },
+    {
+      "question": "How many countries are in Africa?",
+      "answer": 54,
+      "unit": "countries"
+    },
+    {
+      "question": "How many countries are in Asia?",
+      "answer": 48,
+      "unit": "countries"
+    },
+    {
+      "question": "How many countries are in South America?",
+      "answer": 12,
+      "unit": "countries"
+    },
+    {
+      "question": "How many countries are in North America?",
+      "answer": 23,
+      "unit": "countries"
+    },
+    {
+      "question": "How many years did the Hundred Years War last?",
+      "answer": 116,
+      "unit": "years"
+    },
+    {
+      "question": "How many people walked on the Moon?",
+      "answer": 12,
+      "unit": "people"
+    },
+    {
+      "question": "What year was the Eiffel Tower completed?",
+      "answer": 1889,
+      "unit": "year"
+    },
+    {
+      "question": "How tall is Mount Fuji in meters?",
+      "answer": 3776,
+      "unit": "m"
+    },
+    {
+      "question": "How many books in the Harry Potter series?",
+      "answer": 7,
+      "unit": "books"
+    },
+    {
+      "question": "How many Marvel Cinematic Universe films through Endgame?",
+      "answer": 22,
+      "unit": "films"
+    },
+    {
+      "question": "How many books in the Bible?",
+      "answer": 66,
+      "unit": "books"
+    },
+    {
+      "question": "How many chromosomes in a human cell?",
+      "answer": 46,
+      "unit": "chromosomes"
+    },
+    {
+      "question": "What year did Titanic sink?",
+      "answer": 1912,
+      "unit": "year"
+    },
+    {
+      "question": "How many seasons of Game of Thrones?",
+      "answer": 8,
+      "unit": "seasons"
+    },
+    {
+      "question": "How many minutes in a soccer match (regulation)?",
+      "answer": 90,
+      "unit": "min"
+    },
+    {
+      "question": "How many quarters in NBA basketball?",
+      "answer": 4,
+      "unit": "quarters"
+    },
+    {
+      "question": "What year was the Declaration of Independence signed?",
+      "answer": 1776,
+      "unit": "year"
+    },
+    {
+      "question": "How many ribs are in a typical human body?",
+      "answer": 24,
+      "unit": "ribs"
+    },
+    {
+      "question": "How many inches are in a yard?",
+      "answer": 36,
+      "unit": "in"
+    },
+    {
+      "question": "How many days are in a leap year?",
+      "answer": 366,
+      "unit": "days"
+    },
+    {
+      "question": "How many Academy Awards has Meryl Streep been nominated for?",
+      "answer": 21,
+      "unit": "noms"
+    },
+    {
+      "question": "What year was the first airplane flight (Wright brothers)?",
+      "answer": 1903,
+      "unit": "year"
+    },
+    {
+      "question": "How many countries are members of NATO?",
+      "answer": 32,
+      "unit": "members"
+    },
+    {
+      "question": "How many days does it take Mars to orbit the Sun?",
+      "answer": 687,
+      "unit": "days"
+    },
+    {
+      "question": "How many years is one full Mercury orbit?",
+      "answer": 88,
+      "unit": "days"
+    },
+    {
+      "question": "How many Justices on the US Supreme Court?",
+      "answer": 9,
+      "unit": "justices"
+    },
+    {
+      "question": "How many US Presidents have there been?",
+      "answer": 46,
+      "unit": "presidents"
+    },
+    {
+      "question": "How many countries are in the European Union?",
+      "answer": 27,
+      "unit": "countries"
+    },
+    {
+      "question": "How many films are in the Star Wars main saga?",
+      "answer": 9,
+      "unit": "films"
+    },
+    {
+      "question": "How many months have 31 days?",
+      "answer": 7,
+      "unit": "months"
+    },
+    {
+      "question": "What year was the printing press invented?",
+      "answer": 1440,
+      "unit": "year"
+    },
+    {
+      "question": "What year did Shakespeare die?",
+      "answer": 1616,
+      "unit": "year"
+    },
+    {
+      "question": "How long does a giraffe sleep per day in hours?",
+      "answer": 2,
+      "unit": "hrs"
+    },
+    {
+      "question": "What year was the Internet invented (TCP/IP)?",
+      "answer": 1983,
+      "unit": "year"
+    },
+    {
+      "question": "How many points is a touchdown in NFL?",
+      "answer": 6,
+      "unit": "pts"
+    },
+    {
+      "question": "What year was YouTube founded?",
+      "answer": 2005,
+      "unit": "year"
+    },
+    {
+      "question": "How many Tony Awards has Audra McDonald won?",
+      "answer": 6,
+      "unit": "awards"
+    },
+    {
+      "question": "How many siblings did Beethoven have?",
+      "answer": 6,
+      "unit": "siblings"
+    },
+    {
+      "question": "How tall is the Empire State Building in feet?",
+      "answer": 1454,
+      "unit": "ft"
+    },
+    {
+      "question": "How many UNESCO World Heritage Sites does Italy have?",
+      "answer": 59,
+      "unit": "sites"
+    },
+    {
+      "question": "How many Disney Princesses are there in the official lineup?",
+      "answer": 12,
+      "unit": "princesses"
+    },
+    {
+      "question": "How many seconds long is the average commercial?",
+      "answer": 30,
+      "unit": "sec"
+    },
+    {
+      "question": "How many calories in an avocado?",
+      "answer": 234,
+      "unit": "kcal"
+    },
+    {
+      "question": "How many gallons in a barrel of oil?",
+      "answer": 42,
+      "unit": "gal"
+    },
+    {
+      "question": "How many years was the longest lifetime ever recorded?",
+      "answer": 122,
+      "unit": "years"
+    },
+    {
+      "question": "How many countries does the Amazon rainforest span?",
+      "answer": 9,
+      "unit": "countries"
+    },
+    {
+      "question": "How many letters in the Hawaiian alphabet?",
+      "answer": 13,
+      "unit": "letters"
+    },
+    {
+      "question": "How long is a typical pencil in centimeters?",
+      "answer": 19,
+      "unit": "cm"
+    },
+    {
+      "question": "How many sheets of toilet paper does the average person use per day?",
+      "answer": 57,
+      "unit": "sheets"
+    },
+    {
+      "question": "How many US dollars in 1 troy ounce of gold (2024 avg)?",
+      "answer": 2030,
+      "unit": "USD"
+    },
+    {
+      "question": "How many liters in a gallon (US)?",
+      "answer": 3.785,
+      "unit": "L"
+    },
+    {
+      "question": "How many seconds did the longest hold-your-breath record last?",
+      "answer": 1389,
+      "unit": "sec"
+    },
+    {
+      "question": "How many Best Picture Oscars has Steven Spielberg won?",
+      "answer": 1,
+      "unit": "oscars"
+    },
+    {
+      "question": "How many wonders of the modern world?",
+      "answer": 7,
+      "unit": "wonders"
+    },
+    {
+      "question": "How many states does Brazil have?",
+      "answer": 26,
+      "unit": "states"
+    },
+    {
+      "question": "What year did the Ottoman Empire end?",
+      "answer": 1922,
+      "unit": "year"
+    },
+    {
+      "question": "What year was Elvis Presley born?",
+      "answer": 1935,
+      "unit": "year"
+    },
+    {
+      "question": "How many keys on a typical keyboard (QWERTY)?",
+      "answer": 104,
+      "unit": "keys"
+    },
+    {
+      "question": "How many years did the Roman Empire last (West)?",
+      "answer": 503,
+      "unit": "years"
+    },
+    {
+      "question": "How many milliliters in a US tablespoon?",
+      "answer": 15,
+      "unit": "mL"
+    },
+    {
+      "question": "How many minutes does the longest movie last (Logistics)?",
+      "answer": 51420,
+      "unit": "min"
+    },
+    {
+      "question": "What year was the World Wide Web invented?",
+      "answer": 1989,
+      "unit": "year"
+    },
+    {
+      "question": "How many gold medals did Michael Phelps win?",
+      "answer": 23,
+      "unit": "medals"
+    },
+    {
+      "question": "How many feet is a 10-story building?",
+      "answer": 105,
+      "unit": "ft"
+    },
+    {
+      "question": "How many football players are on the field per team in NFL?",
+      "answer": 11,
+      "unit": "players"
+    },
+    {
+      "question": "How many Pokemon were in the original Red/Blue games?",
+      "answer": 151,
+      "unit": "pokemon"
+    },
+    {
+      "question": "How long is the average human pregnancy in weeks?",
+      "answer": 40,
+      "unit": "weeks"
+    },
+    {
+      "question": "How many sides does a stop sign have?",
+      "answer": 8,
+      "unit": "sides"
+    },
+    {
+      "question": "What is the speed of sound in m/s (sea level, 20°C)?",
+      "answer": 343,
+      "unit": "m/s"
+    },
+    {
+      "question": "How many books did J.R.R. Tolkien write in The Lord of the Rings?",
+      "answer": 3,
+      "unit": "books"
+    },
+    {
+      "question": "How many strings does a standard violin have?",
+      "answer": 4,
+      "unit": "strings"
+    },
+    {
+      "question": "How many days does a Venus orbit take in Earth days?",
+      "answer": 225,
+      "unit": "days"
+    },
+    {
+      "question": "What year was the first Super Bowl played?",
+      "answer": 1967,
+      "unit": "year"
+    },
+    {
+      "question": "How many seasons of Seinfeld?",
+      "answer": 9,
+      "unit": "seasons"
+    },
+    {
+      "question": "How tall is a giraffe in feet on average?",
+      "answer": 18,
+      "unit": "ft"
+    },
+    {
+      "question": "How many years did the Cold War last?",
+      "answer": 45,
+      "unit": "years"
+    },
+    {
+      "question": "How many soccer matches in a World Cup tournament?",
+      "answer": 64,
+      "unit": "matches"
+    },
+    {
+      "question": "How many bytes in a kilobyte?",
+      "answer": 1024,
+      "unit": "bytes"
+    },
+    {
+      "question": "What year did Concorde retire?",
+      "answer": 2003,
+      "unit": "year"
+    },
+    {
+      "question": "How many people fit in the Roman Colosseum?",
+      "answer": 50000,
+      "unit": "people"
+    },
+    {
+      "question": "What year was Tesla Motors founded?",
+      "answer": 2003,
+      "unit": "year"
+    },
+    {
+      "question": "How many Earth days is one Saturn day?",
+      "answer": 0.45,
+      "unit": "days"
+    },
+    {
+      "question": "How many calories in a tablespoon of olive oil?",
+      "answer": 119,
+      "unit": "kcal"
+    },
+    {
+      "question": "What year was the Mona Lisa painted?",
+      "answer": 1503,
+      "unit": "year"
+    },
+    {
+      "question": "How many pages in War and Peace?",
+      "answer": 1225,
+      "unit": "pages"
+    },
+    {
+      "question": "How many feet long is a great white shark on average?",
+      "answer": 15,
+      "unit": "ft"
+    },
+    {
+      "question": "What year did Apollo 11 land on the moon?",
+      "answer": 1969,
+      "unit": "year"
+    },
+    {
+      "question": "How tall is the Statue of Liberty's torch in feet?",
+      "answer": 30,
+      "unit": "ft"
+    },
+    {
+      "question": "How many gallons does a standard bathtub hold?",
+      "answer": 80,
+      "unit": "gal"
+    },
+    {
+      "question": "How many people lived in the Roman Empire at its peak?",
+      "answer": 70000000,
+      "unit": "people"
+    },
+    {
+      "question": "How many years between Halley's Comet appearances?",
+      "answer": 76,
+      "unit": "years"
+    },
+    {
+      "question": "How many states/territories were in the Roman Empire at peak?",
+      "answer": 47,
+      "unit": "provinces"
+    },
+    {
+      "question": "What year did the printing press first arrive in Europe (Gutenberg)?",
+      "answer": 1440,
+      "unit": "year"
+    },
+    {
+      "question": "How many cards in a standard deck (no jokers)?",
+      "answer": 52,
+      "unit": "cards"
+    },
+    {
+      "question": "How many holes does a Polo Mint have?",
+      "answer": 1,
+      "unit": "hole"
+    },
+    {
+      "question": "How many sides does a cube have?",
+      "answer": 6,
+      "unit": "sides"
+    },
+    {
+      "question": "How many wheels does a bus typically have?",
+      "answer": 6,
+      "unit": "wheels"
+    },
+    {
+      "question": "How many days are between Christmas and New Year's?",
+      "answer": 7,
+      "unit": "days"
+    },
+    {
+      "question": "What year was the Statue of Liberty dedicated?",
+      "answer": 1886,
+      "unit": "year"
+    },
+    {
+      "question": "How many countries are landlocked?",
+      "answer": 44,
+      "unit": "countries"
+    },
+    {
+      "question": "How many minutes in 24 hours?",
+      "answer": 1440,
+      "unit": "min"
+    },
+    {
+      "question": "How many decks of cards does a casino blackjack shoe usually use?",
+      "answer": 6,
+      "unit": "decks"
+    },
+    {
+      "question": "How many Stanley Cups have the Montreal Canadiens won?",
+      "answer": 24,
+      "unit": "cups"
+    },
+    {
+      "question": "How many Tour de France races has Lance Armstrong won (vacated)?",
+      "answer": 7,
+      "unit": "wins"
+    },
+    {
+      "question": "How many gold medals did the USA win in the 2024 Olympics?",
+      "answer": 40,
+      "unit": "medals"
+    },
+    {
+      "question": "How many countries border Russia?",
+      "answer": 14,
+      "unit": "countries"
+    },
+    {
+      "question": "What year did the French Revolution begin?",
+      "answer": 1789,
+      "unit": "year"
+    },
+    {
+      "question": "How many islands make up Japan?",
+      "answer": 6852,
+      "unit": "islands"
+    },
+    {
+      "question": "How many seasons does Friends have?",
+      "answer": 10,
+      "unit": "seasons"
+    },
+    {
+      "question": "How long is the Trans-Siberian Railway in km?",
+      "answer": 9289,
+      "unit": "km"
+    },
+    {
+      "question": "How many countries have a McDonald's?",
+      "answer": 119,
+      "unit": "countries"
+    },
+    {
+      "question": "What year was the Hubble Space Telescope launched?",
+      "answer": 1990,
+      "unit": "year"
+    },
+    {
+      "question": "How many billion dollars did Avatar gross worldwide?",
+      "answer": 2.92,
+      "unit": "billion"
+    },
+    {
+      "question": "How many gallons of water does an average bathtub hold?",
+      "answer": 80,
+      "unit": "gal"
+    },
+    {
+      "question": "How many Pokémon as of Generation 9 (Scarlet/Violet)?",
+      "answer": 1025,
+      "unit": "pokemon"
+    },
+    {
+      "question": "How many years did the Renaissance last (approximately)?",
+      "answer": 300,
+      "unit": "years"
+    },
+    {
+      "question": "How many countries are in OPEC?",
+      "answer": 13,
+      "unit": "countries"
+    },
+    {
+      "question": "How many seasons of The Office (US) aired?",
+      "answer": 9,
+      "unit": "seasons"
+    },
+    {
+      "question": "How many original Power Rangers were there?",
+      "answer": 5,
+      "unit": "rangers"
+    },
+    {
+      "question": "How many calories in a slice of cheese pizza?",
+      "answer": 285,
+      "unit": "kcal"
+    },
+    {
+      "question": "How many time zones are in the contiguous US?",
+      "answer": 4,
+      "unit": "zones"
+    },
+    {
+      "question": "How many wars has Switzerland fought in since 1815?",
+      "answer": 0,
+      "unit": "wars"
+    },
+    {
+      "question": "How many days a year do cherry blossoms bloom on average?",
+      "answer": 7,
+      "unit": "days"
+    },
+    {
+      "question": "What year was the Empire State Building built?",
+      "answer": 1931,
+      "unit": "year"
+    },
+    {
+      "question": "How many words in the average dictionary?",
+      "answer": 171476,
+      "unit": "words"
+    },
+    {
+      "question": "What year did Queen Elizabeth II's reign begin?",
+      "answer": 1952,
+      "unit": "year"
+    },
+    {
+      "question": "How many minutes is a halftime show in the Super Bowl?",
+      "answer": 13,
+      "unit": "min"
+    },
+    {
+      "question": "How tall in feet is the Hollywood sign?",
+      "answer": 45,
+      "unit": "ft"
+    },
+    {
+      "question": "How many liters of blood in an adult human?",
+      "answer": 5,
+      "unit": "L"
+    },
+    {
+      "question": "What year was the Internet domain name system (DNS) introduced?",
+      "answer": 1983,
+      "unit": "year"
+    },
+    {
+      "question": "How many hairs on average does a human head have?",
+      "answer": 100000,
+      "unit": "hairs"
+    },
+    {
+      "question": "How many breaths does an adult take per minute?",
+      "answer": 16,
+      "unit": "breaths"
+    },
+    {
+      "question": "How many beats per minute is a typical resting heart rate?",
+      "answer": 70,
+      "unit": "bpm"
+    },
+    {
+      "question": "How many countries make up the United Kingdom?",
+      "answer": 4,
+      "unit": "countries"
+    },
+    {
+      "question": "How many original Mario games for Nintendo NES?",
+      "answer": 3,
+      "unit": "games"
+    },
+    {
+      "question": "What year was the steam engine invented (Newcomen)?",
+      "answer": 1712,
+      "unit": "year"
+    },
+    {
+      "question": "How many Best Director Oscars did Alfred Hitchcock win?",
+      "answer": 0,
+      "unit": "oscars"
+    },
+    {
+      "question": "How many sides does a stop octagon have?",
+      "answer": 8,
+      "unit": "sides"
+    },
+    {
+      "question": "How many neighborhoods in NYC's 5 boroughs combined?",
+      "answer": 300,
+      "unit": "hoods"
+    },
+    {
+      "question": "How many Greek letters are there?",
+      "answer": 24,
+      "unit": "letters"
+    },
+    {
+      "question": "How many countries in CONCACAF (soccer)?",
+      "answer": 41,
+      "unit": "countries"
+    },
+    {
+      "question": "How many soccer balls fit in the Goodyear Blimp?",
+      "answer": 350000,
+      "unit": "balls"
+    },
+    {
+      "question": "How many Beatles songs are in the band's catalog?",
+      "answer": 213,
+      "unit": "songs"
+    },
+    {
+      "question": "How many chemical elements are there (as of 2024)?",
+      "answer": 118,
+      "unit": "elements"
+    },
+    {
+      "question": "How many MLB teams are there?",
+      "answer": 30,
+      "unit": "teams"
+    },
+    {
+      "question": "How many NHL teams are there?",
+      "answer": 32,
+      "unit": "teams"
+    },
+    {
+      "question": "How many NBA teams are there?",
+      "answer": 30,
+      "unit": "teams"
+    },
+    {
+      "question": "How many NFL teams are there?",
+      "answer": 32,
+      "unit": "teams"
+    },
+    {
+      "question": "How many MLS teams are there (2024)?",
+      "answer": 29,
+      "unit": "teams"
+    },
+    {
+      "question": "How many countries have hosted the Summer Olympics?",
+      "answer": 18,
+      "unit": "countries"
+    },
+    {
+      "question": "What year did India gain independence from Britain?",
+      "answer": 1947,
+      "unit": "year"
+    },
+    {
+      "question": "How many countries played in the first FIFA World Cup (1930)?",
+      "answer": 13,
+      "unit": "countries"
+    },
+    {
+      "question": "How many gallons of water in an Olympic swimming pool?",
+      "answer": 660000,
+      "unit": "gal"
+    },
+    {
+      "question": "What year was the first Apple Macintosh released?",
+      "answer": 1984,
+      "unit": "year"
+    },
+    {
+      "question": "How many countries does the Mediterranean Sea touch?",
+      "answer": 21,
+      "unit": "countries"
+    },
+    {
+      "question": "How many people have stood on the Moon?",
+      "answer": 12,
+      "unit": "people"
+    },
+    {
+      "question": "How many continents are there?",
+      "answer": 7,
+      "unit": "continents"
+    },
+    {
+      "question": "How many oceans are there?",
+      "answer": 5,
+      "unit": "oceans"
+    },
+    {
+      "question": "How many wonders of the natural world?",
+      "answer": 7,
+      "unit": "wonders"
+    },
+    {
+      "question": "How many tea bags does the UK consume per day?",
+      "answer": 100000000,
+      "unit": "tea bags"
+    },
+    {
+      "question": "How many subway stations does NYC have?",
+      "answer": 472,
+      "unit": "stations"
+    },
+    {
+      "question": "How many countries have a population over 100 million?",
+      "answer": 15,
+      "unit": "countries"
+    },
+    {
+      "question": "How many calories in a banana?",
+      "answer": 105,
+      "unit": "kcal"
+    },
+    {
+      "question": "How many calories in a slice of pizza on average?",
+      "answer": 285,
+      "unit": "kcal"
+    },
+    {
+      "question": "How many days does it take to walk 100 miles at average pace?",
+      "answer": 4,
+      "unit": "days"
+    },
+    {
+      "question": "How many Disney parks worldwide?",
+      "answer": 12,
+      "unit": "parks"
+    },
+    {
+      "question": "How many Olympic sports are in the Summer Games?",
+      "answer": 32,
+      "unit": "sports"
+    },
+    {
+      "question": "What year was the Internet (ARPANET) launched?",
+      "answer": 1969,
+      "unit": "year"
+    },
+    {
+      "question": "How many Spotify monthly active users (2024)?",
+      "answer": 640000000,
+      "unit": "users"
+    },
+    {
+      "question": "How many YouTube hours uploaded per minute?",
+      "answer": 500,
+      "unit": "hours"
+    },
+    {
+      "question": "How many cells in the human body (estimate)?",
+      "answer": 37200000000000,
+      "unit": "cells"
+    },
+    {
+      "question": "How many trees on Earth (estimate)?",
+      "answer": 3000000000000,
+      "unit": "trees"
+    },
+    {
+      "question": "How tall is the Eiffel Tower in feet?",
+      "answer": 1083,
+      "unit": "ft"
+    },
+    {
+      "question": "How many years did Alexander the Great's empire last after his death?",
+      "answer": 17,
+      "unit": "years"
+    },
+    {
+      "question": "How many years did it take to build the Great Pyramid of Giza?",
+      "answer": 20,
+      "unit": "years"
+    },
+    {
+      "question": "How many words per minute does the average person type?",
+      "answer": 40,
+      "unit": "wpm"
+    },
+    {
+      "question": "How many gallons of oil does the US consume per day?",
+      "answer": 18000000,
+      "unit": "gal"
+    },
+    {
+      "question": "How many ships in the British Royal Navy at peak (1944)?",
+      "answer": 900,
+      "unit": "ships"
+    },
+    {
+      "question": "How many islands make up the Philippines?",
+      "answer": 7641,
+      "unit": "islands"
+    },
+    {
+      "question": "How many islands make up Indonesia?",
+      "answer": 17500,
+      "unit": "islands"
+    },
+    {
+      "question": "How many countries have nuclear weapons?",
+      "answer": 9,
+      "unit": "countries"
+    },
+    {
+      "question": "How many states does Mexico have?",
+      "answer": 31,
+      "unit": "states"
+    },
+    {
+      "question": "How many provinces does Canada have?",
+      "answer": 10,
+      "unit": "provinces"
+    },
+    {
+      "question": "How many countries does the Sahara Desert span?",
+      "answer": 11,
+      "unit": "countries"
+    },
+    {
+      "question": "What year did the Cold War end?",
+      "answer": 1991,
+      "unit": "year"
+    },
+    {
+      "question": "How many Star Wars films exist (theatrical, 2024)?",
+      "answer": 12,
+      "unit": "films"
+    },
+    {
+      "question": "How long is the longest river in the United States in km?",
+      "answer": 3767,
+      "unit": "km"
+    },
+    {
+      "question": "How many countries make up the Caribbean?",
+      "answer": 13,
+      "unit": "countries"
+    },
+    {
+      "question": "How many calories does walking 1 mile burn (avg adult)?",
+      "answer": 100,
+      "unit": "kcal"
+    },
+    {
+      "question": "How many letters in the Russian alphabet?",
+      "answer": 33,
+      "unit": "letters"
+    },
+    {
+      "question": "How long is the longest tennis match ever played in hours?",
+      "answer": 11,
+      "unit": "hrs"
+    },
+    {
+      "question": "What year was the discovery of penicillin?",
+      "answer": 1928,
+      "unit": "year"
+    },
+    {
+      "question": "How many Christmas songs has Mariah Carey released?",
+      "answer": 15,
+      "unit": "songs"
+    },
+    {
+      "question": "How many times has Halley's Comet been seen since 240 BC?",
+      "answer": 30,
+      "unit": "times"
+    },
+    {
+      "question": "How many MLB World Series have the Yankees won?",
+      "answer": 27,
+      "unit": "titles"
+    },
+    {
+      "question": "How many gallons of water can a fire hydrant deliver per minute?",
+      "answer": 1500,
+      "unit": "gpm"
+    },
+    {
+      "question": "What year was Twitter founded?",
+      "answer": 2006,
+      "unit": "year"
+    },
+    {
+      "question": "What year was Instagram founded?",
+      "answer": 2010,
+      "unit": "year"
+    },
+    {
+      "question": "What year was Netflix founded?",
+      "answer": 1997,
+      "unit": "year"
+    },
+    {
+      "question": "What year was TikTok launched globally?",
+      "answer": 2018,
+      "unit": "year"
+    },
+    {
+      "question": "What year was Bitcoin created?",
+      "answer": 2009,
+      "unit": "year"
+    },
+    {
+      "question": "What year was the Beatles' last live concert?",
+      "answer": 1969,
+      "unit": "year"
+    },
+    {
+      "question": "How many seasons of Breaking Bad?",
+      "answer": 5,
+      "unit": "seasons"
+    },
+    {
+      "question": "How many seasons of Stranger Things (planned through finale)?",
+      "answer": 5,
+      "unit": "seasons"
+    },
+    {
+      "question": "How many films in the Mission Impossible series?",
+      "answer": 7,
+      "unit": "films"
+    },
+    {
+      "question": "How many Sherlock Holmes stories did Arthur Conan Doyle write?",
+      "answer": 60,
+      "unit": "stories"
+    },
+    {
+      "question": "How many seasons of Doctor Who (since 2005)?",
+      "answer": 14,
+      "unit": "seasons"
+    },
+    {
+      "question": "What year was Harry Potter and the Sorcerer's Stone published?",
+      "answer": 1997,
+      "unit": "year"
+    },
+    {
+      "question": "How many countries have hosted the World Cup more than once?",
+      "answer": 7,
+      "unit": "countries"
+    },
+    {
+      "question": "How many UNESCO sites does China have?",
+      "answer": 56,
+      "unit": "sites"
+    },
+    {
+      "question": "How many bones does a baby have at birth?",
+      "answer": 270,
+      "unit": "bones"
+    },
+    {
+      "question": "How many muscles do humans have?",
+      "answer": 650,
+      "unit": "muscles"
+    },
+    {
+      "question": "How many buttons on an Xbox controller?",
+      "answer": 11,
+      "unit": "buttons"
+    },
+    {
+      "question": "How many keys are on a flute?",
+      "answer": 16,
+      "unit": "keys"
+    },
+    {
+      "question": "How many letters in the longest English word (pneumonoultramicroscopicsilicovolcanoconiosis)?",
+      "answer": 45,
+      "unit": "letters"
+    },
+    {
+      "question": "How many Star Trek films have been made?",
+      "answer": 13,
+      "unit": "films"
+    },
+    {
+      "question": "How many Beatles albums (UK studio)?",
+      "answer": 12,
+      "unit": "albums"
+    },
+    {
+      "question": "What year did the Roman Empire fall (West)?",
+      "answer": 476,
+      "unit": "year"
+    },
+    {
+      "question": "How many bones does a giraffe have in its neck?",
+      "answer": 7,
+      "unit": "bones"
+    },
+    {
+      "question": "How many Saturday Night Live episodes have aired?",
+      "answer": 950,
+      "unit": "episodes"
+    },
+    {
+      "question": "How many fingers does Mickey Mouse have?",
+      "answer": 4,
+      "unit": "fingers"
+    },
+    {
+      "question": "How many hours of sleep does the average adult need?",
+      "answer": 8,
+      "unit": "hrs"
+    },
+    {
+      "question": "How many seconds is the world record for 100m sprint?",
+      "answer": 9.58,
+      "unit": "sec"
+    },
+    {
+      "question": "How many countries are in the Commonwealth?",
+      "answer": 56,
+      "unit": "countries"
+    },
+    {
+      "question": "How long is the average commercial flight?",
+      "answer": 2,
+      "unit": "hrs"
+    },
+    {
+      "question": "How many Best Picture Oscars has Marvel won?",
+      "answer": 0,
+      "unit": "oscars"
+    },
+    {
+      "question": "How many countries does the Trans-Siberian railway pass through?",
+      "answer": 1,
+      "unit": "country"
+    },
+    {
+      "question": "What year was the European Union formed?",
+      "answer": 1993,
+      "unit": "year"
+    },
+    {
+      "question": "What year did the Cold War start?",
+      "answer": 1947,
+      "unit": "year"
+    },
+    {
+      "question": "How tall is a Christmas tree at Rockefeller Center on average (ft)?",
+      "answer": 78,
+      "unit": "ft"
+    },
+    {
+      "question": "How many countries have nuclear power plants?",
+      "answer": 31,
+      "unit": "countries"
+    },
+    {
+      "question": "How many years did the Tang dynasty last?",
+      "answer": 289,
+      "unit": "years"
+    },
+    {
+      "question": "How long is a typical English Premier League match?",
+      "answer": 90,
+      "unit": "min"
+    },
+    {
+      "question": "How many Marvel movies are in Phase Four?",
+      "answer": 18,
+      "unit": "films"
+    },
+    {
+      "question": "How many U.S. states have a coastline?",
+      "answer": 23,
+      "unit": "states"
+    },
+    {
+      "question": "How many calories in 100g of dark chocolate?",
+      "answer": 546,
+      "unit": "kcal"
+    },
+    {
+      "question": "How long is the Trans-Atlantic cable in miles?",
+      "answer": 1900,
+      "unit": "mi"
+    },
+    {
+      "question": "How many Earth-orbits did Yuri Gagarin make in 1961?",
+      "answer": 1,
+      "unit": "orbit"
+    },
+    {
+      "question": "How many films won 11 Oscars (most ever)?",
+      "answer": 3,
+      "unit": "films"
+    },
+    {
+      "question": "How many gold medals has Usain Bolt won?",
+      "answer": 8,
+      "unit": "medals"
+    },
+    {
+      "question": "What year did Disney's Steamboat Willie premiere?",
+      "answer": 1928,
+      "unit": "year"
+    },
+    {
+      "question": "How many books in The Chronicles of Narnia?",
+      "answer": 7,
+      "unit": "books"
+    },
+    {
+      "question": "How many movies has Tom Cruise been in?",
+      "answer": 50,
+      "unit": "films"
+    },
+    {
+      "question": "What year was the first Toy Story released?",
+      "answer": 1995,
+      "unit": "year"
+    },
+    {
+      "question": "How many fingers/toes does a normal human have?",
+      "answer": 20,
+      "unit": "digits"
+    },
+    {
+      "question": "How many vertices in a soccer ball?",
+      "answer": 60,
+      "unit": "vertices"
+    },
+    {
+      "question": "How many wedding vows in a typical Christian ceremony?",
+      "answer": 4,
+      "unit": "vows"
+    },
+    {
+      "question": "How many miles can a Tesla Model S go on a charge (max range)?",
+      "answer": 405,
+      "unit": "mi"
+    },
+    {
+      "question": "How many albums has Taylor Swift released?",
+      "answer": 11,
+      "unit": "albums"
+    },
+    {
+      "question": "How many number-one Billboard hits did Michael Jackson have?",
+      "answer": 13,
+      "unit": "hits"
+    },
+    {
+      "question": "What year did the iPhone get an App Store?",
+      "answer": 2008,
+      "unit": "year"
+    },
+    {
+      "question": "How many years did the Soviet Union exist?",
+      "answer": 69,
+      "unit": "years"
+    },
+    {
+      "question": "How many years did the Berlin Wall stand?",
+      "answer": 28,
+      "unit": "years"
+    },
+    {
+      "question": "How many countries took part in the first Olympics in Athens 1896?",
+      "answer": 14,
+      "unit": "countries"
+    },
+    {
+      "question": "What year was the first Crusade?",
+      "answer": 1095,
+      "unit": "year"
+    },
+    {
+      "question": "How many seasons of South Park?",
+      "answer": 27,
+      "unit": "seasons"
+    },
+    {
+      "question": "How many GoPro models have been released?",
+      "answer": 24,
+      "unit": "models"
+    },
+    {
+      "question": "How many flags are in the United Nations?",
+      "answer": 193,
+      "unit": "flags"
+    },
+    {
+      "question": "How many countries does the Equator cross in Africa?",
+      "answer": 7,
+      "unit": "countries"
+    },
+    {
+      "question": "How long does it take light from the Sun to reach Earth?",
+      "answer": 8.3,
+      "unit": "min"
+    },
+    {
+      "question": "How many years did Queen Victoria reign?",
+      "answer": 63,
+      "unit": "years"
+    },
+    {
+      "question": "What year was Oxford University founded?",
+      "answer": 1096,
+      "unit": "year"
+    },
+    {
+      "question": "How many calories in an Oreo cookie?",
+      "answer": 53,
+      "unit": "kcal"
+    },
+    {
+      "question": "How many days does Mars take to rotate once?",
+      "answer": 1.03,
+      "unit": "days"
+    },
+    {
+      "question": "How many hours is Saturn's day?",
+      "answer": 11,
+      "unit": "hrs"
+    },
+    {
+      "question": "How many moons does Jupiter have (confirmed)?",
+      "answer": 95,
+      "unit": "moons"
+    },
+    {
+      "question": "How many moons does Saturn have (confirmed)?",
+      "answer": 146,
+      "unit": "moons"
+    },
+    {
+      "question": "How many UNESCO sites are in Spain?",
+      "answer": 50,
+      "unit": "sites"
+    },
+    {
+      "question": "How many UNESCO sites are in France?",
+      "answer": 52,
+      "unit": "sites"
+    },
+    {
+      "question": "What year was the iPhone X released?",
+      "answer": 2017,
+      "unit": "year"
+    },
+    {
+      "question": "How many gallons of milk does the average dairy cow produce per day?",
+      "answer": 7.5,
+      "unit": "gal"
+    },
+    {
+      "question": "How many states does the Mississippi River touch?",
+      "answer": 10,
+      "unit": "states"
+    },
+    {
+      "question": "How many oceans border the USA?",
+      "answer": 3,
+      "unit": "oceans"
+    },
+    {
+      "question": "How many seasons of NCIS?",
+      "answer": 21,
+      "unit": "seasons"
+    },
+    {
+      "question": "How many calories in a glass of orange juice?",
+      "answer": 110,
+      "unit": "kcal"
+    },
+    {
+      "question": "What year did the first Apple Watch ship?",
+      "answer": 2015,
+      "unit": "year"
+    },
+    {
+      "question": "How many countries does Antarctica border (territorial claims)?",
+      "answer": 7,
+      "unit": "claims"
+    },
+    {
+      "question": "What year was the first Walkman released?",
+      "answer": 1979,
+      "unit": "year"
+    },
+    {
+      "question": "How many kilometers tall is the troposphere?",
+      "answer": 12,
+      "unit": "km"
+    },
+    {
+      "question": "How many liters of saliva does an adult produce per day?",
+      "answer": 1.5,
+      "unit": "L"
+    },
+    {
+      "question": "How many days did the longest siege in history last?",
+      "answer": 900,
+      "unit": "days"
+    },
+    {
+      "question": "What year did the first ATM open?",
+      "answer": 1967,
+      "unit": "year"
+    },
+    {
+      "question": "How many years did the Ottoman Empire last?",
+      "answer": 624,
+      "unit": "years"
+    },
+    {
+      "question": "How long is the Channel Tunnel in km?",
+      "answer": 50,
+      "unit": "km"
+    },
+    {
+      "question": "What year was Watergate?",
+      "answer": 1972,
+      "unit": "year"
+    },
+    {
+      "question": "How many Best Actor Oscars has Daniel Day-Lewis won?",
+      "answer": 3,
+      "unit": "oscars"
+    },
+    {
+      "question": "What year did Mt. Everest first get summited (Hillary)?",
+      "answer": 1953,
+      "unit": "year"
+    },
+    {
+      "question": "What year was the Suez Canal opened?",
+      "answer": 1869,
+      "unit": "year"
+    },
+    {
+      "question": "What year did the Panama Canal open?",
+      "answer": 1914,
+      "unit": "year"
+    },
+    {
+      "question": "How many cars does Tesla produce per year (2023)?",
+      "answer": 1800000,
+      "unit": "cars"
+    },
+    {
+      "question": "What year was Boeing founded?",
+      "answer": 1916,
+      "unit": "year"
+    },
+    {
+      "question": "How many GBs in a typical 4K film?",
+      "answer": 50,
+      "unit": "GB"
+    },
+    {
+      "question": "How many Super Bowls did Tom Brady win?",
+      "answer": 7,
+      "unit": "wins"
+    },
+    {
+      "question": "What year did Google IPO?",
+      "answer": 2004,
+      "unit": "year"
+    },
+    {
+      "question": "How many pages in the longest book (Remembrance of Things Past)?",
+      "answer": 4215,
+      "unit": "pages"
+    },
+    {
+      "question": "How long is the longest celebrity marriage in years (oldest still going)?",
+      "answer": 80,
+      "unit": "years"
+    },
+    {
+      "question": "How many tea cups can be made from 1 lb of tea?",
+      "answer": 200,
+      "unit": "cups"
+    },
+    {
+      "question": "How long is the Underground in London in km?",
+      "answer": 402,
+      "unit": "km"
+    },
+    {
+      "question": "How many people speak Mandarin Chinese natively?",
+      "answer": 920000000,
+      "unit": "people"
+    },
+    {
+      "question": "How many people speak Spanish worldwide?",
+      "answer": 485000000,
+      "unit": "people"
+    },
+    {
+      "question": "What year did The Beatles break up?",
+      "answer": 1970,
+      "unit": "year"
+    },
+    {
+      "question": "How many films in the John Wick series?",
+      "answer": 4,
+      "unit": "films"
+    },
+    {
+      "question": "What year was Costco founded?",
+      "answer": 1976,
+      "unit": "year"
+    },
+    {
+      "question": "What year was Walmart founded?",
+      "answer": 1962,
+      "unit": "year"
+    },
+    {
+      "question": "How many calories in a McDonald's regular fries?",
+      "answer": 230,
+      "unit": "kcal"
+    },
+    {
+      "question": "How long is the NYC Marathon course in km?",
+      "answer": 42.2,
+      "unit": "km"
+    },
+    {
+      "question": "What year did the Rolling Stones form?",
+      "answer": 1962,
+      "unit": "year"
+    },
+    {
+      "question": "What year did the Empire State Building open?",
+      "answer": 1931,
+      "unit": "year"
+    },
+    {
+      "question": "What year was Harry Potter Studio Tour opened?",
+      "answer": 2012,
+      "unit": "year"
+    },
+    {
+      "question": "How long is a regulation NBA basketball court in feet?",
+      "answer": 94,
+      "unit": "ft"
+    },
+    {
+      "question": "How long is a regulation soccer pitch in meters?",
+      "answer": 100,
+      "unit": "m"
+    },
+    {
+      "question": "How long is an Olympic-sized swimming pool in meters?",
+      "answer": 50,
+      "unit": "m"
+    }
   ]
 }

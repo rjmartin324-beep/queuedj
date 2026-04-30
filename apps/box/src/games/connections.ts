@@ -57,6 +57,12 @@ function shuffle<T>(arr: T[]): T[] {
 const sessions = new Map<string, ConnectionsState>();
 
 export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): ConnectionsState {
+  // Defensive: if all puzzles got dropped by the duplicate-tile filter (or the
+  // seed file is empty), starting a connections game would crash on
+  // `puzzle.groups.flatMap(...)`. Throw a clear error instead.
+  if (GOOD_PUZZLES.length === 0) {
+    throw new Error("connections: no valid puzzles available — check seed/connections-puzzles.json");
+  }
   const sessionId = nanoid(12);
   db.createSession(sessionId, roomId, "connections");
   const puzzle = shuffle(GOOD_PUZZLES)[0];
@@ -124,7 +130,9 @@ export function endGame(roomId: string): ConnectionsState | null {
   if (!state) return null;
   state.phase = "game_over";
   state.scores.sort((a, b) => b.score - a.score);
-  db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+  try {
+    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+  } catch (e) { console.error("[connections] persistScores failed at game_over:", e); }
   return state;
 }
 

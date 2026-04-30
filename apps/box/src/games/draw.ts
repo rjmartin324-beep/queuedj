@@ -112,7 +112,9 @@ export function advance(roomId: string): { state: DrawState; done: boolean } | n
   state.roundIndex++;
   if (state.roundIndex >= state.totalRounds) {
     state.phase = "game_over";
-    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    try {
+      db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    } catch (e) { console.error("[draw] persistScores failed at game_over:", e); }
     return { state, done: true };
   }
   const words = wordBanks.get(roomId) ?? [];
