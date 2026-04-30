@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import type { PlayMode } from "../types";
 import wordData from "../seed/draw-words.json";
+import * as db from "../db";
 
 export interface DrawScore { guestId: string; displayName: string; score: number; }
 export type DrawPhase = "drawing" | "reveal" | "game_over";
@@ -44,6 +45,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): DrawState {
   const sessionId = nanoid(12);
+  db.createSession(sessionId, roomId, "draw");
   const drawerOrder = shuffle(members.map(m => m.guestId));
   wordBanks.set(roomId, shuffle([...WORDS]));
   const state: DrawState = {
@@ -108,11 +110,16 @@ export function advance(roomId: string): { state: DrawState; done: boolean } | n
   const state = sessions.get(roomId);
   if (!state) return null;
   state.roundIndex++;
-  if (state.roundIndex >= state.totalRounds) { state.phase = "game_over"; return { state, done: true }; }
+  if (state.roundIndex >= state.totalRounds) {
+    state.phase = "game_over";
+    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    return { state, done: true };
+  }
   const words = wordBanks.get(roomId) ?? [];
   state.phase = "drawing";
   state.drawerId = state.drawerOrder[state.roundIndex];
-  state.word = words[state.roundIndex] ?? "banana";
+  // Wrap modulo so a long game can't fall off the end of the bank.
+  state.word = words.length > 0 ? words[state.roundIndex % words.length] : "banana";
   state.deadline = Date.now() + TIME_LIMIT * 1000;
   state.guessedBy = [];
   return { state, done: false };

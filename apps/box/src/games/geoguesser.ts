@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import type { PlayMode } from "../types";
 import manifest from "../seed/geo-manifest.json";
+import * as db from "../db";
 
 interface GeoEntry {
   id: number;
@@ -104,6 +105,7 @@ function entryToQuestion(e: GeoEntry): GeoQuestion {
 
 export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): GeoGuesserState {
   const sessionId = nanoid(12);
+  db.createSession(sessionId, roomId, "geoguesser");
   // Mix difficulties: bias toward easy/medium early, harder later.
   const easy   = ENTRIES.filter(e => e.difficulty === "easy");
   const medium = ENTRIES.filter(e => e.difficulty === "medium");
@@ -224,6 +226,7 @@ export function advance(roomId: string): { state: GeoGuesserState; done: boolean
   state.questionIndex++;
   if (state.questionIndex >= state.totalQuestions) {
     state.phase = "game_over";
+    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
     return { state, done: true };
   }
   state.phase = "countdown";

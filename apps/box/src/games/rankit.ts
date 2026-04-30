@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import type { PlayMode } from "../types";
 import challengeData from "../seed/rankit-challenges.json";
+import * as db from "../db";
 
 interface RChallenge { id: number; question: string; items: string[]; correct: string[]; }
 export interface RScore { guestId: string; displayName: string; score: number; }
@@ -44,6 +45,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): RankItState {
   const sessionId = nanoid(12);
+  db.createSession(sessionId, roomId, "rankit");
   banks.set(roomId, shuffle(CHALLENGES).slice(0, TOTAL).map(c => ({ ...c, items: shuffle(c.items) })));
   const state: RankItState = {
     sessionId,
@@ -105,7 +107,11 @@ export function advance(roomId: string): { state: RankItState; done: boolean } |
   const state = sessions.get(roomId);
   if (!state) return null;
   state.questionIndex++;
-  if (state.questionIndex >= state.totalQuestions) { state.phase = "game_over"; return { state, done: true }; }
+  if (state.questionIndex >= state.totalQuestions) {
+    state.phase = "game_over";
+    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    return { state, done: true };
+  }
   state.phase = "countdown";
   state.challenge = null;
   return { state, done: false };

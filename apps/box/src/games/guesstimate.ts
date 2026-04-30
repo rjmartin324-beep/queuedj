@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import type { PlayMode } from "../types";
 import questionData from "../seed/guesstimate-questions.json";
+import * as db from "../db";
 
 interface GQuestion { id: number; question: string; answer: number; unit: string; }
 
@@ -46,6 +47,7 @@ function scoreGuess(guess: number, answer: number): number {
 
 export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): GuessimateState {
   const sessionId = nanoid(12);
+  db.createSession(sessionId, roomId, "guesstimate");
   banks.set(roomId, shuffle(QUESTIONS).slice(0, TOTAL));
   const state: GuessimateState = {
     sessionId,
@@ -103,7 +105,11 @@ export function advance(roomId: string): { state: GuessimateState; done: boolean
   const state = sessions.get(roomId);
   if (!state) return null;
   state.questionIndex++;
-  if (state.questionIndex >= state.totalQuestions) { state.phase = "game_over"; return { state, done: true }; }
+  if (state.questionIndex >= state.totalQuestions) {
+    state.phase = "game_over";
+    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
+    return { state, done: true };
+  }
   state.phase = "countdown";
   state.question = null;
   return { state, done: false };

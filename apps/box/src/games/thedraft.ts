@@ -1,6 +1,12 @@
 import { nanoid } from "nanoid";
 import type { PlayMode } from "../types";
 import scenarioData from "../seed/thedraft-scenarios.json";
+import * as db from "../db";
+
+// TheDraft is a peer-vote game, not a points game — the integer "score" field is
+// just the vote tally for display. Intentionally NOT written to all_time_scores
+// because it's not comparable to other games' scores. Sessions still get a row
+// in game_sessions for audit, but no per-player score persistence.
 
 interface DraftItem { id: string; name: string; emoji: string; value: number; }
 interface DraftScenario { id: number; title: string; subtitle: string; items: DraftItem[]; }
@@ -61,6 +67,7 @@ export function startGame(
   rounds: number = 2,
 ): DraftState {
   const sessionId = nanoid(12);
+  db.createSession(sessionId, roomId, "thedraft");
   const scenario = shuffle(SCENARIOS)[0];
   // Clamp to allowed values; fall back to 2 if anything weird arrives
   const picksEach = [2, 3, 5].includes(rounds) ? rounds : 2;
@@ -114,6 +121,9 @@ export function pickCustom(roomId: string, guestId: string, rawName: string): Dr
   if (state.draftOrder[state.currentPick] !== guestId) return null;
   const name = String(rawName ?? "").trim().slice(0, 40);
   if (name.length === 0) return null;
+  // value=50 is a neutral placeholder. TheDraft is decided by peer voting at the end,
+  // not by item.value, so this number doesn't affect gameplay — kept for shape parity
+  // with seeded items (which use value=10..95 for a hidden "skill rating" reveal).
   const item: DraftItem = { id: `custom-${nanoid(6)}`, name, emoji: "", value: 50 };
   state.picks[guestId].push(item.id);
   const score = state.scores.find(s => s.guestId === guestId);

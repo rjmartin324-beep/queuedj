@@ -30,6 +30,7 @@ const banks = new Map<string, BQuestion[]>();
 
 export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): BuzzerState {
   const sessionId = nanoid(12);
+  db.createSession(sessionId, roomId, "buzzer");
   const qs = db.drawQuestions(TOTAL);
   banks.set(roomId, qs.map(q => ({ id: q.id, question: q.question, a: q.a, b: q.b, c: q.c, d: q.d, correct: q.correct })));
   const state: BuzzerState = {
@@ -108,7 +109,11 @@ export function advance(roomId: string): { state: BuzzerState; done: boolean } |
   const state = sessions.get(roomId);
   if (!state) return null;
   state.questionIndex++;
-  if (state.questionIndex >= state.totalQuestions) { state.phase = "game_over"; return { state, done: true }; }
+  if (state.questionIndex >= state.totalQuestions) {
+    state.phase = "game_over";
+    db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: s.correct, wrong: s.wrong })));
+    return { state, done: true };
+  }
   state.phase = "countdown";
   state.question = null;
   state.correctAnswer = null;

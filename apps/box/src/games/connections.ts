@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import type { PlayMode } from "../types";
 import puzzleData from "../seed/connections-puzzles.json";
+import * as db from "../db";
 
 export interface ConnGroup { category: string; color: "yellow" | "green" | "blue" | "purple"; items: string[]; }
 interface ConnPuzzle { id: number; groups: ConnGroup[]; }
@@ -38,6 +39,11 @@ const PUZZLES: ConnPuzzle[] = puzzleData.puzzles.map((p, i) => ({
 const GOOD_PUZZLES = PUZZLES.filter(p =>
   new Set(p.groups.flatMap(g => g.items)).size === 16
 );
+const DROPPED_PUZZLES = PUZZLES.length - GOOD_PUZZLES.length;
+if (DROPPED_PUZZLES > 0) {
+  // Surface seed-quality issues at boot so they can be cleaned up — silent drop hid bad data.
+  console.warn(`[connections] Dropped ${DROPPED_PUZZLES}/${PUZZLES.length} puzzle(s) with duplicate tiles across groups`);
+}
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -52,6 +58,7 @@ const sessions = new Map<string, ConnectionsState>();
 
 export function startGame(roomId: string, mode: PlayMode, members: Array<{ guestId: string; displayName: string }>): ConnectionsState {
   const sessionId = nanoid(12);
+  db.createSession(sessionId, roomId, "connections");
   const puzzle = shuffle(GOOD_PUZZLES)[0];
   const tiles = shuffle(puzzle.groups.flatMap(g => g.items));
   const players: Record<string, ConnPlayerState> = {};
@@ -117,6 +124,7 @@ export function endGame(roomId: string): ConnectionsState | null {
   if (!state) return null;
   state.phase = "game_over";
   state.scores.sort((a, b) => b.score - a.score);
+  db.persistScores(state.sessionId, state.scores.map(s => ({ guestId: s.guestId, displayName: s.displayName, score: s.score, correct: 0, wrong: 0 })));
   return state;
 }
 
