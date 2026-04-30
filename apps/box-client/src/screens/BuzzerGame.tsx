@@ -8,8 +8,6 @@ import CutScene from "../components/CutScene";
 
 interface Props { guestId: string; roomId: string; isHost: boolean; gameState: any; }
 
-const COLORS = { a: "#8B1A1A", b: "#0F3460", c: "#6B4800", d: "#0A3D1F" };
-
 export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props) {
   const { phase, question, scores, questionIndex, totalQuestions, deadline, timeLimit,
           buzzedBy, lockedOut, correctAnswer } = gameState ?? {};
@@ -74,17 +72,29 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
   const canBuzz = phase === "question" && !isLockedOut;
 
   return (
-    <div className="trivia-game">
+    <div className="trivia-game buzzer-game">
       <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
       <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
-      <div className="trivia-header">
-        <span className="q-progress">Q {questionIndex + 1}/{totalQuestions}</span>
-        <span className="round-badge">BUZZER</span>
+
+      {/* Flagship arena header — red lights instead of purple/gold */}
+      <div className="trivia-flagship-header buzzer-flagship-header">
+        <div className="trivia-flagship-bulbs trivia-flagship-bulbs-top" aria-hidden>
+          {Array.from({ length: 14 }).map((_, i) => <span key={i} className="trivia-flagship-bulb" style={{ animationDelay: `${i * 0.12}s` }} />)}
+        </div>
+        <div className="trivia-flagship-row">
+          <span className="trivia-flagship-q">Q {questionIndex + 1}<span className="trivia-flagship-q-of">/{totalQuestions}</span></span>
+          <span className="trivia-flagship-title">BUZZER ROUND</span>
+          <span className="trivia-flagship-answered">{scores?.length ?? 0} IN</span>
+        </div>
+        <div className="trivia-flagship-bulbs trivia-flagship-bulbs-bottom" aria-hidden>
+          {Array.from({ length: 14 }).map((_, i) => <span key={i} className="trivia-flagship-bulb" style={{ animationDelay: `${(13 - i) * 0.12}s` }} />)}
+        </div>
       </div>
 
       {question && (
-        <div className="question-card">
-          <div className="question-text" style={{ fontSize: "clamp(1.2rem,4.5vw,1.8rem)" }}>{question.question}</div>
+        <div className="question-card question-card-flagship" key={`q-${questionIndex}`}>
+          <div className="question-spotlight" aria-hidden />
+          <div className="question-text">{question.question}</div>
         </div>
       )}
 
@@ -94,11 +104,21 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
         {phase === "question" && (
           <div className="buzzer-zone">
             {canBuzz ? (
-              <button className="buzz-btn" onClick={buzz}>BUZZ!</button>
+              <button className="buzz-btn buzz-btn-flagship" onClick={buzz}>
+                <span className="buzz-btn-ring" aria-hidden />
+                <span className="buzz-btn-label">BUZZ</span>
+              </button>
             ) : (
-              <div className="buzz-locked">🔒 Locked out</div>
+              <div className="buzz-locked buzz-locked-flagship">
+                <span className="buzz-locked-eyebrow">LOCKED OUT</span>
+                <span className="buzz-locked-sub">Wait for the next question</span>
+              </div>
             )}
-            {buzzedBy && <div className="buzz-status">{scores?.find((s: any) => s.guestId === buzzedBy)?.displayName} buzzed!</div>}
+            {buzzedBy && (
+              <div className="buzz-status buzz-status-flagship">
+                <strong>{scores?.find((s: any) => s.guestId === buzzedBy)?.displayName}</strong> hit it first
+              </div>
+            )}
           </div>
         )}
 
@@ -106,22 +126,26 @@ export default function BuzzerGame({ guestId, roomId, isHost, gameState }: Props
           <div className="buzzer-answer-zone">
             {isBuzzedPlayer ? (
               <>
-                <div className="buzz-your-turn">⚡ YOU BUZZED — ANSWER!</div>
+                <div className="buzz-your-turn buzz-your-turn-flagship">
+                  <span className="buzz-your-turn-eyebrow">ON THE SPOT</span>
+                  <span className="buzz-your-turn-title">PICK YOUR ANSWER</span>
+                </div>
                 <div className="answer-grid">
                   {(["a","b","c","d"] as const).map((k) => (
                     <button key={k} className={`answer-square sq-${k}`}
-                      style={{ background: COLORS[k] }}
                       disabled={!!myAnswer}
                       onClick={() => answer(k)}>
-                      <span className="answer-text">{question?.[k]}</span>
                       <span className="answer-letter">{k.toUpperCase()}</span>
+                      <span className="answer-text">{question?.[k]}</span>
                     </button>
                   ))}
                 </div>
               </>
             ) : (
-              <div className="buzz-watching">
-                <div className="buzz-status">{scores?.find((s: any) => s.guestId === buzzedBy)?.displayName} is answering…</div>
+              <div className="buzz-watching buzz-watching-flagship">
+                <span className="buzz-watching-eyebrow">ON THE CLOCK</span>
+                <span className="buzz-watching-name">{scores?.find((s: any) => s.guestId === buzzedBy)?.displayName ?? "…"}</span>
+                <span className="buzz-watching-sub">answering now</span>
               </div>
             )}
           </div>
