@@ -46,6 +46,9 @@ export default function AnswerGrid({ question, locked, revealPhase, onAnswer, gu
         if (isLocked && !isRevealed) cls += " locked";
         if (isRevealed && isCorrect) cls += " correct";
         if (isDimmed && !isCorrect) cls += " wrong";
+        // Player's own locked-in answer when it's wrong: pulse red so they
+        // can see what they picked, on top of the generic dim.
+        if (isRevealed && isMyAnswer && !isCorrect) cls += " my-wrong";
 
         return (
           <button

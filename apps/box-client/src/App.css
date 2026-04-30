@@ -180,6 +180,22 @@ button {
   animation: answer-shake 0.38s ease;
 }
 
+/* Player's own wrong pick — pulses red on reveal so they can see what they
+   chose. Overrides the generic .wrong dim. */
+.answer-square.my-wrong {
+  opacity: 1 !important;
+  background: #5E1414 !important;
+  border-color: #F87171;
+  box-shadow: 0 0 0 2px #F8717144, 0 4px 24px rgba(248,113,113,0.32);
+  animation: answer-wrong-pop 0.5s ease;
+}
+
+@keyframes answer-wrong-pop {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 2px #F8717144, 0 0 0 rgba(248,113,113,0); }
+  35%  { transform: scale(1.04); box-shadow: 0 0 0 4px #F8717188, 0 0 28px rgba(248,113,113,0.5); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 2px #F8717144, 0 4px 24px rgba(248,113,113,0.32); }
+}
+
 /* Answer colors — slightly deeper, less saturated */
 .answer-square.sq-a { background: #8B1A1A; color: white; }
 .answer-square.sq-b { background: #0F3460; color: white; }

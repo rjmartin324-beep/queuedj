@@ -203,8 +203,11 @@ export default function GeoGuesserGame({ guestId, roomId, isHost, gameState }: P
     } else if (e.touches.length === 1) {
       const t = e.touches[0];
       touchStartRef.current = { x: t.clientX, y: t.clientY, t: Date.now() };
-      // If we're already zoomed in, treat single-finger move as pan
-      if (zoom > 1) dragStartRef.current = { x: t.clientX, y: t.clientY, panX, panY };
+      // Always capture drag start. The move handler gates pan on `zoom > 1`,
+      // so this is harmless at zoom=1 but fixes a race where React state for
+      // `zoom` hasn't flushed yet right after a pinch ends — without this,
+      // post-pinch single-finger drags wouldn't pan.
+      dragStartRef.current = { x: t.clientX, y: t.clientY, panX, panY };
       pinchStartRef.current = null;
     }
   }

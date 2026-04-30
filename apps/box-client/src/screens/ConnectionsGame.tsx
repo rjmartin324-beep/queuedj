@@ -142,8 +142,10 @@ export default function ConnectionsGame({ guestId, roomId, isHost, gameState }: 
         </div>
       </div>
 
-      {/* Found groups */}
-      {foundColors.map(color => {
+      {/* Found groups — only during play. The reveal section below renders the
+          full list, so showing this here too would duplicate every group when
+          the player has found all 4. */}
+      {!isReveal && foundColors.map(color => {
         const group = puzzle?.groups?.find((g: any) => g.color === color);
         if (!group) return null;
         return (
