@@ -3110,6 +3110,281 @@ button {
 .guess-value { font-family: var(--font-display); font-weight: 700; }
 .guess-off { font-size: 0.78rem; color: var(--text-muted); }
 
+/* ─── Guesstimate FLAGSHIP — calculator / LCD terminal theme ─────────────── */
+
+.guess-game {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0 0 24px;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(70, 220, 220, 0.10) 0%, transparent 55%),
+    radial-gradient(circle at center, rgba(70, 220, 220, 0.025) 0.8px, transparent 1px) 0 0/14px 14px,
+    linear-gradient(180deg, #051a1d 0%, #02080a 60%, #010404 100%);
+}
+
+/* Terminal header with monospace title + readout */
+.guess-flagship-header {
+  text-align: center;
+  padding: 18px 20px 14px;
+  border-bottom: 2px solid rgba(70, 220, 220, 0.32);
+  background: linear-gradient(180deg, rgba(31, 168, 178, 0.12) 0%, transparent 100%);
+}
+.guess-flagship-eyebrow {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: rgba(120, 240, 240, 0.7);
+  text-shadow: 0 0 6px rgba(70, 220, 220, 0.6);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.guess-flagship-title {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 7.5vw, 3rem);
+  color: #C8FFF8;
+  letter-spacing: 0.04em;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.7),
+    0 0 16px rgba(70, 220, 220, 0.95),
+    0 0 38px rgba(70, 220, 220, 0.5),
+    0 2px 0 rgba(0,0,0,0.4);
+  line-height: 1;
+}
+.guess-flagship-meta {
+  margin-top: 8px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  color: rgba(120, 240, 240, 0.6);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.guess-flagship-readout {
+  background: rgba(70, 220, 220, 0.08);
+  border: 1px solid rgba(70, 220, 220, 0.32);
+  border-radius: 4px;
+  padding: 4px 10px;
+  text-shadow: 0 0 6px rgba(70, 220, 220, 0.5);
+}
+
+/* The LCD prompt panel — looks like a calculator screen */
+.guess-lcd-panel {
+  margin: 14px 14px 10px;
+  padding: 22px 24px 18px;
+  border: 2px solid rgba(70, 220, 220, 0.4);
+  border-radius: 8px;
+  background:
+    /* CRT scanlines */
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 3px,
+      rgba(70, 220, 220, 0.04) 3px, rgba(70, 220, 220, 0.04) 4px),
+    /* dark LCD base */
+    linear-gradient(180deg, #0a3034 0%, #051a1d 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(120, 240, 240, 0.18),
+    inset 0 0 30px rgba(70, 220, 220, 0.08),
+    0 6px 18px rgba(0,0,0,0.5);
+  position: relative;
+  text-align: center;
+}
+/* Active blinking cursor in the corner of the LCD */
+.guess-lcd-panel::after {
+  content: "▮";
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  color: rgba(120, 240, 240, 0.85);
+  text-shadow: 0 0 8px rgba(70, 220, 220, 0.8);
+  animation: lcd-blink 1.1s steps(2) infinite;
+}
+@keyframes lcd-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+.guess-lcd-prompt {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: clamp(1.3rem, 4.5vw, 1.85rem);
+  font-weight: 700;
+  color: #C8FFF8;
+  line-height: 1.35;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.45),
+    0 0 14px rgba(70, 220, 220, 0.55);
+  letter-spacing: 0.01em;
+}
+.guess-lcd-unit {
+  margin-top: 12px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: rgba(120, 240, 240, 0.65);
+  text-shadow: 0 0 8px rgba(70, 220, 220, 0.4);
+}
+
+/* Big digital-readout input */
+.guess-input-wrap-flagship {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  padding: 8px 14px 14px;
+}
+.guess-input-flagship {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
+  font-size: 2.2rem !important;
+  font-weight: 700;
+  color: #C8FFF8 !important;
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 3px,
+      rgba(70, 220, 220, 0.05) 3px, rgba(70, 220, 220, 0.05) 4px),
+    linear-gradient(180deg, #0a3034 0%, #051a1d 100%) !important;
+  border: 2px solid rgba(70, 220, 220, 0.45) !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  text-align: right !important;
+  outline: none;
+  box-shadow:
+    inset 0 1px 0 rgba(120, 240, 240, 0.18),
+    inset 0 0 18px rgba(70, 220, 220, 0.1) !important;
+  letter-spacing: 0.06em;
+  text-shadow:
+    0 0 6px rgba(70, 220, 220, 0.65),
+    0 0 14px rgba(70, 220, 220, 0.35);
+  -moz-appearance: textfield;
+}
+.guess-input-flagship::-webkit-outer-spin-button,
+.guess-input-flagship::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.guess-input-flagship::placeholder {
+  color: rgba(120, 240, 240, 0.25);
+  font-size: 1.6rem;
+  text-shadow: none;
+}
+.guess-input-flagship:focus {
+  border-color: rgba(120, 240, 240, 0.85) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(120, 240, 240, 0.25),
+    inset 0 0 22px rgba(70, 220, 220, 0.16),
+    0 0 18px rgba(70, 220, 220, 0.35) !important;
+}
+.guess-submit-flagship {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
+  font-weight: 800;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  width: auto !important;
+  padding: 0 18px !important;
+  background: linear-gradient(180deg, #2cd0d8 0%, #0e7c84 100%) !important;
+  color: #021014 !important;
+  border-radius: 8px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    0 6px 18px rgba(70, 220, 220, 0.3) !important;
+}
+.guess-submit-flagship:disabled { opacity: 0.4; cursor: default; }
+
+/* Locked-in state */
+.guess-locked-flagship {
+  grid-column: 1 / -1;
+  padding: 18px 20px;
+  border: 2px solid rgba(70, 220, 220, 0.6);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 3px,
+      rgba(70, 220, 220, 0.05) 3px, rgba(70, 220, 220, 0.05) 4px),
+    linear-gradient(180deg, #0a3034 0%, #051a1d 100%);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
+  box-shadow: inset 0 0 24px rgba(70, 220, 220, 0.12), 0 0 24px rgba(70, 220, 220, 0.25);
+}
+.guess-locked-eyebrow {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  color: rgba(120, 240, 240, 0.65);
+  text-transform: uppercase;
+}
+.guess-locked-value {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #C8FFF8;
+  text-shadow: 0 0 12px rgba(70, 220, 220, 0.8), 0 0 26px rgba(70, 220, 220, 0.4);
+  letter-spacing: 0.04em;
+}
+.guess-locked-unit {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.86rem;
+  color: rgba(120, 240, 240, 0.65);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Reveal — dramatic LCD answer */
+.guess-reveal-flagship {
+  padding: 14px 14px 16px;
+  flex: 1;
+  overflow-y: auto;
+}
+.guess-answer-readout {
+  margin: 12px 0 18px;
+  padding: 22px 24px;
+  border: 2px solid rgba(70, 220, 220, 0.55);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 3px,
+      rgba(70, 220, 220, 0.05) 3px, rgba(70, 220, 220, 0.05) 4px),
+    linear-gradient(180deg, #0a3034 0%, #051a1d 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: inset 0 0 30px rgba(70, 220, 220, 0.14), 0 0 32px rgba(70, 220, 220, 0.3);
+  animation: lcd-arrive 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes lcd-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.guess-answer-eyebrow {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.36em;
+  color: rgba(120, 240, 240, 0.7);
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(70, 220, 220, 0.5);
+}
+.guess-answer-value {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: clamp(2.4rem, 9vw, 3.4rem);
+  color: #C8FFF8;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.7),
+    0 0 22px rgba(70, 220, 220, 0.95),
+    0 0 50px rgba(70, 220, 220, 0.55);
+}
+.guess-answer-unit {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  color: rgba(120, 240, 240, 0.7);
+  text-transform: uppercase;
+}
+
 /* ─── Buzzer ───────────────────────────────────────────────────────────────── */
 
 .buzzer-zone {
@@ -5638,8 +5913,46 @@ button {
   pointer-events: none;
 }
 
-.exp-color-guesstimate { background: linear-gradient(155deg, #1FA8B2 0%, #0E5C6B 50%, #062228 100%); }
+/* Guesstimate — calculator/LCD terminal. Existing teal gradient + LED dot
+   matrix overlay (3px dots on 8px grid, very faint), monospace eyebrow,
+   pulsing readout line at bottom. Description hidden. */
+.exp-color-guesstimate {
+  background:
+    radial-gradient(circle at center, rgba(120, 240, 240, 0.12) 1px, transparent 1.5px) 0 0/8px 8px,
+    linear-gradient(155deg, #1FA8B2 0%, #0E5C6B 50%, #062228 100%);
+}
 .exp-color-guesstimate .exp-card-glow { background: rgba(70, 200, 220, 0.45); }
+.exp-color-guesstimate .exp-desc-color { display: none; }
+.exp-color-guesstimate::before {
+  content: "TERMINAL :: UNIT 01";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  color: rgba(120, 240, 240, 0.85);
+  text-shadow: 0 0 6px rgba(70, 220, 220, 0.6), 0 1px 0 rgba(0,0,0,0.5);
+  z-index: 1;
+  text-transform: uppercase;
+}
+.exp-color-guesstimate::after {
+  content: "▮▯▮▯▮▯▮▯▮▯";
+  position: absolute;
+  bottom: 11px;
+  left: 14px;
+  right: 14px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: rgba(120, 240, 240, 0.7);
+  text-shadow: 0 0 8px rgba(70, 220, 220, 0.7);
+  text-align: center;
+  z-index: 1;
+  pointer-events: none;
+}
 
 /* Buzzer — game-show arena. Concentric red-spotlight rings layered over the
    red gradient, "GAME 1 · LIVE" eyebrow, blood-red accent strip at bottom.
@@ -5910,9 +6223,18 @@ button {
 .exp-title-guesstimate {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.7rem;
   letter-spacing: 0.04em;
   text-transform: lowercase;
+  color: #C8FFF8;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.85),
+    0 0 12px rgba(70, 220, 220, 0.95),
+    0 0 26px rgba(70, 220, 220, 0.6),
+    0 2px 0 rgba(0,0,0,0.4);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .exp-title-buzzer {
   font-family: var(--font-display);

@@ -70,12 +70,17 @@ export default function GuessimateGame({ guestId, roomId, isHost, gameState }: P
   const totalPlayers = scores?.length ?? 0;
 
   return (
-    <div className="trivia-game">
+    <div className="guess-game">
       <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
       <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
-      <div className="trivia-header">
-        <span className="q-progress">Q {questionIndex + 1}/{totalQuestions}</span>
-        <span className="answered-count">{answeredCount}/{totalPlayers} ✓</span>
+
+      {/* Terminal-style flagship header */}
+      <div className="guess-flagship-header">
+        <div className="guess-flagship-eyebrow">UNIT {String(questionIndex + 1).padStart(2, "0")} / {String(totalQuestions).padStart(2, "0")} :: TERMINAL ACTIVE</div>
+        <div className="guess-flagship-title">guesstimate</div>
+        <div className="guess-flagship-meta">
+          <span className="guess-flagship-readout">{answeredCount}/{totalPlayers} LOCKED</span>
+        </div>
       </div>
 
       {phase === "question" && question && (
@@ -83,38 +88,46 @@ export default function GuessimateGame({ guestId, roomId, isHost, gameState }: P
           <div className="answer-section">
             <TimerBar deadline={deadline} timeLimit={timeLimit} onExpire={isHost ? next : undefined} />
           </div>
-          <div className="question-card" style={{ flex: 1 }}>
-            <div className="question-category cat-general-knowledge">GUESSTIMATE</div>
-            <div className="question-text">{question.question}</div>
+          <div className="guess-lcd-panel">
+            <div className="guess-lcd-prompt">{question.question}</div>
+            {question.unit && <div className="guess-lcd-unit">UNIT :: {question.unit.toUpperCase()}</div>}
           </div>
 
-          <div className="guess-input-wrap">
+          <div className="guess-input-wrap guess-input-wrap-flagship">
             {!submitted ? (
               <>
                 <input
-                  className="guess-input"
+                  className="guess-input guess-input-flagship"
                   type="number"
                   inputMode="numeric"
-                  placeholder={`Your answer${question.unit ? " (" + question.unit + ")" : ""}`}
+                  placeholder="0"
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && submit()}
                   autoFocus
                 />
-                <button className="lets-go-btn" disabled={!input.trim()} onClick={submit}>Lock In →</button>
+                <button className="lets-go-btn guess-submit-flagship" disabled={!input.trim()} onClick={submit}>LOCK IN ▸</button>
               </>
             ) : (
-              <div className="guess-locked-msg">🔒 Locked in — {input} {question.unit}</div>
+              <div className="guess-locked-flagship">
+                <span className="guess-locked-eyebrow">LOCKED</span>
+                <span className="guess-locked-value">{input}</span>
+                {question.unit && <span className="guess-locked-unit">{question.unit}</span>}
+              </div>
             )}
           </div>
         </>
       )}
 
       {phase === "reveal" && question && (
-        <div style={{ padding: "24px 20px", flex: 1, overflowY: "auto" }}>
-          <div className="question-card" style={{ marginBottom: 20 }}>
-            <div className="question-text">{question.question}</div>
-            <div className="guess-reveal-answer">✓ {question.answer.toLocaleString()} {question.unit}</div>
+        <div className="guess-reveal-flagship">
+          <div className="guess-lcd-panel">
+            <div className="guess-lcd-prompt">{question.question}</div>
+          </div>
+          <div className="guess-answer-readout">
+            <span className="guess-answer-eyebrow">CORRECT ANSWER</span>
+            <span className="guess-answer-value">{question.answer.toLocaleString()}</span>
+            {question.unit && <span className="guess-answer-unit">{question.unit}</span>}
           </div>
 
           <div className="guess-results-list">
