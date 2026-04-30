@@ -138,36 +138,45 @@ export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }
 
   if (phase === "question") {
     return (
-      <div className="wyr-game">
+      <div className="wyr-game wyr-game-flagship">
         <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
-        <div className="wyr-header">
-          <span className="wyr-q-badge">Q {questionIndex + 1}/{totalQuestions}</span>
-          {prompt?.category && <span className="wyr-cat-badge">{prompt.category}</span>}
-          {mode !== "pass_tablet" && (
-            <span className="wyr-voted-count">{totalVotes}/{totalPlayers} voted</span>
-          )}
+
+        {/* Flagship dilemma header */}
+        <div className="wyr-flagship-header">
+          <div className="wyr-flagship-eyebrow">DILEMMA №{String(questionIndex + 1).padStart(2, "0")} OF {String(totalQuestions).padStart(2, "0")}</div>
+          <div className="wyr-flagship-title">WOULD YOU RATHER…</div>
+          <div className="wyr-flagship-meta">
+            {prompt?.category && <span className="wyr-flagship-cat">{prompt.category}</span>}
+            {mode !== "pass_tablet" && <span className="wyr-flagship-voted">{totalVotes}/{totalPlayers} VOTED</span>}
+          </div>
         </div>
 
         {prompt && (
-          <div className="wyr-choices">
+          <div className="wyr-choices wyr-choices-flagship">
             <button
-              className={`wyr-choice wyr-choice-a ${hasVoted && myVote === "a" ? "wyr-chosen" : ""} ${hasVoted && myVote !== "a" ? "wyr-unchosen" : ""}`}
+              className={`wyr-choice wyr-choice-flagship wyr-choice-a ${hasVoted && myVote === "a" ? "wyr-chosen" : ""} ${hasVoted && myVote !== "a" ? "wyr-unchosen" : ""}`}
               onClick={() => !hasVoted && isMyTurn && vote("a")}
               disabled={hasVoted || !isMyTurn}
             >
-              <span className="wyr-choice-label">A</span>
+              <span className="wyr-choice-letter">A</span>
               <span className="wyr-choice-text">{prompt.optionA}</span>
+              {hasVoted && myVote === "a" && <span className="wyr-chosen-stamp">PICKED</span>}
             </button>
 
-            <div className="wyr-or">OR</div>
+            <div className="wyr-or-flagship">
+              <span className="wyr-or-line" aria-hidden />
+              <span className="wyr-or-text">OR</span>
+              <span className="wyr-or-line" aria-hidden />
+            </div>
 
             <button
-              className={`wyr-choice wyr-choice-b ${hasVoted && myVote === "b" ? "wyr-chosen" : ""} ${hasVoted && myVote !== "b" ? "wyr-unchosen" : ""}`}
+              className={`wyr-choice wyr-choice-flagship wyr-choice-b ${hasVoted && myVote === "b" ? "wyr-chosen" : ""} ${hasVoted && myVote !== "b" ? "wyr-unchosen" : ""}`}
               onClick={() => !hasVoted && isMyTurn && vote("b")}
               disabled={hasVoted || !isMyTurn}
             >
-              <span className="wyr-choice-label">B</span>
+              <span className="wyr-choice-letter">B</span>
               <span className="wyr-choice-text">{prompt.optionB}</span>
+              {hasVoted && myVote === "b" && <span className="wyr-chosen-stamp">PICKED</span>}
             </button>
           </div>
         )}
@@ -180,22 +189,29 @@ export default function WYRGame({ guestId, roomId, roomMode, isHost, gameState }
     const bPercent = 100 - aPercent;
 
     return (
-      <div className="wyr-game">
+      <div className="wyr-game wyr-game-flagship">
         <HostMenu guestId={guestId} roomId={roomId} isHost={isHost} phase={phase} />
         <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
 
-        <div className="wyr-header">
-          <span className="wyr-q-badge">Q {questionIndex + 1}/{totalQuestions}</span>
-          {prompt?.category && <span className="wyr-cat-badge">{prompt.category}</span>}
+        <div className="wyr-flagship-header">
+          <div className="wyr-flagship-eyebrow">RESULTS · DILEMMA №{String(questionIndex + 1).padStart(2, "0")}</div>
+          <div className="wyr-flagship-title">{majority === null ? "DEAD SPLIT" : "THE ROOM HAS SPOKEN"}</div>
+          {prompt?.category && (
+            <div className="wyr-flagship-meta">
+              <span className="wyr-flagship-cat">{prompt.category}</span>
+            </div>
+          )}
         </div>
 
         {prompt && (
-          <div className="wyr-reveal">
-            <div className="wyr-split-bar">
+          <div className="wyr-reveal wyr-reveal-flagship">
+            <div className="wyr-split-bar wyr-split-bar-flagship">
               <div className="wyr-split-a" style={{ width: `${aPercent}%` }}>
+                <span className="wyr-split-letter">A</span>
                 <span className="wyr-split-pct">{aPercent}%</span>
               </div>
               <div className="wyr-split-b" style={{ width: `${bPercent}%` }}>
+                <span className="wyr-split-letter">B</span>
                 <span className="wyr-split-pct">{bPercent}%</span>
               </div>
             </div>

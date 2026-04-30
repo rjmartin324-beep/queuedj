@@ -2446,6 +2446,283 @@ button {
   padding: 0 0 24px;
 }
 
+/* ─── WYR FLAGSHIP — A/B 3D dichotomy ────────────────────────────────────── */
+
+.wyr-game-flagship {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(224, 65, 59, 0.16) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 90%, rgba(40, 0, 8, 0.4) 0%, transparent 50%),
+    linear-gradient(180deg, #1a0510 0%, #0c0309 60%, #050102 100%);
+}
+
+.wyr-flagship-header {
+  text-align: center;
+  padding: 22px 20px 16px;
+  border-bottom: 2px solid rgba(255, 100, 100, 0.32);
+  background: linear-gradient(180deg, rgba(224, 65, 59, 0.08) 0%, transparent 100%);
+}
+.wyr-flagship-eyebrow {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  color: rgba(255, 200, 200, 0.7);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.wyr-flagship-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.6),
+    0 0 22px rgba(255, 100, 100, 0.85),
+    0 0 44px rgba(255, 80, 80, 0.5),
+    0 2px 0 rgba(0,0,0,0.5);
+}
+.wyr-flagship-meta {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  align-items: center;
+}
+.wyr-flagship-cat {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  color: #FF8A8A;
+  text-transform: uppercase;
+}
+.wyr-flagship-voted {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 200, 200, 0.7);
+  text-transform: uppercase;
+  background: rgba(224, 65, 59, 0.14);
+  border: 1px solid rgba(255, 100, 100, 0.35);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+/* Choice container — bigger gap, more padding */
+.wyr-choices-flagship {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 20px;
+  gap: 0;
+}
+
+/* The 3D floating A/B cards — top deep blue (A), bottom deep purple (B) */
+.wyr-choice-flagship {
+  flex: 1;
+  position: relative;
+  min-height: 22vh;
+  border: 2px solid;
+  border-radius: 14px;
+  padding: 22px 24px 22px 80px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.18s ease,
+    opacity 0.25s ease;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.18),
+    inset 0 -2px 0 rgba(0,0,0,0.45),
+    0 12px 30px rgba(0,0,0,0.55),
+    0 4px 12px rgba(0,0,0,0.4);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.wyr-choice-flagship.wyr-choice-a {
+  background: linear-gradient(180deg, #2E5BA6 0%, #1A3D7D 60%, #0A1E40 100%);
+  border-color: rgba(120, 170, 240, 0.45);
+  margin-bottom: 0;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+.wyr-choice-flagship.wyr-choice-b {
+  background: linear-gradient(180deg, #5C2EAA 0%, #3D1A7D 60%, #1E0A40 100%);
+  border-color: rgba(180, 130, 250, 0.45);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+.wyr-choice-flagship:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,0.24),
+    inset 0 -2px 0 rgba(0,0,0,0.45),
+    0 16px 36px rgba(0,0,0,0.6),
+    0 4px 14px rgba(0,0,0,0.4);
+}
+.wyr-choice-flagship:not(:disabled):active {
+  transform: translateY(2px) scale(0.99);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -2px 0 rgba(0,0,0,0.5),
+    0 6px 16px rgba(0,0,0,0.55);
+}
+.wyr-choice-flagship.wyr-chosen {
+  border-color: #FFD773;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 220, 130, 0.4),
+    inset 0 2px 0 rgba(255,255,255,0.32),
+    0 0 28px rgba(255, 200, 100, 0.55),
+    0 14px 36px rgba(0,0,0,0.6);
+  transform: translateY(-3px);
+}
+.wyr-choice-flagship.wyr-unchosen {
+  opacity: 0.32;
+  filter: grayscale(0.4);
+  transform: translateY(2px);
+}
+
+/* Big italic A/B letter on the LEFT — diagonal, signature WYR mark */
+.wyr-choice-letter {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 4rem;
+  line-height: 0.9;
+  color: rgba(255,255,255,0.85);
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.4),
+    0 4px 0 rgba(0,0,0,0.6),
+    0 8px 18px rgba(0,0,0,0.55);
+  letter-spacing: -0.02em;
+  z-index: 1;
+}
+
+/* Choice text — bigger, italic, hangs to right of letter */
+.wyr-choice-flagship .wyr-choice-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.2rem, 4.4vw, 1.7rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  padding-right: 8px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+  z-index: 1;
+}
+
+/* PICKED stamp — diagonal red marker shown on chosen card after voting */
+.wyr-chosen-stamp {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: #2a0808;
+  background: #FFD773;
+  padding: 3px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  transform: rotate(8deg);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+
+/* The OR divider — dramatic neon italic between cards */
+.wyr-or-flagship {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+}
+.wyr-or-line {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg,
+    rgba(255, 100, 100, 0) 0%,
+    rgba(255, 100, 100, 0.7) 50%,
+    rgba(255, 100, 100, 0) 100%);
+  box-shadow: 0 0 10px rgba(255, 100, 100, 0.5);
+}
+.wyr-or-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: 0.2em;
+  color: #FF8A8A;
+  text-shadow:
+    0 0 4px rgba(255,255,255,0.5),
+    0 0 18px rgba(255, 80, 80, 0.85),
+    0 2px 0 rgba(0,0,0,0.5);
+  text-transform: uppercase;
+}
+
+/* Reveal — bigger split bar with dramatic letter labels */
+.wyr-reveal-flagship {
+  padding: 14px 16px 16px;
+}
+.wyr-split-bar-flagship {
+  height: 64px !important;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 200, 100, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 8px 22px rgba(0,0,0,0.55);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.wyr-split-bar-flagship .wyr-split-a {
+  background: linear-gradient(180deg, #2E5BA6 0%, #1A3D7D 60%, #0A1E40 100%) !important;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+.wyr-split-bar-flagship .wyr-split-b {
+  background: linear-gradient(180deg, #5C2EAA 0%, #3D1A7D 60%, #1E0A40 100%) !important;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+.wyr-split-letter {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
+  line-height: 1;
+}
+.wyr-split-bar-flagship .wyr-split-pct {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 1.7rem !important;
+  color: #FFFFFF !important;
+  text-shadow:
+    0 0 12px rgba(255,255,255,0.5),
+    0 2px 0 rgba(0,0,0,0.6);
+  letter-spacing: -0.01em;
+}
+
 .wyr-header {
   display: flex;
   align-items: center;
@@ -5316,8 +5593,50 @@ button {
   pointer-events: none;
 }
 
-.exp-color-wyr         { background: linear-gradient(155deg, #E0413B 0%, #8E1A2C 50%, #3A0810 100%); }
+/* WYR — diagonal A/B dichotomy. Existing red gradient + a single dramatic
+   diagonal slash through the middle reading as "either/or". Description hidden. */
+.exp-color-wyr {
+  background:
+    linear-gradient(135deg,
+      transparent 0%,
+      transparent calc(50% - 1.5px),
+      rgba(255, 220, 220, 0.18) calc(50% - 1.5px),
+      rgba(255, 220, 220, 0.18) calc(50% + 1.5px),
+      transparent calc(50% + 1.5px),
+      transparent 100%),
+    linear-gradient(155deg, #E0413B 0%, #8E1A2C 50%, #3A0810 100%);
+}
 .exp-color-wyr .exp-card-glow         { background: rgba(255, 100, 100, 0.50); }
+.exp-color-wyr .exp-desc-color        { display: none; }
+.exp-color-wyr::before {
+  content: "DILEMMA №01";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 230, 230, 0.85);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.55);
+  z-index: 1;
+}
+.exp-color-wyr::after {
+  content: "OR";
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 0.16em;
+  color: rgba(255, 220, 220, 0.7);
+  text-shadow: 0 0 10px rgba(255, 100, 100, 0.6), 0 1px 0 rgba(0,0,0,0.55);
+  z-index: 1;
+  pointer-events: none;
+}
 
 .exp-color-guesstimate { background: linear-gradient(155deg, #1FA8B2 0%, #0E5C6B 50%, #062228 100%); }
 .exp-color-guesstimate .exp-card-glow { background: rgba(70, 200, 220, 0.45); }
@@ -5536,9 +5855,19 @@ button {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 900;
-  font-size: 1.55rem;
+  font-size: 2rem;
   letter-spacing: -0.01em;
   line-height: 0.95;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 4px #FFFFFF,
+    0 0 14px rgba(255, 130, 130, 0.95),
+    0 0 30px rgba(255, 80, 80, 0.85),
+    0 2px 0 rgba(0,0,0,0.5);
+  align-self: center;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 .exp-title-guesstimate {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Courier New", monospace;
