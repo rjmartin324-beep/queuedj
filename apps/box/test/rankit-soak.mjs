@@ -18,7 +18,8 @@ const args = Object.fromEntries(
 );
 const GAMES = parseInt(args.games ?? "10", 10);
 const PORT = parseInt(args.port ?? "8090", 10);
-const URL = `ws://localhost:${PORT}`;
+const HOST = args.host ?? "localhost";
+const URL = `ws://${HOST}:${PORT}`;
 const QUESTIONS_PER_GAME = 8;
 
 const failures = [];

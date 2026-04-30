@@ -19,7 +19,8 @@ const args = Object.fromEntries(
 );
 const GAMES = parseInt(args.games ?? "10", 10);
 const PORT = parseInt(args.port ?? "8090", 10);
-const URL = `ws://localhost:${PORT}`;
+const HOST = args.host ?? "localhost";
+const URL = `ws://${HOST}:${PORT}`;
 const PLAYERS_PER_GAME = 2;  // → 2 rounds (each draws once)
 
 const failures = [];

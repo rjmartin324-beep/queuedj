@@ -18,7 +18,8 @@ const args = Object.fromEntries(
 );
 const GAMES = parseInt(args.games ?? "10", 10);
 const PORT = parseInt(args.port ?? "8090", 10);
-const URL = `ws://localhost:${PORT}`;
+const HOST = args.host ?? "localhost";
+const URL = `ws://${HOST}:${PORT}`;
 const VALID_COLORS = ["yellow", "green", "blue", "purple"];
 const COLOR_POINTS = { yellow: 100, green: 200, blue: 300, purple: 400 };
 const PERFECT_SCORE = 1000;
