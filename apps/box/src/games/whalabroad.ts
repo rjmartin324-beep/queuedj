@@ -161,6 +161,14 @@ export interface WhalabroadState {
   taunt: string | null;
   scores: WhalabroadScore[];
 
+  // Append-only event log of notable in-game moments. Client diffs against
+  // the previous state to fire one-shot cutscene overlays. Each entry is a
+  // short ALL-CAPS label (e.g. "RAMMING STRIKE", "STORM RISES"). Order is
+  // chronological. Never reset mid-game.
+  events: string[];
+  // One-shot flags so the same event doesn't fire multiple times across turns.
+  firstRamShown: boolean;
+
   mode: PlayMode;
   passOrder: string[];
   whaleVolunteers: string[];
@@ -270,6 +278,8 @@ export function startGame(
     krakensPending: [],
     whispers: [],
     taunt: null,
+    events: [],
+    firstRamShown: false,
     scores: members.map(m => ({
       guestId: m.guestId, displayName: m.displayName, score: 0,
       role: "whaler", outcome: "draw",
@@ -290,12 +300,34 @@ function layoutBoard(ringScale: number): {
 } {
   const center = Math.floor(BOARD_SIZE / 2);
   // 2×2 central island at the middle.
-  const central: Array<[number, number]> = [
-    [center - 1, center - 1], [center, center - 1],
-    [center - 1, center],     [center, center],
+  // Two central islands separated by a 2-tile-wide sea-lane channel — the
+  // design's signature "narrow chase route." Each island is 2 cells tall × 2
+  // cells wide, with a 2-tile horizontal gap between them at the same rows.
+  // Layout (ringScale 4, center=6):
+  //
+  //          col 3 4 5 . . 8 9 10
+  //   row 5  .  L L .  .  R R .
+  //   row 6  .  L L .  .  R R .
+  //
+  // Whale CAN traverse the channel (it's water). Ships can too. Both islands
+  // block movement.
+  const channelHalfGap = 2;
+  const islandLeft: Array<[number, number]> = [
+    [center - channelHalfGap - 2, center - 1], [center - channelHalfGap - 1, center - 1],
+    [center - channelHalfGap - 2, center],     [center - channelHalfGap - 1, center],
   ];
+  const islandRight: Array<[number, number]> = [
+    [center + channelHalfGap, center - 1],     [center + channelHalfGap + 1, center - 1],
+    [center + channelHalfGap, center],         [center + channelHalfGap + 1, center],
+  ];
+  // Filter to cells actually inside the octagon — small ringScale boards may
+  // clip the outer edges of these blocks.
+  const central: Array<[number, number]> = [...islandLeft, ...islandRight]
+    .filter(([x, y]) => inOctagon(x, y, ringScale));
   // One additional outer island, placed at a random valid water cell roughly
-  // 2 rings out from center.
+  // 2 rings out from center, NOT inside the channel.
+  const channelCols = new Set<number>();
+  for (let dx = -channelHalfGap + 1; dx <= channelHalfGap - 1; dx++) channelCols.add(center + dx - 1);
   const candidates: Array<[number, number]> = [];
   for (let y = 1; y < BOARD_SIZE - 1; y++) {
     for (let x = 1; x < BOARD_SIZE - 1; x++) {
@@ -303,8 +335,9 @@ function layoutBoard(ringScale: number): {
       if (central.some(([cx, cy]) => cx === x && cy === y)) continue;
       const distFromCenter = chebyshev(x, y, center, center);
       if (distFromCenter < 2 || distFromCenter > 4) continue;
-      // Don't put it near the harbor row.
+      // Don't put it near the harbor row OR in the channel itself.
       if (y >= BOARD_SIZE - 2) continue;
+      if ((y === center - 1 || y === center) && channelCols.has(x)) continue;
       candidates.push([x, y]);
     }
   }
@@ -685,7 +718,10 @@ export function resolveTurn(roomId: string): WhalabroadState | null {
 
   // 4. End-of-turn:
   //    - Storm activation at storm-start turn
-  if (!s.stormActive && s.turnIndex >= config.stormStartTurn) s.stormActive = true;
+  if (!s.stormActive && s.turnIndex >= config.stormStartTurn) {
+    s.stormActive = true;
+    s.events.push("STORM RISES");
+  }
 
   //    - Tow-delivery check: if a ship sat in harbor for ONE turn while towing,
   //      whaler wins. We mark a "delivery_pending" via timing; for simplicity
@@ -741,6 +777,11 @@ function applyWhaleAction(s: WhalabroadState) {
     s.whale.history.push("surface");
     // Also damage explicit target if adjacent to final position.
     if (a.targetGuestId) hitShipAt(s, a.targetGuestId, config.whaleRamDamage, "ram_strike", pathDamaged);
+    // First ram of the game gets a cinematic reveal.
+    if (!s.firstRamShown && pathDamaged.size > 0) {
+      s.firstRamShown = true;
+      s.events.push("RAMMING STRIKE");
+    }
   }
   else if (a.kind === "surprise_breach") {
     // No movement; surface + 1 dmg to adjacent ship.
@@ -852,6 +893,7 @@ function applyCannons(s: WhalabroadState, ship: ShipState, a: ShipPending) {
         s.whale.dead = true;
         s.whale.surfaced = true;
         s.whale.towedBy = null;
+        s.events.push("WHITE WHALE FELLS");
       }
     }
     // If the cell isn't the whale, the shot misses (you can only target the whale pre-kill).
@@ -918,6 +960,7 @@ function queueKraken(s: WhalabroadState, ship: ShipState, a: ShipPending) {
 function resolveDueKrakens(s: WhalabroadState) {
   const due = s.krakensPending.filter(k => k.fireOnTurn <= s.turnIndex);
   s.krakensPending = s.krakensPending.filter(k => k.fireOnTurn > s.turnIndex);
+  if (due.length > 0) s.events.push("KRAKEN RISES");
   for (const k of due) {
     // 3×3 splash centered on (k.x, k.y).
     for (let dy = -config.krakenSplashRadius; dy <= config.krakenSplashRadius; dy++) {
@@ -937,7 +980,7 @@ function resolveDueKrakens(s: WhalabroadState) {
         // Whale takes a hit too if surfaced and in splash.
         if (s.whale && !s.whale.dead && s.whale.surfaced && s.whale.x === x && s.whale.y === y) {
           s.whale.wounds += config.krakenDamage;
-          if (s.whale.wounds >= s.whale.hp) { s.whale.dead = true; s.whale.surfaced = true; s.whale.towedBy = null; }
+          if (s.whale.wounds >= s.whale.hp) { s.whale.dead = true; s.whale.surfaced = true; s.whale.towedBy = null; s.events.push("WHITE WHALE FELLS"); }
         }
       }
     }
@@ -973,6 +1016,7 @@ function checkEndOfGame(s: WhalabroadState): boolean {
     const tower = s.ships.find(sh => sh.guestId === s.whale!.towedBy);
     if (tower && s.harbor.some(([hx, hy]) => hx === tower.x && hy === tower.y)) {
       s.phase = "game_over";
+      s.events.push("TOW DELIVERED");
       finalize(s, "whaler", tower.guestId);
       return true;
     }

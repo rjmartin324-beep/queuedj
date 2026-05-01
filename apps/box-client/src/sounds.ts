@@ -143,6 +143,61 @@ export function playSound(name: string): void {
         setTimeout(() => tone(2200, 0.10, "sawtooth", 0.18), 30);
         setTimeout(() => tone(1100, 0.20, "sine", 0.22), 90);
         break;
+
+      // ─── Whalabroad SFX ────────────────────────────────────────────
+      case "wb-cannon":
+        // Low boom: filtered noise burst + sub-bass thump
+        noise(0.18, 0.32, 80);
+        tone(60, 0.22, "sine", 0.4);
+        setTimeout(() => tone(45, 0.15, "sine", 0.25), 40);
+        break;
+      case "wb-harpoon":
+        // Metallic thunk: short noise + sharp mid-band tone
+        noise(0.04, 0.18, 2400);
+        setTimeout(() => tone(680, 0.06, "square", 0.22), 20);
+        setTimeout(() => tone(440, 0.18, "triangle", 0.16), 40);
+        break;
+      case "wb-splash":
+        // Water splash: noise sweep through high freqs
+        noise(0.32, 0.18, 1500);
+        setTimeout(() => sweep(2000, 600, 0.25, "sine", 0.10), 80);
+        break;
+      case "wb-wood-crack":
+        // Sharp wood crack: short noise + descending tone
+        noise(0.05, 0.30, 3500);
+        setTimeout(() => tone(220, 0.10, "sawtooth", 0.18), 20);
+        setTimeout(() => tone(140, 0.18, "triangle", 0.14), 60);
+        break;
+      case "wb-sinking":
+        // Slow descending creak: woody bend + bubble noise
+        sweep(280, 90, 1.0, "sawtooth", 0.18);
+        setTimeout(() => noise(0.6, 0.10, 600), 200);
+        setTimeout(() => sweep(180, 60, 0.8, "triangle", 0.12), 400);
+        break;
+      case "wb-kraken":
+        // Deep monstrous roar: layered low sweeps
+        sweep(120, 50, 1.4, "sawtooth", 0.32);
+        setTimeout(() => sweep(180, 70, 1.2, "triangle", 0.22), 80);
+        setTimeout(() => noise(1.0, 0.12, 200), 200);
+        break;
+      case "wb-storm":
+        // Wind whoosh: rising-then-falling filtered noise
+        noise(1.2, 0.20, 400);
+        setTimeout(() => sweep(800, 200, 1.0, "sine", 0.10), 100);
+        setTimeout(() => sweep(200, 600, 0.8, "sine", 0.08), 600);
+        break;
+      case "wb-whisper":
+        // Soft bell tone — incoming ghost message
+        tone(1175, 0.4, "sine", 0.15);
+        setTimeout(() => tone(1568, 0.3, "sine", 0.10), 60);
+        break;
+      case "wb-victory":
+        // Triumphant major chord — game won
+        tone(523, 0.6, "triangle", 0.22);            // C
+        tone(659, 0.6, "triangle", 0.18);            // E
+        tone(784, 0.6, "triangle", 0.18);            // G
+        setTimeout(() => tone(1047, 0.8, "sine", 0.22), 200); // C8va
+        break;
     }
   } catch { /* ignore */ }
 }

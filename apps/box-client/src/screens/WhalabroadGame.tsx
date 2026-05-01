@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { socket } from "../ws";
 import { haptic } from "../haptics";
+import { playSound } from "../sounds";
 import PodiumScreen from "../components/PodiumScreen";
+import CutScene from "../components/CutScene";
 
 // Full-spec Whalabroad client with atlas sprite rendering for ships + whale.
 // Board tiles still flat colored (those sheets aren't a clean grid — pixel
@@ -181,6 +183,91 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
     }
     return () => { cancelled = true; };
   }, []);
+
+  // "?" rules pull-up — always available during play
+  const [showRules, setShowRules] = useState(false);
+
+  // Cut-scene overlay — server pushes labels into state.events; we diff and
+  // fire one banner per new label using PartyGlue's existing CutScene component.
+  const [cutScene, setCutScene] = useState<{ name: string; seq: number; tier?: "banner" | "overlay" | "peak"; sound?: string } | null>(null);
+  const cutSeqRef = useRef(0);
+  const eventsSeenRef = useRef(0);
+  useEffect(() => {
+    const events: string[] = gameState?.events ?? [];
+    if (events.length <= eventsSeenRef.current) return;
+    // Fire only the most recent event (queueing multiple cinematics back-to-back
+    // would just stomp each other — server rarely emits more than one per turn).
+    const latest = events[events.length - 1];
+    eventsSeenRef.current = events.length;
+    const SOUND: Record<string, string> = {
+      "RAMMING STRIKE":   "wb-cannon",
+      "WHITE WHALE FELLS":"wb-victory",
+      "TOW DELIVERED":    "wb-victory",
+      "KRAKEN RISES":     "wb-kraken",
+      "STORM RISES":      "wb-storm",
+    };
+    const TIER: Record<string, "banner" | "overlay" | "peak"> = {
+      "RAMMING STRIKE":   "overlay",
+      "WHITE WHALE FELLS":"peak",
+      "TOW DELIVERED":    "peak",
+      "KRAKEN RISES":     "overlay",
+      "STORM RISES":      "overlay",
+    };
+    setCutScene({
+      name: latest,
+      seq: ++cutSeqRef.current,
+      tier: TIER[latest] ?? "overlay",
+      sound: SOUND[latest],
+    });
+  }, [gameState?.events?.length]);
+
+  // First-turn tooltip — explain broadside cannons to whalers ONCE per device.
+  // Stored in localStorage so it doesn't repeat for repeat players.
+  const [showFacingTip, setShowFacingTip] = useState(false);
+  useEffect(() => {
+    if (phase !== "moving") return;
+    if (turnIndex !== 1) return;
+    if (typeof window === "undefined") return;
+    const seen = window.localStorage.getItem("wb_seen_facing_tip");
+    if (!seen) setShowFacingTip(true);
+  }, [phase, turnIndex]);
+  function dismissFacingTip() {
+    setShowFacingTip(false);
+    try { window.localStorage.setItem("wb_seen_facing_tip", "1"); } catch {}
+  }
+
+  // Reactive SFX — diff previous state against current and fire sounds for
+  // observable transitions (HP drops, sinks, storm activates, whisper arrives).
+  const prevSnapRef = useRef<any>(null);
+  useEffect(() => {
+    if (!gameState) { prevSnapRef.current = null; return; }
+    const prev = prevSnapRef.current;
+    if (prev) {
+      // My ship took damage
+      const myPrevShip = prev.ships?.find((s: any) => s.guestId === guestId);
+      const myCurShip  = ships.find((s: any) => s.guestId === guestId);
+      if (myPrevShip && myCurShip) {
+        if (myCurShip.hp < myPrevShip.hp) playSound("wb-wood-crack");
+        if (!myPrevShip.sunk && myCurShip.sunk) playSound("wb-sinking");
+      }
+      // Storm just activated
+      if (!prev.stormActive && stormActive) playSound("wb-storm");
+      // Kraken pending count went down (one resolved this turn)
+      const prevPending = prev.krakensPending?.length ?? 0;
+      const curPending = gameState.krakensPending?.length ?? 0;
+      if (prevPending > curPending) playSound("wb-kraken");
+      // New whisper addressed to me
+      const prevWhisperCount = (prev.whispers ?? []).filter((w: any) => w.toGuestId === guestId).length;
+      const curWhisperCount  = whispers.filter((w: any) => w.toGuestId === guestId).length;
+      if (curWhisperCount > prevWhisperCount) playSound("wb-whisper");
+      // Game just ended with me on the winning side
+      if (prev.phase !== "game_over" && phase === "game_over") {
+        const me = scores.find((s: any) => s.guestId === guestId);
+        if (me && me.outcome === "win") playSound("wb-victory");
+      }
+    }
+    prevSnapRef.current = gameState;
+  }, [gameState, ships, stormActive, whispers, scores, phase, guestId]);
 
   // Auto-end the 3-second reveal phase as host.
   useEffect(() => {
@@ -431,8 +518,22 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
   function setHPPreset(p: "quick"|"standard"|"epic"|null) { haptic.tap(); send("whalabroad:set_hp_preset", { preset: p }); }
   function resolveTurn()      { haptic.heavy(); send("whalabroad:resolve_turn"); }
 
-  function whaleAct(kind: string, extra: any = {}) { haptic.tap(); send("whalabroad:whale_action", { kind, ...extra }); setTargetCell(null); setActionMode("idle"); }
-  function shipAct(kind: string, extra: any = {})  { haptic.tap(); send("whalabroad:ship_action",  { kind, ...extra }); setTargetCell(null); setActionMode("idle"); }
+  function whaleAct(kind: string, extra: any = {}) {
+    haptic.tap();
+    if (kind === "deep_dive" || kind === "bubble_move") playSound("wb-splash");
+    else if (kind === "breach" || kind === "ram_strike" || kind === "surprise_breach") playSound("wb-splash");
+    send("whalabroad:whale_action", { kind, ...extra });
+    setTargetCell(null);
+    setActionMode("idle");
+  }
+  function shipAct(kind: string, extra: any = {}) {
+    haptic.tap();
+    if (kind === "fire_cannons") playSound("wb-cannon");
+    else if (kind === "harpoon_corpse") playSound("wb-harpoon");
+    send("whalabroad:ship_action", { kind, ...extra });
+    setTargetCell(null);
+    setActionMode("idle");
+  }
 
   function deltaToTarget() {
     if (!targetCell) return null;
@@ -488,7 +589,12 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
     return (
       <div style={{ padding: 16, color: "#e8dcb8", textAlign: "center" }}>
         <h1 style={{ fontFamily: "var(--font-display)", letterSpacing: "0.05em" }}>WHALABROAD</h1>
-        <p style={{ color: "#a89e8b", marginBottom: 16 }}>1 whale vs 2-7 ships. Frenemy + race.</p>
+        <p style={{ color: "#a89e8b", marginBottom: 12 }}>1 whale vs 2-7 ships. Frenemy + race.</p>
+
+        <button className="btn-secondary" style={{ marginBottom: 12, padding: "6px 14px", fontSize: 13 }}
+                onClick={() => setShowRules(true)}>📖 How to Play</button>
+
+        {showRules && <RulesCard onClose={() => setShowRules(false)} role={isWhale ? "whale" : "whaler"} />}
 
         <div style={{ background: "#1f3142", padding: 12, borderRadius: 8, marginBottom: 12 }}>
           <div style={{ fontSize: 12, color: "#a89e8b", marginBottom: 8, letterSpacing: "0.08em" }}>
@@ -584,6 +690,22 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
       </div>
 
       {taunt && <div style={{ fontStyle: "italic", color: "#a89e8b", fontSize: 12, marginBottom: 6, textAlign: "center" }}>"{taunt}"</div>}
+
+      {showFacingTip && isWhaler && (
+        <div style={{
+          background: "linear-gradient(135deg, #1f3142, #2c4a5e)",
+          border: "1px solid #d9a649", borderRadius: 6,
+          padding: 10, marginBottom: 8, fontSize: 13, color: "#e8dcb8",
+        }}>
+          <div style={{ fontWeight: 700, marginBottom: 4, color: "#d9a649" }}>⚓ FIRST TURN — READ THIS</div>
+          <div style={{ marginBottom: 6 }}>
+            Your cannons fire <strong>perpendicular to your facing</strong> — port (left) or starboard (right) only.
+            Move first to turn the ship; THEN fire. All ships start facing North.
+          </div>
+          <button className="btn-secondary" style={{ padding: "4px 10px", fontSize: 11 }}
+                  onClick={dismissFacingTip}>Got it</button>
+        </div>
+      )}
 
       {myWhispers.length > 0 && (
         <div style={{ background: "rgba(125,117,103,0.2)", border: "1px solid #5e5852", padding: 6, borderRadius: 4, marginBottom: 8, fontSize: 12 }}>
@@ -764,6 +886,105 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
             </div>
           );
         })}
+      </div>
+
+      {showRules && <RulesCard onClose={() => setShowRules(false)} role={myRole} />}
+
+      <CutScene scene={cutScene} onDone={() => setCutScene(null)} />
+
+      {/* Always-visible floating "?" button while in-game */}
+      <button
+        onClick={() => setShowRules(true)}
+        aria-label="Show rules"
+        style={{
+          position: "fixed", right: 14, bottom: 14, zIndex: 50,
+          width: 44, height: 44, borderRadius: "50%",
+          background: "#1f3142", color: "#d9a649",
+          border: "2px solid #d9a649", fontSize: 22, fontWeight: 700,
+          cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+        }}>?</button>
+    </div>
+  );
+}
+
+// ─── Rules card (used in both lobby + in-game pull-up) ──────────────────
+function RulesCard({ onClose, role = "whaler" }: { onClose: () => void; role?: string }) {
+  const isWhaleRole = role === "whale";
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(13,20,24,0.85)",
+      zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center",
+      padding: 12,
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        maxWidth: 520, maxHeight: "92vh", overflowY: "auto",
+        background: "#1f3142", border: "2px solid #d9a649", borderRadius: 8,
+        padding: 16, color: "#e8dcb8", fontSize: 13, lineHeight: 1.5,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <h2 style={{ fontFamily: "var(--font-display)", letterSpacing: "0.05em", margin: 0, color: "#d9a649" }}>WHALABROAD — HOW TO PLAY</h2>
+          <button onClick={onClose} className="btn-secondary" style={{ padding: "4px 10px" }}>Close</button>
+        </div>
+
+        <p style={{ color: "#a89e8b", marginBottom: 8 }}>
+          One player is the white whale. The rest are whalers. Whalers cooperate to wound the whale,
+          then race to tow its corpse to harbor. Whale wins if every ship is sunk.
+        </p>
+
+        <h3 style={{ color: "#d9a649", fontSize: 14, marginTop: 12, marginBottom: 4 }}>Win conditions</h3>
+        <ul style={{ paddingLeft: 18, marginTop: 0 }}>
+          <li><strong>Whale</strong>: sink every ship.</li>
+          <li><strong>Whaler</strong>: be the ship that tows the corpse to the harbor.</li>
+        </ul>
+
+        <h3 style={{ color: "#d9a649", fontSize: 14, marginTop: 12, marginBottom: 4 }}>
+          {isWhaleRole ? "🐋 Whale actions" : "⛵ Whaler actions"}
+        </h3>
+        {isWhaleRole ? (
+          <ul style={{ paddingLeft: 18, marginTop: 0 }}>
+            <li><strong>Deep Dive</strong> — 4 hidden tiles, no hint.</li>
+            <li><strong>Bubble Move</strong> — 3 hidden tiles, BUT a hint zone is shown to whalers. Once per submerged stretch.</li>
+            <li><strong>Breach</strong> — 2 surface tiles. Counts toward the surface-min.</li>
+            <li><strong>Ram Strike</strong> — surfaced; move 2 + 2 dmg to ships in path.</li>
+            <li><strong>Surprise Breach</strong> — rise from underwater + 1 dmg to adjacent ship.</li>
+          </ul>
+        ) : (
+          <ul style={{ paddingLeft: 18, marginTop: 0 }}>
+            <li><strong>Slow Crawl</strong> — 1 tile + can fire same turn.</li>
+            <li><strong>Full Sail</strong> — 3 tiles, no fire.</li>
+            <li><strong>Fire Cannons</strong> — broadside (port/starboard), perpendicular to facing, 3 tiles, 1 dmg, applies recoil (1-tile move next turn).</li>
+            <li><strong>Repair</strong> — within 2 tiles of harbor; full HP restore.</li>
+            <li><strong>Harpoon Corpse</strong> — adjacent to dead whale; attaches tow line. Towing forces slow-crawl + no fire.</li>
+            <li><strong>Cut Line</strong> — free action, drops the corpse you were towing.</li>
+          </ul>
+        )}
+
+        <h3 style={{ color: "#d9a649", fontSize: 14, marginTop: 12, marginBottom: 4 }}>Key rules</h3>
+        <ul style={{ paddingLeft: 18, marginTop: 0 }}>
+          <li>The whale must surface at least <strong>2 of every 5</strong> turns. Max 3 submerged turns in a row.</li>
+          <li><strong>Pre-kill</strong>: whaler cannons can ONLY hit the whale. Forced cooperation.</li>
+          <li><strong>Post-kill</strong>: PvP opens. Cannons can hit rival ships AND the tow line (rivals shoot the line to detach).</li>
+          <li><strong>Sunk ships become ghosts</strong>: full god-view of the whale + ONE Kraken summon (3×3 splash + push) + ONE whisper to a living ally per turn.</li>
+          <li><strong>Storm at turn 20</strong>: outer ring (N/E/W) becomes impassable. Harbor approach is preserved.</li>
+          <li><strong>The whale cannot enter harbor cells</strong> — shallow water rule.</li>
+        </ul>
+
+        <h3 style={{ color: "#d9a649", fontSize: 14, marginTop: 12, marginBottom: 4 }}>Damage</h3>
+        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+          <tbody>
+            {[
+              ["Whale Ram Strike (surface)", "2"],
+              ["Whale Surprise Breach", "1"],
+              ["Ship cannon hit", "1"],
+              ["Kraken splash", "1 + 1-tile push outward"],
+            ].map(([label, val], i) => (
+              <tr key={i} style={{ borderBottom: "1px solid #2c4a5e" }}>
+                <td style={{ padding: "4px 6px" }}>{label}</td>
+                <td style={{ padding: "4px 6px", textAlign: "right", color: "#d9a649" }}>{val}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
