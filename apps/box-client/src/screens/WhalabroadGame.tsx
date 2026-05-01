@@ -43,6 +43,34 @@ const WHALE_DAMAGE_W = 881, WHALE_DAMAGE_H = 1785;
 const WHALE_DAMAGE_CELL_W = WHALE_DAMAGE_W / 4;  // ≈220
 const WHALE_DAMAGE_CELL_H = WHALE_DAMAGE_H / 6;  // ≈297.5
 
+// Board tile sheet (1678 × 937). Layout is hand-measured from the v2 sheet:
+//   row 1 (y≈140-260): 4 water tiles (left), 4 island tiles (right)
+//   row 2 (y≈340-490): 2 center-island tiles (left, double-wide), edge-frame pieces (right)
+//   row 3 (y≈580-770): 2 harbor tiles (left), more frame pieces (right)
+// Coordinates are best-fit guesses; if any tile looks off, just nudge the
+// numbers below — the painter will re-render automatically on next paint.
+const BOARD_TILES_PATH = "/whalabroad/raw/board-tiles-v2.png";
+const TILE = {
+  water:  [
+    [60,  140, 130, 130], [200, 140, 130, 130],
+    [340, 140, 130, 130], [480, 140, 130, 130],
+  ] as Array<[number, number, number, number]>,
+  island: [
+    [920, 140, 130, 130], [1060, 140, 130, 130],
+    [1200, 140, 130, 130], [1340, 140, 130, 130],
+  ] as Array<[number, number, number, number]>,
+  // Harbor pair — left tile (with buildings/pier) and right tile (smaller dock).
+  harborL: [60,  580, 280, 190] as [number, number, number, number],
+  harborR: [340, 580, 280, 190] as [number, number, number, number],
+};
+
+// Pick a deterministic variant per cell so water/island texture varies across
+// the board but stays stable between repaints.
+function variantFor(x: number, y: number, choices: number): number {
+  const h = (x * 73856093) ^ (y * 19349663);
+  return Math.abs(h) % choices;
+}
+
 // Ship sprite cell coordinates given facing (0..7) and HP state (0=full,
 // 1=damaged, 2=critical).
 function shipCell(facing: number, hpState: 0 | 1 | 2): { sx: number; sy: number; sw: number; sh: number } {
@@ -141,7 +169,7 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
   useEffect(() => {
     const paths = [
       ...Object.values(SHIP_SHEET_PATHS),
-      WHALE_ALIVE_PATH, WHALE_DAMAGE_PATH,
+      WHALE_ALIVE_PATH, WHALE_DAMAGE_PATH, BOARD_TILES_PATH,
     ];
     let cancelled = false;
     for (const p of paths) {
@@ -173,18 +201,43 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
     const cellPx = BOARD_PX / BOARD_SIZE;
     ctx.clearRect(0, 0, BOARD_PX, BOARD_PX);
 
+    const tilesImg = imgRef.current.get(BOARD_TILES_PATH);
+    const tilesReady = tilesImg && tilesImg.complete && tilesImg.naturalWidth > 0;
     for (let y = 0; y < BOARD_SIZE; y++) {
       for (let x = 0; x < BOARD_SIZE; x++) {
         if (!inOctagon(x, y, ringScale)) continue;
         const isHarbor = harbor.some(([hx, hy]) => hx === x && hy === y);
         const isIsland = islands.some(([ix, iy]) => ix === x && iy === y);
         const isStorm = stormActive && stormCells.some(([sx, sy]) => sx === x && sy === y);
-        ctx.fillStyle = isStorm ? "#3a3a3a" :
-                        isHarbor ? "#5c4429" :
-                        isIsland ? "#7d7567" : "#162230";
-        ctx.fillRect(x * cellPx, y * cellPx, cellPx, cellPx);
+
+        if (tilesReady && !isStorm) {
+          // Atlas-painted tile.
+          let crop: [number, number, number, number] | null = null;
+          if (isHarbor) {
+            // Alternate left/right harbor variant by x.
+            crop = (x % 2 === 0) ? TILE.harborL : TILE.harborR;
+          } else if (isIsland) {
+            crop = TILE.island[variantFor(x, y, TILE.island.length)];
+          } else {
+            crop = TILE.water[variantFor(x, y, TILE.water.length)];
+          }
+          const [sx, sy, sw, sh] = crop;
+          ctx.drawImage(tilesImg!, sx, sy, sw, sh, x * cellPx, y * cellPx, cellPx, cellPx);
+        } else {
+          // Fallback: flat color while tiles load (or storm cell).
+          ctx.fillStyle = isStorm ? "#3a3a3a" :
+                          isHarbor ? "#5c4429" :
+                          isIsland ? "#7d7567" : "#162230";
+          ctx.fillRect(x * cellPx, y * cellPx, cellPx, cellPx);
+        }
+
         if (isStorm) {
-          // Storm cross-hatch
+          // Storm cross-hatch overlay (always — even atop atlas tile)
+          if (tilesReady) {
+            // Dim the underlying tile a bit so the storm reads.
+            ctx.fillStyle = "rgba(58,58,58,0.55)";
+            ctx.fillRect(x * cellPx, y * cellPx, cellPx, cellPx);
+          }
           ctx.strokeStyle = "rgba(255,255,255,0.3)";
           ctx.lineWidth = 1;
           ctx.beginPath();
