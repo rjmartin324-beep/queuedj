@@ -674,14 +674,14 @@
   {
     "id": 57,
     "file": "geo_057.jpg",
-    "location": "Petra Siq Canyon Approach",
+    "location": "Petra Monastery (Ad-Deir), Petra",
     "country": "Jordan",
     "lat": 30.3289,
     "lng": 35.4433,
     "difficulty": "medium",
     "region": "Middle East",
-    "wikimedia_search": "Petra Siq narrow canyon Jordan",
-    "notes": "Narrow sandstone canyon leading to Treasury — different angle from id:17."
+    "wikimedia_search": "Petra Monastery Ad-Deir Jordan",
+    "notes": "Rock-cut facade higher up the mountain than the Treasury. Different angle/site within Petra than id:17."
   },
   {
     "id": 58,

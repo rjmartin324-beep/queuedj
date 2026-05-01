@@ -343,8 +343,10 @@ button {
   50%       { box-shadow: 0 0 48px rgba(43,108,176,0.45), inset 0 0 80px rgba(43,108,176,0.12); }
 }
 @keyframes hub-retro-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(0,200,80,0.15), inset 0 0 40px rgba(0,200,80,0.04); }
-  50%       { box-shadow: 0 0 36px rgba(0,200,80,0.28), inset 0 0 60px rgba(0,200,80,0.08); }
+  /* Moonlit-cyan glow tuned to the Whalabroad palette (sea_highlight #3d6a82
+     + lantern_gold #d9a649 accent). Replaces the old green pulse. */
+  0%, 100% { box-shadow: 0 0 22px rgba(61,106,130,0.22), inset 0 0 44px rgba(61,106,130,0.06); }
+  50%       { box-shadow: 0 0 42px rgba(217,166,73,0.30), inset 0 0 70px rgba(61,106,130,0.12); }
 }
 @keyframes hub-scores-pulse {
   0%, 100% { box-shadow: 0 0 20px rgba(246,224,94,0.12), inset 0 0 40px rgba(246,224,94,0.04); }
@@ -397,12 +399,15 @@ button {
 .hub-retro {
   grid-row: 1;
   grid-column: 2;
+  /* Whalabroad sea-palette gradient: choppy water → deep sea → abyss black.
+     Matches the locked palette.json (sea_choppy #2c4a5e → sea_deep #162230
+     → sea_abyss #0d1418) so the card shares the in-game board's mood. */
   background:
-    linear-gradient(155deg, #1F8A4E 0%, #0E5230 50%, #052317 100%);
+    linear-gradient(155deg, #2c4a5e 0%, #1f3142 35%, #162230 70%, #0d1418 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    inset 0 -1px 0 rgba(0,0,0,0.4),
-    0 10px 30px rgba(31,138,78,0.25);
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.5),
+    0 10px 30px rgba(13,20,24,0.45);
   animation: hub-retro-pulse 6s ease-in-out infinite;
 }
 
@@ -486,11 +491,12 @@ button {
 }
 
 /* Title — beef up the text-shadow so it carries against the busier
-   layered background. */
+   layered background. Glow tinted lantern-gold to match the new sea
+   palette instead of the old retro-green. */
 .hub-retro-title {
   text-shadow:
     0 2px 4px rgba(0,0,0,0.85),
-    0 0 20px rgba(31, 138, 78, 0.35);
+    0 0 20px rgba(217, 166, 73, 0.30);
 }
 
 .hub-scores {
@@ -554,7 +560,8 @@ button {
 }
 
 .party-glow  { width: 320px; height: 320px; background: rgba(99,140,230,0.45); top: -80px; right: -60px; }
-.retro-glow  { width: 220px; height: 220px; background: rgba(74,222,128,0.40); bottom: -40px; right: -40px; }
+.retro-glow  { width: 220px; height: 220px; background: rgba(217,166,73,0.32); bottom: -40px; right: -40px; }
+/* ↑ lantern-gold glow (palette: lantern_gold #d9a649) — replaces the old green. */
 .scores-glow { width: 220px; height: 220px; background: rgba(246,200,66,0.45); top: -40px; left: -40px; }
 
 /* ─── Expanded overlay ───────────────────────────────────────────────────────── */
@@ -572,7 +579,8 @@ button {
 }
 
 .hub-expanded-party  { background: linear-gradient(160deg, #0D1B3E 0%, #050C1A 100%); }
-.hub-expanded-retro  { background: linear-gradient(160deg, #071207 0%, #020602 100%); }
+.hub-expanded-retro  { background: linear-gradient(160deg, #0d1418 0%, #050a0d 100%); }
+/* ↑ Whalabroad sea_abyss palette — was dark green, now matches the card. */
 .hub-expanded-scores { background: linear-gradient(160deg, #1C1600 0%, #080500 100%); }
 
 .expanded-back {
