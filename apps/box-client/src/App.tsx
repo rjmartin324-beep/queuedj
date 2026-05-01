@@ -110,6 +110,11 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
       </div>
 
       <div className="hub-card hub-retro" onClick={() => openCard("whalabroad")}>
+        <img className="hub-retro-art"
+             src="/whalabroad/raw/whale-idle-surfaced.png"
+             alt=""
+             aria-hidden="true"
+             loading="lazy" />
         <div className="hub-card-body">
           <span className="hub-card-eyebrow">STRATEGY</span>
           <h2 className="hub-card-title">WHALA<br />BROAD</h2>

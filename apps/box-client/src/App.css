@@ -406,6 +406,25 @@ button {
   animation: hub-retro-pulse 6s ease-in-out infinite;
 }
 
+/* Whale art behind the text — gives the card a Moby Dick mood instead of
+   just a green block. Anchored bottom-right and slightly oversized so the
+   tail/back peeks above the title text. Sits at z-index 1, between the
+   background gradient and the hub-card-body (z-index 2). */
+.hub-retro-art {
+  position: absolute;
+  right: -10%;
+  bottom: -8%;
+  width: 90%;
+  max-height: 110%;
+  object-fit: contain;
+  object-position: right bottom;
+  opacity: 0.55;
+  z-index: 1;
+  pointer-events: none;
+  /* Slight color shift so the white whale reads against the green card */
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+}
+
 .hub-scores {
   grid-row: 2;
   grid-column: 2;
