@@ -438,44 +438,22 @@ button {
 
 .hub-retro-whale {
   position: absolute;
-  bottom: -6%;
+  bottom: -2%;
   left: 50%;
   transform: translateX(-50%);
-  width: 92%;
-  max-height: 75%;
+  /* Bigger: was 92% / 75%. Now fills the card. */
+  width: 115%;
+  max-height: 100%;
   object-fit: contain;
   object-position: center bottom;
-  opacity: 0.78;
+  /* Higher opacity: now that the checker is gone, the whale can be the
+     star of the card without competing with anything. */
+  opacity: 0.92;
   z-index: 1;
   pointer-events: none;
   filter:
-    drop-shadow(0 4px 12px rgba(0,0,0,0.55))
-    saturate(0.85);
-}
-
-/* Ship cropped from ship-red-sheet.png. The sheet is 1440x2912 = 4 cols
-   x 6 rows. Each cell is 360x485. background-size 400% 600% means the
-   full sheet is rendered 4x wider and 6x taller than the box — so a
-   single cell exactly fills the box. background-position picks the cell:
-   col 1 of 4 = 33.33%, row 0 of 6 = 0%. We use the NE-facing ship for
-   visual interest (slightly turned, more dramatic than head-on N). */
-.hub-retro-ship {
-  position: absolute;
-  top: 14%;
-  right: 8%;
-  width: 36%;
-  aspect-ratio: 360 / 485;
-  background-image: url("/whalabroad/clean/ship-red-sheet.png");
-  background-size: 400% 600%;
-  background-position: 33.33% 0%;
-  background-repeat: no-repeat;
-  z-index: 2;
-  opacity: 0.92;
-  pointer-events: none;
-  filter:
-    drop-shadow(0 6px 12px rgba(0,0,0,0.6))
-    contrast(1.05);
-  transform: rotate(-6deg);
+    drop-shadow(0 6px 16px rgba(0,0,0,0.65))
+    saturate(0.92);
 }
 
 /* Corner-darken vignette for title legibility against the busier

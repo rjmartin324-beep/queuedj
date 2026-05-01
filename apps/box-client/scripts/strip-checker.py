@@ -16,10 +16,15 @@ import sys
 from PIL import Image
 from collections import Counter
 
-def strip_checker(in_path: str, out_path: str, tolerance: int = 15, explicit_colors=None) -> None:
+def strip_checker(in_path: str, out_path: str, tolerance: int = 15, explicit_colors=None,
+                  y_max_frac: float = 1.0) -> None:
+    """y_max_frac limits keying to the top fraction of the image (default 1.0 =
+    whole image). Use a smaller value when the bottom of the image has actual
+    painted content (e.g. dark water) that overlaps the checker tone range."""
     img = Image.open(in_path).convert("RGBA")
     w, h = img.size
     px = img.load()
+    y_limit = int(h * y_max_frac)
 
     if explicit_colors:
         chosen = explicit_colors
@@ -54,7 +59,7 @@ def strip_checker(in_path: str, out_path: str, tolerance: int = 15, explicit_col
         return all(abs(c[i] - target[i]) <= tolerance for i in range(3))
 
     keyed = 0
-    for y in range(h):
+    for y in range(min(y_limit, h)):
         for x in range(w):
             r, g, b, a = px[x, y]
             if a == 0:
@@ -72,6 +77,7 @@ if __name__ == "__main__":
     outp = sys.argv[2]
     tol = 15
     explicit = None
+    y_max = 1.0
     args = sys.argv[3:]
     i = 0
     while i < len(args):
@@ -79,7 +85,9 @@ if __name__ == "__main__":
             vals = [int(v) for v in args[i + 1].split(",")]
             explicit = [tuple(vals[0:3]), tuple(vals[3:6])]
             i += 2
+        elif args[i] == "--y-max" and i + 1 < len(args):
+            y_max = float(args[i + 1]); i += 2
         else:
             tol = int(args[i]); i += 1
-    print(f"Stripping checker from {inp} (tolerance={tol})")
-    strip_checker(inp, outp, tol, explicit)
+    print(f"Stripping checker from {inp} (tolerance={tol}, y_max_frac={y_max})")
+    strip_checker(inp, outp, tol, explicit, y_max)

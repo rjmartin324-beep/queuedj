@@ -110,16 +110,14 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
       </div>
 
       <div className="hub-card hub-retro" onClick={() => openCard("whalabroad")}>
-        {/* Layered art: hero whale background + ship sprite cropped from
-            the ship-red-sheet atlas + a wave gradient + a subtle moonlit
-            tint, all behind the title. */}
+        {/* Hero whale fills most of the card — no ship sprite, no
+            checker, just the cleaned whale on the sea-palette gradient. */}
         <div className="hub-retro-water" aria-hidden="true" />
         <img className="hub-retro-whale"
              src="/whalabroad/clean/whale-idle-surfaced.png"
              alt=""
              aria-hidden="true"
              loading="lazy" />
-        <div className="hub-retro-ship" aria-hidden="true" />
         <div className="hub-retro-vignette" aria-hidden="true" />
         <div className="hub-card-body">
           <span className="hub-card-eyebrow">STRATEGY · ASYMMETRIC NAVAL</span>
