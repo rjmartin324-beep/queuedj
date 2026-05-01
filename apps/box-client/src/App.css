@@ -465,7 +465,7 @@ button {
   right: 8%;
   width: 36%;
   aspect-ratio: 360 / 485;
-  background-image: url("/whalabroad/raw/ship-red-sheet.png");
+  background-image: url("/whalabroad/clean/ship-red-sheet.png");
   background-size: 400% 600%;
   background-position: 33.33% 0%;
   background-repeat: no-repeat;

@@ -115,7 +115,7 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
             tint, all behind the title. */}
         <div className="hub-retro-water" aria-hidden="true" />
         <img className="hub-retro-whale"
-             src="/whalabroad/raw/whale-idle-surfaced.png"
+             src="/whalabroad/clean/whale-idle-surfaced.png"
              alt=""
              aria-hidden="true"
              loading="lazy" />
