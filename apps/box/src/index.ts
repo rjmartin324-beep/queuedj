@@ -487,6 +487,8 @@ setInterval(()=>{ if(document.getElementById('auto').checked) load(); },5000);
     ".css": "text/css",
     ".json": "application/json",
     ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
     ".svg": "image/svg+xml",
     ".ico": "image/x-icon",
     ".woff2": "font/woff2",
