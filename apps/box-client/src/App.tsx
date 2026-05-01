@@ -110,15 +110,21 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
       </div>
 
       <div className="hub-card hub-retro" onClick={() => openCard("whalabroad")}>
-        <img className="hub-retro-art"
+        {/* Layered art: hero whale background + ship sprite cropped from
+            the ship-red-sheet atlas + a wave gradient + a subtle moonlit
+            tint, all behind the title. */}
+        <div className="hub-retro-water" aria-hidden="true" />
+        <img className="hub-retro-whale"
              src="/whalabroad/raw/whale-idle-surfaced.png"
              alt=""
              aria-hidden="true"
              loading="lazy" />
+        <div className="hub-retro-ship" aria-hidden="true" />
+        <div className="hub-retro-vignette" aria-hidden="true" />
         <div className="hub-card-body">
-          <span className="hub-card-eyebrow">STRATEGY</span>
-          <h2 className="hub-card-title">WHALA<br />BROAD</h2>
-          <p className="hub-card-sub">🐋 1 whale vs the world.</p>
+          <span className="hub-card-eyebrow">STRATEGY · ASYMMETRIC NAVAL</span>
+          <h2 className="hub-card-title hub-retro-title">WHALA<br />BROAD</h2>
+          <p className="hub-card-sub">🐋 vs ⛵⛵⛵ — frenemy, then race.</p>
         </div>
         <div className="hub-card-glow retro-glow" />
       </div>
@@ -169,6 +175,10 @@ interface Experience {
   icon: string;
   summary: string;
   rules: string[];
+  // Hidden experiences are NOT shown in the Party Room grid but ARE
+  // listed here so PartyRoomView's pickedGame lookup works when entered
+  // via a hub card (e.g. Whalabroad's top-level card).
+  hidden?: boolean;
 }
 
 const EXPERIENCES: Experience[] = [
@@ -271,9 +281,22 @@ const EXPERIENCES: Experience[] = [
       "Difficulty tiers from 'banana' to 'Justice' (Impossible)",
     ],
   },
-  // Whalabroad is intentionally NOT in this party-room grid — it has its own
-  // top-level hub card next to PARTY ROOM and SCORES so it gets the strategy-
-  // slot treatment the design doc called for.
+  // Whalabroad is hidden from the party-room grid (it has its own top-level
+  // hub card) but listed so PartyRoomView's pickedGame lookup resolves and
+  // STEP 2 of the room-creation flow renders.
+  {
+    id: "whalabroad", label: "Whalabroad", icon: "🐋",
+    desc: "1 whale vs 2-7 ships · asymmetric naval",
+    summary: "One player is the white whale, the rest are whalers. Hunt or be hunted.",
+    rules: [
+      "Whalers hunt the whale together — but only one wins by towing the carcass to harbor",
+      "Whale wins if every ship is sunk",
+      "Hidden movement: the whale's exact position is fogged when underwater",
+      "8-direction grid, octagonal board, turn-based",
+      "Storm at turn 20 — outer ring becomes impassable",
+    ],
+    hidden: true,
+  },
 ];
 
 // ─── Mode Carousel — single-card carousel; reusable across all 9 games ──────
@@ -369,7 +392,7 @@ function PartyRoomView({ roomHook, onClose, lockedExperience }: { roomHook: Retu
         <div className="party-form">
           <div className="form-section-label">PICK A GAME</div>
           <div className="exp-grid exp-grid-color">
-            {EXPERIENCES.map(e => (
+            {EXPERIENCES.filter(e => !e.hidden).map(e => (
               <button key={e.id}
                 className={`exp-tile-color exp-color-${e.id}`}
                 onClick={() => { haptic.tap(); setPreviewing(e); }}>
