@@ -14,6 +14,7 @@ import ConnectionsGame from "./screens/ConnectionsGame";
 import GeoGuesserGame from "./screens/GeoGuesserGame";
 import TheDraftGame from "./screens/TheDraftGame";
 import DrawGame from "./screens/DrawGame";
+import WhalabroadGame from "./screens/WhalabroadGame";
 import "./App.css";
 
 // ─── Connection guard ─────────────────────────────────────────────────────────
@@ -263,6 +264,18 @@ const EXPERIENCES: Experience[] = [
       "First to type the word correctly = 1000 pts",
       "Drawer also scores when their word is guessed",
       "Difficulty tiers from 'banana' to 'Justice' (Impossible)",
+    ],
+  },
+  {
+    id: "whalabroad", label: "Whalabroad", icon: "🐋",
+    desc: "1 whale vs 2-7 ships · asymmetric naval",
+    summary: "One player is the white whale, the rest are whalers. Hunt or be hunted.",
+    rules: [
+      "Whalers hunt the whale together — but only one wins by towing the carcass to harbor",
+      "Whale wins if every ship is sunk",
+      "Hidden movement: the whale's exact position is fogged when underwater",
+      "8-direction grid, octagonal board, turn-based",
+      "v1 lite — full mechanics rolling out incrementally",
     ],
   },
 ];
@@ -1070,6 +1083,7 @@ export default function App() {
     if (room.experience === "geoguesser")  return <GeoGuesserGame  {...sharedProps} />;
     if (room.experience === "thedraft")    return <TheDraftGame    {...sharedProps} />;
     if (room.experience === "draw")        return <DrawGame        {...sharedProps} />;
+    if (room.experience === "whalabroad")  return <WhalabroadGame  {...sharedProps} />;
     return <TriviaGame {...sharedProps} roomMode={room.mode} />;
   }
 
