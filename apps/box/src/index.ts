@@ -194,6 +194,42 @@ function showAndBroadcastGeoGuesser(roomId: string): void {
   });
 }
 
+// Whalabroad scheduler — reads state.deadline and schedules either:
+//  • the end-of-reveal transition (3s after commit_lobby), or
+//  • the auto-resolveTurn at deadline (turn timer).
+// Called after every Whalabroad state change that lands in reveal/moving/tow.
+// Cleared automatically when game_over or cleanup runs.
+function scheduleWhalabroad(roomId: string): void {
+  const state = whalabroad.getState(roomId);
+  if (!state || !state.deadline || state.phase === "game_over") {
+    clearRoomTimer(roomId, "whalabroad:end_reveal");
+    clearRoomTimer(roomId, "whalabroad:resolve");
+    return;
+  }
+  // Padding so client transitions land before the server fires.
+  const delay = Math.max(state.deadline - Date.now() + 250, 250);
+  if (state.phase === "reveal") {
+    clearRoomTimer(roomId, "whalabroad:resolve");
+    setRoomTimer(roomId, "whalabroad:end_reveal", delay, () => {
+      const s = whalabroad.endRevealPhase(roomId);
+      if (s) {
+        broadcast(roomId, { type: "game:state", state: s });
+        scheduleWhalabroad(roomId);
+      }
+    });
+  } else if (state.phase === "moving" || state.phase === "tow") {
+    clearRoomTimer(roomId, "whalabroad:end_reveal");
+    setRoomTimer(roomId, "whalabroad:resolve", delay, () => {
+      const s = whalabroad.resolveTurn(roomId);
+      if (s) {
+        broadcast(roomId, { type: "game:state", state: s });
+        if (s.phase === "game_over") rooms.endRound(roomId);
+        else scheduleWhalabroad(roomId);
+      }
+    });
+  }
+}
+
 // Show next WYR prompt and schedule 30s watchdog
 function showAndBroadcastPrompt(roomId: string): void {
   const state = wyr.showPrompt(roomId);
@@ -1078,8 +1114,10 @@ wss.on("connection", (ws, req) => {
               break;
             }
             const s = whalabroad.commitLobby(msg.roomId);
-            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
-            else send(ws, { type: "room:error", code: "WHALABROAD_LOBBY_INVALID", message: "Need at least 2 whalers + 1 whale" });
+            if (s) {
+              broadcast(msg.roomId, { type: "game:state", state: s });
+              scheduleWhalabroad(msg.roomId);
+            } else send(ws, { type: "room:error", code: "WHALABROAD_LOBBY_INVALID", message: "Need at least 2 whalers + 1 whale" });
 
           } else if (msg.action === "whalabroad:whale_action") {
             const action = payload as unknown as whalabroad.WhalePending;
@@ -1092,7 +1130,9 @@ wss.on("connection", (ws, req) => {
             if (s) broadcast(msg.roomId, { type: "game:state", state: s });
 
           } else if (msg.action === "whalabroad:resolve_turn") {
-            // Host-triggered turn resolution; auto-timer can also call this.
+            // Host-triggered turn resolution; auto-timer also calls this via
+            // scheduleWhalabroad. Either path clears the existing timer and
+            // reschedules from the new deadline.
             if (room.hostGuestId !== msg.guestId) {
               send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Host only" });
               break;
@@ -1101,6 +1141,7 @@ wss.on("connection", (ws, req) => {
             if (s) {
               broadcast(msg.roomId, { type: "game:state", state: s });
               if (s.phase === "game_over") rooms.endRound(msg.roomId);
+              else scheduleWhalabroad(msg.roomId);
             }
 
           } else if (msg.action === "whalabroad:set_hp_preset") {
@@ -1121,7 +1162,10 @@ wss.on("connection", (ws, req) => {
               break;
             }
             const s = whalabroad.endRevealPhase(msg.roomId);
-            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+            if (s) {
+              broadcast(msg.roomId, { type: "game:state", state: s });
+              scheduleWhalabroad(msg.roomId);
+            }
           }
 
         } else {

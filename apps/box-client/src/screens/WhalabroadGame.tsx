@@ -3,14 +3,77 @@ import { socket } from "../ws";
 import { haptic } from "../haptics";
 import PodiumScreen from "../components/PodiumScreen";
 
-// Full-spec Whalabroad client. Visuals are still placeholder (colored cells +
-// emoji) so we can play-test mechanics first; atlas sprite rendering wires
-// in next iteration.
+// Full-spec Whalabroad client with atlas sprite rendering for ships + whale.
+// Board tiles still flat colored (those sheets aren't a clean grid — pixel
+// coords would need to be hand-mapped per tile and that's a follow-up).
 
 interface Props { guestId: string; roomId: string; isHost: boolean; gameState: any; }
 
 const BOARD_PX = 480;
 const BOARD_SIZE = 12;
+
+// ─── Atlas sheets ─────────────────────────────────────────────────────────
+// Ship sheets: 1440 × 2912 px. Layout = 4 cols × 6 rows = 24 cells.
+//   Rows 0-1: full health (N/NE/E/SE then S/SW/W/NW)
+//   Rows 2-3: damaged
+//   Rows 4-5: critical
+// Cell ≈ 360 × 485 px.
+const SHIP_SHEET_PATHS: Record<string, string> = {
+  "black":        "/whalabroad/raw/ship-black-sheet.png",
+  "red":          "/whalabroad/raw/ship-red-sheet.png",
+  "brown":        "/whalabroad/raw/ship-brown-sheet.png",
+  "white":        "/whalabroad/raw/ship-white-sheet.png",
+  "yellow":       "/whalabroad/raw/ship-yellow-sheet.png",
+  "green-faded":  "/whalabroad/raw/ship-green-faded-sheet.png",
+  "gray-faded":   "/whalabroad/raw/ship-gray-faded-sheet.png",
+};
+const SHIP_SHEET_W = 1440, SHIP_SHEET_H = 2912;
+const SHIP_CELL_W = SHIP_SHEET_W / 4;   // 360
+const SHIP_CELL_H = SHIP_SHEET_H / 6;   // ≈485.33
+
+// Whale alive grid (8 facings, 2 cols × 4 rows): 720 × 1456.
+const WHALE_ALIVE_PATH = "/whalabroad/raw/whale-swim-grid-v2.png";
+const WHALE_ALIVE_W = 720, WHALE_ALIVE_H = 1456;
+const WHALE_ALIVE_CELL_W = WHALE_ALIVE_W / 2;  // 360
+const WHALE_ALIVE_CELL_H = WHALE_ALIVE_H / 4;  // 364
+
+// Whale damage grid (8 facings × 3 HP states, 4 cols × 6 rows): 881 × 1785.
+const WHALE_DAMAGE_PATH = "/whalabroad/raw/whale-damage-grid.png";
+const WHALE_DAMAGE_W = 881, WHALE_DAMAGE_H = 1785;
+const WHALE_DAMAGE_CELL_W = WHALE_DAMAGE_W / 4;  // ≈220
+const WHALE_DAMAGE_CELL_H = WHALE_DAMAGE_H / 6;  // ≈297.5
+
+// Ship sprite cell coordinates given facing (0..7) and HP state (0=full,
+// 1=damaged, 2=critical).
+function shipCell(facing: number, hpState: 0 | 1 | 2): { sx: number; sy: number; sw: number; sh: number } {
+  const col = facing % 4;
+  const row = hpState * 2 + Math.floor(facing / 4);
+  return { sx: col * SHIP_CELL_W, sy: row * SHIP_CELL_H, sw: SHIP_CELL_W, sh: SHIP_CELL_H };
+}
+
+function whaleAliveCell(facing: number) {
+  const col = facing % 2;
+  const row = Math.floor(facing / 2);
+  return { sx: col * WHALE_ALIVE_CELL_W, sy: row * WHALE_ALIVE_CELL_H, sw: WHALE_ALIVE_CELL_W, sh: WHALE_ALIVE_CELL_H };
+}
+
+function whaleDamageCell(facing: number, hpState: 1 | 2) {
+  const col = facing % 4;
+  const row = hpState * 2 + Math.floor(facing / 4);
+  return { sx: col * WHALE_DAMAGE_CELL_W, sy: row * WHALE_DAMAGE_CELL_H, sw: WHALE_DAMAGE_CELL_W, sh: WHALE_DAMAGE_CELL_H };
+}
+
+function shipHpState(hp: number, max = 3): 0 | 1 | 2 {
+  if (hp >= max) return 0;
+  if (hp >= Math.ceil(max / 2)) return 1;
+  return 2;
+}
+
+function whaleDamageState(wounds: number, hp: number): 0 | 1 | 2 {
+  if (wounds === 0) return 0;
+  if (wounds < hp / 2) return 1;
+  return 2;
+}
 
 function inOctagon(x: number, y: number, ringScale: number): boolean {
   if (x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE) return false;
@@ -71,6 +134,25 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
   const isWhaler = !!myShip && !myShip.sunk;
   const isGhost = !!myShip && myShip.sunk;
   const amSpectator = !isWhale && !isWhaler && !isGhost;
+
+  // ─── Atlas image preloader ────────────────────────────────────────────
+  const imgRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const [atlasTick, setAtlasTick] = useState(0); // bump to force redraw on load
+  useEffect(() => {
+    const paths = [
+      ...Object.values(SHIP_SHEET_PATHS),
+      WHALE_ALIVE_PATH, WHALE_DAMAGE_PATH,
+    ];
+    let cancelled = false;
+    for (const p of paths) {
+      if (imgRef.current.has(p)) continue;
+      const img = new Image();
+      img.onload = () => { if (!cancelled) setAtlasTick(t => t + 1); };
+      img.src = p;
+      imgRef.current.set(p, img);
+    }
+    return () => { cancelled = true; };
+  }, []);
 
   // Auto-end the 3-second reveal phase as host.
   useEffect(() => {
@@ -138,19 +220,39 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
     if (whale && showWhalePosition) {
       const px = whale.x * cellPx + cellPx / 2;
       const py = whale.y * cellPx + cellPx / 2;
-      ctx.fillStyle = whale.dead ? "#7d7567" : (whale.surfaced ? "#dbe7ee" : "rgba(216,231,238,0.55)");
-      ctx.beginPath();
-      ctx.arc(px, py, cellPx * 0.42, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#0d1418";
-      ctx.font = `${cellPx * 0.6}px serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(whale.dead ? "💀" : "🐋", px, py);
+      const damageState = whaleDamageState(whale.wounds ?? 0, whale.hp ?? 5);
+      const facing = 4; // whale doesn't track facing in state — render it facing south by default
+      // Pick the right atlas sheet: damage-grid for wounded/dead, alive grid otherwise.
+      const useDamage = damageState > 0 || whale.dead;
+      const sheetPath = useDamage ? WHALE_DAMAGE_PATH : WHALE_ALIVE_PATH;
+      const img = imgRef.current.get(sheetPath);
+      const cell = useDamage
+        ? whaleDamageCell(facing, (whale.dead ? 2 : damageState) as 1 | 2)
+        : whaleAliveCell(facing);
+      const drawSize = cellPx * 1.5; // sprite oversized for board-piece feel
+      ctx.globalAlpha = whale.surfaced || whale.dead ? 1 : 0.6; // fade slightly when underwater
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, cell.sx, cell.sy, cell.sw, cell.sh,
+                      px - drawSize / 2, py - drawSize / 2, drawSize, drawSize);
+      } else {
+        // Fallback: colored circle while atlas loads
+        ctx.fillStyle = whale.dead ? "#7d7567" : (whale.surfaced ? "#dbe7ee" : "rgba(216,231,238,0.55)");
+        ctx.beginPath();
+        ctx.arc(px, py, cellPx * 0.42, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#0d1418";
+        ctx.font = `${cellPx * 0.6}px serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(whale.dead ? "💀" : "🐋", px, py);
+      }
+      ctx.globalAlpha = 1;
       // Wound count
       if (whale.wounds > 0 && !whale.dead) {
         ctx.fillStyle = "#7a2c1f";
         ctx.font = `${cellPx * 0.18}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
         ctx.fillText("✦".repeat(whale.wounds), px, py + cellPx * 0.32);
       }
       // Tow line indicator
@@ -182,37 +284,47 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
     for (const s of ships) {
       const px = s.x * cellPx + cellPx / 2;
       const py = s.y * cellPx + cellPx / 2;
-      ctx.fillStyle = SHIP_HEX[s.color] ?? "#86643c";
-      const sz = cellPx * (s.sunk ? 0.5 : 0.72);
-      ctx.fillRect(px - sz / 2, py - sz / 2, sz, sz);
-      ctx.strokeStyle = s.sunk ? "#5a1a10" : "#e8dcb8";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(px - sz / 2, py - sz / 2, sz, sz);
-      ctx.fillStyle = "#fff";
-      ctx.font = `${cellPx * 0.5}px serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(s.sunk ? "👻" : "⛵", px, py);
-      // HP bar
+      const sheetPath = SHIP_SHEET_PATHS[s.color];
+      const img = sheetPath ? imgRef.current.get(sheetPath) : null;
+      const hpState = s.sunk ? 2 : shipHpState(s.hp ?? 3, 3);
+      const cell = shipCell(s.facing ?? 0, hpState);
+      const drawSize = cellPx * 1.55; // ship sprites are taller than wide; oversize for visibility
+      ctx.globalAlpha = s.sunk ? 0.55 : 1;
+      if (img && img.complete && img.naturalWidth > 0) {
+        // Center on cell with extra height because ships have masts.
+        ctx.drawImage(img, cell.sx, cell.sy, cell.sw, cell.sh,
+                      px - drawSize / 2, py - drawSize * 0.6, drawSize, drawSize * 1.2);
+      } else {
+        // Fallback while atlas loads
+        ctx.fillStyle = SHIP_HEX[s.color] ?? "#86643c";
+        const sz = cellPx * 0.72;
+        ctx.fillRect(px - sz / 2, py - sz / 2, sz, sz);
+        ctx.strokeStyle = s.sunk ? "#5a1a10" : "#e8dcb8";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px - sz / 2, py - sz / 2, sz, sz);
+        ctx.fillStyle = "#fff";
+        ctx.font = `${cellPx * 0.5}px serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(s.sunk ? "👻" : "⛵", px, py);
+      }
+      ctx.globalAlpha = 1;
+      // HP bar (only when alive)
       if (!s.sunk) {
         const barW = cellPx * 0.6;
         const fillW = (s.hp / 3) * barW;
         ctx.fillStyle = "#5a1a10";
-        ctx.fillRect(px - barW / 2, py + cellPx * 0.34, barW, 3);
+        ctx.fillRect(px - barW / 2, py + cellPx * 0.42, barW, 3);
         ctx.fillStyle = "#4ade80";
-        ctx.fillRect(px - barW / 2, py + cellPx * 0.34, fillW, 3);
+        ctx.fillRect(px - barW / 2, py + cellPx * 0.42, fillW, 3);
       }
-      // Facing tick
-      if (!s.sunk) {
-        const fa = (s.facing * 45 - 90) * Math.PI / 180;
-        const tx = px + Math.cos(fa) * cellPx * 0.42;
-        const ty = py + Math.sin(fa) * cellPx * 0.42;
-        ctx.strokeStyle = "#fff";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(px, py);
-        ctx.lineTo(tx, ty);
-        ctx.stroke();
+      // Sunk overlay
+      if (s.sunk) {
+        ctx.fillStyle = "#fff";
+        ctx.font = `${cellPx * 0.5}px serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("👻", px, py);
       }
     }
 
@@ -239,7 +351,7 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
       ctx.lineWidth = 3;
       ctx.strokeRect(targetCell.x * cellPx, targetCell.y * cellPx, cellPx, cellPx);
     }
-  }, [ringScale, islands, harbor, stormCells, stormActive, whale, ships, targetCell, phase, isWhale, isGhost, isWhaler, actionMode, cannonSide, myShip]);
+  }, [ringScale, islands, harbor, stormCells, stormActive, whale, ships, targetCell, phase, isWhale, isGhost, isWhaler, actionMode, cannonSide, myShip, atlasTick]);
 
   function canvasClick(e: React.MouseEvent<HTMLCanvasElement>) {
     if (phase !== "moving" && phase !== "tow") return;
