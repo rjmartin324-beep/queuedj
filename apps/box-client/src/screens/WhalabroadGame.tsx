@@ -145,6 +145,7 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
   const [whisperTo, setWhisperTo] = useState<string>("");
 
   const phase: string = gameState?.phase ?? "lobby";
+  const bots: string[] = gameState?.bots ?? [];
   const ringScale: number = gameState?.ringScale ?? 4;
   const islands: Array<[number, number]> = gameState?.islands ?? [];
   const harbor: Array<[number, number]> = gameState?.harbor ?? [];
@@ -516,6 +517,8 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
   function unvolunteerWhale() { haptic.tap(); send("whalabroad:unvolunteer_whale"); }
   function commitLobby()      { haptic.tap(); send("whalabroad:commit_lobby"); }
   function setHPPreset(p: "quick"|"standard"|"epic"|null) { haptic.tap(); send("whalabroad:set_hp_preset", { preset: p }); }
+  function addBot()           { haptic.tap(); send("whalabroad:add_bot"); }
+  function removeBot(botId: string) { haptic.tap(); send("whalabroad:remove_bot", { botId }); }
   function resolveTurn()      { haptic.heavy(); send("whalabroad:resolve_turn"); }
 
   function whaleAct(kind: string, extra: any = {}) {
@@ -619,6 +622,28 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
 
         {isHost && (
           <>
+            {/* BOTS — host can add synthetic players to fill the lobby. */}
+            <div style={{ background: "#1f3142", padding: 12, borderRadius: 8, marginBottom: 12 }}>
+              <div style={{ fontSize: 12, color: "#a89e8b", marginBottom: 8, letterSpacing: "0.08em" }}>
+                BOTS ({bots.length}/6)
+              </div>
+              {bots.length === 0 && <div style={{ color: "#7d7567", fontSize: 12, marginBottom: 6 }}>None — add to test solo</div>}
+              {bots.map(bid => {
+                const sc = scores.find((s: any) => s.guestId === bid);
+                return (
+                  <div key={bid} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 4px", fontSize: 13 }}>
+                    <span>🤖 {sc?.displayName ?? "Bot"}</span>
+                    <button className="btn-secondary" style={{ padding: "2px 8px", fontSize: 11 }}
+                            onClick={() => removeBot(bid)}>Remove</button>
+                  </div>
+                );
+              })}
+              <button className="btn-secondary" style={{ marginTop: 8, padding: "6px 10px", fontSize: 12, width: "100%" }}
+                      disabled={bots.length >= 6} onClick={addBot}>
+                + Add Bot
+              </button>
+            </div>
+
             <div style={{ background: "#1f3142", padding: 12, borderRadius: 8, marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: "#a89e8b", marginBottom: 8, letterSpacing: "0.08em" }}>
                 WHALE HP PRESET
@@ -635,11 +660,11 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
               </div>
             </div>
             <button className="lets-go-btn" onClick={commitLobby} disabled={scores.length < 3}>
-              START GAME ({scores.length} players)
+              START GAME ({scores.length} player{scores.length === 1 ? "" : "s"})
             </button>
           </>
         )}
-        {scores.length < 3 && <p style={{ color: "#fc8181", fontSize: 12, marginTop: 8 }}>Need at least 3 players</p>}
+        {scores.length < 3 && <p style={{ color: "#fc8181", fontSize: 12, marginTop: 8 }}>Need at least 3 players (add bots to fill seats)</p>}
       </div>
     );
   }
@@ -872,6 +897,7 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
         <div style={{ fontSize: 11, color: "#a89e8b", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Players</div>
         {scores.map((s: any) => {
           const isMe = s.guestId === guestId;
+          const isBot = bots.includes(s.guestId);
           const ship = ships.find((sh: any) => sh.guestId === s.guestId);
           const status = s.role === "whale"
             ? (whale?.dead ? "💀 dead" : `🐋 ${whale?.wounds ?? 0}/${whale?.hp ?? 5}`)
@@ -881,7 +907,7 @@ export default function WhalabroadGame({ guestId, roomId, isHost, gameState }: P
               display: "flex", justifyContent: "space-between", padding: "3px 8px",
               background: isMe ? "#3d6a82" : "transparent", borderRadius: 4, fontSize: 12,
             }}>
-              <span>{s.displayName}{isMe ? " (you)" : ""}</span>
+              <span>{isBot ? "🤖 " : ""}{s.displayName}{isMe ? " (you)" : ""}</span>
               <span style={{ color: "#a89e8b" }}>{status}</span>
             </div>
           );

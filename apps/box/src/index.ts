@@ -1168,6 +1168,26 @@ wss.on("connection", (ws, req) => {
               broadcast(msg.roomId, { type: "game:state", state: s });
               scheduleWhalabroad(msg.roomId);
             }
+
+          } else if (msg.action === "whalabroad:add_bot") {
+            // Host-only: spawn a synthetic bot player. Bot has no socket;
+            // its actions are auto-queued inside resolveTurn.
+            if (room.hostGuestId !== msg.guestId) {
+              send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Host only" });
+              break;
+            }
+            const s = whalabroad.addBot(msg.roomId, msg.guestId);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+
+          } else if (msg.action === "whalabroad:remove_bot") {
+            if (room.hostGuestId !== msg.guestId) {
+              send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Host only" });
+              break;
+            }
+            const botId = (payload as { botId?: string }).botId;
+            if (!botId) break;
+            const s = whalabroad.removeBot(msg.roomId, msg.guestId, botId);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
           }
 
         } else {
