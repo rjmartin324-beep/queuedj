@@ -1102,6 +1102,26 @@ wss.on("connection", (ws, req) => {
               broadcast(msg.roomId, { type: "game:state", state: s });
               if (s.phase === "game_over") rooms.endRound(msg.roomId);
             }
+
+          } else if (msg.action === "whalabroad:set_hp_preset") {
+            // Host-only lobby tuning: pick whale HP preset (quick/standard/epic).
+            if (room.hostGuestId !== msg.guestId) {
+              send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Host only" });
+              break;
+            }
+            const presetRaw = (payload as { preset?: unknown }).preset;
+            const preset = (presetRaw === "quick" || presetRaw === "standard" || presetRaw === "epic") ? presetRaw : null;
+            const s = whalabroad.setWhaleHPPreset(msg.roomId, msg.guestId, preset);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
+
+          } else if (msg.action === "whalabroad:end_reveal") {
+            // After the 3-second whale-start reveal, host (or auto-timer) ends it.
+            if (room.hostGuestId !== msg.guestId) {
+              send(ws, { type: "room:error", code: "UNAUTHORIZED", message: "Host only" });
+              break;
+            }
+            const s = whalabroad.endRevealPhase(msg.roomId);
+            if (s) broadcast(msg.roomId, { type: "game:state", state: s });
           }
 
         } else {

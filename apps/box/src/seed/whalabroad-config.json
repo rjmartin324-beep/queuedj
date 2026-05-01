@@ -1,4 +1,6 @@
 {
+  "_doc": "Whalabroad tunables. Board scales with player count via ringScale; harborRepairRadius is the manhattan distance from any harbor cell where a ship can Repair.",
+
   "boardSize": 12,
   "shipColors": ["black", "red", "brown", "white", "yellow", "green-faded", "gray-faded"],
   "shipNamesByColor": {
@@ -10,17 +12,54 @@
     "green-faded":  ["The Spectral", "The Briny Curse", "The Algae-Cloak"],
     "gray-faded":   ["The Wraith", "The Sun-Bleached", "The Lost-At-Sea"]
   },
-  "whaleStartingHP": 5,
+
   "shipStartingHP": 3,
-  "whaleMoveRange": 2,
-  "shipMoveRange": 2,
-  "harpoonRange": 3,
-  "ramRange": 1,
-  "turnSeconds": 25,
-  "harborCells": [[5, 11], [6, 11]],
-  "centerIslandCells": [[4, 5], [5, 5], [6, 5], [7, 5]],
-  "scatteredIslandCells": [[2, 3], [9, 4], [3, 8], [8, 9]],
-  "whaleStart": { "x": 6, "y": 1 },
+  "_whaleStartingHPNote": "default = N ships + 1 (computed at startGame). Host can override via preset.",
+  "whaleHPPresets": { "quick": 3, "standard": 5, "epic": 8 },
+
+  "_movementNote": "Ship FullSail = 3 tiles + no fire. SlowCrawl = 1 tile + can fire. Towing forces SlowCrawl. Recoil after firing limits next turn to 1 tile.",
+  "shipFullSailRange": 3,
+  "shipSlowCrawlRange": 1,
+  "shipTowRange": 1,
+
+  "_whaleMoveNote": "DeepDive 4 hidden tiles. Bubble 3 hidden tiles BUT broadcasts a hint zone. Breach 2 surface tiles. SurpriseBreach 0 move (rises + attacks).",
+  "whaleDeepDiveRange": 4,
+  "whaleBubbleRange": 3,
+  "whaleBreachRange": 2,
+
+  "_damageNote": "Whale Ram (surface) = 2. Surprise Breach = 1. Cannon = 1. Kraken = 1.",
+  "whaleRamDamage": 2,
+  "whaleSurpriseBreachDamage": 1,
+  "shipCannonDamage": 1,
+  "krakenDamage": 1,
+
+  "_rangeNote": "Cannon perpendicular to ship facing, 3 tiles either side. Harpoon adjacent to corpse only.",
+  "shipCannonRange": 3,
+  "shipHarpoonRange": 1,
+  "shipRamRange": 1,
+
+  "_rollingRuleNote": "In any 5-turn rolling window: max 3 submerged turns + min 2 surface turns. Of those 3 submerged, exactly 1 can be the Bubble move. Server enforces.",
+  "rollingWindow": 5,
+  "maxSubmergedInWindow": 3,
+  "minSurfaceInWindow": 2,
+  "maxBubblesPerSubmergedStretch": 1,
+
+  "turnSeconds": 30,
+  "stormStartTurn": 20,
+  "_stormNote": "At stormStartTurn the outermost ring (north/east/west, NOT south so harbor stays accessible) becomes impassable. One-time event.",
+
+  "harborRepairRadius": 2,
+  "_harborNote": "harborCells defined per ringScale; computed dynamically at startGame.",
+
+  "_ringScaleNote": "Octagonal rings. 2 ships=3 rings, 3=4, 4=4, 5=5, 6=5, 7=6.",
+  "ringScaleByPlayerCount": { "2": 3, "3": 4, "4": 4, "5": 5, "6": 5, "7": 6 },
+
+  "_krakenNote": "Each dead ship gets ONE Kraken summon. Tap a tile (hidden from living). Next turn: 1 dmg + 1-tile outward push to anything in 3x3 around target.",
+  "krakenSplashRadius": 1,
+
+  "_ghostNote": "Dead ships get full god view (whale exact position even when submerged) + 1 whisper per turn to one chosen living ally.",
+  "ghostWhispersPerTurn": 1,
+
   "whaleTaunts": [
     "From hell's heart I stab at thee.",
     "Towards thee I roll, thou all-destroying but unconquering whale.",
@@ -29,6 +68,9 @@
     "Your harpoons sing to me. Sing on.",
     "Salt and silence. That is all you'll find.",
     "I am the abyss made flesh.",
-    "Your captain warned you. He should have listened to himself."
+    "Your captain warned you. He should have listened to himself.",
+    "The sea remembers every hull.",
+    "I have outlasted three captains. You will not be the fourth.",
+    "Hear that, in the dark? That is your name being forgotten."
   ]
 }
