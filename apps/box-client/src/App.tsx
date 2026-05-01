@@ -74,7 +74,7 @@ function DisconnectedScreen() {
 
 // ─── Hub ─────────────────────────────────────────────────────────────────────
 
-type HubCard = "party" | "retro" | "scores";
+type HubCard = "party" | "whalabroad" | "scores";
 
 function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
   const [activeCard, setActiveCard] = useState<HubCard | null>(() => {
@@ -109,11 +109,11 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
         <div className="hub-card-glow party-glow" />
       </div>
 
-      <div className="hub-card hub-retro" onClick={() => openCard("retro")}>
+      <div className="hub-card hub-retro" onClick={() => openCard("whalabroad")}>
         <div className="hub-card-body">
-          <span className="hub-card-eyebrow">COMING SOON</span>
-          <h2 className="hub-card-title">RETRO<br />LOUNGE</h2>
-          <p className="hub-card-sub">8 consoles. Offline.</p>
+          <span className="hub-card-eyebrow">STRATEGY</span>
+          <h2 className="hub-card-title">WHALA<br />BROAD</h2>
+          <p className="hub-card-sub">🐋 1 whale vs the world.</p>
         </div>
         <div className="hub-card-glow retro-glow" />
       </div>
@@ -132,9 +132,9 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
           <PartyRoomView roomHook={roomHook} onClose={closeCard} />
         </div>
       )}
-      {activeCard === "retro" && (
+      {activeCard === "whalabroad" && (
         <div className={`hub-expanded hub-expanded-retro ${closing ? "hub-closing" : ""}`}>
-          <RetroView onClose={closeCard} />
+          <PartyRoomView roomHook={roomHook} onClose={closeCard} lockedExperience="whalabroad" />
         </div>
       )}
       {activeCard === "scores" && (
@@ -266,18 +266,9 @@ const EXPERIENCES: Experience[] = [
       "Difficulty tiers from 'banana' to 'Justice' (Impossible)",
     ],
   },
-  {
-    id: "whalabroad", label: "Whalabroad", icon: "🐋",
-    desc: "1 whale vs 2-7 ships · asymmetric naval",
-    summary: "One player is the white whale, the rest are whalers. Hunt or be hunted.",
-    rules: [
-      "Whalers hunt the whale together — but only one wins by towing the carcass to harbor",
-      "Whale wins if every ship is sunk",
-      "Hidden movement: the whale's exact position is fogged when underwater",
-      "8-direction grid, octagonal board, turn-based",
-      "v1 lite — full mechanics rolling out incrementally",
-    ],
-  },
+  // Whalabroad is intentionally NOT in this party-room grid — it has its own
+  // top-level hub card next to PARTY ROOM and SCORES so it gets the strategy-
+  // slot treatment the design doc called for.
 ];
 
 // ─── Mode Carousel — single-card carousel; reusable across all 9 games ──────
@@ -323,13 +314,15 @@ function ModeCarousel({ mode, setMode }: { mode: PlayMode; setMode: (m: PlayMode
   );
 }
 
-function PartyRoomView({ roomHook, onClose }: { roomHook: ReturnType<typeof useRoom>; onClose: () => void }) {
+function PartyRoomView({ roomHook, onClose, lockedExperience }: { roomHook: ReturnType<typeof useRoom>; onClose: () => void; lockedExperience?: string }) {
   const { error, createRoom, joinRoom } = roomHook;
   const urlCode = new URLSearchParams(window.location.search).get("join") ?? "";
   const [tab, setTab] = useState<"host" | "join">(urlCode ? "join" : "host");
   const [displayName, setDisplayName] = useState(localStorage.getItem("pg_display_name") ?? "");
   const [mode, setMode] = useState<PlayMode>("host_tablet");
-  const [experience, setExperience] = useState<string | null>(null);  // null = no game picked yet
+  // When opened from a hub card with a pre-locked experience (e.g. Whalabroad),
+  // skip the game-pick step and go straight to mode + name.
+  const [experience, setExperience] = useState<string | null>(lockedExperience ?? null);
   const [previewing, setPreviewing] = useState<Experience | null>(null);  // rules-modal target
   const [code, setCode] = useState(urlCode);
   const [loading, setLoading] = useState(false);
@@ -345,13 +338,17 @@ function PartyRoomView({ roomHook, onClose }: { roomHook: ReturnType<typeof useR
 
   return (
     <div className="party-view">
-      <button className="expanded-back" onClick={() => { if (experience) { setExperience(null); } else { onClose(); } }}>
+      <button className="expanded-back" onClick={() => {
+        // Locked experience (hub card entry point) — back goes straight to hub.
+        if (lockedExperience) { onClose(); return; }
+        if (experience) { setExperience(null); } else { onClose(); }
+      }}>
         ← Back
       </button>
 
       <div className="party-tabs">
         <button className={`party-tab ${tab === "host" ? "active" : ""}`}
-          onClick={() => { haptic.tap(); setTab("host"); setExperience(null); }}>
+          onClick={() => { haptic.tap(); setTab("host"); if (!lockedExperience) setExperience(null); }}>
           Host a Game
         </button>
         <button className={`party-tab ${tab === "join" ? "active" : ""}`}
@@ -448,27 +445,6 @@ function PartyRoomView({ roomHook, onClose }: { roomHook: ReturnType<typeof useR
           </button>
         </div>
       )}
-    </div>
-  );
-}
-
-// ─── Retro Lounge ─────────────────────────────────────────────────────────────
-
-function RetroView({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="retro-view">
-      <button className="expanded-back retro-back" onClick={onClose}>← Back</button>
-      <div className="retro-content">
-        <div className="retro-scanlines" />
-        <p className="retro-eyebrow">COMING SOON</p>
-        <h1 className="retro-title">RETRO LOUNGE</h1>
-        <p className="retro-sub">8 consoles. Offline. No cartridges needed.</p>
-        <div className="retro-systems">
-          {["GB", "GBC", "GBA", "NES", "SNES", "GEN", "GG", "SMS"].map(s => (
-            <span key={s} className="retro-chip">{s}</span>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
