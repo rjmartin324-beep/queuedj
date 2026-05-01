@@ -114,7 +114,7 @@ function Hub({ roomHook }: { roomHook: ReturnType<typeof useRoom> }) {
             checker, just the cleaned whale on the sea-palette gradient. */}
         <div className="hub-retro-water" aria-hidden="true" />
         <img className="hub-retro-whale"
-             src="/whalabroad/clean/whale-card-v3.png"
+             src="/whalabroad/clean/whale-card-v4.png"
              alt=""
              aria-hidden="true"
              loading="lazy" />
